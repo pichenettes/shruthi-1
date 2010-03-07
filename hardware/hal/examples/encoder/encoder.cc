@@ -40,7 +40,7 @@ int main(void) {
       debug_output << value << " " << int(delta) << endl;
     }
     if (encoder.clicked()) {
-      debug_output << "clicked!" << endl;
+      debug_output << "clicked" << endl;
     }
   }
 }
