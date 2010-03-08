@@ -10,5 +10,8 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
-include hardware/hal/examples/lcd/makefile
+
+TARGET         = lcd
+PACKAGES       = hardware/base hardware/hal hardware/hal/devices hardware/utils hardware/hal/examples/lcd
+
+include hardware/base.mk

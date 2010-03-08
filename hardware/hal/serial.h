@@ -61,6 +61,7 @@ const uint8_t kSerialInputBufferSize = 2;
 template<typename TxEnableBit, typename TxReadyBit,
          typename RxEnableBit, typename RxReadyBit,
          typename RxInterruptBit,
+         typename TurboBit,
          typename PrescalerRegisterH, typename PrescalerRegisterL,
          typename DataRegister,
          uint8_t input_buffer_size_,
@@ -69,6 +70,7 @@ struct SerialPort {
   typedef TxEnableBit Tx;
   typedef RxEnableBit Rx;
   typedef RxInterruptBit RxInterrupt;
+  typedef TurboBit Turbo;
   enum {
     input_buffer_size = input_buffer_size_,
     output_buffer_size = output_buffer_size_
@@ -195,29 +197,25 @@ struct SerialImplementation<SerialPort, BUFFERED, BUFFERED> {
 };
 
 template<typename SerialPort, uint32_t baud_rate, PortMode input = POLLED,
-         PortMode output = POLLED>
+         PortMode output = POLLED, bool turbo = false>
 struct Serial {
   typedef SerialImplementation<SerialPort, input, output> Impl;
   typedef uint8_t Value;
   typedef typename Impl::IO::Input Input;
   typedef typename Impl::IO::Output Output;
   static inline void Init() {
-    uint16_t prescaler = (F_CPU / 16 + baud_rate / 2) / baud_rate - 1;
-    SerialPort::set_prescaler(prescaler);
-    if (output != DISABLED) {
-      SerialPort::Tx::set();
-    }
-    if (input != DISABLED) {
-      SerialPort::Rx::set();
-    }
-    if (input == BUFFERED) {
-      SerialPort::RxInterrupt::set();
-    }
+    Init<baud_rate>();
   }
   template<uint32_t new_baud_rate>
   static inline void Init() {
-    uint16_t prescaler = (F_CPU / 16 + new_baud_rate / 2) / new_baud_rate - 1;
-    SerialPort::set_prescaler(prescaler);
+    if (turbo) {
+      SerialPort::Turbo::set();
+      uint16_t prescaler = F_CPU / (8 * baud_rate) - 1;
+      SerialPort::set_prescaler(prescaler);
+    } else {
+      uint16_t prescaler = F_CPU / (16 * baud_rate) - 1;
+      SerialPort::set_prescaler(prescaler);
+    }
     if (output != DISABLED) {
       SerialPort::Tx::set();
     }
@@ -254,6 +252,7 @@ typedef SerialPort<
     BitInRegister<UCSR0BRegister, RXEN0>,
     BitInRegister<UCSR0ARegister, RXC0>,
     BitInRegister<UCSR0BRegister, RXCIE0>,
+    BitInRegister<UCSR0ARegister, U2X0>,
     UBRR0HRegister,
     UBRR0LRegister,
     UDR0Register,
@@ -273,6 +272,7 @@ typedef SerialPort<
     BitInRegister<UCSR1BRegister, RXEN1>,
     BitInRegister<UCSR1ARegister, RXC1>,
     BitInRegister<UCSR1BRegister, RXCIE1>,
+    BitInRegister<UCSR1ARegister, U2X1>,
     UBRR1HRegister,
     UBRR1LRegister,
     UDR1Register,

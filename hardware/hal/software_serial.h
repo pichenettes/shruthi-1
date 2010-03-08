@@ -84,7 +84,6 @@ class BufferedSoftwareSerialOutput {
     if (prescaler_counter_ > 0) {
       return;
     }
-    LOG(INFO) << "pin_" << TxPin::number() << "\tclock\t";
     prescaler_counter_ = prescaler_reset_value;
     // Check in which stage of the transmission we are.
     if (tx_state_ == NEXT_BYTE) {
@@ -94,7 +93,6 @@ class BufferedSoftwareSerialOutput {
       if (next_byte >= 0) {
         tx_byte_ = next_byte;
         tx_state_ = START_BIT;
-        LOG(INFO) << "pin_" << TxPin::number() << "\ttx\t" << PPBYTE(tx_byte_);
         return;
       } else {
         return;
@@ -104,7 +102,6 @@ class BufferedSoftwareSerialOutput {
       tx_symbol_mask_ = 1;
     } else if (tx_state_ == END_BIT) {
       TxPin::High();
-      LOG(INFO) << "pin_" << TxPin::number() << "\tend_of_byte\t";
     } else {
       TxPin::set_value(tx_byte_ & tx_symbol_mask_);
       tx_symbol_mask_ <<= 1;

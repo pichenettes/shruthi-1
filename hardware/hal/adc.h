@@ -23,7 +23,6 @@
 #include <avr/io.h>
 
 #include "hardware/hal/hal.h"
-#include "hardware/utils/logging.h"
 
 namespace hardware_hal {
 

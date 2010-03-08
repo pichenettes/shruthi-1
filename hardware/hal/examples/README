@@ -9,3 +9,5 @@ parallel: uses a block of 4 pins from port D for chasing lights, and another blo
 scan_pots: scans 4 potentiometers connected to the analog inputs, and dim 4 LEDs accordingly
 
 switches_and_leds: read some switches press through a multiplexer, and write to 12 LEDs through a shift register
+
+LCD: shows how to use the non-blocking LCD class to drive a HD44780-compatible display.

@@ -47,7 +47,6 @@ struct ShiftRegister<Latch, Clock, Data, size, LSB_FIRST>
   : public BaseShiftRegister<Latch, Clock, Data> {
   ShiftRegister() { }
   static void Write(typename DataTypeForSize<size>::Type data) {
-    LOG(INFO) << "pin_" << Data::number() << "\tshift\t" << int(data);
     Latch::Low();
     Data::Low();
     for (uint8_t i = size; i > 0; --i) {
@@ -68,7 +67,6 @@ struct ShiftRegister<Latch, Clock, Data, size, MSB_FIRST>
   ShiftRegister() { }
   typedef typename DataTypeForSize<size>::Type T;
   static void Write(T data) {
-    LOG(INFO) << "pin_" << Data::number() << "\tshift\t" << int(data);
     Latch::Low();
     Data::Low();
     T mask = (T(1) << (size - 1));

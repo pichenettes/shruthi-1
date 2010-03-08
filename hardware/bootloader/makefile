@@ -15,15 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 AVR_TOOLS_PATH = /Applications/arduino-0016/hardware/tools/avr/bin
 AVR_ETC_PATH   = /Applications/arduino-0016/hardware/tools/avr/etc
+
+TARGET         = muboot
+PACKAGES       = hardware/bootloader
 BUILD_DIR      = build/$(TARGET)
 
 MCU            = atmega644p
 DMCU           = m644p
 F_CPU          = 20000000
-# SERIAL_PORT  = /dev/cu.usbserial-A6008iA6
-SERIAL_PORT    = /dev/cu.usbserial-A6008hLO
+
+LFUSE          = FF
+# Set to DC to enable bootloader
+HFUSE          = DC
+EFUSE          = FD
+
+# ------------------------------------------------------------------------------
 
 VPATH          = $(PACKAGES)
 CC_FILES       = $(notdir $(wildcard $(patsubst %,%/*.cc,$(PACKAGES))))
@@ -50,10 +59,12 @@ CAT            = cat
 
 CPPFLAGS      = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I. \
 			-g -Os -w -Wall \
-			-ffunction-sections -fdata-sections
+			-ffunction-sections -fdata-sections \
+			-funsigned-char \
+			-fno-inline-small-functions -mcall-prologues
 CXXFLAGS      = -fno-exceptions
 ASFLAGS       = -mmcu=$(MCU) -I. -x assembler-with-cpp
-LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections -Os
+LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections,--section-start=.text=0xf800,--relax
 
 # ------------------------------------------------------------------------------
 # Source compiling
@@ -79,15 +90,12 @@ $(BUILD_DIR)/%.d: %.s
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
-$(BUILD_DIR)/%.eep: $(BUILD_DIR)/%.elf
-	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-		--change-section-lma .eeprom=0 -O ihex $< $@
-
 $(BUILD_DIR)/%.lss: $(BUILD_DIR)/%.elf
 	$(OBJDUMP) -h -S $< > $@
 
 $(BUILD_DIR)/%.sym: $(BUILD_DIR)/%.elf
 	$(NM) -n $< > $@
+
 
 # ------------------------------------------------------------------------------
 # AVRDude
@@ -96,50 +104,50 @@ $(BUILD_DIR)/%.sym: $(BUILD_DIR)/%.elf
 AVRDUDE_CONF     = $(AVR_ETC_PATH)/avrdude.conf
 AVRDUDE_COM_OPTS = -V -p $(DMCU)
 AVRDUDE_COM_OPTS += -C $(AVRDUDE_CONF)
-AVRDUDE_SER_OPTS = -c stk500v1 -b 57600 -P $(SERIAL_PORT)
-AVRDUDE_ISP_OPTS = -c avrispmkII -P usb
+AVRDUDE_ISP_OPTS = -c avrispmkII -P usb -Ulock:w:0x0F:m
+
 
 # ------------------------------------------------------------------------------
 # Main targets
 # ------------------------------------------------------------------------------
 
-all:    $(BUILD_DIR) $(TARGET_HEX)
+all: 		$(BUILD_DIR) $(TARGET_HEX)
 
 $(BUILD_DIR):
 		mkdir -p $(BUILD_DIR)
 
-$(TARGET_ELF):  $(OBJS)
+$(TARGET_ELF): 	$(OBJS)
 		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(SYS_OBJS)
 
-$(DEP_FILE):  $(BUILD_DIR) $(DEPS)
+$(DEP_FILE):	$(BUILD_DIR) $(DEPS)
 		cat $(DEPS) > $(DEP_FILE)
 
-upload:   $(TARGET_HEX)
-		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_SER_OPTS) \
-			-U flash:w:$(TARGET_HEX):i
-
-ispload:    $(TARGET_HEX)
+upload:		$(TARGET_HEX)
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
 			-U flash:w:$(TARGET_HEX):i
+
+fuses:
+		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -u \
+			-U lock:w:0x3f:m \
+			-U efuse:w:0x$(EFUSE):m \
+			-U hfuse:w:0x$(HFUSE):m \
+			-U lfuse:w:0x$(LFUSE):m
 
 clean:
 		$(REMOVE) $(OBJS) $(TARGETS) $(DEP_FILE) $(DEPS)
 
-depends:  $(DEPS)
+depends:	$(DEPS)
 		cat $(DEPS) > $(DEP_FILE)
 
-firmware_size:  $(TARGET_ELF)
-		$(SIZE) $(TARGET_ELF) > firmware_size
+bootloader_size:	$(TARGET_ELF)
+		$(SIZE) $(TARGET_ELF) > bootloader_size
 
-$(BUILD_DIR)/$(TARGET).top_symbols: $(TARGET_ELF)
+$(BUILD_DIR)/$(TARGET).top_symbols:	$(TARGET_ELF)
 		$(NM) $(TARGET_ELF) --size-sort -C -f bsd -r > $@
 
-size: firmware_size
-		cat firmware_size | awk '{ print $$1+$$2 }' | tail -n1 | figlet | cowsay -n -f moose
+size:	bootloader_size
+		cat bootloader_size | awk '{ print $$1+$$2 }' | tail -n1 | figlet | cowsay -n -f moose
 
-size_report:  build/$(TARGET)/$(TARGET).lss build/$(TARGET)/$(TARGET).top_symbols
+size_report:	build/$(TARGET)/$(TARGET).lss build/$(TARGET)/$(TARGET).top_symbols
 
-.PHONY: all clean depends upload
-
-include $(DEP_FILE)
-
+.PHONY:	all clean depends upload

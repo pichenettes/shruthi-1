@@ -26,10 +26,6 @@
 // Gpio<4>::Low()
 // Gpio<4>::set_value(1)
 // Gpio<4>::set_value(0)
-//
-// Using the logging facilities in logging.h, this can also generates debugging
-// code (for compilation on desktop computers) which logs to stderr the activity
-// on the pin.
 
 #ifndef HARDWARE_HAL_GPIO_H_
 #define HARDWARE_HAL_GPIO_H_

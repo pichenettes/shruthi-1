@@ -22,8 +22,6 @@
 using namespace hardware_hal;
 using namespace hardware_utils;
 
-using namespace hardware_hal;
-
 typedef InputArray<
     DigitalInput<23>,
     5> Switches;
