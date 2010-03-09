@@ -33,7 +33,7 @@
 namespace hardware_hal {
 
 static const uint8_t kLcdNoCursor = 0xff;
-static const uint8_t kLcdCursorBlinkRate = 0x7f;
+static const uint8_t kLcdCursorBlinkRate = 0x0fff;
 static const uint8_t kLcdCursor = 0xff;
 
 template<typename Lcd>
@@ -157,7 +157,7 @@ class BufferedDisplay {
   static uint8_t scan_position_;
   static uint8_t scan_position_last_write_;
   static uint8_t blink_;
-  static uint8_t blink_clock_;
+  static uint16_t blink_clock_;
   static uint8_t cursor_position_;
   static uint8_t status_;
 
@@ -186,7 +186,7 @@ uint8_t BufferedDisplay<Lcd>::blink_;
 
 /* static */
 template<typename Lcd>
-uint8_t BufferedDisplay<Lcd>::blink_clock_;
+uint16_t BufferedDisplay<Lcd>::blink_clock_;
 
 /* static */
 template<typename Lcd>

@@ -24,7 +24,7 @@
 #
 # To dump/disassemble the patch data:
 #   python hardware/tools/librarian/librarian.py -d \
-#       hardware/shruti/data/patch_library.hex > library.txt
+#       hardware/shruthi/data/patch_library.hex > library.txt
 #
 # library.txt contains the patches, one line per patch.
 # You can edit it, archive it, copy/paste patches from other people etc, post
@@ -33,7 +33,7 @@
 # To create a patch library for the Shruti-1, put 16 lines of patches in a text
 # file, and create a .hex file from it.
 #   python hardware/tools/librarian/librarian.py -c \
-#       library.txt > hardware/shruti/data/patch_library.hex
+#       library.txt > hardware/shruthi/data/patch_library.hex
 #
 # And upload the resulting file to the Shruti-1:
 #   make eeprom_restore

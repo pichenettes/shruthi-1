@@ -65,6 +65,9 @@ class InputArray {
     starting_up_ = 1;
     Input::Init();
   }
+  static void Touch() {
+    last_event_time_ = milliseconds();
+  }
   static Event Read() {
     Event e;
     e.id = active_input_;

@@ -93,7 +93,7 @@ OutputArray<Latch, Clock, Data, size, bit_depth, order, safe>::cycle_;
 
 
 // A specialization that packs the data by nibble - this is the configuration
-// used for the Shruti-1 status LEDs.
+// used for the Shruthi-1 status LEDs.
 template<typename Latch, typename Clock, typename Data,
          uint8_t size, DataOrder order, bool safe>
 class OutputArray<Latch, Clock, Data, size, 4, order, safe> {

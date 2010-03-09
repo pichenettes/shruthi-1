@@ -29,6 +29,17 @@
 
 namespace hardware_shruthi {
 
+enum LEDS {
+  LED_OSC_1 = 0x01,
+  LED_OSC_2 = 0x02,
+  LED_FILTER = 0x04,
+  LED_MOD_1 = 0x08,
+  LED_MOD_2 = 0x10,
+  LED_PLAY = 0x20,
+  LED_SYS = 0x40,
+  LED_WRITE = 0x80
+};
+
 // Set this flag to 6 to get a nice polysynth (humour).
 static const uint8_t kNumVoices = 1;
 static const uint8_t kPolyphony = 1;
@@ -36,6 +47,7 @@ static const uint8_t kPolyphony = 1;
 static const uint8_t kNumEditingPots = 4;
 static const uint8_t kNumGroupSwitches = 6;
 static const uint8_t kNumCvInputs = 4;
+static const uint8_t kNumLeds = 8;
 
 // Rate of the main timer. For now, 1 sample is generated per tick, but we might
 // want to do something different to achieve other sample rates
@@ -52,11 +64,20 @@ static const uint8_t kAudioBufferSize = kAudioBlockSize * 4;
 
 // ---- Wirings ----------------------------------------------------------------
 
+// Encoder
+static const uint8_t kPinEncoderA = 0;
+static const uint8_t kPinEncoderB = 1;
+static const uint8_t kPinEncoderClick = 2;
+
 // Shift registers / muxes.
-static const uint8_t kPinData = 16;
-static const uint8_t kPinDigitalInput = 23;
+static const uint8_t kPinData = 23;
+static const uint8_t kPinDigitalInput = 6;
 static const uint8_t kPinLatch = 22;
-static const uint8_t kPinClk = 20;
+static const uint8_t kPinClk = 7;
+
+// RS and Enable lines for LCD display
+static const uint8_t kPinLcdRs = 20;
+static const uint8_t kPinLcdEnable = 21;
 
 // PWM/audio output.
 static const uint8_t kPinVcoOut = 12;

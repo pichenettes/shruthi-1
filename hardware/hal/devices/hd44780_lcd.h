@@ -119,10 +119,11 @@ class Hd44780Lcd {
     if (transmitting_) {
       EndWrite();
       transmitting_ = 0;
-    }
-    if (OutputBuffer::readable()) {
-      StartWrite(OutputBuffer::ImmediateRead());
-      transmitting_ = 1;
+    } else {
+      if (OutputBuffer::readable()) {
+        transmitting_ = 1;
+        StartWrite(OutputBuffer::ImmediateRead());
+      }
     }
   }
   
@@ -141,7 +142,6 @@ class Hd44780Lcd {
     OutputBuffer::Overwrite(LCD_COMMAND | (c >> 4));
     OutputBuffer::Overwrite(LCD_COMMAND | (c & 0x0f));
   }
-
   static inline uint8_t Write(uint8_t character) {
     WriteData(character);
   }
@@ -160,7 +160,18 @@ class Hd44780Lcd {
     }
   }
   
+  static inline void SetCustomCharMapRes(
+      const uint8_t* data,
+      uint8_t num_characters,
+      uint8_t first_character) {
+    SlowCommand(LCD_SET_CGRAM_ADDRESS | (first_character << 3));
+    for (uint8_t i = 0; i < num_characters * 8; ++i) {
+      SlowData(SimpleResourcesManager::Lookup<uint8_t, uint8_t>(data, i));
+    }
+  }
+  
   static inline uint8_t writable() { return OutputBuffer::writable(); }
+  static inline uint8_t busy() { return transmitting_; }
   
  private:
   static inline void StartWrite(uint8_t nibble) {

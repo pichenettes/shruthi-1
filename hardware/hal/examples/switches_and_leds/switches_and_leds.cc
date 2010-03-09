@@ -23,7 +23,7 @@ using namespace hardware_hal;
 using namespace hardware_utils;
 
 typedef InputArray<
-    DigitalInput<23>,
+    DigitalInput<5>,
     6> Switches;
 
 typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
@@ -31,7 +31,7 @@ PrettyPrinter<Debug> debug_output;
 
 int main(void) {
   InitAtmega(true);
-  OutputArray<Gpio<22>, Gpio<20>, Gpio<16>, 11, 4, MSB_FIRST, false> leds;
+  OutputArray<Gpio<22>, Gpio<7>, Gpio<23>, 11, 4, MSB_FIRST, false> leds;
   Switches switches;
   uint8_t current_led = 0;
   uint8_t intensity = 15;
@@ -40,7 +40,7 @@ int main(void) {
 
   switches.Init();
   leds.Init();
-  DigitalInput<23>::EnablePullUpResistor();
+  DigitalInput<5>::EnablePullUpResistor();
   uint8_t full = 0;
   while (1) {
     ++divide;

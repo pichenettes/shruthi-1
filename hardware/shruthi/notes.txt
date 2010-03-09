@@ -25,25 +25,24 @@ LFO 2 (LED 1) [retrigger + delay]
 PATCHING (LED 0+1)
 
 Play:
-Gate sequencer
+Tempo|Swing|Pattern(Up/Down/Up&Down/Random/Sequence)|Octave
 Step sequencer
-Arp (Up/Down/U&D/Random)
+Gate Editor
+Note Editor
 
 Sys:
-Octave/raga/portamento/global tuning
-MIDI channel/MIDI daisychain/?/?
+Portamento/Octave/Raga/Tuning
+MIDI channel / MIDI daisychain / ? / ?
 
 Write:
 Write patch
 
 
+
 Press: move through pages
 Press: edit last parameter
 
-
 Next in group
-
-
 
 -----------------
 
