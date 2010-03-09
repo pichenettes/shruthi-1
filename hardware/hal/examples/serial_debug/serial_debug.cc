@@ -1,4 +1,4 @@
-// Copyright 2009 Olivier Gillet.
+// Copyright 2010 Olivier Gillet.
 //
 // Author: Olivier Gillet (ol.gillet@gmail.com)
 //
@@ -12,22 +12,26 @@
 // GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-// -----------------------------------------------------------------------------
-//
-// Fast serial (for the onboard UART), using compile time optimizations.
 
+#include "hardware/hal/init_atmega.h"
 #include "hardware/hal/serial.h"
-#include "hardware/hal/gpio.h"
-
-#include <avr/interrupt.h>
+#include "hardware/utils/pretty_printer.h"
 
 using namespace hardware_hal;
+using namespace hardware_utils;
 
-ISR(USART0_RX_vect) {
-  SerialInput<SerialPort0>::Received();
-}
+typedef Serial<SerialPort0, 9600, DISABLED, POLLED> DebugPort;
+Serial<SerialPort1, 31250, BUFFERED, DISABLED> midi;
 
-ISR(USART1_RX_vect) {
-  SerialInput<SerialPort1>::Received();
+int main(void) {
+  PrettyPrinter<DebugPort> debug_output;
+
+  InitAtmega(false);
+  DebugPort::Init();
+  midi.Init();
+  while (1) {
+    if (midi.readable()) {
+      debug_output << int(midi.ImmediateRead()) << endl;
+    }
+  }
 }

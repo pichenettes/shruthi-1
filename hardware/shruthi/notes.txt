@@ -1,0 +1,56 @@
+Osc:
+
+OSC 1 (LED 0)
+sha prm rng op
+
+OSC 2 (LED 1)
+sha prm rng tun
+
+MIX (LED 0+1)
+bal sub noi sha
+
+
+Flt:
+
+FLT
+cut res env lfo
+
+
+Mod:
+
+ENV 1 (LED 0)
+ENV 2 (LED 1)
+LFO 1 (LED 0) [retrigger + delay]
+LFO 2 (LED 1) [retrigger + delay]
+PATCHING (LED 0+1)
+
+Play:
+Gate sequencer
+Step sequencer
+Arp (Up/Down/U&D/Random)
+
+Sys:
+Octave/raga/portamento/global tuning
+MIDI channel/MIDI daisychain/?/?
+
+Write:
+Write patch
+
+
+Press: move through pages
+Press: edit last parameter
+
+
+Next in group
+
+
+
+-----------------
+
+Long presses:
+1: perform
+2: assign
+3: ?
+4: test note
+5: firmware update
+6: reset patch to INIT

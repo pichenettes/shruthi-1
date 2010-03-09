@@ -210,9 +210,10 @@ struct Serial {
   static inline void Init() {
     if (turbo) {
       SerialPort::Turbo::set();
-      uint16_t prescaler = F_CPU / (8 * baud_rate) - 1;
+      uint16_t prescaler = F_CPU / (8L * baud_rate) - 1;
       SerialPort::set_prescaler(prescaler);
     } else {
+      SerialPort::Turbo::clear();
       uint16_t prescaler = F_CPU / (16 * baud_rate) - 1;
       SerialPort::set_prescaler(prescaler);
     }

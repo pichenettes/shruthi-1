@@ -24,14 +24,14 @@ using namespace hardware_utils;
 
 typedef InputArray<
     DigitalInput<23>,
-    5> Switches;
+    6> Switches;
 
 typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
 PrettyPrinter<Debug> debug_output;
 
 int main(void) {
   InitAtmega(true);
-  OutputArray<Gpio<22>, Gpio<20>, Gpio<16>, 16, 4, MSB_FIRST, false> leds;
+  OutputArray<Gpio<22>, Gpio<20>, Gpio<16>, 11, 4, MSB_FIRST, false> leds;
   Switches switches;
   uint8_t current_led = 0;
   uint8_t intensity = 15;
@@ -41,6 +41,7 @@ int main(void) {
   switches.Init();
   leds.Init();
   DigitalInput<23>::EnablePullUpResistor();
+  uint8_t full = 0;
   while (1) {
     ++divide;
     if ((divide & 3) == 0) {
@@ -55,7 +56,7 @@ int main(void) {
             break;
           
           case 1:
-            if (current_led < 11) {
+            if (current_led < 7) {
               ++current_led;
             }
             break;
@@ -75,18 +76,23 @@ int main(void) {
           case 4:
             intensity = 15;
             current_led = 0;
+            full = 0;
+            break;
+            
+          case 5:
+            full = ~full;
             break;
         }
       }
     }
     leds.Clear();
-    for (uint8_t i = 0; i < 12; ++i) {
-      leds.set_value(i, i == current_led ? intensity : 0);
+    for (uint8_t i = 0; i < 8; ++i) {
+      leds.set_value(i, (i == current_led || full) ? intensity : 0);
     }
     uint8_t muxed = switches.active_input();
-    leds.set_value(13, muxed & 1 ? 15 : 0);
-    leds.set_value(14, muxed & 2 ? 15 : 0);
-    leds.set_value(15, muxed & 4 ? 15 : 0);
+    leds.set_value(8, muxed & 1 ? 15 : 0);
+    leds.set_value(9, muxed & 2 ? 15 : 0);
+    leds.set_value(10, muxed & 4 ? 15 : 0);
     leds.Output();
   }
 }

@@ -19,8 +19,6 @@
 #include "hardware/hal/parallel_io.h"
 #include "hardware/hal/init_atmega.h"
 #include "hardware/utils/string.h"
-/*#include "hardware/hal/serial.h"
-#include "hardware/utils/pretty_printer.h"*/
 
 using namespace hardware_hal;
 using namespace hardware_utils;

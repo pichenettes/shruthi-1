@@ -168,7 +168,7 @@ inline void MidiLoop() {
   uint8_t sysex_commands[2];
 
   midi.Init();
-  status_leds.set_reception_mode_mask(1);
+  status_leds.set_reception_mode_mask(0x80);
   status_leds.WaitForData();
   page = 0;
   while (1) {
@@ -250,7 +250,7 @@ inline void StkLoop() {
   uint8_t byte;
 
   serial_programmer.Init();
-  status_leds.set_reception_mode_mask(2);
+  status_leds.set_reception_mode_mask(0x40);
   page = 0;
   while (num_failures < kMaxErrorCount) {
     byte = ReadOrTimeout();

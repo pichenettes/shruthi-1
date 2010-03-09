@@ -54,16 +54,9 @@ class OutputArray {
     Register::Init();
   }
   static inline void set_value(Index output_index, Value intensity) {
-    if (safe) {
-      ARGUMENT_CHECK_LT(output_index, size);
-      ARGUMENT_CHECK_LT(intensity, 1 << bit_depth);
-    }
     values_[output_index] = intensity;
   }
   static inline Value value(Index output_index) {
-    if (safe) {
-      ARGUMENT_CHECK_LT(output_index, size);
-    }
     return values_[output_index];
   }
   static inline void Output() {
@@ -118,10 +111,6 @@ class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
   }
   static inline void Clear() { memset(values_, 0, sizeof(values_)); }
   static inline void set_value(Index output_index, Value intensity) {
-    if (safe) {
-      ARGUMENT_CHECK_LT(output_index, size);
-      ARGUMENT_CHECK_LT(intensity, 16);
-    }
     if (output_index & 1) {
       output_index >>= 1;
       values_[output_index] = (intensity << 4) | (values_[output_index] & 0x0f);
@@ -131,9 +120,6 @@ class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
     }
   }
   static inline Value value(Index output_index) {
-    if (safe) {
-      ARGUMENT_CHECK_LT(output_index, size);
-    }
     if (output_index & 1) {
       return values_[output_index >> 1] >> 4;
     } else {
@@ -201,10 +187,6 @@ class OutputArray<Latch, Clock, Data, size, 1, order, safe> {
     Register::Init();
   }
   static inline void set_value(uint8_t output_index, uint8_t intensity) {
-    if (safe) {
-      ARGUMENT_CHECK_LT(output_index, size);
-      ARGUMENT_CHECK_LT(intensity, 2);
-    }
     T mask = T(1) << output_index;
     if (intensity) {
       bits_ |= mask;
@@ -213,9 +195,6 @@ class OutputArray<Latch, Clock, Data, size, 1, order, safe> {
     }
   }
   static inline uint8_t value(uint8_t output_index) {
-    if (safe) {
-      ARGUMENT_CHECK_LT(output_index, size);
-    }
     T mask = T(1) << output_index;
     return T(bits_ & mask) ? 1 : 0;
   }

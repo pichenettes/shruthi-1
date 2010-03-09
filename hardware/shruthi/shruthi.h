@@ -34,7 +34,7 @@ static const uint8_t kNumVoices = 1;
 static const uint8_t kPolyphony = 1;
 
 static const uint8_t kNumEditingPots = 4;
-static const uint8_t kNumGroupSwitches = 5;
+static const uint8_t kNumGroupSwitches = 6;
 static const uint8_t kNumCvInputs = 4;
 
 // Rate of the main timer. For now, 1 sample is generated per tick, but we might
