@@ -148,6 +148,8 @@ void VoiceController::NoteOn(uint8_t note, uint8_t velocity) {
 
 /* static */
 void VoiceController::NoteOff(uint8_t note) {
+  // Get the currently playing note.
+  uint8_t top_note = notes_.most_recent_note().note;
   notes_.NoteOff(note);
 
   // If no note is remaining, play the release phase of the envelope.
@@ -158,9 +160,8 @@ void VoiceController::NoteOff(uint8_t note) {
     // do it. No need to retrigger if we just removed notes different from
     // the one currently played.
     if (octaves_ == 0) {
-      uint8_t retriggered_note = notes_.most_recent_note().note;
-      if (retriggered_note != note) {
-        voices_[0].Trigger(retriggered_note, 0, true);
+      if (top_note == note) {
+        voices_[0].Trigger(notes_.most_recent_note().note, 0, true);
       }
     }
   }
