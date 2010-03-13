@@ -15,12 +15,12 @@
 
 #include "hardware/hal/adc.h"
 #include "hardware/hal/audio_output.h"
+#include "hardware/hal/devices/input_array.h"
 #include "hardware/hal/devices/output_array.h"
 #include "hardware/hal/devices/rotary_encoder.h"
-#include "hardware/hal/devices/shift_register.h"
+#include "hardware/hal/devices/switch_array.h"
 #include "hardware/hal/gpio.h"
 #include "hardware/hal/init_atmega.h"
-#include "hardware/hal/input_array.h"
 #include "hardware/hal/serial.h"
 #include "hardware/hal/time.h"
 #include "hardware/hal/timer.h"
@@ -47,18 +47,7 @@ Serial<SerialPort1, 31250, BUFFERED, POLLED> midi_io;
 typedef MuxedAnalogInput<kPinAnalogInput> PotsMux;
 typedef InputArray<PotsMux, kNumEditingPots, 8> Pots;
 
-
-
-InputArray<
-    DigitalInput<kPinDigitalInput>,
-    kNumGroupSwitches> Switches;
-
-PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
-PwmOutput<kPinVcfResonanceOut> vcf_resonance_out;
-PwmOutput<kPinVcaOut> vca_out;
-
 Pots pots;
-Switches switches;
 
 // LED array.
 OutputArray<
@@ -66,12 +55,22 @@ OutputArray<
     Gpio<kPinClk>,
     Gpio<kPinData>, kNumLeds, 4, MSB_FIRST, false> leds;
 
+// Switches array
+SwitchArray<
+  Gpio<kPinLatch>, 
+  Gpio<kPinClk>,
+  Gpio<kPinDigitalInput>,
+  kNumSwitches> switches;
+
 RotaryEncoder<
     Gpio<kPinEncoderA>,
     Gpio<kPinEncoderB>,
     Gpio<kPinEncoderClick> > encoder;
 
 AudioOutput<PwmOutput<kPinVcoOut>, kAudioBufferSize, kAudioBlockSize> audio_out;
+PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
+PwmOutput<kPinVcfResonanceOut> vcf_resonance_out;
+PwmOutput<kPinVcaOut> vca_out;
 
 MidiStreamParser<SynthesisEngine> midi_parser;
 
@@ -114,10 +113,6 @@ void UpdateLedsTask() {
       leds.set_value(LED_PLAY, engine.voice_controller().step() ? 1 : 15);
     }
   }
-  uint8_t muxed = switches.active_input();
-  leds.set_value(8, muxed & 1 ? 15 : 0);
-  leds.set_value(9, muxed & 2 ? 15 : 0);
-  leds.set_value(10, muxed & 4 ? 15 : 0);
   leds.Output();
 }
 
@@ -126,7 +121,7 @@ void UpdateDisplayTask() {
 }
 
 void InputTask() {
-  Switches::Event switch_event;
+  ReleasedEvent switch_event;
   Pots::Event pot_event;
   static uint8_t idle;
   static uint8_t target_page_type;
@@ -137,22 +132,19 @@ TASK_BEGIN_NEAR
     target_page_type = PAGE_TYPE_ANY;
     
     // Read the switches.
-    switch_event = switches.Read();
+    switches.Read();
     
     // If a button was pressed, perform the action. Otherwise, if nothing
     // happened for 1.5s, update the idle flag.
-    if (switch_event.event == EVENT_NONE) {
-      if (switch_event.time > 1500) {
-        idle = 1;
-      }
+    if (switches.idle_time() > 1500) {
+      idle = 1;
     } else {
-      if (switch_event.event == EVENT_RAISED && switch_event.time > 100) {
-        uint8_t id = switch_event.id;
-        uint8_t hold_time = static_cast<uint16_t>(switch_event.time) >> 8;
-        if (hold_time >= 3) {  // 0.768 seconds
-          editor.DoShiftFunction(id, hold_time);
+      if (switches.released()) {
+        switch_event = switches.released_event();
+        if (switch_event.hold_time >= 3) {  // 0.768 seconds
+          editor.DoShiftFunction(switch_event.id, switch_event.hold_time);
         } else {
-          editor.ToggleGroup(id);
+          editor.ToggleGroup(switch_event.id);
         }
         target_page_type = PAGE_TYPE_SUMMARY;
       }

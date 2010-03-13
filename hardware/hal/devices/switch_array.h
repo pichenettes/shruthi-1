@@ -21,6 +21,7 @@
 #ifndef HARDWARE_HAL_DEVICES_SWITCH_ARRAY_H_
 #define HARDWARE_HAL_DEVICES_SWITCH_ARRAY_H_
 
+#include "hardware/hal/devices/shift_register.h"
 #include "hardware/hal/size_to_type.h"
 #include "hardware/hal/time.h"
 
@@ -36,14 +37,19 @@ struct SwitchState {
 struct ReleasedEvent {
   uint8_t id;
   uint8_t shifted;
-  uint8_t duration;
+  uint8_t hold_time;
 };
 
-template<typename ShiftRegisterInput, uint8_t num_inputs, uint8_t shift = 0>
+template<typename Load, typename Clock, typename Data,
+         uint8_t num_inputs, uint8_t shift = 0>
 class SwitchArray {
+  typedef typename DataTypeForSize<num_inputs>::Type T;
+  typedef ShiftRegisterInput<
+      Load, Clock, Data,
+      8 * sizeof(T), LSB_FIRST> Register;
+
  public:
   SwitchArray() { }
-  typedef typename DataTypeForSize<Input::data_size>::Type T;
   
   static void Init() {
     for (uint8_t i = 0; i < num_inputs; ++i) {
@@ -52,7 +58,7 @@ class SwitchArray {
       switch_state_[i].time = 0;
     }
     last_event_time_ = 0;
-    ShiftRegisterInput::Init();
+    Register::Init();
   }
 
   static uint32_t last_event_time() { return last_event_time_; }
@@ -66,13 +72,18 @@ class SwitchArray {
     }
     return 0;
   }
+  
+  static void Touch() {
+    last_event_time_ = milliseconds();
+  }
+  
   static ReleasedEvent released_event() {
     ReleasedEvent e;
     for (uint8_t i = 0; i < num_inputs; ++i) {
       if (switch_state_[i].state == 0x7f) {
         e.id = i;
         e.shifted = (switch_state_[shift].state == 0x00) ? 1 : 0;
-        e.duration = static_cast<uint16_t>(
+        e.hold_time = static_cast<uint16_t>(
             last_event_time_ - switch_state_[i].time) >> 8;
       }
     }
@@ -80,7 +91,7 @@ class SwitchArray {
   }
   
   static uint8_t Read() {
-    T value = ShiftRegisterInput::Read();
+    T value = Register::Read();
     uint32_t now = milliseconds();
     for (uint8_t i = 0; i < num_inputs; ++i) {
       switch_state_[i].state = (switch_state_[i].state << 1) | (value & 1);
@@ -103,11 +114,11 @@ class SwitchArray {
   DISALLOW_COPY_AND_ASSIGN(SwitchArray);
 };
 
-template<typename ShiftRegisterInput, uint8_t num_inputs, uint8_t shift>
-SwitchState SwitchArray<ShiftRegisterInput, num_inputs, shift>::switch_state_[num_inputs];
+template<typename Load, typename Clock, typename Data, uint8_t num_inputs, uint8_t shift>
+SwitchState SwitchArray<Load, Clock, Data, num_inputs, shift>::switch_state_[num_inputs];
 
-template<typename ShiftRegisterInput, uint8_t num_inputs, uint8_t shift>
-uint32_t SwitchArray<ShiftRegisterInput, num_inputs, shift>::last_event_time_;
+template<typename Load, typename Clock, typename Data, uint8_t num_inputs, uint8_t shift>
+uint32_t SwitchArray<Load, Clock, Data, num_inputs, shift>::last_event_time_;
 
 
 }  // namespace hardware_hal

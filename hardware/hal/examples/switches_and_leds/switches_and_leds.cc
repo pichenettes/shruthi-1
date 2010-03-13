@@ -25,12 +25,10 @@ using namespace hardware_utils;
 typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
 PrettyPrinter<Debug> debug_output;
 
-typedef ShiftRegisterInput<Gpio<22>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> InputRegister;
-
 int main(void) {
   InitAtmega(true);
   OutputArray<Gpio<22>, Gpio<7>, Gpio<23>, 8, 4, MSB_FIRST, false> leds;
-  SwitchArray<InputRegister, 6> switches;
+  SwitchArray<Gpio<22>, Gpio<7>, Gpio<6>, 6> switches;
   
   uint8_t current_led = 0;
   uint8_t intensity = 15;
@@ -47,7 +45,7 @@ int main(void) {
       if (switches.released()) {
         ReleasedEvent released = switches.released_event();
         debug_output << "id: " << int(released.id);
-        debug_output << " duration:" << int(released.duration);
+        debug_output << " hold time:" << int(released.hold_time);
         debug_output << " shifted: " << int(released.shifted) << endl;
         switch (released.id) {
           case 5:
