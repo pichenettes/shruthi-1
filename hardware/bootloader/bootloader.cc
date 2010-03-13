@@ -36,9 +36,9 @@ using namespace hardware_hal;
 using namespace hardware_shruthi;
 
 Shruthi1StatusIndicator status_leds;
-DigitalInput<kPinDigitalInput> switch_input;
+ShiftRegisterInput<Gpio<22>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> switches;
 
-Serial<SerialPort0, 57600, POLLED, POLLED, true> serial_programmer;
+Serial<SerialPort0, 57600, POLLED, POLLED> serial_programmer;
 Serial<SerialPort1, 31250, POLLED, DISABLED> midi;
 
 const uint8_t kProgrammerId[] = { 0x14, 'A', 'V', 'R', ' ', 'I', 'S', 'P', 0x10 };
@@ -62,11 +62,8 @@ void (*main_entry_point)(void) = 0x0000;
 inline void Init() {
   cli();
 
-  // Setup pin direction for shift registers (Shruthi-1 only), and setup
-  // multiplexer to monitor the 4th button.
-  switch_input.Init();
-  switch_input.EnablePullUpResistor();
   status_leds.Init();
+  switches.Init();
 
   // Enable pull-up resistor on RX pins.
   DigitalInput<8>::EnablePullUpResistor();
@@ -400,15 +397,7 @@ int main(void) {
   WDTCSR = 0;
 
   Init();
-  if (switch_input.Read() == LOW) {
-    status_leds.ReportError();
-    uint16_t counter = 1;
-    while (counter != 0) {
-      ++counter;
-    }
-    status_leds.ClearError();
-  }
-  if ((watchdog_status & _BV(WDRF)) || switch_input.Read() == LOW) {
+  if ((watchdog_status & _BV(WDRF)) || (switches.Read() & 1) == 0) {
     MidiLoop();
   } else {
     StkLoop();

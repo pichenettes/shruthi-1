@@ -22,12 +22,13 @@
 
 #include "hardware/hal/gpio.h"
 #include "hardware/hal/size_to_type.h"
+#include "hardware/hal/time.h"
 
 namespace hardware_hal {
 
 template<typename Latch, typename Clock, typename Data>
-struct BaseShiftRegister {
-  BaseShiftRegister() { }
+struct BaseShiftRegisterOutput {
+  BaseShiftRegisterOutput() { }
   static void Init() {
     Clock::set_mode(DIGITAL_OUTPUT);
     Latch::set_mode(DIGITAL_OUTPUT);
@@ -38,14 +39,14 @@ struct BaseShiftRegister {
 
 template<typename Latch, typename Clock, typename Data,
          uint8_t size = 8, DataOrder order = LSB_FIRST>
-struct ShiftRegister : public BaseShiftRegister<Latch, Clock, Data> {
+struct ShiftRegisterOutput : public BaseShiftRegisterOutput<Latch, Clock, Data> {
 };
 
 template<typename Latch, typename Clock, typename Data,
          uint8_t size>
-struct ShiftRegister<Latch, Clock, Data, size, LSB_FIRST>
-  : public BaseShiftRegister<Latch, Clock, Data> {
-  ShiftRegister() { }
+struct ShiftRegisterOutput<Latch, Clock, Data, size, LSB_FIRST>
+  : public BaseShiftRegisterOutput<Latch, Clock, Data> {
+  ShiftRegisterOutput() { }
   static void Write(typename DataTypeForSize<size>::Type data) {
     Latch::Low();
     Data::Low();
@@ -62,9 +63,9 @@ struct ShiftRegister<Latch, Clock, Data, size, LSB_FIRST>
 };
 
 template<typename Latch, typename Clock, typename Data, uint8_t size>
-struct ShiftRegister<Latch, Clock, Data, size, MSB_FIRST>
-  : public BaseShiftRegister<Latch, Clock, Data> {
-  ShiftRegister() { }
+struct ShiftRegisterOutput<Latch, Clock, Data, size, MSB_FIRST>
+  : public BaseShiftRegisterOutput<Latch, Clock, Data> {
+  ShiftRegisterOutput() { }
   typedef typename DataTypeForSize<size>::Type T;
   static void Write(T data) {
     Latch::Low();
@@ -83,6 +84,67 @@ struct ShiftRegister<Latch, Clock, Data, size, MSB_FIRST>
     }
     Clock::Low();
     Latch::High();
+  }
+};
+
+template<typename Load, typename Clock, typename Data>
+struct BaseShiftRegisterInput {
+  BaseShiftRegisterInput() { }
+  static void Init() {
+    Clock::set_mode(DIGITAL_OUTPUT);
+    Load::set_mode(DIGITAL_OUTPUT);
+    Data::set_mode(DIGITAL_INPUT);
+    Load::High();
+    Clock::Low();
+  }
+};
+
+template<typename Load, typename Clock, typename Data,
+         uint8_t size = 8, DataOrder order = LSB_FIRST>
+struct ShiftRegisterInput : public BaseShiftRegisterInput<Load, Clock, Data> {
+};
+
+template<typename Load, typename Clock, typename Data,
+         uint8_t size>
+struct ShiftRegisterInput<Load, Clock, Data, size, LSB_FIRST>
+  : public BaseShiftRegisterInput<Load, Clock, Data> {
+  ShiftRegisterInput() { }
+  typedef typename DataTypeForSize<size>::Type T;
+  static T Read() {
+    T data = 0;
+    // Strobe load pin.
+    Load::Low();
+    Load::High();
+    for (uint8_t i = size; i > 0; --i) {
+      data <<= 1;
+      data |= Data::value();
+      Clock::High();
+      Clock::Low();
+    }
+    return data;
+  }
+};
+
+template<typename Load, typename Clock, typename Data, uint8_t size>
+struct ShiftRegisterInput<Load, Clock, Data, size, MSB_FIRST>
+  : public BaseShiftRegisterInput<Load, Clock, Data> {
+  ShiftRegisterInput() { }
+  typedef typename DataTypeForSize<size>::Type T;
+  static T Read() {
+    T mask = 1;
+    T data = 0;
+    // Strobe load pin.
+    Load::Low();
+    Load::High();
+    for (uint8_t i = size; i > 0; --i) {
+      if (Data::value()) {
+        data |= mask;
+      }
+      Clock::High();
+      mask <<= 1;
+      Clock::Low();
+    }
+    return data;
   }
 };
 

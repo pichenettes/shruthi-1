@@ -47,7 +47,9 @@ Serial<SerialPort1, 31250, BUFFERED, POLLED> midi_io;
 typedef MuxedAnalogInput<kPinAnalogInput> PotsMux;
 typedef InputArray<PotsMux, kNumEditingPots, 8> Pots;
 
-typedef InputArray<
+
+
+InputArray<
     DigitalInput<kPinDigitalInput>,
     kNumGroupSwitches> Switches;
 
@@ -62,7 +64,7 @@ Switches switches;
 OutputArray<
     Gpio<kPinLatch>, 
     Gpio<kPinClk>,
-    Gpio<kPinData>, kNumLeds + 3, 4, MSB_FIRST, false> leds;
+    Gpio<kPinData>, kNumLeds, 4, MSB_FIRST, false> leds;
 
 RotaryEncoder<
     Gpio<kPinEncoderA>,
@@ -341,7 +343,6 @@ void Init() {
   pots.Init();
   switches.Init();
   encoder.Init();
-  DigitalInput<kPinDigitalInput>::EnablePullUpResistor();
   leds.Init();  
   
   engine.Init();

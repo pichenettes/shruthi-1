@@ -43,7 +43,7 @@ template<typename Latch, typename Clock, typename Data,
 class OutputArray {
  public:
   OutputArray() { }
-  typedef ShiftRegister<Latch, Clock, Data, size, order> Register;
+  typedef ShiftRegisterOutput<Latch, Clock, Data, size, order> Register;
   typedef typename DataTypeForSize<bit_depth>::Type Value;
   typedef typename DataTypeForSize<size>::Type Index;
   static inline void Init() {
@@ -98,7 +98,7 @@ template<typename Latch, typename Clock, typename Data,
          uint8_t size, DataOrder order, bool safe>
 class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
  public:
-  typedef ShiftRegister<Latch, Clock, Data, size, order> Register;
+  typedef ShiftRegisterOutput<Latch, Clock, Data, size, order> Register;
   typedef typename DataTypeForSize<4>::Type Value;
   typedef typename DataTypeForSize<size>::Type Index;
   OutputArray() { }
@@ -175,7 +175,7 @@ OutputArray<Latch, Clock, Data, size, 4, order, safe>::cycle_;
 template<typename Latch, typename Clock, typename Data,
          uint8_t size, DataOrder order, bool safe>
 class OutputArray<Latch, Clock, Data, size, 1, order, safe> {
-  typedef ShiftRegister<Latch, Clock, Data, size, order> Register;
+  typedef ShiftRegisterOutput<Latch, Clock, Data, size, order> Register;
  public:
   typedef typename DataTypeForSize<size>::Type T;
   OutputArray() { }

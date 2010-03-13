@@ -14,72 +14,73 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "hardware/hal/init_atmega.h"
-#include "hardware/hal/input_array.h"
 #include "hardware/hal/devices/output_array.h"
+#include "hardware/hal/devices/switch_array.h"
 #include "hardware/hal/serial.h"
 #include "hardware/utils/pretty_printer.h"
 
 using namespace hardware_hal;
 using namespace hardware_utils;
 
-typedef InputArray<
-    DigitalInput<5>,
-    6> Switches;
-
 typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
 PrettyPrinter<Debug> debug_output;
 
+typedef ShiftRegisterInput<Gpio<22>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> InputRegister;
+
 int main(void) {
   InitAtmega(true);
-  OutputArray<Gpio<22>, Gpio<7>, Gpio<23>, 11, 4, MSB_FIRST, false> leds;
-  Switches switches;
+  OutputArray<Gpio<22>, Gpio<7>, Gpio<23>, 8, 4, MSB_FIRST, false> leds;
+  SwitchArray<InputRegister, 6> switches;
+  
   uint8_t current_led = 0;
   uint8_t intensity = 15;
   uint8_t divide = 0;
+  
   Debug::Init();
-
-  switches.Init();
   leds.Init();
-  DigitalInput<5>::EnablePullUpResistor();
+  switches.Init();
   uint8_t full = 0;
   while (1) {
     ++divide;
     if ((divide & 3) == 0) {
-      Switches::Event event = switches.Read();
-      if (event.event == EVENT_RAISED && event.time > 100) {
-        debug_output << "id: " << int(event.id) << endl;
-        switch (event.id) {
-          case 0:
+      switches.Read();
+      if (switches.released()) {
+        ReleasedEvent released = switches.released_event();
+        debug_output << "id: " << int(released.id);
+        debug_output << " duration:" << int(released.duration);
+        debug_output << " shifted: " << int(released.shifted) << endl;
+        switch (released.id) {
+          case 5:
             if (current_led > 0) {
               --current_led;
             }
             break;
           
-          case 1:
+          case 4:
             if (current_led < 7) {
               ++current_led;
             }
             break;
           
-          case 2:
+          case 3:
             if (intensity > 0) {
               --intensity;
             }
             break;
 
-          case 3:
+          case 2:
             if (intensity < 15) {
               ++intensity;
             }
             break;
 
-          case 4:
+          case 1:
             intensity = 15;
             current_led = 0;
             full = 0;
             break;
             
-          case 5:
+          case 0:
             full = ~full;
             break;
         }
@@ -89,10 +90,6 @@ int main(void) {
     for (uint8_t i = 0; i < 8; ++i) {
       leds.set_value(i, (i == current_led || full) ? intensity : 0);
     }
-    uint8_t muxed = switches.active_input();
-    leds.set_value(8, muxed & 1 ? 15 : 0);
-    leds.set_value(9, muxed & 2 ? 15 : 0);
-    leds.set_value(10, muxed & 4 ? 15 : 0);
     leds.Output();
-  }
+  }  
 }

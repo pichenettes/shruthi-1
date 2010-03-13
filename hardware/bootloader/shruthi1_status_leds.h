@@ -30,73 +30,73 @@ using namespace hardware_shruthi;
 class Shruthi1StatusIndicator {
  public:
   static void Clear() {
-    led_status_.value = 0x0500;
+    led_status_ = 0x0000;
     Update();
   }
   static void ReportError() {
-    led_status_.bytes[0] |= 0xff;
+    led_status_ |= 0xff;
     Update();
   }
   static void ClearError() {
-    led_status_.bytes[0] = reception_mode_mask_;
+    led_status_ = reception_mode_mask_;
     Update();
   }
   static void Flash() {
-    led_status_.bytes[0] ^= reception_mode_mask_;
+    led_status_ ^= reception_mode_mask_;
     Update();
   }
   static void DebugByte(uint8_t byte) {
-    led_status_.bytes[0] = byte;
+    led_status_ = byte;
     Update();
   }
   static void WaitForData() {
-    led_status_.bytes[0] |= reception_mode_mask_;
+    led_status_ |= reception_mode_mask_;
     Update();
   }
   static void SetProgress(uint8_t progress) {
     uint8_t mask = 1;
-    led_status_.bytes[0] = reception_mode_mask_;
+    led_status_ = reception_mode_mask_;
     if (progress > 6) {
       progress = 6;
     }
     for (uint8_t i = 0; i < progress; ++i) {
-      led_status_.bytes[0] |= mask;
+      led_status_ |= mask;
       mask <<= 1;
     }
     Update();
   }
   static void set_reception_mode_mask(uint8_t mask) {
-    led_status_.bytes[0] &= ~reception_mode_mask_;
+    led_status_ &= ~reception_mode_mask_;
     reception_mode_mask_ = mask;
   }
   static void Init() {
     leds_.Init();
-    led_status_.value = 0x05c0;
+    led_status_ = 0xc0;
     Update();
-    led_status_.value = 0x0500;
+    led_status_ = 0x00;
   }
  private:
    static void Update() {
-     leds_.Write(led_status_.value);
+     leds_.Write(led_status_);
    }
    static uint8_t reception_mode_mask_;
-   static Word led_status_;
-   static ShiftRegister<
+   static uint8_t led_status_;
+   static ShiftRegisterOutput<
        Gpio<kPinLatch>,
        Gpio<kPinClk>,
-       Gpio<kPinData>, 11, MSB_FIRST> leds_;
+       Gpio<kPinData>, 8, MSB_FIRST> leds_;
 };
 
 /* static */
 uint8_t Shruthi1StatusIndicator::reception_mode_mask_;
 
 /* static */
-Word Shruthi1StatusIndicator::led_status_;
+uint8_t Shruthi1StatusIndicator::led_status_;
 
 /* static */
-ShiftRegister<
+ShiftRegisterOutput<
      Gpio<kPinLatch>,
      Gpio<kPinClk>,
-     Gpio<kPinData>, 11, MSB_FIRST> Shruthi1StatusIndicator::leds_;
+     Gpio<kPinData>, 8, MSB_FIRST> Shruthi1StatusIndicator::leds_;
 
 #endif  // HARDWARE_BOOTLOADER_SHRUTHI1_STATUS_LEDS_H_

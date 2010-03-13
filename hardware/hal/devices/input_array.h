@@ -32,8 +32,8 @@
 // only noise. Since the ATMega ADC is 10 bits, set this to 8 (1 << 3),
 // for example, if you only need 7 bits of resolution.
 
-#ifndef HARDWARE_HAL_INPUT_ARRAY_H_
-#define HARDWARE_HAL_INPUT_ARRAY_H_
+#ifndef HARDWARE_HAL_DEVICES_INPUT_ARRAY_H_
+#define HARDWARE_HAL_DEVICES_INPUT_ARRAY_H_
 
 #include "hardware/hal/size_to_type.h"
 #include "hardware/hal/time.h"
@@ -136,4 +136,4 @@ uint8_t InputArray<Input, num_inputs, robustness>::starting_up_;
 
 }  // namespace hardware_hal
 
-#endif   // HARDWARE_HAL_INPUT_ARRAY_H_
+#endif   // HARDWARE_HAL_DEVICES_INPUT_ARRAY_H_

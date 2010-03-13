@@ -176,9 +176,9 @@ SetupGpio(23, PortC, NoPwmChannel, 7);
 template<int n, bool safe = false>
 struct Gpio {
   typedef typename NumberedGpio<n, safe>::Impl Impl;
-  static void set_mode(uint8_t mode) { Impl::set_mode(mode); }
   static void High() { Impl::High(); }
   static void Low() { Impl::Low(); }
+  static void set_mode(uint8_t mode) { Impl::set_mode(mode); }
   static void set_value(uint8_t value) { Impl::set_value(value); }
   static void set_analog_value(uint8_t value) { Impl::set_analog_value(value); }
   static uint8_t value() { return Impl::value(); }
