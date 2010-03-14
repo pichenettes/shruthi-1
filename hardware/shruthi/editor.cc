@@ -39,7 +39,7 @@ const uint8_t kNumSavedPatches = kEepromSize / kSerializedPatchSize;
 /* extern */
 Editor editor;
 
-static const prog_char units_definitions[UNIT_TEMPO_WITH_EXTERNAL_CLOCK + 1]
+static const prog_char units_definitions[UNIT_MIDI_MODE + 1]
     PROGMEM = {
   0,
   0,
@@ -54,7 +54,8 @@ static const prog_char units_definitions[UNIT_TEMPO_WITH_EXTERNAL_CLOCK + 1]
   STR_RES_CUTOFF,
   0,
   STR_RES_EQUAL,
-  0
+  0,
+  STR_RES__OFF
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -103,7 +104,7 @@ static const prog_char raw_parameter_definition[
   PRM_OSC_OPTION_2,
   0, 127,
   UNIT_RAW_UINT8,
-  STR_RES_TUN, STR_RES_DETUNE,
+  STR_RES_TUNING, STR_RES_DETUNE,
 
   // Mix balance.
   PRM_MIX_BALANCE,
@@ -252,26 +253,46 @@ static const prog_char raw_parameter_definition[
   UNIT_RAW_UINT8,
   STR_RES_SWG, STR_RES_SWING,
 
-  // Keyboard settings.
-  PRM_KBD_OCTAVE,
+  // Keyboard and system settings.
+  PRM_SYS_OCTAVE,
   -2, +2,
   UNIT_INT8,
   STR_RES_OCTAVE, STR_RES_OCTAVE,
 
-  PRM_KBD_RAGA,
+  PRM_SYS_RAGA,
   0, 77, 
   UNIT_RAGA,
   STR_RES_RAGA, STR_RES_RAGA,
 
-  PRM_KBD_PORTAMENTO,
-  -63, 63,
-  UNIT_INT8,
+  PRM_SYS_PORTAMENTO,
+  0, 63,
+  UNIT_UINT8,
   STR_RES_PRT, STR_RES_PORTA,
 
-  PRM_KBD_MIDI_CHANNEL,
+  PRM_SYS_LEGATO,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES_LEGATO, STR_RES_LEGATO,
+  
+  PRM_SYS_MASTER_TUNING,
+  -127, 127,
+  UNIT_INT8,
+  STR_RES_TUNING, STR_RES_TUNING,
+  
+  PRM_SYS_MIDI_CHANNEL,
   0, 16, 
   UNIT_UINT8,
-  STR_RES_CHN, STR_RES_MIDI_CHAN
+  STR_RES_CHN, STR_RES_MIDI_CHAN,
+  
+  PRM_SYS_MIDI_OUT_MODE,
+  MIDI_OUT_OFF, MIDI_OUT_DAISY_CHAIN,
+  UNIT_MIDI_MODE,
+  STR_RES_MIDI_OUT, STR_RES_MIDI_OUT,
+  
+  PRM_SYS_MIDI_OUT_CHAIN,
+  1, 8,
+  UNIT_UINT8,
+  STR_RES_POLY, STR_RES_POLY
 };
 
 /* static */
@@ -325,9 +346,13 @@ const PageDefinition Editor::page_definition_[] = {
     PAGE_PLAY_ARP, PAGE_PLAY_ARP,
     STR_RES_SEQUENCER, STEP_SEQUENCER, 0, LED_PLAY_MASK },
 
-  { PAGE_SYS_KBD, PAGE_SYS_KBD, GROUP_SYS,
-    PAGE_SYS_KBD, PAGE_SYS_KBD,
+  { PAGE_SYS_KBD, PAGE_SYS_MIDI, GROUP_SYS,
+    PAGE_SYS_MIDI, PAGE_SYS_MIDI,
     STR_RES_KEYBOARD, PARAMETER_EDITOR, 36, LED_SYS_MASK },
+
+  { PAGE_SYS_MIDI, PAGE_SYS_KBD, GROUP_SYS,
+    PAGE_SYS_KBD, PAGE_SYS_KBD,
+    STR_RES_MIDI, PARAMETER_EDITOR, 40, LED_SYS_MASK },
 
   { PAGE_LOAD_SAVE, PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
@@ -418,8 +443,13 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         display.set_status('x');
         engine.ResetPatch();
         break;
-
+        
       case GROUP_FILTER:
+        display.set_status('?');
+        // TODO(pichenettes): random patch
+        break;
+
+      case GROUP_MOD:
         display.set_status('>');
         engine.patch().SysExSend();
         break;

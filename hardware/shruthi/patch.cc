@@ -33,7 +33,7 @@ namespace hardware_shruthi {
 
 void Patch::Pack(uint8_t* patch_buffer) const {
   for (uint8_t i = 0; i < 28; ++i) {
-    patch_buffer[i] = osc_shape[i];
+    patch_buffer[i] = keep_me_at_the_top[i + 1];
   }
   for (uint8_t i = 0; i < kSavedModulationMatrixSize; ++i) {
     patch_buffer[2 * i + 28] = modulation_matrix.modulation[i].source |
@@ -65,7 +65,7 @@ uint8_t Patch::CheckBuffer() {
 
 void Patch::Unpack(const uint8_t* patch_buffer) {
   for (uint8_t i = 0; i < 28; ++i) {
-    osc_shape[i] = patch_buffer[i];
+    keep_me_at_the_top[i + 1] = patch_buffer[i];
   }
   for (uint8_t i = 0; i < kSavedModulationMatrixSize; ++i) {
     modulation_matrix.modulation[i].source = patch_buffer[2 * i + 28] & 0xf;

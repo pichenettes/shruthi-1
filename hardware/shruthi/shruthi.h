@@ -22,9 +22,6 @@
 
 #include "hardware/base/base.h"
 
-// The easter egg is a bit lame and takes space which could be used for
-// more essential experimental features.
-#define HAS_EASTER_EGG
 #define USE_OPTIMIZED_OP
 
 namespace hardware_shruthi {

@@ -171,8 +171,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   // Patch manipulation stuff.
   static void SetParameter(uint8_t parameter_index, uint8_t parameter_value);
   static inline uint8_t GetParameter(uint8_t parameter_index) {
-    const uint8_t* base = &patch_.keep_me_at_the_top;
-    return base[parameter_index + 1];
+    return patch_.keep_me_at_the_top[parameter_index + 1];
   }
   static uint8_t sequence_step(uint8_t step) {
     return patch_.sequence_step(step);
@@ -209,9 +208,6 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
     }
   }
   static const Voice& voice(uint8_t i) { return voice_[i]; }
-  #ifdef HAS_EASTER_EGG
-    static inline uint8_t zobi() { return qux_[1]; }
-  #endif  // HAS_EASTER_EGG
  private:
   // Value of global modulation parameters, scaled to 0-255;
   static uint8_t modulation_sources_[kNumGlobalModulationSources];

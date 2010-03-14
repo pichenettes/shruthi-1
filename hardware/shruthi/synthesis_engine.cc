@@ -67,15 +67,20 @@ void SynthesisEngine::Init() {
 
 static const prog_char empty_patch[] PROGMEM = {
     99,
-    WAVEFORM_SAW, WAVEFORM_SQUARE, 0, 24,
-    0, -12, 0, 12,
+    // Oscillators
+    WAVEFORM_SAW, 0, 0, 0,
+    WAVEFORM_SQUARE, 24, -12, 12,
+    // Mixer
     16, 0, 0, WAVEFORM_SQUARE,
+    // Filter
     90, 0, 20, 0,
-    20, 0,
-    60, 40,
-    20, 80,
-    60, 40,
-    LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_TRIANGLE, 96, 3,
+    // ADSR
+    20, 60, 20, 60,
+    0, 40, 80, 40,
+    // LFO
+    LFO_WAVEFORM_TRIANGLE, 96,
+    LFO_WAVEFORM_TRIANGLE, 3,
+    // Routing
     MOD_SRC_LFO_1, MOD_DST_VCO_1, 0,
     MOD_SRC_LFO_1, MOD_DST_VCO_2, 0,
     MOD_SRC_LFO_1, MOD_DST_PWM_1, 0,
@@ -93,10 +98,16 @@ static const prog_char empty_patch[] PROGMEM = {
     MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
     MOD_SRC_CV_3, MOD_DST_FILTER_CUTOFF, 0,
     MOD_SRC_RANDOM, MOD_DST_FILTER_CUTOFF, 0,
+    // Tempo
     120, 0, 0, 0,
+    // Sequence
     0x00, 0x00, 0xff, 0xff, 0xcc, 0xcc, 0x44, 0x44,
-    0, 0, 0, 1,
-    'n', 'e', 'w', ' ', ' ', ' ', ' ', ' ', 16};
+    // Keyboard
+    0, 0, 0, 0,
+    // MIDI
+    0, 1, 1, 1,
+    'n', 'e', 'w', ' ', ' ', ' ', ' ', ' ', 16
+};
 
 /* static */
 void SynthesisEngine::ResetPatch() {
@@ -112,14 +123,6 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     lfo_reset_counter_ = num_lfo_reset_steps_ - 1;
   }
   controller_.NoteOn(note, velocity);
-#ifdef HAS_EASTER_EGG
-  if (note - qux_[0] == ((0x29 | 0x15) >> 4)) {
-    qux_[1] += ~0xfe;
-  } else {
-    qux_[1] ^= qux_[1];
-  }
-  qux_[0] = note;
-#endif  // HAS_EASTER_EGG
 }
 
 /* static */
@@ -144,13 +147,13 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
       }
       break;
     case hardware_midi::kPortamentoTimeMsb:
-      patch_.kbd_portamento = value;
+      patch_.sys_portamento = value;
       break;
     case hardware_midi::kRelease:
-      patch_.env_release[1] = value;
+      patch_.env[1].release = value;
       break;
     case hardware_midi::kAttack:
-      patch_.env_attack[1] = value;
+      patch_.env[1].attack = value;
       break;
     case hardware_midi::kHarmonicIntensity:
       patch_.filter_resonance = value;
@@ -167,8 +170,8 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
 
 /* static */
 uint8_t SynthesisEngine::CheckChannel(uint8_t channel) {
-  return patch_.kbd_midi_channel == 0 ||
-         patch_.kbd_midi_channel == (channel + 1);
+  return patch_.sys_midi_channel == 0 ||
+         patch_.sys_midi_channel == (channel + 1);
 }
 
 /* static */
@@ -196,13 +199,13 @@ void SynthesisEngine::ResetAllControllers(uint8_t channel) {
 // which this message has been received.
 /* static */
 void SynthesisEngine::OmniModeOff(uint8_t channel) {
-  patch_.kbd_midi_channel = channel + 1;
+  patch_.sys_midi_channel = channel + 1;
 }
 
 // Enable Omni mode.
 /* static */
 void SynthesisEngine::OmniModeOn(uint8_t channel) {
-  patch_.kbd_midi_channel = 0;
+  patch_.sys_midi_channel = 0;
 }
 
 /* static */
@@ -250,8 +253,7 @@ void SynthesisEngine::Stop() {
 void SynthesisEngine::SetParameter(
     uint8_t parameter_index,
     uint8_t parameter_value) {
-  uint8_t* base = &patch_.keep_me_at_the_top;
-  base[parameter_index + 1] = parameter_value;
+  patch_.keep_me_at_the_top[parameter_index + 1] = parameter_value;
   if (parameter_index >= PRM_ENV_ATTACK_1 &&
       parameter_index <= PRM_LFO_RATE_2) {
     UpdateModulationIncrements();
@@ -271,8 +273,8 @@ void SynthesisEngine::SetParameter(
 
 /* static */
 void SynthesisEngine::UpdateOscillatorAlgorithms() {
-  osc_1.SetupAlgorithm(patch_.osc_shape[0]);
-  osc_2.SetupAlgorithm(patch_.osc_shape[1]);
+  osc_1.SetupAlgorithm(patch_.osc[0].shape);
+  osc_2.SetupAlgorithm(patch_.osc[1].shape);
   sub_osc.SetupAlgorithm(patch_.mix_sub_osc_shape);
 }
 
@@ -285,25 +287,25 @@ void SynthesisEngine::UpdateModulationIncrements() {
     uint16_t increment;
     // The LFO rates 0 to 15 are translated into a multiple of the step
     // sequencer/arpeggiator step size.
-    if (patch_.lfo_rate[i] < 16) {
+    if (patch_.lfo[i].rate < 16) {
       increment = 65536 / (controller_.estimated_beat_duration() *
-                           (1 + patch_.lfo_rate[i]) / 4);
+                           (1 + patch_.lfo[i].rate) / 4);
       num_lfo_reset_steps_ = UnsignedUnsignedMul(
           num_lfo_reset_steps_ ? num_lfo_reset_steps_ : 1,
-          1 + patch_.lfo_rate[i]);
+          1 + patch_.lfo[i].rate);
       lfo_to_reset_ |= _BV(i);
     } else {
       increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
-          lut_res_lfo_increments, patch_.lfo_rate[i] - 16);
+          lut_res_lfo_increments, patch_.lfo[i].rate - 16);
     }
-    lfo_[i].Update(patch_.lfo_wave[i], increment);
+    lfo_[i].Update(patch_.lfo[i].waveform, increment);
 
     for (uint8_t j = 0; j < kNumVoices; ++j) {
       voice_[j].mutable_envelope(i)->Update(
-          patch_.env_attack[i],
-          patch_.env_decay[i],
-          patch_.env_sustain[i],
-          patch_.env_release[i]);
+          patch_.env[i].attack,
+          patch_.env[i].decay,
+          patch_.env[i].sustain,
+          patch_.env[i].release);
     }
   }
 }
@@ -393,7 +395,7 @@ void Voice::TriggerEnvelope(uint8_t stage) {
 
 /* static */
 void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
-  if (!legato || engine.patch_.kbd_portamento >= 0) {
+  if (!legato || !engine.patch_.sys_legato) {
     TriggerEnvelope(ATTACK);
     osc_1.Reset();
     osc_2.Reset();
@@ -402,21 +404,21 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
         velocity << 1;
   }
   pitch_target_ = static_cast<uint16_t>(note) << 7;
-  if (engine.patch_.kbd_raga) {
+  if (engine.patch_.sys_raga) {
     pitch_target_ += ResourcesManager::Lookup<int8_t, uint8_t>(
-        ResourceId(LUT_RES_SCALE_JUST + engine.patch_.kbd_raga - 1),
+        ResourceId(LUT_RES_SCALE_JUST + engine.patch_.sys_raga - 1),
         note % 12);
   }
   // At boot up, or when the note is note played legato and the portamento
   // is in auto mode, do not ramp up the pitch but jump straight to the target
   // pitch.
-  if (pitch_value_ == 0 || (!legato && engine.patch_.kbd_portamento < 0)) {
+  if (pitch_value_ == 0 || (!legato && engine.patch_.sys_legato)) {
     pitch_value_ = pitch_target_;
   }
   int16_t delta = pitch_target_ - pitch_value_;
   int32_t increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
       lut_res_env_portamento_increments,
-      abs(engine.patch_.kbd_portamento));
+      engine.patch_.sys_portamento);
   pitch_increment_ = (delta * increment) >> 15;
   if (pitch_increment_ == 0) {
     if (delta < 0) {
@@ -464,8 +466,8 @@ void Voice::Control() {
 
   // Load and scale to 0-16383 the initial value of each modulated parameter.
   dst[MOD_DST_FILTER_CUTOFF] = engine.patch_.filter_cutoff << 7;
-  dst[MOD_DST_PWM_1] = engine.patch_.osc_parameter[0] << 7;
-  dst[MOD_DST_PWM_2] = engine.patch_.osc_parameter[1] << 7;
+  dst[MOD_DST_PWM_1] = engine.patch_.osc[0].parameter << 7;
+  dst[MOD_DST_PWM_2] = engine.patch_.osc[1].parameter << 7;
   dst[MOD_DST_VCO_1_2_FINE] = dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
   dst[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
   dst[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
@@ -570,21 +572,23 @@ void Voice::Control() {
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
     int16_t pitch = pitch_value_;
     // -24 / +24 semitones by the range controller.
-    if (engine.patch_.osc_shape[i] == WAVEFORM_FM) {
-      osc_1.UpdateSecondaryParameter(engine.patch_.osc_range[i] + 12);
+    if (engine.patch_.osc[i].shape == WAVEFORM_FM) {
+      osc_1.UpdateSecondaryParameter(engine.patch_.osc[i].range + 12);
     } else {
-      pitch += static_cast<int16_t>(engine.patch_.osc_range[i]) << 7;
+      pitch += static_cast<int16_t>(engine.patch_.osc[i].range) << 7;
     }
     // -24 / +24 semitones by the main octave controller.
-    pitch += static_cast<int16_t>(engine.patch_.kbd_octave) * kOctave;
+    pitch += static_cast<int16_t>(engine.patch_.sys_octave) * kOctave;
     if (i == 1) {
       // 0 / +1 semitones by the detune option for oscillator 2.
-      pitch += engine.patch_.osc_option[1];
+      pitch += engine.patch_.osc[1].option;
     }
     // -16 / +16 semitones by the routed modulations.
     pitch += (dst[MOD_DST_VCO_1 + i] - 8192) >> 2;
     // -4 / +4 semitones by the vibrato and pitch bend.
     pitch += (dst[MOD_DST_VCO_1_2_FINE] - 8192) >> 4;
+    // -1 / +1 semitones by master tuning.
+    pitch += engine.patch_.sys_master_tuning;
 
     // Wrap pitch to a reasonable range.
     while (pitch < kLowestNote) {
@@ -635,7 +639,7 @@ void Voice::Audio() {
 
   uint8_t osc_2_signal = osc_2.Render();
   uint8_t mix = osc_1.Render();
-  uint8_t op = engine.patch_.osc_option[0];
+  uint8_t op = engine.patch_.osc[0].option;
   if (op == RING_MOD) {
     mix = SignedSignedMulScale8(mix + 128, osc_2_signal + 128) + 128;
   } else if (op == XOR) {
@@ -663,7 +667,7 @@ void Voice::Audio() {
 
   // Disable sub oscillator and noise when the "vowel" waveform is used - it is
   // just too costly.
-  if (engine.patch_.osc_shape[0] != WAVEFORM_VOWEL) {
+  if (engine.patch_.osc[0].shape != WAVEFORM_VOWEL) {
     mix = Mix(
         mix,
         sub_osc.Render(),

@@ -55,15 +55,38 @@ enum SysExReceptionState {
   RECEPTION_ERROR = 4,
 };
 
+enum MidiOutMode {
+  MIDI_OUT_OFF,
+  MIDI_OUT_SOFT_THRU,
+  MIDI_OUT_CONTROLLER,
+  MIDI_OUT_DAISY_CHAIN,
+};
+
+struct OscillatorSettings {
+  uint8_t shape;
+  uint8_t parameter;
+  int8_t range;
+  uint8_t option;
+};
+
+struct EnvelopeSettings {
+  uint8_t attack;
+  uint8_t decay;
+  uint8_t sustain;
+  uint8_t release;
+};
+
+struct LfoSettings {
+  uint8_t waveform;
+  uint8_t rate;
+};
+
 class Patch {
  public:
-  uint8_t keep_me_at_the_top;
+  uint8_t keep_me_at_the_top[1];
 
   // Offset: 0-8
-  uint8_t osc_shape[2];
-  uint8_t osc_parameter[2];
-  int8_t osc_range[2];
-  uint8_t osc_option[2];
+  OscillatorSettings osc[2];
 
   // Offset: 8-12
   uint8_t mix_balance;
@@ -78,14 +101,10 @@ class Patch {
   int8_t filter_lfo;
 
   // Offset: 16-24
-  uint8_t env_attack[2];
-  uint8_t env_decay[2];
-  uint8_t env_sustain[2];
-  uint8_t env_release[2];
+  EnvelopeSettings env[2];
 
   // Offset: 24-28
-  uint8_t lfo_wave[2];
-  uint8_t lfo_rate[2];
+  LfoSettings lfo[2];
 
   // Offset: 28-58, 58-70
   ModulationMatrix modulation_matrix;
@@ -101,13 +120,15 @@ class Patch {
   uint8_t sequence[8];
 
   // Offset: 82-86, not saved
-  int8_t kbd_octave;
-  uint8_t kbd_raga;
+  int8_t sys_octave;
+  uint8_t sys_raga;
+  uint8_t sys_portamento;
+  uint8_t sys_legato;
 
-  // Positive: always on. Negative: auto.
-  int8_t kbd_portamento;
-
-  uint8_t kbd_midi_channel;
+  int8_t sys_master_tuning;
+  uint8_t sys_midi_channel;
+  uint8_t sys_midi_out_mode;
+  uint8_t sys_midi_out_chain;
 
   // Offset: 86-94
   uint8_t name[kPatchNameSize];
@@ -204,12 +225,12 @@ static const uint8_t kNumModulationDestinations = 14;
 
 enum Parameter {
   PRM_OSC_SHAPE_1,
-  PRM_OSC_SHAPE_2,
   PRM_OSC_PARAMETER_1,
-  PRM_OSC_PARAMETER_2,
   PRM_OSC_RANGE_1,
-  PRM_OSC_RANGE_2,
   PRM_OSC_OPTION_1,
+  PRM_OSC_SHAPE_2,
+  PRM_OSC_PARAMETER_2,
+  PRM_OSC_RANGE_2,
   PRM_OSC_OPTION_2,
 
   PRM_MIX_BALANCE,
@@ -223,17 +244,17 @@ enum Parameter {
   PRM_FILTER_LFO,
 
   PRM_ENV_ATTACK_1,
-  PRM_ENV_ATTACK_2,
   PRM_ENV_DECAY_1,
-  PRM_ENV_DECAY_2,
   PRM_ENV_SUSTAIN_1,
-  PRM_ENV_SUSTAIN_2,
   PRM_ENV_RELEASE_1,
+  PRM_ENV_ATTACK_2,
+  PRM_ENV_DECAY_2,
+  PRM_ENV_SUSTAIN_2,
   PRM_ENV_RELEASE_2,
 
   PRM_LFO_WAVE_1,
-  PRM_LFO_WAVE_2,
   PRM_LFO_RATE_1,
+  PRM_LFO_WAVE_2,
   PRM_LFO_RATE_2,
 
   PRM_MOD_SOURCE = 28,
@@ -248,10 +269,15 @@ enum Parameter {
 
   PRM_SEQUENCE = 3 * kModulationMatrixSize + 28 + 4,
 
-  PRM_KBD_OCTAVE = 3 * kModulationMatrixSize + 28 + 12,
-  PRM_KBD_RAGA,
-  PRM_KBD_PORTAMENTO,
-  PRM_KBD_MIDI_CHANNEL,
+  PRM_SYS_OCTAVE = 3 * kModulationMatrixSize + 28 + 12,
+  PRM_SYS_RAGA,
+  PRM_SYS_PORTAMENTO,
+  PRM_SYS_LEGATO,
+
+  PRM_SYS_MASTER_TUNING,
+  PRM_SYS_MIDI_CHANNEL,
+  PRM_SYS_MIDI_OUT_MODE,
+  PRM_SYS_MIDI_OUT_CHAIN,
 
   PRM_NAME = 3 * kModulationMatrixSize + 28 + 16,
 
@@ -294,7 +320,7 @@ enum OPERATOR {
   XOR = 3
 };
 
-static const uint8_t kNumEditableParameters = 40;
+static const uint8_t kNumEditableParameters = 44;
 
 static const uint8_t kNumArpeggiatorPatterns = 15;
 

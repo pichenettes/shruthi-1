@@ -23,9 +23,11 @@ strings = """
 prm
 rng
 op.
-tun
+tuning
 prt
 porta
+legato
+midi out
 
 parameter
 range
@@ -133,6 +135,7 @@ filter
 lfos
 modulation
 keyboard
+midi
 off
 on
 
@@ -174,12 +177,15 @@ velo
 note
 gate
 
+ off
+thru
+ctrl
+poly
+
 touch a knob to
 assign parameter
 ready
 for os update
-P.ORLEANS: 21 MN
-P.BERCY:     +1H
 patch bank
 step sequencer
 load

@@ -175,13 +175,6 @@ TASK_BEGIN_NEAR
       }
     }
     TASK_SWITCH;
-
-#ifdef HAS_EASTER_EGG
-    if (engine.zobi() == 18) {
-      editor.DisplaySplashScreen(STR_RES_P_ORLEANS_21_MN);
-    }
-#endif  // HAS_EASTER_EGG
-    TASK_SWITCH;
   }
 TASK_END
 }
@@ -330,6 +323,8 @@ void Init() {
 
   editor.DisplaySplashScreen(STR_RES_MUTABLE);
 
+  // In case the bootloader has not done it, enable the pull-up on the MIDI in.
+  DigitalInput<10>::EnablePullUpResistor();
   midi_io.Init();
   pots.Init();
   switches.Init();

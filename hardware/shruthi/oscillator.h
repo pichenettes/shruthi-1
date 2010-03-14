@@ -146,7 +146,7 @@ class Oscillator {
     // be reloaded from memory anyway in the oscillator code @@, and because we
     // might use a different increment (FM), or because we might need to
     // check if we have completed a cycle to sync to another waveform.
-    /*if (mode == SUB_OSCILLATOR) {
+    if (mode == SUB_OSCILLATOR) {
       RenderSub();
     } else if (mode == LOW_COMPLEXITY) {
       if (shape_corrected_ & 1) {
@@ -157,7 +157,7 @@ class Oscillator {
     } else {
       (*fn_.render)();
     }
-    return held_sample_;*/
+    return held_sample_;
   }
   static inline void Reset() {
     if (mode == FULL && shape_ == WAVEFORM_WAVETABLE) {
@@ -168,7 +168,7 @@ class Oscillator {
       uint8_t parameter,
       uint8_t note,
       uint16_t increment) {
-    /*note_ = note;
+    note_ = note;
 
     if (mode == SUB_OSCILLATOR) {
       phase_increment_ = increment << 2;
@@ -202,7 +202,7 @@ class Oscillator {
           (*fn_.update)();
         }
       }
-    }*/
+    }
   }
   static inline void UpdateSecondaryParameter(uint8_t secondary_parameter) {
     if (mode == FULL) {

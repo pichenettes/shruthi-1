@@ -28,9 +28,11 @@ namespace hardware_shruthi {
 static const prog_char str_res_prm[] PROGMEM = "prm";
 static const prog_char str_res_rng[] PROGMEM = "rng";
 static const prog_char str_res_op_[] PROGMEM = "op.";
-static const prog_char str_res_tun[] PROGMEM = "tun";
+static const prog_char str_res_tuning[] PROGMEM = "tuning";
 static const prog_char str_res_prt[] PROGMEM = "prt";
 static const prog_char str_res_porta[] PROGMEM = "porta";
+static const prog_char str_res_legato[] PROGMEM = "legato";
+static const prog_char str_res_midi_out[] PROGMEM = "midi out";
 static const prog_char str_res_parameter[] PROGMEM = "parameter";
 static const prog_char str_res_range[] PROGMEM = "range";
 static const prog_char str_res_operator[] PROGMEM = "operator";
@@ -129,6 +131,7 @@ static const prog_char str_res_filter[] PROGMEM = "filter";
 static const prog_char str_res_lfos[] PROGMEM = "lfos";
 static const prog_char str_res_modulation[] PROGMEM = "modulation";
 static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
+static const prog_char str_res_midi[] PROGMEM = "midi";
 static const prog_char str_res_off[] PROGMEM = "off";
 static const prog_char str_res_on[] PROGMEM = "on";
 static const prog_char str_res_tri[] PROGMEM = "tri";
@@ -167,12 +170,14 @@ static const prog_char str_res_env2[] PROGMEM = "env2";
 static const prog_char str_res_velo[] PROGMEM = "velo";
 static const prog_char str_res_note[] PROGMEM = "note";
 static const prog_char str_res_gate[] PROGMEM = "gate";
+static const prog_char str_res__off[] PROGMEM = "off";
+static const prog_char str_res_thru[] PROGMEM = "thru";
+static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
+static const prog_char str_res_poly[] PROGMEM = "poly";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_ready[] PROGMEM = "ready";
 static const prog_char str_res_for_os_update[] PROGMEM = "for os update";
-static const prog_char str_res_p_orleans_21_mn[] PROGMEM = "P.ORLEANS: 21 MN";
-static const prog_char str_res_p_bercy_____S1h[] PROGMEM = "P.BERCY:     +1H";
 static const prog_char str_res_patch_bank[] PROGMEM = "patch bank";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_load[] PROGMEM = "load";
@@ -263,9 +268,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_prm,
   str_res_rng,
   str_res_op_,
-  str_res_tun,
+  str_res_tuning,
   str_res_prt,
   str_res_porta,
+  str_res_legato,
+  str_res_midi_out,
   str_res_parameter,
   str_res_range,
   str_res_operator,
@@ -364,6 +371,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_lfos,
   str_res_modulation,
   str_res_keyboard,
+  str_res_midi,
   str_res_off,
   str_res_on,
   str_res_tri,
@@ -402,12 +410,14 @@ PROGMEM const prog_char* string_table[] = {
   str_res_velo,
   str_res_note,
   str_res_gate,
+  str_res__off,
+  str_res_thru,
+  str_res_ctrl,
+  str_res_poly,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,
   str_res_ready,
   str_res_for_os_update,
-  str_res_p_orleans_21_mn,
-  str_res_p_bercy_____S1h,
   str_res_patch_bank,
   str_res_step_sequencer,
   str_res_load,
