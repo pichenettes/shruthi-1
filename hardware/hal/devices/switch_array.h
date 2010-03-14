@@ -34,7 +34,7 @@ struct SwitchState {
   uint32_t time;
 };
 
-struct ReleasedEvent {
+struct KeyEvent {
   uint8_t id;
   uint8_t shifted;
   uint8_t hold_time;
@@ -77,8 +77,8 @@ class SwitchArray {
     last_event_time_ = milliseconds();
   }
   
-  static ReleasedEvent released_event() {
-    ReleasedEvent e;
+  static KeyEvent key_event() {
+    KeyEvent e;
     for (uint8_t i = 0; i < num_inputs; ++i) {
       if (switch_state_[i].state == 0x7f) {
         e.id = i;
@@ -93,8 +93,12 @@ class SwitchArray {
   static uint8_t Read() {
     T value = Register::Read();
     uint32_t now = milliseconds();
+    T mask = 1 << (num_inputs - 1);
     for (uint8_t i = 0; i < num_inputs; ++i) {
-      switch_state_[i].state = (switch_state_[i].state << 1) | (value & 1);
+      switch_state_[i].state = switch_state_[i].state << 1;
+      if (value & mask) {
+         switch_state_[i].state |= 1;
+      }
       if (switch_state_[i].state == 0x80) {
         last_event_time_ = now;
         switch_state_[i].debounced_state = LOW;
@@ -103,7 +107,7 @@ class SwitchArray {
         last_event_time_ = now;
         switch_state_[i].debounced_state = HIGH;
       }
-      value >>= 1;
+      mask >>= 1;
     }
   }
   

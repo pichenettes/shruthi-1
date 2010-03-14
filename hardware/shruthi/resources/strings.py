@@ -22,7 +22,7 @@
 strings = """
 prm
 rng
-op
+op.
 tun
 prt
 porta

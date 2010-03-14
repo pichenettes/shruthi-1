@@ -27,7 +27,7 @@ namespace hardware_shruthi {
 
 static const prog_char str_res_prm[] PROGMEM = "prm";
 static const prog_char str_res_rng[] PROGMEM = "rng";
-static const prog_char str_res_op[] PROGMEM = "op";
+static const prog_char str_res_op_[] PROGMEM = "op.";
 static const prog_char str_res_tun[] PROGMEM = "tun";
 static const prog_char str_res_prt[] PROGMEM = "prt";
 static const prog_char str_res_porta[] PROGMEM = "porta";
@@ -256,7 +256,7 @@ static const prog_char str_res_rasika[] PROGMEM = "rasika";
 PROGMEM const prog_char* string_table[] = {
   str_res_prm,
   str_res_rng,
-  str_res_op,
+  str_res_op_,
   str_res_tun,
   str_res_prt,
   str_res_porta,

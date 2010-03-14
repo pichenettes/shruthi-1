@@ -94,7 +94,7 @@ extern const prog_uint8_t wav_res_vowel_data[] PROGMEM;
 extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_PRM 0  // prm
 #define STR_RES_RNG 1  // rng
-#define STR_RES_OP 2  // op
+#define STR_RES_OP_ 2  // op.
 #define STR_RES_TUN 3  // tun
 #define STR_RES_PRT 4  // prt
 #define STR_RES_PORTA 5  // porta

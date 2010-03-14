@@ -45,7 +45,7 @@ Serial<SerialPort1, 31250, BUFFERED, POLLED> midi_io;
 
 // Input event handlers.
 typedef MuxedAnalogInput<kPinAnalogInput> PotsMux;
-typedef InputArray<PotsMux, kNumEditingPots, 8> Pots;
+typedef InputArray<PotsMux, kNumEditingPots, 4> Pots;
 
 Pots pots;
 
@@ -91,8 +91,8 @@ void UpdateLedsTask() {
         engine.patch().modulation_matrix.modulation[
             editor.subpage()].source);
     leds.set_value(LED_MOD_1, current_modulation_source_value >> 4);
+    leds.set_value(LED_MOD_1, current_modulation_source_value >> 4);
     // TODO(pichenettes): write modulation destination too to LED2.
-    // TODO(pichenettes): broken?
   } else if (editor.current_page() == PAGE_PERFORMANCE) {
     leds.set_value(engine.voice_controller().step() & 0x07, 15);
   } else {
@@ -121,15 +121,13 @@ void UpdateDisplayTask() {
 }
 
 void InputTask() {
-  ReleasedEvent switch_event;
+  KeyEvent switch_event;
   Pots::Event pot_event;
   static uint8_t idle;
-  static uint8_t target_page_type;
   static int8_t delta;
 TASK_BEGIN_NEAR
   while (1) {
     idle = 0;
-    target_page_type = PAGE_TYPE_ANY;
     
     // Read the switches.
     switches.Read();
@@ -140,13 +138,7 @@ TASK_BEGIN_NEAR
       idle = 1;
     } else {
       if (switches.released()) {
-        switch_event = switches.released_event();
-        if (switch_event.hold_time >= 3) {  // 0.768 seconds
-          editor.DoShiftFunction(switch_event.id, switch_event.hold_time);
-        } else {
-          editor.ToggleGroup(switch_event.id);
-        }
-        target_page_type = PAGE_TYPE_SUMMARY;
+        editor.HandleKeyEvent(switches.key_event());
       }
     }
     
@@ -159,33 +151,31 @@ TASK_BEGIN_NEAR
     // Revert back to the main page when nothing happened for 1.5s.
     if (pot_event.event == EVENT_NONE) {
       if (idle && pot_event.time > 1500) {
-        target_page_type = PAGE_TYPE_SUMMARY;
+        editor.set_mode(EDITOR_MODE_OVERVIEW);
       }
     } else {
+      debug_output << int(pot_event.id) << " " << int(pot_event.value) << endl;
       editor.HandleInput(pot_event.id, pot_event.value);
-      target_page_type = PAGE_TYPE_DETAILS;
     }
     TASK_SWITCH;
     
     delta = encoder.Read();
     if (delta) {
-      // Simulates a press on a switch to restart page detail timer.
-      switches.Touch();  
+      switches.Touch();
       editor.HandleIncrement(delta);
-      target_page_type = PAGE_TYPE_DETAILS;
+    } else {
+      if (encoder.clicked()) {
+        switches.Touch();
+        editor.HandleClick();
+      }
     }
     TASK_SWITCH;
     
 #ifdef HAS_EASTER_EGG
     if (engine.zobi() == 18) {
       editor.DisplaySplashScreen(STR_RES_P_ORLEANS_21_MN);
-    } else
-#endif  // HAS_EASTER_EGG
-    if (target_page_type == PAGE_TYPE_SUMMARY) {
-      editor.DisplaySummary();
-    } else if (target_page_type == PAGE_TYPE_DETAILS) {
-      editor.DisplayDetails();
     }
+#endif  // HAS_EASTER_EGG
     TASK_SWITCH;
   }
 TASK_END

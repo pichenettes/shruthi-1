@@ -43,7 +43,7 @@ int main(void) {
     if ((divide & 3) == 0) {
       switches.Read();
       if (switches.released()) {
-        ReleasedEvent released = switches.released_event();
+        KeyEvent released = switches.key_event();
         debug_output << "id: " << int(released.id);
         debug_output << " hold time:" << int(released.hold_time);
         debug_output << " shifted: " << int(released.shifted) << endl;

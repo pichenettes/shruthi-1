@@ -80,6 +80,10 @@ class BufferedDisplay {
     cursor_position_ = cursor;
   }
 
+  static inline void set_cursor_character(uint8_t character) {
+    cursor_character_ = character;
+  }
+
   static inline void set_status(uint8_t status) __attribute__((noinline)) {
     // TODO(pichenettes): we're using the same clock for blinking the cursor
     // and clearing the status indicator. ewwww...
@@ -109,7 +113,7 @@ class BufferedDisplay {
     // If the scan position is the cursor and it is shown (blinking), draw the
     // cursor.
     if (scan_position_ == cursor_position_ && blink_) {
-      character = kLcdCursor;
+      character = cursor_character_;
     } else {
       // Otherwise, check if there's a status indicator to display. It is
       // displayed either on the left or right of the first line, depending on
@@ -159,6 +163,7 @@ class BufferedDisplay {
   static uint8_t blink_;
   static uint16_t blink_clock_;
   static uint8_t cursor_position_;
+  static uint8_t cursor_character_;
   static uint8_t status_;
 
   DISALLOW_COPY_AND_ASSIGN(BufferedDisplay);
@@ -191,6 +196,10 @@ uint16_t BufferedDisplay<Lcd>::blink_clock_;
 /* static */
 template<typename Lcd>
 uint8_t BufferedDisplay<Lcd>::cursor_position_;
+
+/* static */
+template<typename Lcd>
+uint8_t BufferedDisplay<Lcd>::cursor_character_ = kLcdCursor;
 
 /* static */
 template<typename Lcd>

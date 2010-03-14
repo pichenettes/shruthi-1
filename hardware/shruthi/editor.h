@@ -24,12 +24,13 @@
 #include "hardware/shruthi/resources.h"
 #include "hardware/shruthi/shruthi.h"
 
+class hardware_hal::KeyEvent;
+
 namespace hardware_shruthi {
 
-enum CurrentDisplayType {
-  PAGE_TYPE_SUMMARY,
-  PAGE_TYPE_DETAILS,
-  PAGE_TYPE_ANY,
+enum EditorMode {
+  EDITOR_MODE_OVERVIEW,
+  EDITOR_MODE_EDIT
 };
 
 enum Group {
@@ -114,7 +115,13 @@ typedef uint8_t UiType;
 struct PageDefinition {
   ParameterPage id;
   ParameterPage next;
+
   ParameterGroup group;
+  
+  // Previous and next page when cycling with encoder.
+  ParameterPage overall_previous;
+  ParameterPage overall_next;
+  
   ResourceId name;
   UiType ui_type;
   uint8_t first_parameter_index;
@@ -133,10 +140,10 @@ struct ParameterAssignment {
 // - a function handling a change in one of the 4 editing pots.
 // - a function handling presses on the increment/decrement buttons.
 struct UiHandler {
-  void (*summary_page)();
-  void (*details_page)();
+  void (*overview_page)();
+  void (*edit_page)();
   void (*input_handler)(uint8_t knob_index, uint16_t value);
-  void (*increment_handler)(int8_t direction);  
+  void (*increment_handler)(int8_t direction);
 };
 
 class Editor {
@@ -144,24 +151,20 @@ class Editor {
   Editor() { }
   static void Init();
   
-  // Handles a press on one of the "parameter groups" buttons. Go back to the
-  // most recently visited page in this group, or cycle through the pages in
-  // the current group.
-  static void ToggleGroup(ParameterGroup group);
+  // Handles a press on a key.
+  static void HandleKeyEvent(const hardware_hal::KeyEvent& event);
   
-  // Handles a long press on one of the "parameter groups" buttons. This
-  // triggers a lot of useful hacky functions.
-  static void DoShiftFunction(ParameterGroup group, uint8_t hold_time);
-
   // Handles the modification of one of the editing pots.
   static void HandleInput(uint8_t knob_index, uint16_t value);
   
-  // Handles a press on the inc/dec buttons.
+  // Handles a rotation of the encoder.
   static void HandleIncrement(int8_t direction);
+
+  // Handles a click on the encoder.
+  static void HandleClick();
   
   // Displays variants of the current page.
-  static void DisplaySummary();
-  static void DisplayDetails();
+  static void Refresh();
   
   // Displays two lines of text read from a resource.
   static void DisplaySplashScreen(ResourceId first_line);
@@ -172,29 +175,39 @@ class Editor {
   }
   static inline uint8_t cursor() { return cursor_; }
   static inline uint8_t subpage() { return subpage_; }
+  static inline void set_mode(uint8_t new_mode) {
+    if (new_mode != mode_) {
+      mode_ = new_mode;
+      Refresh();
+    }
+  }
 
  private:
   static void PrettyPrintParameterValue(const ParameterDefinition& parameter,
                                         char* buffer, uint8_t width);
-  
-  // Output and Input handling for all the different category of pages.
-  static void DisplayEditSummaryPage();
-  static void DisplayEditDetailsPage();
-  static void HandleEditInput(uint8_t knob_index, uint16_t value);
-  static void HandleEditIncrement(int8_t direction);
+
   // A bunch of hacks for special values/pages.
   static void SetParameterValue(uint8_t id, uint8_t value);
   static uint8_t GetParameterValue(uint8_t id);
-  
+
   // Returns the parameter id of the parameter that should be edited when
   // touching knob #knob_index.
   static uint8_t KnobIndexToParameterId(uint8_t knob_index);
+
+  static void ToggleGroup(uint8_t id);
+  
+  // Output and Input handling for all the different category of pages.
+  static void DisplayEditOverviewPage();
+  static void DisplayEditDetailsPage();
+  static void HandleEditInput(uint8_t knob_index, uint16_t value);
+  static void HandleEditIncrement(int8_t direction);
   
   static void DisplayLoadSavePage();
   static void HandleLoadSaveInput(uint8_t knob_index, uint16_t value);
   static void EnterLoadSaveMode();
   static void HandleLoadSaveIncrement(int8_t direction);
   static void DumpCurrentPatch();
+  static void LoadPatch(uint8_t index);
   
   static void DisplayStepSequencerPage();
   static void HandleStepSequencerInput(uint8_t knob_index, uint16_t value);
@@ -209,18 +222,15 @@ class Editor {
   // in SRAM when read. This temporary storage space holds them.
   static ParameterDefinition parameter_definition_;
   static uint8_t parameter_definition_index_;
-  static uint8_t current_display_type_;  // 0 for summary, 1 for details.
 
   static ParameterPage current_page_;
   static ParameterPage last_visited_page_[kNumGroups];
-  // Used for the modulation matrix page only.
+  static uint8_t mode_;
+  static uint8_t cursor_;
   static uint8_t last_visited_subpage_;
-  static uint8_t current_knob_;
 
   static char line_buffer_[kLcdWidth * kLcdHeight + 1];
 
-  // Load/Save related stuff. Cursor is also used for the step sequencer step.
-  static uint8_t cursor_;
   static uint8_t subpage_;
   static uint8_t action_;
   static uint8_t current_patch_number_;

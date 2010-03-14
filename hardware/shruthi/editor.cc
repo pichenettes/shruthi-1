@@ -20,11 +20,12 @@
 // I really hate this code. Work on a "UI" framework to avoid such horrible
 // things in progress...
 
+#include "hardware/hal/devices/switch_array.h"
+#include "hardware/hal/watchdog_timer.h"
 #include "hardware/shruthi/editor.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/string.h"
-#include "hardware/hal/watchdog_timer.h"
 
 using namespace hardware_hal;
 using namespace hardware_utils;
@@ -32,7 +33,9 @@ using namespace hardware_utils;
 using hardware_hal::kLcdNoCursor;
 
 namespace hardware_shruthi {
-  
+
+const uint8_t kNumSavedPatches = kEepromSize / kSerializedPatchSize;
+
 /* extern */
 Editor editor;
 
@@ -79,7 +82,7 @@ static const prog_char raw_parameter_definition[
   PRM_OSC_OPTION_1,
   SUM, XOR,
   UNIT_OPERATOR,
-  STR_RES_OP, STR_RES_OPERATOR,
+  STR_RES_OP_, STR_RES_OPERATOR,
 
   // Osc 2.
   PRM_OSC_SHAPE_2,
@@ -273,7 +276,7 @@ static const prog_char raw_parameter_definition[
 
 /* static */
 const UiHandler Editor::ui_handler_[] = {
-  { &Editor::DisplayEditSummaryPage, &Editor::DisplayEditDetailsPage,
+  { &Editor::DisplayEditOverviewPage, &Editor::DisplayEditDetailsPage,
     &Editor::HandleEditInput, &Editor::HandleEditIncrement },
   { &Editor::DisplayStepSequencerPage, &Editor::DisplayStepSequencerPage,
     &Editor::HandleStepSequencerInput, &Editor::HandleStepSequencerIncrement },
@@ -283,37 +286,61 @@ const UiHandler Editor::ui_handler_[] = {
 
 const PageDefinition Editor::page_definition_[] = {
   { PAGE_OSC_OSC_1, PAGE_OSC_OSC_2, GROUP_OSC,
-    STR_RES_OSCILLATOR_1, PARAMETER_EDITOR, 0, LED_OSC_1 },
+    PAGE_MOD_MATRIX, PAGE_OSC_OSC_2,
+    STR_RES_OSCILLATOR_1, PARAMETER_EDITOR, 0, LED_OSC_1_MASK },
+    
   { PAGE_OSC_OSC_2, PAGE_OSC_OSC_MIX, GROUP_OSC,
-    STR_RES_OSCILLATOR_2, PARAMETER_EDITOR, 4, LED_OSC_2 },
+    PAGE_OSC_OSC_1, PAGE_OSC_OSC_MIX,
+    STR_RES_OSCILLATOR_2, PARAMETER_EDITOR, 4, LED_OSC_2_MASK },
+    
   { PAGE_OSC_OSC_MIX, PAGE_OSC_OSC_1, GROUP_OSC,
-    STR_RES_MIXER, PARAMETER_EDITOR, 8, LED_OSC_1 | LED_OSC_2 },
+    PAGE_OSC_OSC_2, PAGE_FILTER_FILTER,
+    STR_RES_MIXER, PARAMETER_EDITOR, 8, LED_OSC_1_MASK | LED_OSC_2_MASK },
+    
   { PAGE_FILTER_FILTER, PAGE_FILTER_FILTER, GROUP_FILTER,
-    STR_RES_FILTER, PARAMETER_EDITOR, 12, LED_FILTER },
+    PAGE_OSC_OSC_MIX, PAGE_MOD_ENV_1,
+    STR_RES_FILTER, PARAMETER_EDITOR, 12, LED_FILTER_MASK },
+    
   { PAGE_MOD_ENV_1, PAGE_MOD_ENV_2, GROUP_MOD,
-    STR_RES_ENVELOPE_1, PARAMETER_EDITOR, 16, LED_MOD_1 },
+    PAGE_FILTER_FILTER, PAGE_MOD_ENV_2,
+    STR_RES_ENVELOPE_1, PARAMETER_EDITOR, 16, LED_MOD_1_MASK },
+    
   { PAGE_MOD_ENV_2, PAGE_MOD_LFO, GROUP_MOD,
-    STR_RES_ENVELOPE_2, PARAMETER_EDITOR, 20, LED_MOD_2 },
+    PAGE_MOD_ENV_1, PAGE_MOD_LFO,
+    STR_RES_ENVELOPE_2, PARAMETER_EDITOR, 20, LED_MOD_2_MASK },
+    
   { PAGE_MOD_LFO, PAGE_MOD_MATRIX, GROUP_MOD,
-    STR_RES_LFOS, PARAMETER_EDITOR, 24, LED_MOD_1 },
+    PAGE_MOD_ENV_2, PAGE_MOD_MATRIX,
+    STR_RES_LFOS, PARAMETER_EDITOR, 24, LED_MOD_1_MASK },
+    
   { PAGE_MOD_MATRIX, PAGE_MOD_ENV_1, GROUP_MOD,
-    STR_RES_MODULATION, PARAMETER_EDITOR, 28, LED_MOD_1 | LED_MOD_2 },
+    PAGE_MOD_LFO, PAGE_OSC_OSC_1,
+    STR_RES_MODULATION, PARAMETER_EDITOR, 28, LED_MOD_1_MASK | LED_MOD_2_MASK },
+    
   { PAGE_PLAY_ARP, PAGE_PLAY_STEP_SEQUENCER, GROUP_PLAY,
-    STR_RES_ARPEGGIO, PARAMETER_EDITOR, 32, LED_PLAY},
+    PAGE_PLAY_STEP_SEQUENCER, PAGE_PLAY_STEP_SEQUENCER,
+    STR_RES_ARPEGGIO, PARAMETER_EDITOR, 32, LED_PLAY_MASK },
+    
   { PAGE_PLAY_STEP_SEQUENCER, PAGE_PLAY_ARP, GROUP_PLAY,
-    STR_RES_SEQUENCER, STEP_SEQUENCER, 0, LED_PLAY },
+    PAGE_PLAY_ARP, PAGE_PLAY_ARP,
+    STR_RES_SEQUENCER, STEP_SEQUENCER, 0, LED_PLAY_MASK },
+    
   { PAGE_SYS_KBD, PAGE_SYS_KBD, GROUP_SYS,
-    STR_RES_KEYBOARD, PARAMETER_EDITOR, 36, LED_SYS },
+    PAGE_SYS_KBD, PAGE_SYS_KBD,
+    STR_RES_KEYBOARD, PARAMETER_EDITOR, 36, LED_SYS_MASK },
+    
   { PAGE_LOAD_SAVE, PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
-    STR_RES_PATCH_BANK, LOAD_SAVE, 0, LED_WRITE },
+    PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
+    STR_RES_PATCH_BANK, LOAD_SAVE, 0, LED_WRITE_MASK },
+    
   { PAGE_PERFORMANCE, PAGE_PERFORMANCE, GROUP_PERFORMANCE,
+    PAGE_PERFORMANCE, PAGE_PERFORMANCE,
     STR_RES_PERFORMANCE, PARAMETER_EDITOR, 0, 0x0 }
 };
 
 /* <static> */
 ParameterDefinition Editor::parameter_definition_;
 uint8_t Editor::parameter_definition_index_ = 0xff;
-uint8_t Editor::current_display_type_;
 
 ParameterPage Editor::current_page_ = PAGE_FILTER_FILTER;
 ParameterPage Editor::last_visited_page_[kNumGroups] = {
@@ -325,8 +352,8 @@ ParameterPage Editor::last_visited_page_[kNumGroups] = {
     PAGE_LOAD_SAVE,
     PAGE_PERFORMANCE
 };
-uint8_t Editor::current_knob_;
 uint8_t Editor::last_visited_subpage_ = 0;
+uint8_t Editor::mode_ = EDITOR_MODE_OVERVIEW;
 
 char Editor::line_buffer_[kLcdWidth * kLcdHeight + 1];
 
@@ -352,47 +379,18 @@ void Editor::Init() {
 }
 
 /* static */
-void Editor::DoShiftFunction(ParameterGroup group, uint8_t hold_time) {
-  switch (group) {
-    case GROUP_PLAY:
-      engine.NoteOn(0, 48, test_note_playing_ ? 0 : 100);
-      test_note_playing_ ^= 1;
-      break;
-
-    case GROUP_OSC:
-      ToggleGroup(GROUP_PERFORMANCE);
-      break;
-      
-    case GROUP_FILTER:
-      if (current_page_ <= PAGE_SYS_KBD) {
-        parameter_to_assign_.id = page_definition_[
-            current_page_].first_parameter_index + current_knob_;
-        parameter_to_assign_.subpage = subpage_;
-        DisplaySplashScreen(STR_RES_TOUCH_A_KNOB_TO);
-        assign_in_progress_ = 1;
-      }
-      break;
-      
-    case GROUP_LOAD_SAVE:
-      if (hold_time > 8 /* 2.048 seconds */) {
-        DisplaySplashScreen(STR_RES_READY);
-        SystemReset(WDTO_500MS);
-      }
-      break;
-  }
-}
-
-/* static */
-void Editor::ToggleGroup(ParameterGroup group) {
+void Editor::ToggleGroup(uint8_t group) {
   cursor_ = 0;
   subpage_ = 0;
   assign_in_progress_ = 0;
   display.set_cursor_position(kLcdNoCursor);
-  current_display_type_ = PAGE_TYPE_DETAILS;
+
+  mode_ = EDITOR_MODE_OVERVIEW;
+
   // Special case for the load/save page.
   if (group == GROUP_LOAD_SAVE) {
-    current_page_ = PAGE_LOAD_SAVE;
     EnterLoadSaveMode();
+    current_page_ = PAGE_LOAD_SAVE;
   } else {
     // Make sure that we won't confirm a save when moving back to the
     // Load/save page.
@@ -413,31 +411,75 @@ void Editor::ToggleGroup(ParameterGroup group) {
 }
 
 /* static */
+void Editor::HandleKeyEvent(const KeyEvent& event) {
+  if (event.hold_time < 3) {
+    ToggleGroup(event.id);
+  } else {
+    switch (event.id) {
+      case GROUP_PLAY:
+        engine.NoteOn(0, 48, test_note_playing_ ? 0 : 100);
+        test_note_playing_ ^= 1;
+        break;
+
+      case GROUP_OSC:
+        ToggleGroup(GROUP_PERFORMANCE);
+        break;
+      
+      case GROUP_FILTER:
+        if (current_page_ <= PAGE_SYS_KBD) {
+          parameter_to_assign_.id = page_definition_[
+              current_page_].first_parameter_index + cursor_;
+          parameter_to_assign_.subpage = subpage_;
+          DisplaySplashScreen(STR_RES_TOUCH_A_KNOB_TO);
+          assign_in_progress_ = 1;
+          return;  // To avoid refresh
+        }
+        break;
+      
+      case GROUP_LOAD_SAVE:
+        if (event.hold_time > 8 /* 2.048 seconds */) {
+          DisplaySplashScreen(STR_RES_READY);
+          SystemReset(WDTO_500MS);
+        }
+        break;
+    }
+  }
+  Refresh();
+}
+
+/* static */
 void Editor::HandleInput(uint8_t knob_index, uint16_t value) {
   (*ui_handler_[page_definition_[current_page_].ui_type].input_handler)(
       knob_index, value);
+  Refresh();
 }
 
 /* static */
 void Editor::HandleIncrement(int8_t direction) {
   (*ui_handler_[page_definition_[current_page_].ui_type].increment_handler)(
       direction);
+  Refresh();
 }
 
 /* static */
-void Editor::DisplaySummary() {
-  // No need to render the summary page twice.
-  if (current_display_type_ == PAGE_TYPE_SUMMARY) {
-    return;
+void Editor::HandleClick() {
+  if (mode_ == EDITOR_MODE_OVERVIEW) {
+    mode_ = EDITOR_MODE_EDIT;
+    display.set_cursor_character(' ');
+  } else {
+    mode_ = EDITOR_MODE_OVERVIEW;
+    display.set_cursor_character(0xff);
   }
-  (*ui_handler_[page_definition_[current_page_].ui_type].summary_page)();
-  current_display_type_ = PAGE_TYPE_SUMMARY;
+  Refresh();
 }
 
 /* static */
-void Editor::DisplayDetails() {
-  current_display_type_ = PAGE_TYPE_DETAILS;
-  (*ui_handler_[page_definition_[current_page_].ui_type].details_page)();
+void Editor::Refresh() {
+  if (mode_ == EDITOR_MODE_OVERVIEW) {
+    (*ui_handler_[page_definition_[current_page_].ui_type].overview_page)();
+  } else {
+    (*ui_handler_[page_definition_[current_page_].ui_type].edit_page)();
+  }
 }
 
 /* static */
@@ -456,20 +498,21 @@ void Editor::EnterLoadSaveMode() {
 }
 
 /* static */
+void Editor::LoadPatch(uint8_t index) {
+  if (index != current_patch_number_ && action_ == ACTION_LOAD) {
+    engine.mutable_patch()->EepromLoad(index);
+    engine.TouchPatch();
+  }
+  if (action_ != ACTION_EXIT) {
+    current_patch_number_ = index;
+  }
+}
+
+/* static */
 void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
   switch (knob_index) {
     case 0:
-      {
-        const uint8_t num_patches = kEepromSize / kSerializedPatchSize;
-        uint8_t new_patch = value * num_patches / 1024;
-        if (new_patch != current_patch_number_ && action_ == ACTION_LOAD) {
-          engine.mutable_patch()->EepromLoad(new_patch);
-          engine.TouchPatch();
-        }
-        if (action_ != ACTION_EXIT) {
-          current_patch_number_ = new_patch;
-        }
-      }
+      LoadPatch(value * kNumSavedPatches / 1024);
       break;
     case 1:
       if (action_ == ACTION_SAVE) {
@@ -495,16 +538,28 @@ void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
         action_ = value >= 960 ? ACTION_SAVE : ACTION_EXIT;
       }
       break;
-  }  
+  }
 }
 
 /* static */
 void Editor::HandleLoadSaveIncrement(int8_t direction) {
   if (action_ == ACTION_SAVE) {
-    uint8_t value = engine.patch().name[cursor_];
-    value += direction;
-    if (value >= 32 && value <= 128) {
-      engine.mutable_patch()->name[cursor_] = value;
+    if (mode_ == EDITOR_MODE_OVERVIEW) {
+      int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
+      if (new_cursor >= 0 & new_cursor < kPatchNameSize) {
+        cursor_ = static_cast<uint8_t>(new_cursor);
+      }
+    } else {
+      uint8_t value = engine.patch().name[cursor_];
+      value += direction;
+      if (value >= 32 && value <= 128) {
+        engine.mutable_patch()->name[cursor_] = value;
+      }
+    }
+  } else {
+    int8_t patch_number = static_cast<int8_t>(current_patch_number_) + direction;
+    if (patch_number >= 0 && patch_number < kNumSavedPatches) {
+      LoadPatch(patch_number);
     }
   }
 }
@@ -589,12 +644,19 @@ void Editor::HandleStepSequencerInput(
 
 /* static */
 void Editor::HandleStepSequencerIncrement(int8_t direction) {
-  engine.mutable_patch()->set_sequence_step(cursor_, 
-      engine.patch().sequence_step(cursor_) + (direction << 4));
+  if (mode_ == EDITOR_MODE_OVERVIEW) {
+    int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
+    if (new_cursor >= 0 & new_cursor < engine.patch().pattern_size) {
+      cursor_ = static_cast<uint8_t>(new_cursor);
+    }
+  } else {
+    engine.mutable_patch()->set_sequence_step(cursor_, 
+        engine.patch().sequence_step(cursor_) + (direction << 4));
+  }
 }
 
 /* static */
-void Editor::DisplayEditSummaryPage() {
+void Editor::DisplayEditOverviewPage() {
   // 0123456789abcdef
   // foo bar baz bad
   //  63 127   0   0
@@ -614,6 +676,13 @@ void Editor::DisplayEditSummaryPage() {
     line_buffer_[i * kColumnWidth + kColumnWidth + kLcdWidth] = '\0';
     AlignRight(line_buffer_ + i * kColumnWidth + kLcdWidth + 1, kColumnWidth);
   }
+  
+  // Change the case of the current parameter accessible by the rotary encoder.
+  uint8_t pos = cursor_ * kColumnWidth + 1;
+  if (line_buffer_[pos] > 96 && line_buffer_[pos] <= 122) {
+    line_buffer_[pos] -= 32;
+  }
+  
   display.Print(0, line_buffer_);
   display.Print(1, line_buffer_ + kLcdWidth + 1);
 }
@@ -649,7 +718,7 @@ void Editor::DisplayEditDetailsPage() {
     AlignLeft(line_buffer_ + kColumnWidth + 4, kLcdWidth - kColumnWidth - 4);
     display.Print(0, line_buffer_);
   }
-  uint8_t index = KnobIndexToParameterId(current_knob_);
+  uint8_t index = KnobIndexToParameterId(cursor_);
   const ParameterDefinition& parameter = parameter_definition(index);
   const PageDefinition& page = page_definition_[current_page_];
 
@@ -694,6 +763,7 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
     assign_in_progress_ = 0;
     ToggleGroup(GROUP_PERFORMANCE);
   } else {
+    mode_ = EDITOR_MODE_EDIT;
     uint8_t new_value;
     uint8_t index = KnobIndexToParameterId(knob_index);
     const ParameterDefinition& parameter = parameter_definition(index);
@@ -706,27 +776,43 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
       new_value += parameter.min_value;
     }
     SetParameterValue(parameter.id, new_value);
-    current_knob_ = knob_index;
+    cursor_ = knob_index;
   }
 }
 
 /* static */
 void Editor::HandleEditIncrement(int8_t direction) {
-  uint8_t index = KnobIndexToParameterId(current_knob_);
-  const ParameterDefinition& parameter = parameter_definition(index);
-  
-  int16_t value = GetParameterValue(parameter.id);
-  if (parameter.unit == UNIT_INT8) {
-    value = static_cast<int16_t>(static_cast<int8_t>(value));
-    value += direction;
-    if (value >= static_cast<int8_t>(parameter.min_value) &&
-        value <= static_cast<int8_t>(parameter.max_value)) {
-      SetParameterValue(parameter.id, value);
+  if (mode_ == EDITOR_MODE_OVERVIEW) {
+    int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
+    if (new_cursor < 0) {
+      cursor_ = 3;
+      current_page_ = page_definition_[current_page_].overall_previous;
+    } else if (new_cursor >= 4) {
+      cursor_ = 0;
+      current_page_ = page_definition_[current_page_].overall_next;
+    } else {
+      cursor_ = new_cursor;
+    }
+    if (current_page_ == PAGE_MOD_MATRIX) {
+        subpage_ = last_visited_subpage_;
     }
   } else {
-    value += direction;
-    if (value >= parameter.min_value && value <= parameter.max_value) {
-      SetParameterValue(parameter.id, value);
+    uint8_t index = KnobIndexToParameterId(cursor_);
+    const ParameterDefinition& parameter = parameter_definition(index);
+  
+    int16_t value = GetParameterValue(parameter.id);
+    if (parameter.unit == UNIT_INT8) {
+      value = static_cast<int16_t>(static_cast<int8_t>(value));
+      value += direction;
+      if (value >= static_cast<int8_t>(parameter.min_value) &&
+          value <= static_cast<int8_t>(parameter.max_value)) {
+        SetParameterValue(parameter.id, value);
+      }
+    } else {
+      value += direction;
+      if (value >= parameter.min_value && value <= parameter.max_value) {
+        SetParameterValue(parameter.id, value);
+      }
     }
   }
 }

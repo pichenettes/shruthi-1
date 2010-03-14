@@ -30,14 +30,22 @@
 namespace hardware_shruthi {
 
 enum LEDS {
-  LED_OSC_1 = 0x01,
-  LED_OSC_2 = 0x02,
-  LED_FILTER = 0x04,
-  LED_MOD_1 = 0x08,
-  LED_MOD_2 = 0x10,
-  LED_PLAY = 0x20,
-  LED_SYS = 0x40,
-  LED_WRITE = 0x80
+  LED_OSC_1,
+  LED_OSC_2,
+  LED_FILTER,
+  LED_MOD_1,
+  LED_MOD_2,
+  LED_PLAY,
+  LED_SYS,
+  LED_WRITE,
+  LED_OSC_1_MASK = 1 << LED_OSC_1,
+  LED_OSC_2_MASK = 1 << LED_OSC_2,
+  LED_FILTER_MASK = 1 << LED_FILTER,
+  LED_MOD_1_MASK = 1 << LED_MOD_1,
+  LED_MOD_2_MASK = 1 << LED_MOD_2,
+  LED_PLAY_MASK = 1 << LED_PLAY,
+  LED_SYS_MASK = 1 << LED_SYS,
+  LED_WRITE_MASK = 1 << LED_WRITE,
 };
 
 // Set this flag to 6 to get a nice polysynth (humour).
