@@ -70,6 +70,9 @@ mix
 noi
 sub
 res
+  cv1
+  cv2
+bit
 
 cutoff
  vca
@@ -82,6 +85,9 @@ osc1+2
  noise
 subosc
 reso
+   cv1
+   cv2
+2 bits
 
 mutable
 instruments \x06\x07-1

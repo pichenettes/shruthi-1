@@ -45,7 +45,7 @@ Serial<SerialPort1, 31250, BUFFERED, POLLED> midi_io;
 
 // Input event handlers.
 typedef MuxedAnalogInput<kPinAnalogInput> PotsMux;
-typedef InputArray<PotsMux, kNumEditingPots, 4> Pots;
+typedef InputArray<PotsMux, kNumEditingPots, 8> Pots;
 
 Pots pots;
 
@@ -71,6 +71,8 @@ AudioOutput<PwmOutput<kPinVcoOut>, kAudioBufferSize, kAudioBlockSize> audio_out;
 PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
 PwmOutput<kPinVcfResonanceOut> vcf_resonance_out;
 PwmOutput<kPinVcaOut> vca_out;
+PwmOutput<kPinCv1Out> cv_1_out;
+PwmOutput<kPinCv2Out> cv_2_out;
 
 MidiStreamParser<SynthesisEngine> midi_parser;
 
@@ -90,9 +92,12 @@ void UpdateLedsTask() {
     uint8_t current_modulation_source_value = engine.modulation_source(0,
         engine.patch().modulation_matrix.modulation[
             editor.subpage()].source);
+    uint8_t current_modulation_destination_value = (
+        engine.voice(0).modulation_destination(
+            engine.patch().modulation_matrix.modulation[
+                editor.subpage()].destination));
     leds.set_value(LED_MOD_1, current_modulation_source_value >> 4);
-    leds.set_value(LED_MOD_1, current_modulation_source_value >> 4);
-    // TODO(pichenettes): write modulation destination too to LED2.
+    leds.set_value(LED_MOD_2, current_modulation_destination_value >> 4);
   } else if (editor.current_page() == PAGE_PERFORMANCE) {
     leds.set_value(engine.voice_controller().step() & 0x07, 15);
   } else {
@@ -134,7 +139,7 @@ TASK_BEGIN_NEAR
     
     // If a button was pressed, perform the action. Otherwise, if nothing
     // happened for 1.5s, update the idle flag.
-    if (switches.idle_time() > 1500) {
+    if (switches.idle_time() > 2000) {
       idle = 1;
     } else {
       if (switches.released()) {
@@ -150,11 +155,10 @@ TASK_BEGIN_NEAR
     // Update the editor if something happened.
     // Revert back to the main page when nothing happened for 1.5s.
     if (pot_event.event == EVENT_NONE) {
-      if (idle && pot_event.time > 1500) {
+      if (idle && pot_event.time > 2000) {
         editor.set_mode(EDITOR_MODE_OVERVIEW);
       }
     } else {
-      debug_output << int(pot_event.id) << " " << int(pot_event.value) << endl;
       editor.HandleInput(pot_event.id, pot_event.value);
     }
     TASK_SWITCH;
@@ -252,6 +256,8 @@ void AudioRenderingTask() {
     vcf_cutoff_out.Write(engine.voice(0).cutoff());
     vcf_resonance_out.Write(engine.voice(0).resonance());
     vca_out.Write(engine.voice(0).vca());
+    cv_1_out.Write(engine.voice(0).cv_1());
+    cv_2_out.Write(engine.voice(0).cv_2());
   }
 }
 
@@ -318,6 +324,8 @@ void Init() {
   vcf_cutoff_out.Init();
   vcf_resonance_out.Init();
   vca_out.Init();
+  cv_1_out.Init();
+  cv_2_out.Init();
   
   editor.DisplaySplashScreen(STR_RES_MUTABLE);
   

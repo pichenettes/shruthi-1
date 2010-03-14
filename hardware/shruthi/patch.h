@@ -194,10 +194,13 @@ enum ModulationDestination {
   MOD_DST_MIX_BALANCE,
   MOD_DST_MIX_NOISE,
   MOD_DST_MIX_SUB_OSC,
-  MOD_DST_FILTER_RESONANCE
+  MOD_DST_FILTER_RESONANCE,
+  MOD_DST_CV_1,
+  MOD_DST_CV_2,
+  MOD_DST_2_BITS,
 };
 
-static const uint8_t kNumModulationDestinations = 11;
+static const uint8_t kNumModulationDestinations = 14;
 
 enum Parameter {
   PRM_OSC_SHAPE_1,

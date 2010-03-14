@@ -446,6 +446,8 @@ void Voice::Control() {
   // need to be static, but if allocated on the heap, we get many push/pops,
   // and the resulting code is slower.
   static int16_t dst[kNumModulationDestinations];
+  
+  uint8_t has_2_bits_cv = 0;
 
   // Rescale the value of each modulation sources. Envelopes are in the
   // 0-16383 range ; just like pitch. All are scaled to 0-255.
@@ -469,6 +471,9 @@ void Voice::Control() {
   dst[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
   dst[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
   dst[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
+  dst[MOD_DST_CV_1] = 0;
+  dst[MOD_DST_CV_2] = 0;
+  dst[MOD_DST_2_BITS] = 0;
   
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
@@ -494,6 +499,9 @@ void Voice::Control() {
     } else {
       // Voice specific sources, read from the voice.
       source_value = modulation_sources_[source - kNumGlobalModulationSources];
+    }
+    if (destination == MOD_DST_2_BITS) {
+      has_2_bits_cv = 1;
     }
     if (destination != MOD_DST_VCA) {
       int16_t modulation = dst[destination];
@@ -538,6 +546,17 @@ void Voice::Control() {
 
   modulation_destinations_[MOD_DST_FILTER_RESONANCE] = ShiftRight6(
       dst[MOD_DST_FILTER_RESONANCE]);
+  
+  modulation_destinations_[MOD_DST_CV_1] = ShiftRight6(
+        dst[MOD_DST_CV_1]);
+  modulation_destinations_[MOD_DST_CV_2] = ShiftRight6(
+        dst[MOD_DST_CV_2]);
+  if (has_2_bits_cv) {
+    modulation_destinations_[MOD_DST_2_BITS] = static_cast<uint8_t>(
+        dst[MOD_DST_2_BITS] >> 8);
+  } else {
+    modulation_destinations_[MOD_DST_2_BITS] = 0xff;
+  }
 
   modulation_destinations_[MOD_DST_PWM_1] = dst[MOD_DST_PWM_1] >> 7;
   modulation_destinations_[MOD_DST_PWM_2] = dst[MOD_DST_PWM_2] >> 7;

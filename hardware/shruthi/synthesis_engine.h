@@ -85,8 +85,21 @@ class Voice {
   static inline uint8_t resonance()  {
     return modulation_destinations_[MOD_DST_FILTER_RESONANCE];
   }
-  static inline uint8_t dead()  { return dead_; }
+  static inline uint8_t cv_1()  {
+    uint8_t value = modulation_destinations_[MOD_DST_2_BITS];
+    return value == 0xff ?
+        modulation_destinations_[MOD_DST_CV_1] :
+        (value >= 32 ? 0xff : 0);
+  }
+  static inline uint8_t cv_2()  {
+    uint8_t value = modulation_destinations_[MOD_DST_2_BITS];
+    return value == 0xff ?
+        modulation_destinations_[MOD_DST_CV_2] :
+        ((value & 31) >= 16 ? 0xff : 0);
+  }
   static inline uint8_t signal()  { return signal_; }
+  
+  static inline uint8_t dead()  { return dead_; }
   static inline uint8_t modulation_source(uint8_t i) {
     return modulation_sources_[i - kNumGlobalModulationSources];
   }

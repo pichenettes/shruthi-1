@@ -71,6 +71,9 @@ static const prog_char str_res_mix[] PROGMEM = "mix";
 static const prog_char str_res_noi[] PROGMEM = "noi";
 static const prog_char str_res_sub[] PROGMEM = "sub";
 static const prog_char str_res_res[] PROGMEM = "res";
+static const prog_char str_res___cv1[] PROGMEM = "cv1";
+static const prog_char str_res___cv2[] PROGMEM = "cv2";
+static const prog_char str_res_bit[] PROGMEM = "bit";
 static const prog_char str_res_cutoff[] PROGMEM = "cutoff";
 static const prog_char str_res__vca[] PROGMEM = "vca";
 static const prog_char str_res_pwm1[] PROGMEM = "pwm1";
@@ -82,6 +85,9 @@ static const prog_char str_res__mix[] PROGMEM = "mix";
 static const prog_char str_res__noise[] PROGMEM = "noise";
 static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_reso[] PROGMEM = "reso";
+static const prog_char str_res____cv1[] PROGMEM = "cv1";
+static const prog_char str_res____cv2[] PROGMEM = "cv2";
+static const prog_char str_res_2_bits[] PROGMEM = "2 bits";
 static const prog_char str_res_mutable[] PROGMEM = "mutable";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_atk[] PROGMEM = "atk";
@@ -300,6 +306,9 @@ PROGMEM const prog_char* string_table[] = {
   str_res_noi,
   str_res_sub,
   str_res_res,
+  str_res___cv1,
+  str_res___cv2,
+  str_res_bit,
   str_res_cutoff,
   str_res__vca,
   str_res_pwm1,
@@ -311,6 +320,9 @@ PROGMEM const prog_char* string_table[] = {
   str_res__noise,
   str_res_subosc,
   str_res_reso,
+  str_res____cv1,
+  str_res____cv2,
+  str_res_2_bits,
   str_res_mutable,
   str_res_instruments_671,
   str_res_atk,
