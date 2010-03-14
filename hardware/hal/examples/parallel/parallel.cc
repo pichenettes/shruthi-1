@@ -21,14 +21,14 @@ using namespace hardware_hal;
 
 int main(void) {
   InitAtmega(true);
-  
+
   ParallelPort<PortC, PARALLEL_NIBBLE_HIGH> count;
   ParallelPort<PortC, PARALLEL_NIBBLE_LOW> scroll;
   uint8_t counter = 0;
-  
+
   count.set_mode(DIGITAL_OUTPUT);
   scroll.set_mode(DIGITAL_OUTPUT);
-  
+
   while (1) {
     Delay(100);
     count.Write((++counter) & 15);

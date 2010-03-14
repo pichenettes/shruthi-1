@@ -36,11 +36,11 @@ template<uint16_t eeprom_size = 8192 /* bytes */,
 class ExternalEeprom {
  public:
   ExternalEeprom() { }
-  
+
   static void Init() {
     Bus::Init();
   }
-  
+
   static void set_bank(uint8_t bank) {
     bank_ = bank;
   }
@@ -65,7 +65,7 @@ class ExternalEeprom {
     }
     return size;
   }
-  
+
   static uint8_t SetAddress(uint16_t address) {
     uint8_t header[2];
     if (auto_banking) {
@@ -82,7 +82,7 @@ class ExternalEeprom {
       return 0;
     }
   }
-  
+
   static uint8_t Write(uint16_t address, const uint8_t* data, uint8_t size) {
     uint8_t header[2];
     if (auto_banking) {
@@ -97,7 +97,7 @@ class ExternalEeprom {
       return 0;
     }
   }
-  
+
   static uint8_t Read() {
     uint8_t data;
     if (Read(1, &data) == 1) {
@@ -106,14 +106,14 @@ class ExternalEeprom {
       return 0xff;
     }
   }
-  
+
   static uint8_t Read(uint16_t address) {
     if (!SetAddress(address)) {
       return 0xff;
     }
     return Read();
   }
-  
+
   static uint8_t Read(uint16_t address, uint8_t size, uint8_t* data) {
     if (!SetAddress(address)) {
       return 0;
@@ -126,7 +126,7 @@ class ExternalEeprom {
     uint8_t data = byte;
     return Write(&data, 1);
   }
-   
+ 
  private:
   static uint8_t Write(const uint8_t* header, uint8_t header_size, 
                        const uint8_t* payload, uint8_t payload_size) {
@@ -156,9 +156,9 @@ class ExternalEeprom {
       return 0;
     }
   }
-  
+
   static uint8_t bank_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(ExternalEeprom);
 };
 

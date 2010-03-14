@@ -117,11 +117,11 @@ struct PageDefinition {
   ParameterPage next;
 
   ParameterGroup group;
-  
+
   // Previous and next page when cycling with encoder.
   ParameterPage overall_previous;
   ParameterPage overall_next;
-  
+
   ResourceId name;
   UiType ui_type;
   uint8_t first_parameter_index;
@@ -150,25 +150,25 @@ class Editor {
  public:
   Editor() { }
   static void Init();
-  
+
   // Handles a press on a key.
   static void HandleKeyEvent(const hardware_hal::KeyEvent& event);
-  
+
   // Handles the modification of one of the editing pots.
   static void HandleInput(uint8_t knob_index, uint16_t value);
-  
+
   // Handles a rotation of the encoder.
   static void HandleIncrement(int8_t direction);
 
   // Handles a click on the encoder.
   static void HandleClick();
-  
+
   // Displays variants of the current page.
   static void Refresh();
-  
+
   // Displays two lines of text read from a resource.
   static void DisplaySplashScreen(ResourceId first_line);
-  
+
   static inline ParameterPage current_page() { return current_page_; }
   static inline uint8_t leds_pattern() {
     return page_definition_[current_page_].leds_pattern;
@@ -195,20 +195,20 @@ class Editor {
   static uint8_t KnobIndexToParameterId(uint8_t knob_index);
 
   static void ToggleGroup(uint8_t id);
-  
+
   // Output and Input handling for all the different category of pages.
   static void DisplayEditOverviewPage();
   static void DisplayEditDetailsPage();
   static void HandleEditInput(uint8_t knob_index, uint16_t value);
   static void HandleEditIncrement(int8_t direction);
-  
+
   static void DisplayLoadSavePage();
   static void HandleLoadSaveInput(uint8_t knob_index, uint16_t value);
   static void EnterLoadSaveMode();
   static void HandleLoadSaveIncrement(int8_t direction);
   static void DumpCurrentPatch();
   static void LoadPatch(uint8_t index);
-  
+
   static void DisplayStepSequencerPage();
   static void HandleStepSequencerInput(uint8_t knob_index, uint16_t value);
   static void HandleStepSequencerIncrement(int8_t direction);

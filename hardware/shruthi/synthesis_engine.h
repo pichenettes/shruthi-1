@@ -98,7 +98,7 @@ class Voice {
         ((value & 31) >= 16 ? 0xff : 0);
   }
   static inline uint8_t signal()  { return signal_; }
-  
+
   static inline uint8_t dead()  { return dead_; }
   static inline uint8_t modulation_source(uint8_t i) {
     return modulation_sources_[i - kNumGlobalModulationSources];
@@ -108,7 +108,7 @@ class Voice {
   }
   static Envelope* mutable_envelope(uint8_t i) { return &envelope_[i]; }
   static void TriggerEnvelope(uint8_t stage);
-  
+
  private:
   // Envelope generators.
   static Envelope envelope_[kNumEnvelopes];
@@ -129,9 +129,9 @@ class Voice {
   // they will be used for. MOD_DST_FILTER_RESONANCE is the last entry
   // in the modulation destinations enum.
   static int8_t modulation_destinations_[kNumModulationDestinations];
-  
+
   static uint8_t signal_;
-  
+
   static uint8_t osc1_phase_msb_;
 
   DISALLOW_COPY_AND_ASSIGN(Voice);
@@ -147,7 +147,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   // Forwarded to the controller.
   static void NoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
   static void NoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
-  
+
   // Handled.
   static void ControlChange(uint8_t channel, uint8_t controller, uint8_t value);
   static void PitchBend(uint8_t channel, uint16_t pitch_bend);
@@ -164,10 +164,10 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static void SysExByte(uint8_t sysex_byte);
   static void SysExEnd();
   static uint8_t CheckChannel(uint8_t channel);
-  
+
   static void Audio();
   static void Control();
-  
+
   // Patch manipulation stuff.
   static void SetParameter(uint8_t parameter_index, uint8_t parameter_value);
   static inline uint8_t GetParameter(uint8_t parameter_index) {
@@ -199,7 +199,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
     return controller_;
   }
   static inline Patch* mutable_patch() { return &patch_; }
-  
+
   // These variables are sent to I/O pins, and are made accessible here.
   static inline uint8_t modulation_source(uint8_t i, uint8_t j) {
     if (j < kNumGlobalModulationSources) {
@@ -215,7 +215,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
  private:
   // Value of global modulation parameters, scaled to 0-255;
   static uint8_t modulation_sources_[kNumGlobalModulationSources];
-  
+
   static Patch patch_;
   static Lfo lfo_[kNumLfos];
   static uint8_t num_lfo_reset_steps_;  // resync the LFO every n-th step.
@@ -231,10 +231,10 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   // Called whenever a parameter related to LFOs/envelopes is modified (for now
   // everytime a parameter is modified by the user).
   static void UpdateModulationIncrements();
-  
+
   // Called whenever a parameter related to oscillators is called.
   static void UpdateOscillatorAlgorithms();
-  
+
   DISALLOW_COPY_AND_ASSIGN(SynthesisEngine);
 };
 

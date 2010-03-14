@@ -69,7 +69,7 @@ class NoteStack {
   }
   static const NoteEntry& note(uint8_t index) { return pool_[index]; }
   static const NoteEntry& dummy() { return pool_[0]; }
-  
+
  private:
   static uint8_t size_;
   static NoteEntry pool_[kNoteStackSize + 1];  // First element is a dummy node!

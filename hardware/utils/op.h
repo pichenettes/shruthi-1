@@ -24,7 +24,7 @@
 #include "hardware/base/base.h"
 
 namespace hardware_utils_op {
-  
+
 static inline int16_t Clip(int16_t value, int16_t min, int16_t max) {
   return value < min ? min : (value > max ? max : value);
 }
@@ -52,11 +52,11 @@ static inline uint8_t Clip8(int16_t value) {
     : "=r" (result)
     : "a" (value)
   );
-  return result;  
+  return result;
 }
 
 static inline int8_t SignedClip8(int16_t value) {
-  return Clip8(value + 128) + 128;  
+  return Clip8(value + 128) + 128;
 }
 
 static inline uint8_t Mix(uint8_t a, uint8_t b, uint8_t balance) {
@@ -258,7 +258,7 @@ static inline uint8_t ShiftRight6(int16_t value) {
     : "=r" (result)
     : "a" (value)
   );
-  return result;  
+  return result;
 }
 
 #else
@@ -322,7 +322,7 @@ static inline uint16_t Mul16Scale8(uint16_t a, uint16_t b) {
 static inline uint8_t ShiftRight6(uint16_t value) {
   return value >> 6;
 }
-  
+
 #endif  // USE_OPTIMIZED_OP
 
 }  // namespace hardware_utils_op

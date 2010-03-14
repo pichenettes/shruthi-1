@@ -50,7 +50,7 @@ class SwitchArray {
 
  public:
   SwitchArray() { }
-  
+
   static void Init() {
     for (uint8_t i = 0; i < num_inputs; ++i) {
       switch_state_[i].state = 0xff;
@@ -72,11 +72,11 @@ class SwitchArray {
     }
     return 0;
   }
-  
+
   static void Touch() {
     last_event_time_ = milliseconds();
   }
-  
+
   static KeyEvent key_event() {
     KeyEvent e;
     for (uint8_t i = 0; i < num_inputs; ++i) {
@@ -89,7 +89,7 @@ class SwitchArray {
     }
     return e;
   }
-  
+
   static uint8_t Read() {
     T value = Register::Read();
     uint32_t now = milliseconds();
@@ -110,11 +110,11 @@ class SwitchArray {
       mask >>= 1;
     }
   }
-  
+
  private:
   static uint32_t last_event_time_;
   static SwitchState switch_state_[num_inputs];
-  
+
   DISALLOW_COPY_AND_ASSIGN(SwitchArray);
 };
 

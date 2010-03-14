@@ -60,7 +60,8 @@ SwitchArray<
   Gpio<kPinLatch>, 
   Gpio<kPinClk>,
   Gpio<kPinDigitalInput>,
-  kNumSwitches> switches;
+  kNumSwitches,
+  GROUP_LOAD_SAVE> switches;
 
 RotaryEncoder<
     Gpio<kPinEncoderA>,
@@ -133,10 +134,10 @@ void InputTask() {
 TASK_BEGIN_NEAR
   while (1) {
     idle = 0;
-    
+
     // Read the switches.
     switches.Read();
-    
+
     // If a button was pressed, perform the action. Otherwise, if nothing
     // happened for 1.5s, update the idle flag.
     if (switches.idle_time() > 2000) {
@@ -146,12 +147,12 @@ TASK_BEGIN_NEAR
         editor.HandleKeyEvent(switches.key_event());
       }
     }
-    
+
     // Select which analog/digital inputs we want to read by a write to the
     // multiplexer register.
     pot_event = pots.Read();
     PotsMux::set_pin(pots.active_input());
-    
+
     // Update the editor if something happened.
     // Revert back to the main page when nothing happened for 1.5s.
     if (pot_event.event == EVENT_NONE) {
@@ -162,7 +163,7 @@ TASK_BEGIN_NEAR
       editor.HandleInput(pot_event.id, pot_event.value);
     }
     TASK_SWITCH;
-    
+
     delta = encoder.Read();
     if (delta) {
       switches.Touch();
@@ -174,7 +175,7 @@ TASK_BEGIN_NEAR
       }
     }
     TASK_SWITCH;
-    
+
 #ifdef HAS_EASTER_EGG
     if (engine.zobi() == 18) {
       editor.DisplaySplashScreen(STR_RES_P_ORLEANS_21_MN);
@@ -198,15 +199,15 @@ void CvTask() {
 void MidiTask() {
   if (midi_io.readable()) {
     uint8_t value = midi_io.ImmediateRead();
-    
+
     // Copy the byte to the MIDI output (thru). We could use Overwrite here
     // since the output rate is the same as the input rate, which ensures that
     // 0.32ms have elapsed between the writes.
     midi_io.Write(value);
-    
+
     // Also, parse the message.
     uint8_t status = midi_parser.PushByte(value);
-    
+
     // Display a status indicator on the LCD to indicate that a message has
     // been received. This could be done as well in the synthesis engine code
     // or in the MIDI parser, but I'd rather keep the UI code separate.
@@ -252,7 +253,7 @@ void AudioRenderingTask() {
       engine.Audio();
       audio_out.Overwrite(engine.voice(0).signal());
     }
-    
+
     vcf_cutoff_out.Write(engine.voice(0).cutoff());
     vcf_resonance_out.Write(engine.voice(0).resonance());
     vca_out.Write(engine.voice(0).vca());
@@ -304,13 +305,13 @@ TIMER_2_TICK {
 
 void Init() {
   Debug::Init();
-  
+
   scheduler.Init();
-  
+
   lcd.Init();
   display.Init();
   lcd.SetCustomCharMapRes(character_table[0], 8, 0);
-  
+
   editor.Init();
   audio_out.Init();
 
@@ -320,21 +321,21 @@ void Init() {
   Timer<2>::set_prescaler(1);
   Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
   Timer<2>::Start();
-  
+
   vcf_cutoff_out.Init();
   vcf_resonance_out.Init();
   vca_out.Init();
   cv_1_out.Init();
   cv_2_out.Init();
-  
+
   editor.DisplaySplashScreen(STR_RES_MUTABLE);
-  
+
   midi_io.Init();
   pots.Init();
   switches.Init();
   encoder.Init();
-  leds.Init();  
-  
+  leds.Init();
+
   engine.Init();
 }
 

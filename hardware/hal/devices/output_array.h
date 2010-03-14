@@ -77,7 +77,7 @@ class OutputArray {
  private:
   static Value values_[size];
   static Value cycle_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(OutputArray);
 };
 
@@ -153,7 +153,7 @@ class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
  private:
   static Value values_[(size - 1) / 2 + 1];
   static Value cycle_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(OutputArray);
 };
 
@@ -208,7 +208,7 @@ class OutputArray<Latch, Clock, Data, size, 1, order, safe> {
  private:
   static T bits_;
   static T last_bits_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(OutputArray);
 };
 

@@ -33,7 +33,7 @@ namespace hardware_hal {
 enum LCD_FLAGS {
   LCD_COMMAND = 0x00,
   LCD_DATA = 0x10,
-  
+
   LCD_CLEAR = 0x01,
   LCD_HOME = 0x02,
   LCD_ENTRY_MODE = 0x04,
@@ -42,7 +42,7 @@ enum LCD_FLAGS {
   LCD_FUNCTION_SET = 0x20,
   LCD_SET_CGRAM_ADDRESS = 0x40,
   LCD_SET_DDRAM_ADDRESS = 0x80,
-  
+
   LCD_SHIFT = 0x01,
   LCD_NO_SHIFT = 0x00,
   LCD_CURSOR_INCREMENT = 0x02,
@@ -53,13 +53,13 @@ enum LCD_FLAGS {
   LCD_CURSOR_OFF = 0x00,
   LCD_BLINKING_ON = 0x01,
   LCD_BLINKING_OFF = 0x00,
-  
+
   LCD_8_BITS = 0x10,
   LCD_4_BITS = 0x00,
-  
+
   LCD_2_LINE = 0x08,
   LCD_1_LINE = 0x00,
-  
+
   LCD_LARGE_FONT = 0x04,
   LCD_SMALL_FONT = 0x00,
 };
@@ -82,9 +82,9 @@ class Hd44780Lcd {
   typedef Hd44780Lcd<RsPin, EnablePin, ParallelPort, width, height> Me;
   typedef typename DataTypeForSize<data_size>::Type Value;
   typedef Buffer<Me> OutputBuffer;
-  
+
   Hd44780Lcd() { }
-  
+
   static inline void Init() {
     RsPin::set_mode(DIGITAL_OUTPUT);
     EnablePin::set_mode(DIGITAL_OUTPUT);
@@ -101,7 +101,7 @@ class Hd44780Lcd {
       Delay(2);
     }
     SlowWrite((LCD_FUNCTION_SET | LCD_4_BITS) >> 4);
-    
+
     // Set number of lines and bus size.
     if (height == 2) {
       SlowCommand(LCD_FUNCTION_SET | LCD_4_BITS | LCD_2_LINE | LCD_SMALL_FONT);
@@ -126,7 +126,7 @@ class Hd44780Lcd {
       }
     }
   }
-  
+
   static inline uint8_t WriteData(uint8_t c) {
     if (OutputBuffer::writable() < 2) {
       return 0;
@@ -145,7 +145,7 @@ class Hd44780Lcd {
   static inline uint8_t Write(uint8_t character) {
     WriteData(character);
   }
-  
+
   static inline void MoveCursor(uint8_t row, uint8_t col) {
     WriteCommand(LCD_SET_DDRAM_ADDRESS | col | (row << 6));
   }
@@ -159,7 +159,7 @@ class Hd44780Lcd {
       SlowData(*data++);
     }
   }
-  
+
   static inline void SetCustomCharMapRes(
       const uint8_t* data,
       uint8_t num_characters,
@@ -169,10 +169,10 @@ class Hd44780Lcd {
       SlowData(SimpleResourcesManager::Lookup<uint8_t, uint8_t>(data, i));
     }
   }
-  
+
   static inline uint8_t writable() { return OutputBuffer::writable(); }
   static inline uint8_t busy() { return transmitting_; }
-  
+
  private:
   static inline void StartWrite(uint8_t nibble) {
     if (nibble & LCD_DATA) {
@@ -181,19 +181,19 @@ class Hd44780Lcd {
     ParallelPort::Write(nibble & 0x0f);
     EnablePin::High();
   }
-  
+
   static inline void EndWrite() {
     EnablePin::Low();
     RsPin::Low();
   }
-  
+
   static void SlowWrite(uint8_t nibble) {
     StartWrite(nibble);
     Delay(1);
     EndWrite();
     Delay(3);
   }
-  
+
   static void SlowCommand(uint8_t value) {
     SlowWrite(LCD_COMMAND | (value >> 4));
     SlowWrite(LCD_COMMAND | (value & 0x0f));
@@ -203,7 +203,7 @@ class Hd44780Lcd {
     SlowWrite(LCD_DATA | (value >> 4));
     SlowWrite(LCD_DATA | (value & 0x0f));
   }
-  
+
   static uint8_t transmitting_;
   DISALLOW_COPY_AND_ASSIGN(Hd44780Lcd);
 };

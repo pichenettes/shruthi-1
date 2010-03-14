@@ -21,7 +21,7 @@
 #define HARDWARE_MIDI_MIDI_H_
 
 namespace hardware_midi {
-  
+
 const uint8_t kModulationWheelMsb = 0x01;
 const uint8_t kDataEntryMsb = 0x06;
 const uint8_t kDataEntryLsb = 0x26;
@@ -45,7 +45,7 @@ struct MidiDevice {
                              uint8_t value) { }
   static void ProgramChange(uint8_t channel, uint8_t program) { }
   static void PitchBend(uint8_t channel, uint16_t pitch_bend) { }
-  
+
   static void AllSoundOff(uint8_t channel) { }
   static void ResetAllControllers(uint8_t channel) { }
   static void LocalControl(uint8_t channel, uint8_t state) { }
@@ -58,14 +58,14 @@ struct MidiDevice {
   static void SysExByte(uint8_t sysex_byte) { }
   static void SysExEnd() { }
   static void BozoByte(uint8_t bozo_byte) { }
-  
+
   static void Clock() { }
   static void Start() { }
   static void Continue() { }
   static void Stop() { }
   static void ActiveSensing() { }
   static void Reset() { }
-  
+
   static uint8_t CheckChannel(uint8_t channel) { return 1; }
 };
 
@@ -77,12 +77,12 @@ class MidiStreamParser {
 
  private:
   void MessageReceived(uint8_t status);
-   
+ 
   uint8_t running_status_;
   uint8_t data_[3];
   uint8_t data_size_;  // Number of non-status byte received.
   uint8_t expected_data_size_;  // Expected number of non-status bytes.
-  
+
   DISALLOW_COPY_AND_ASSIGN(MidiStreamParser);
 };
 
@@ -156,16 +156,16 @@ void MidiStreamParser<Device>::MessageReceived(uint8_t status) {
   if (!status) {
     Device::BozoByte(data_[0]);
   }
-  
+
   uint8_t hi = status & 0xf0;
   uint8_t lo = status & 0x0f;
-  
+
   // If this is a channel-specific message, check first that the receiver is
   // tune to this channel.
   if (hi != 0xf0 && !Device::CheckChannel(lo)) {
     return;
   }
-  
+
   switch (hi) {
     case 0x80:
       Device::NoteOff(lo, data_[0], data_[1]);
@@ -214,19 +214,19 @@ void MidiStreamParser<Device>::MessageReceived(uint8_t status) {
           break;
       }
       break;
-      
+
     case 0xc0:
       Device::ProgramChange(lo, data_[0]);
       break;
-      
+
     case 0xd0:
       Device::Aftertouch(lo, data_[0]);
       break;
-      
+
     case 0xe0:
       Device::PitchBend(lo, (static_cast<uint16_t>(data_[1]) << 7) + data_[0]);
       break;
-      
+
     case 0xf0:
       switch(lo) {
         case 0x0:
@@ -267,7 +267,7 @@ void MidiStreamParser<Device>::MessageReceived(uint8_t status) {
       break;
   }
 }
-  
+
 }  // namespace hardware_midi
 
 #endif  // HARDWARE_MIDI_MIDI_H_

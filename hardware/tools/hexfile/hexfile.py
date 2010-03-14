@@ -65,7 +65,7 @@ def LoadHexFile(lines):
 
 def WriteHexFile(data, file_object, chunk_size=32):
   """Writes a Hex file."""
-  
+
   for address in xrange(0, len(data), chunk_size):
     chunk = data[address:address+chunk_size]
     chunk_len = len(chunk)

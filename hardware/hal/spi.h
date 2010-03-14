@@ -51,15 +51,15 @@ class Spi {
     buffer_size = 0,
     data_size = 8
   };
-  
+
   static void Init() {
     Clock::set_mode(DIGITAL_OUTPUT);
     DataIn::set_mode(DIGITAL_INPUT);
     DataOut::set_mode(DIGITAL_OUTPUT);
     SlaveSelect::set_mode(DIGITAL_OUTPUT);
-    
+
     SlaveSelect::High();
-    
+
     // SPI enabled, configured as master.
     uint8_t configuration = _BV(SPE) | _BV(MSTR);
     if (order == LSB_FIRST) {
@@ -87,7 +87,7 @@ class Spi {
     }
     SPCR = configuration;
   }
-  
+
   static inline void Write(uint8_t v) {
     SlaveSelect::Low();
     SPDR = v;
@@ -103,7 +103,7 @@ class Spi {
     while (!TransferComplete::value());
     SlaveSelect::High();
   }
-  
+
  private:
   typedef Gpio<slave_select_pin> SlaveSelect;
   typedef Gpio<kSpiDataOutPin> DataOut;

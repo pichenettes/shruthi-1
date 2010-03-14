@@ -32,16 +32,16 @@ class RotaryEncoder {
   typedef DebouncedSwitch<A> SwitchA;
   typedef DebouncedSwitch<B> SwitchB;
   typedef DebouncedSwitch<Click> SwitchClick;
-   
+ 
   RotaryEncoder() { }
-  
+
   static void Init() {
     SwitchA::Init();
     SwitchB::Init();
     SwitchClick::Init();
     next_readout_ = 0;
   }
-  
+
   static inline int8_t Read() {
     uint32_t t = milliseconds();
     int8_t increment = 0;
@@ -56,12 +56,12 @@ class RotaryEncoder {
     }
     return increment;
   }
-  
+
   static uint8_t clicked() { return SwitchClick::raised(); }
 
  private:
   static uint32_t next_readout_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(RotaryEncoder);
 };
 

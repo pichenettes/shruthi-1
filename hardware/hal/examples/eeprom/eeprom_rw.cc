@@ -32,12 +32,12 @@ int main(void) {
   InitAtmega(true);
   Debug::Init();
   eeprom.Init();
-  
+
   uint8_t buffer[32];
   for (uint8_t i = 0; i < 32; ++i) {
     buffer[i] = i + 100;
   }
-  
+
   eeprom.Write(0x20, buffer, 32);
   debug_output << "Written" << endl;
   Delay(4);  // Write/read cycles delay.

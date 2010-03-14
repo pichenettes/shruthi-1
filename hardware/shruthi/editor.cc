@@ -68,17 +68,17 @@ static const prog_char raw_parameter_definition[
   WAVEFORM_NONE, WAVEFORM_ANALOG_WAVETABLE,
   UNIT_WAVEFORM,
   STR_RES_SHAPE, STR_RES_SHAPE,
-  
+
   PRM_OSC_PARAMETER_1,
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_PRM, STR_RES_PARAMETER,
-  
+
   PRM_OSC_RANGE_1,
   -12, 12,
   UNIT_INT8,
   STR_RES_RNG, STR_RES_RANGE,
-  
+
   PRM_OSC_OPTION_1,
   SUM, XOR,
   UNIT_OPERATOR,
@@ -89,17 +89,17 @@ static const prog_char raw_parameter_definition[
   WAVEFORM_IMPULSE_TRAIN, WAVEFORM_TRIANGLE,
   UNIT_WAVEFORM,
   STR_RES_SHAPE, STR_RES_SHAPE,
-  
+
   PRM_OSC_PARAMETER_2,
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_PRM, STR_RES_PARAMETER,
-  
+
   PRM_OSC_RANGE_2,
   -24, 24, 
   UNIT_INT8,
   STR_RES_RNG, STR_RES_RANGE,
-  
+
   PRM_OSC_OPTION_2,
   0, 127,
   UNIT_RAW_UINT8,
@@ -115,7 +115,7 @@ static const prog_char raw_parameter_definition[
   0, 63,
   UNIT_UINT8,
   STR_RES_SUB, STR_RES_SUB_OSC_,
-  
+
   PRM_MIX_NOISE,
   0, 63,
   UNIT_UINT8,
@@ -131,17 +131,17 @@ static const prog_char raw_parameter_definition[
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_CUT, STR_RES_CUTOFF,
-  
+
   PRM_FILTER_RESONANCE,
   0, 63,
   UNIT_UINT8,
   STR_RES_RES, STR_RES_RESONANCE,
-  
+
   PRM_FILTER_ENV,
   0, 63,
   UNIT_INT8,
   STR_RES_ENV1TVCF, STR_RES_ENV1TVCF,
-  
+
   PRM_FILTER_LFO,
   0, 63,
   UNIT_INT8,
@@ -152,17 +152,17 @@ static const prog_char raw_parameter_definition[
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_ATK, STR_RES_ATTACK,
-  
+
   PRM_ENV_DECAY_1,
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_DECAY, STR_RES_DECAY,
-  
+
   PRM_ENV_SUSTAIN_1,
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_SUSTAIN, STR_RES_SUSTAIN,
-  
+
   PRM_ENV_RELEASE_1,
   0, 127,
   UNIT_RAW_UINT8,
@@ -173,17 +173,17 @@ static const prog_char raw_parameter_definition[
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_ATK, STR_RES_ATTACK,
-  
+
   PRM_ENV_DECAY_2,
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_DECAY, STR_RES_DECAY,
-  
+
   PRM_ENV_SUSTAIN_2,
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_SUSTAIN, STR_RES_SUSTAIN,
-  
+
   PRM_ENV_RELEASE_2,
   0, 127,
   UNIT_RAW_UINT8,
@@ -194,22 +194,22 @@ static const prog_char raw_parameter_definition[
   LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_RAMP,
   UNIT_LFO_WAVEFORM,
   STR_RES_WV1, STR_RES_LFO1_WAVE,
-  
+
   PRM_LFO_RATE_1,
   0, 127 + 16,
   UNIT_LFO_RATE,
   STR_RES_RT1, STR_RES_LFO1_RATE,
-  
+
   PRM_LFO_WAVE_2,
   LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_RAMP,
   UNIT_LFO_WAVEFORM,
   STR_RES_WV2, STR_RES_LFO2_WAVE,
-  
+
   PRM_LFO_RATE_2,
   0, 127 + 16,
   UNIT_LFO_RATE,
   STR_RES_RT2, STR_RES_LFO2_RATE,
-  
+
   // Modulations.
   PRM_MOD_ROW,
   0, kModulationMatrixSize - 1,
@@ -220,12 +220,12 @@ static const prog_char raw_parameter_definition[
   0, kNumModulationSources - 1,
   UNIT_MODULATION_SOURCE,
   STR_RES_SRC, STR_RES_SOURCE,
-  
+
   PRM_MOD_DESTINATION,
   0, kNumModulationDestinations - 1,
   UNIT_MODULATION_DESTINATION,
   STR_RES_DST, STR_RES_DEST_,
-  
+
   PRM_MOD_AMOUNT,
   -63, 63,
   UNIT_INT8,
@@ -236,17 +236,17 @@ static const prog_char raw_parameter_definition[
   24, 240,
   UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
   STR_RES_BPM, STR_RES_TEMPO,
-  
+
   PRM_ARP_OCTAVE,
   OFF, 4,
   UNIT_UINT8,
   STR_RES_OCTAVE, STR_RES_OCTAVE,
-  
+
   PRM_ARP_PATTERN,
   0, kNumArpeggiatorPatterns * 4 - 1, 
   UNIT_PATTERN,
   STR_RES_PATTERN, STR_RES_PATTERN,
-  
+
   PRM_ARP_SWING,
   0, 127, 
   UNIT_RAW_UINT8,
@@ -257,17 +257,17 @@ static const prog_char raw_parameter_definition[
   -2, +2,
   UNIT_INT8,
   STR_RES_OCTAVE, STR_RES_OCTAVE,
-  
+
   PRM_KBD_RAGA,
   0, 77, 
   UNIT_RAGA,
   STR_RES_RAGA, STR_RES_RAGA,
-  
+
   PRM_KBD_PORTAMENTO,
   -63, 63,
   UNIT_INT8,
   STR_RES_PRT, STR_RES_PORTA,
-  
+
   PRM_KBD_MIDI_CHANNEL,
   0, 16, 
   UNIT_UINT8,
@@ -288,51 +288,51 @@ const PageDefinition Editor::page_definition_[] = {
   { PAGE_OSC_OSC_1, PAGE_OSC_OSC_2, GROUP_OSC,
     PAGE_MOD_MATRIX, PAGE_OSC_OSC_2,
     STR_RES_OSCILLATOR_1, PARAMETER_EDITOR, 0, LED_OSC_1_MASK },
-    
+
   { PAGE_OSC_OSC_2, PAGE_OSC_OSC_MIX, GROUP_OSC,
     PAGE_OSC_OSC_1, PAGE_OSC_OSC_MIX,
     STR_RES_OSCILLATOR_2, PARAMETER_EDITOR, 4, LED_OSC_2_MASK },
-    
+
   { PAGE_OSC_OSC_MIX, PAGE_OSC_OSC_1, GROUP_OSC,
     PAGE_OSC_OSC_2, PAGE_FILTER_FILTER,
     STR_RES_MIXER, PARAMETER_EDITOR, 8, LED_OSC_1_MASK | LED_OSC_2_MASK },
-    
+
   { PAGE_FILTER_FILTER, PAGE_FILTER_FILTER, GROUP_FILTER,
     PAGE_OSC_OSC_MIX, PAGE_MOD_ENV_1,
     STR_RES_FILTER, PARAMETER_EDITOR, 12, LED_FILTER_MASK },
-    
+
   { PAGE_MOD_ENV_1, PAGE_MOD_ENV_2, GROUP_MOD,
     PAGE_FILTER_FILTER, PAGE_MOD_ENV_2,
     STR_RES_ENVELOPE_1, PARAMETER_EDITOR, 16, LED_MOD_1_MASK },
-    
+
   { PAGE_MOD_ENV_2, PAGE_MOD_LFO, GROUP_MOD,
     PAGE_MOD_ENV_1, PAGE_MOD_LFO,
     STR_RES_ENVELOPE_2, PARAMETER_EDITOR, 20, LED_MOD_2_MASK },
-    
+
   { PAGE_MOD_LFO, PAGE_MOD_MATRIX, GROUP_MOD,
     PAGE_MOD_ENV_2, PAGE_MOD_MATRIX,
     STR_RES_LFOS, PARAMETER_EDITOR, 24, LED_MOD_1_MASK },
-    
+
   { PAGE_MOD_MATRIX, PAGE_MOD_ENV_1, GROUP_MOD,
     PAGE_MOD_LFO, PAGE_OSC_OSC_1,
     STR_RES_MODULATION, PARAMETER_EDITOR, 28, LED_MOD_1_MASK | LED_MOD_2_MASK },
-    
+
   { PAGE_PLAY_ARP, PAGE_PLAY_STEP_SEQUENCER, GROUP_PLAY,
     PAGE_PLAY_STEP_SEQUENCER, PAGE_PLAY_STEP_SEQUENCER,
     STR_RES_ARPEGGIO, PARAMETER_EDITOR, 32, LED_PLAY_MASK },
-    
+
   { PAGE_PLAY_STEP_SEQUENCER, PAGE_PLAY_ARP, GROUP_PLAY,
     PAGE_PLAY_ARP, PAGE_PLAY_ARP,
     STR_RES_SEQUENCER, STEP_SEQUENCER, 0, LED_PLAY_MASK },
-    
+
   { PAGE_SYS_KBD, PAGE_SYS_KBD, GROUP_SYS,
     PAGE_SYS_KBD, PAGE_SYS_KBD,
     STR_RES_KEYBOARD, PARAMETER_EDITOR, 36, LED_SYS_MASK },
-    
+
   { PAGE_LOAD_SAVE, PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
     STR_RES_PATCH_BANK, LOAD_SAVE, 0, LED_WRITE_MASK },
-    
+
   { PAGE_PERFORMANCE, PAGE_PERFORMANCE, GROUP_PERFORMANCE,
     PAGE_PERFORMANCE, PAGE_PERFORMANCE,
     STR_RES_PERFORMANCE, PARAMETER_EDITOR, 0, 0x0 }
@@ -412,9 +412,24 @@ void Editor::ToggleGroup(uint8_t group) {
 
 /* static */
 void Editor::HandleKeyEvent(const KeyEvent& event) {
-  if (event.hold_time < 3) {
-    ToggleGroup(event.id);
-  } else {
+  if (event.shifted) {
+    switch (event.id) {
+      case GROUP_OSC:
+        display.set_status('x');
+        engine.ResetPatch();
+        break;
+
+      case GROUP_FILTER:
+        display.set_status('>');
+        engine.patch().SysExSend();
+        break;
+
+      case GROUP_SYS:
+        DisplaySplashScreen(STR_RES_READY);
+        SystemReset(WDTO_500MS);
+        break;
+    }
+  } else if (event.hold_time >= 3) {
     switch (event.id) {
       case GROUP_PLAY:
         engine.NoteOn(0, 48, test_note_playing_ ? 0 : 100);
@@ -424,7 +439,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       case GROUP_OSC:
         ToggleGroup(GROUP_PERFORMANCE);
         break;
-      
+
       case GROUP_FILTER:
         if (current_page_ <= PAGE_SYS_KBD) {
           parameter_to_assign_.id = page_definition_[
@@ -435,14 +450,9 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
           return;  // To avoid refresh
         }
         break;
-      
-      case GROUP_LOAD_SAVE:
-        if (event.hold_time > 8 /* 2.048 seconds */) {
-          DisplaySplashScreen(STR_RES_READY);
-          SystemReset(WDTO_500MS);
-        }
-        break;
     }
+  } else {
+    ToggleGroup(event.id);
   }
   Refresh();
 }
@@ -489,7 +499,6 @@ void Editor::EnterLoadSaveMode() {
     // mode, and the action was set to "save": all the conditions are met to
     // overwrite the patch.
     engine.mutable_patch()->EepromSave(current_patch_number_);
-    engine.mutable_patch()->SysExSend();
   }
   current_page_ = PAGE_LOAD_SAVE;
   previous_patch_number_ = current_patch_number_;
@@ -575,7 +584,7 @@ void Editor::DisplayLoadSavePage() {
       kLcdWidth);
   AlignLeft(line_buffer_, kLcdWidth);
   display.Print(0, line_buffer_);
-  
+
   UnsafeItoa<int16_t>(current_patch_number_ + 1, 2, line_buffer_);
   AlignRight(line_buffer_, 2);
   line_buffer_[2] = ' ';
@@ -676,19 +685,19 @@ void Editor::DisplayEditOverviewPage() {
     line_buffer_[i * kColumnWidth + kColumnWidth + kLcdWidth] = '\0';
     AlignRight(line_buffer_ + i * kColumnWidth + kLcdWidth + 1, kColumnWidth);
   }
-  
+
   // Change the case of the current parameter accessible by the rotary encoder.
   uint8_t pos = cursor_ * kColumnWidth + 1;
   if (line_buffer_[pos] > 96 && line_buffer_[pos] <= 122) {
     line_buffer_[pos] -= 32;
   }
-  
+
   display.Print(0, line_buffer_);
   display.Print(1, line_buffer_ + kLcdWidth + 1);
 }
 
 /* static */
-void Editor::DisplayEditDetailsPage() {  
+void Editor::DisplayEditDetailsPage() {
   // 0123456789abcdef
   // filter
   // cutoff       127
@@ -730,13 +739,13 @@ void Editor::DisplayEditDetailsPage() {
     AlignLeft(line_buffer_, kLcdWidth);
     display.Print(0, line_buffer_);
   }
-  
+
   ResourcesManager::LoadStringResource(
       parameter.long_name,
       line_buffer_,
       kCaptionWidth);
   AlignLeft(line_buffer_, kCaptionWidth);
-  
+
   PrettyPrintParameterValue(
       parameter,
       line_buffer_ + kCaptionWidth,
@@ -799,7 +808,7 @@ void Editor::HandleEditIncrement(int8_t direction) {
   } else {
     uint8_t index = KnobIndexToParameterId(cursor_);
     const ParameterDefinition& parameter = parameter_definition(index);
-  
+
     int16_t value = GetParameterValue(parameter.id);
     if (parameter.unit == UNIT_INT8) {
       value = static_cast<int16_t>(static_cast<int8_t>(value));
@@ -825,7 +834,7 @@ void Editor::SetParameterValue(uint8_t id, uint8_t value) {
       value = 0;
     }
   }
-  
+
   // Dirty hack for the modulation page.
   if (current_page_ == PAGE_MOD_MATRIX && id == PRM_MOD_ROW) {
     subpage_ = value;

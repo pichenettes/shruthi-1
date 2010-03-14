@@ -338,12 +338,12 @@ void SynthesisEngine::Control() {
       lfo_reset_counter_ = 0;
     }
   }
-  
+
   // Read/shift the value of the step sequencer.
   modulation_sources_[MOD_SRC_SEQ] = patch_.sequence_step(controller_.step());
   modulation_sources_[MOD_SRC_STEP] = (
       controller_.has_arpeggiator_note() ? 255 : 0);
-  
+
   for (uint8_t i = 0; i < kNumVoices; ++i) {
     voice_[i].Control();
   }
@@ -356,7 +356,7 @@ void SynthesisEngine::Audio() {
   if (!oscillator_decimation_) {
     Random::Update();
   }
-  
+
   controller_.Audio();
   for (uint8_t i = 0; i < kNumVoices; ++i) {
     voice_[i].Audio();
@@ -435,18 +435,18 @@ void Voice::Control() {
     envelope_[i].Render();
     dead_ = dead_ && envelope_[i].dead();
   }
-  
+
   pitch_value_ += pitch_increment_;
   if ((pitch_increment_ > 0) ^ (pitch_value_ < pitch_target_)) {
     pitch_value_ = pitch_target_;
     pitch_increment_ = 0;
   }
-  
+
   // Used temporarily, then scaled to modulation_destinations_. This does not
   // need to be static, but if allocated on the heap, we get many push/pops,
   // and the resulting code is slower.
   static int16_t dst[kNumModulationDestinations];
-  
+
   uint8_t has_2_bits_cv = 0;
 
   // Rescale the value of each modulation sources. Envelopes are in the
@@ -459,7 +459,7 @@ void Voice::Control() {
       ShiftRight6(pitch_value_);
   modulation_sources_[MOD_SRC_GATE - kNumGlobalModulationSources] =
       envelope_[0].stage() >= RELEASE ? 0 : 255;
-      
+
   modulation_destinations_[MOD_DST_VCA] = 255;
 
   // Load and scale to 0-16383 the initial value of each modulated parameter.
@@ -474,7 +474,7 @@ void Voice::Control() {
   dst[MOD_DST_CV_1] = 0;
   dst[MOD_DST_CV_2] = 0;
   dst[MOD_DST_2_BITS] = 0;
-  
+
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     int8_t amount = engine.patch_.modulation_matrix.modulation[i].amount;
@@ -539,14 +539,14 @@ void Voice::Control() {
       (engine.patch_.filter_lfo << 7),
       0,
       16383);
-  
+
   // Store in memory all the updated parameters.
   modulation_destinations_[MOD_DST_FILTER_CUTOFF] = ShiftRight6(
       dst[MOD_DST_FILTER_CUTOFF]);
 
   modulation_destinations_[MOD_DST_FILTER_RESONANCE] = ShiftRight6(
       dst[MOD_DST_FILTER_RESONANCE]);
-  
+
   modulation_destinations_[MOD_DST_CV_1] = ShiftRight6(
         dst[MOD_DST_CV_1]);
   modulation_destinations_[MOD_DST_CV_2] = ShiftRight6(
@@ -565,7 +565,7 @@ void Voice::Control() {
       dst[MOD_DST_MIX_BALANCE]);
   modulation_destinations_[MOD_DST_MIX_NOISE] = dst[MOD_DST_MIX_NOISE] >> 8;
   modulation_destinations_[MOD_DST_MIX_SUB_OSC] = dst[MOD_DST_MIX_SUB_OSC] >> 7;
-  
+
   // Update the oscillator parameters.
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
     int16_t pitch = pitch_value_;
@@ -605,7 +605,7 @@ void Voice::Control() {
     // Divide the pitch increment by the number of octaves we had to transpose
     // to get a value in the lookup table.
     increment >>= num_shifts;
-    
+
     // Now the oscillators can recompute all their internal variables!
     uint8_t midi_note = pitch >>= 7;
     if (i == 0) {
@@ -660,7 +660,7 @@ void Voice::Audio() {
       osc1_phase_msb_ = phase_msb;
     }
   }
-  
+
   // Disable sub oscillator and noise when the "vowel" waveform is used - it is
   // just too costly.
   if (engine.patch_.osc_shape[0] != WAVEFORM_VOWEL) {
@@ -673,7 +673,7 @@ void Voice::Audio() {
         Random::state_msb(),
         modulation_destinations_[MOD_DST_MIX_NOISE]);
   }
-  
+
   signal_ = mix;
 }
 

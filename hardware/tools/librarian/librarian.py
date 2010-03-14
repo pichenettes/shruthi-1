@@ -71,7 +71,7 @@ if __name__ == '__main__':
       dest='compile',
       action='store_false',
       help='Converts from a dump .hex file to an editable text file')
-  
+
   options, args = parser.parse_args()
   if len(args) != 1:
     logging.fatal('Specify one, and only one eeprom .hex file!')
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     if len(data) != EEPROM_SIZE:
       logging.fatal('Eeprom data must be 1024 bytes long')
       sys.exit(1)
-  
+
     for offset in range(0, EEPROM_SIZE, PATCH_SIZE):
       name = ''.join(
           map(chr, data[offset + PATCH_SIZE - NAME_LEN:offset + PATCH_SIZE]))

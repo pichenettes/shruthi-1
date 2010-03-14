@@ -59,7 +59,7 @@ struct ShiftMasks<PARALLEL_NIBBLE_LOW> {
 template<typename Port, ParallelPortMode parallel_mode = PARALLEL_BYTE>
 struct ParallelPort {
   typedef ShiftMasks<parallel_mode> Masks;
-  
+
   // Mode change.
   static inline void set_mode(uint8_t mode) {
     uint8_t preserve = (*Port::Mode::ptr() & ~Masks::mask);
@@ -69,16 +69,16 @@ struct ParallelPort {
       *Port::Mode::ptr() = preserve | Masks::mask;
     }
   }
-  
+
   static inline void Write(uint8_t value) {
     uint8_t preserve = *Port::Output::ptr() & ~Masks::mask;
     *Port::Output::ptr() = preserve | (value << Masks::shift);
   }
-  
+
   static inline void EnablePullUpResistors() {
     Write(Masks::mask);
   }
-  
+
   static inline void Read(uint8_t value) {
     return (*Port::Input::ptr() & Masks::mask) >> Masks::shift;
   }

@@ -54,7 +54,7 @@ class ResourcesManager {
     char* address = (char*)(pgm_read_word(&(Tables::string_table()[resource])));
     strncpy_P(buffer, address, buffer_size);
   }
-  
+
   template<typename ResultType, typename IndexType>
   static inline ResultType Lookup(ResourceId resource, IndexType i) {
     if (!Tables::lookup_table_table()) {
@@ -64,7 +64,7 @@ class ResourcesManager {
     pgm_read_word(&(Tables::lookup_table_table()[resource])));
     return ResultType(pgm_read_word(address + i));
   }
-  
+
   template<typename ResultType, typename IndexType>
   static inline ResultType Lookup(const prog_char* p, IndexType i) {
     return ResultType(pgm_read_byte(p + i));
@@ -74,7 +74,7 @@ class ResourcesManager {
   static inline ResultType Lookup(const prog_uint8_t* p, IndexType i) {
     return ResultType(pgm_read_byte(p + i));
   }
-  
+
   template<typename ResultType, typename IndexType>
   static inline ResultType Lookup(const prog_uint16_t* p, IndexType i) {
     return ResultType(pgm_read_word(p + i));

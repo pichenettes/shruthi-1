@@ -111,14 +111,14 @@ static const prog_char sysex_header[] PROGMEM = {
 
 void Patch::SysExSend() const {
   Serial<SerialPort0, 31250, DISABLED, POLLED> midi_output;
-  
+
   Pack(load_save_buffer_);
-  
+
   // Outputs the SysEx header.
   for (uint8_t i = 0; i < sizeof(sysex_header); ++i) {
     midi_output.Write(pgm_read_byte(sysex_header + i));
   }
-  
+
   // Outputs the patch data, in high-low nibblized form.
   uint8_t checksum = 0;  // Sum of all patch data bytes.
   for (uint8_t i = 0; i < kSerializedPatchSize; ++i) {
@@ -126,10 +126,10 @@ void Patch::SysExSend() const {
     midi_output.Write(ShiftRight4(load_save_buffer_[i]));
     midi_output.Write(load_save_buffer_[i] & 0x0f);
   }
-  
+
   midi_output.Write(ShiftRight4(checksum));
   midi_output.Write(checksum & 0x0f);
-  
+
   midi_output.Write(0xf7);  // </SysEx>
 }
 
@@ -151,7 +151,7 @@ void Patch::SysExReceive(uint8_t sysex_byte) {
         sysex_reception_state_ = RECEIVING_FOOTER;
       }
       break;
-      
+
     case RECEIVING_DATA:
       {
         uint8_t i = sysex_bytes_received_ >> 1;
@@ -169,7 +169,7 @@ void Patch::SysExReceive(uint8_t sysex_byte) {
         }
       }
     break;
-    
+
   case RECEIVING_FOOTER:
     if (sysex_byte == 0xf7 &&
         sysex_reception_checksum_ == load_save_buffer_[kSerializedPatchSize] &&

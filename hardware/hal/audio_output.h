@@ -46,14 +46,14 @@ class AudioOutput {
   typedef AudioOutput<OutputPort, buffer_size_, block_size, underrun_policy> Me;
   typedef typename DataTypeForSize<data_size>::Type Value;
   typedef Buffer<Me> OutputBuffer;
-  
+
   static inline void Init() {
     OutputPort::Init();
   }
-  
+
   static inline void Write(Value v) { while (!writable()); Overwrite(v); }
   static inline void Overwrite(Value v) { OutputBuffer::Overwrite(v); }
-  
+
   static inline uint8_t writable() { return OutputBuffer::writable(); }
   static inline uint8_t writable_block() {
     return OutputBuffer::writable() >= block_size;
@@ -65,7 +65,7 @@ class AudioOutput {
     Overwrite(v);
     return 1;
   }
-  
+
   // Called from data emission interrupt.
   static inline void EmitSample() {
     int16_t v = OutputBuffer::NonBlockingRead();
@@ -83,7 +83,7 @@ class AudioOutput {
 
  private:
   static uint16_t num_glitches_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(AudioOutput);
 };
 

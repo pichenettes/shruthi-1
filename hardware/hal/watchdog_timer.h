@@ -25,7 +25,7 @@
 #include "hardware/base/base.h"
 
 namespace hardware_hal {
-  
+
 // Note: this requires the bootloader to clear the Watchdog timer flags just
 // after start-up.
 inline void SystemReset(uint8_t interval) {

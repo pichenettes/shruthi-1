@@ -134,7 +134,7 @@ for zone in range(num_zones):
     square = sine
   bl_square_tables.append(('bandlimited_square_%d' % zone,
                           Scale(square[quadrature])))
-  
+
   triangle = triangle[quadrature]
   if zone == num_zones - 1:
     triangle = sine

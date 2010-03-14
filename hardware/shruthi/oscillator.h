@@ -215,36 +215,36 @@ class Oscillator {
  private:
   // Current phase of the oscillator.
   static uint16_t phase_;
-  
+
   // Phase increment (and phase increment x 2, for low-sr oscillators).
   static uint16_t phase_increment_;
   static uint16_t phase_increment_2_;
-  
+
   // Copy of the shape used by this oscillator. When changing this, you
   // should also update the Update/Render pointers.
   static uint8_t shape_;
   static uint8_t shape_corrected_;
   // Whether we are sweeping through the algorithms.
   static uint8_t sweeping_;
-  
+
   // Current value of the oscillator parameter.
   static uint8_t parameter_;
-  
+
   // Sample generated in the previous full call.
   static uint8_t held_sample_;
-  
+
   // Current MIDI note (used for wavetable selection).
   static uint8_t note_;
-  
+
   // Union of state data used by each algorithm.
   static OscillatorData data_;
-  
+
   // A pair of pointers to the update/render functions. update function might be
   // NULL.
   static AlgorithmFn fn_;
-  
+
   static AlgorithmFn fn_table_[];
-  
+
   static inline uint8_t ReadSample(const prog_uint8_t* table, uint16_t phase) {
     return ResourcesManager::Lookup<uint8_t, uint8_t>(table, phase >> 8);
   }
@@ -292,20 +292,20 @@ class Oscillator {
         InterpolateSample(table_b, phase),
         balance);
   }
-  
+
   // ------- Silence (useful when processing external signals) -----------------
   static void RenderSilence() {
     held_sample_ = 128;
   }
-  
+
   // ------- Band-limited waveforms with variable pulse width ------------------
   static void UpdatePulseSquare() {
     uint8_t note = note_ - 12;
     data_.sq.leak = 255 - (note >> 3);
-    
+
     uint8_t balance_index = Swap4(note);
     data_.sq.balance = balance_index & 0xf0;
-    
+
     uint8_t wave_index = balance_index & 0xf;
     data_.sq.shift = static_cast<uint16_t>(parameter_ + 127) << 8;
     data_.sq.wave[0] = waveform_table[WAV_RES_BANDLIMITED_PULSE_1 + wave_index];
@@ -315,7 +315,7 @@ class Oscillator {
   static void RenderPulseSquare() {
     HALF_SAMPLE_RATE;
     phase_ += phase_increment_2_;
-    
+
     int16_t blit = InterpolateTwoTables(
         data_.sq.wave[0],
         data_.sq.wave[1],
@@ -332,12 +332,12 @@ class Oscillator {
       held_sample_ = square + 128;
     }
   }
-  
+
   // ------- Minimal version of the square and triangle oscillators ------------
   static void UpdateSub() {
     uint8_t balance_index = Swap4(note_);
     data_.st.balance = balance_index & 0xf0;
-    
+
     uint8_t wave_index = balance_index & 0x0f;
     uint8_t base_resource_id = shape_ == WAVEFORM_SQUARE ?
         WAV_RES_BANDLIMITED_SQUARE_1 :
@@ -366,7 +366,7 @@ class Oscillator {
         WAV_RES_BANDLIMITED_SAW_0 :
         (shape_ == WAVEFORM_SQUARE ? WAV_RES_BANDLIMITED_SQUARE_0  : 
         WAV_RES_BANDLIMITED_TRIANGLE_0);
-      
+
     data_.st.wave[0] = waveform_table[base_resource_id + wave_index];
     wave_index = AddClip(wave_index, 1, kNumZonesFullSampleRate);
     data_.st.wave[1] = waveform_table[base_resource_id + wave_index];
@@ -420,7 +420,7 @@ class Oscillator {
   static void RenderWavetable64() {
     HALF_SAMPLE_RATE;
     phase_ += phase_increment_2_;
-    
+
     uint8_t p = data_.wt.smooth_parameter >> 8;
     uint16_t offset_a = (p << 6) + p;  // p * 65
     offset_a += phase_ >> 10;
@@ -433,7 +433,7 @@ class Oscillator {
         lo,
         data_.wt.smooth_parameter & 0xff);
   }
-  
+
   // ------- Casio CZ-like synthesis -------------------------------------------
   static void UpdateCz() {
     data_.cz.formant_phase_increment = phase_increment_ + (
@@ -454,7 +454,7 @@ class Oscillator {
         data_.cz.formant_phase);
     held_sample_ = MulScale8(result, ~phase_msb);
   }
-  
+
   // ------- FM ----------------------------------------------------------------
   static void UpdateFm() {
     uint16_t multiplier = ResourcesManager::Lookup<uint16_t, uint8_t>(
@@ -472,14 +472,14 @@ class Oscillator {
     held_sample_ = InterpolateSample(waveform_table[WAV_RES_SINE],
         phase_ + modulation);
   }
-  
+
   // ------- 8-bit land --------------------------------------------------------
   static void Render8BitLand() {
     phase_ += phase_increment_;
     uint8_t x = parameter_;
     held_sample_ = (((phase_ >> 8) ^ (x << 1)) & (~x)) + (x >> 1);
   }
-  
+
   // ------- Vowel ------------------------------------------------------------
   //
   // The algorithm used here is a reimplementation of the synthesis algorithm
@@ -493,7 +493,7 @@ class Oscillator {
     } else {
       return;
     }
-    
+
     uint8_t offset_1 = ShiftRight4(parameter_);
     offset_1 = (offset_1 << 2) + offset_1;  // offset_1 * 5
     uint8_t offset_2 = offset_1 + 5;
@@ -527,7 +527,7 @@ class Oscillator {
   }
   static void RenderVowel() {
     HALF_SAMPLE_RATE;
-    
+
     int8_t result = 0;
     for (uint8_t i = 0; i < 3; ++i) {
       data_.vw.formant_phase[i] += data_.vw.formant_increment[i];
@@ -549,13 +549,13 @@ class Oscillator {
     }
     held_sample_ = SignedClip8(4 * result) + 128;
   }
-  
+
   // ------- Dirty PWM (kills kittens) -----------------------------------------
   static void RenderDirtyPwm() {
     phase_ += phase_increment_;
     held_sample_ = (phase_ >> 8) < 127 + parameter_ ? 0 : 255;
   }
-  
+
   // ------- Low-passed, then high-passed white noise --------------------------
   static void RenderFilteredNoise() {
     uint8_t innovation = Random::GetByte();
@@ -572,7 +572,7 @@ class Oscillator {
       held_sample_ = data_.no.lp_noise_sample;
     }
   }
-  
+
   DISALLOW_COPY_AND_ASSIGN(Oscillator);
 };
 

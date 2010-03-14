@@ -78,7 +78,7 @@ struct GpioImpl {
   typedef BitInRegister<typename Port::Mode, bit> ModeBit;
   typedef BitInRegister<typename Port::Output, bit> OutputBit;
   typedef BitInRegister<typename Port::Input, bit> InputBit;
-  
+
   // Mode change.
   static inline void set_mode(uint8_t mode) {
     if (mode == DIGITAL_INPUT) {

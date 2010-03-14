@@ -47,7 +47,7 @@ class BufferedDisplay {
   };
 
   BufferedDisplay() { }
-  
+
   static void Init() {
     for (uint8_t i = 0; i < lcd_buffer_size; ++i) {
       local_[i] = ' ';
@@ -57,7 +57,7 @@ class BufferedDisplay {
     blink_ = 0;
     cursor_position_ = 255;
   }
-  
+
   static void Print(uint8_t line, const char* text) {
     uint8_t row = width;
     uint8_t* destination = local_ + (line << Log2<width>::value);
@@ -74,7 +74,7 @@ class BufferedDisplay {
       --row;
     }
   }
-  
+
   // Use kLcdNoCursor (255) or any other value outside of the screen to hide.
   static inline void set_cursor_position(uint8_t cursor) {
     cursor_position_ = cursor;
@@ -100,7 +100,7 @@ class BufferedDisplay {
     }
     // It is now safe to assume that all writes of 4 bytes to the display buffer
     // will not block.
-    
+
     // Blink the cursor and clears the status character.
     blink_clock_ = (blink_clock_ + 1) & kLcdCursorBlinkRate;
     if (blink_clock_ == 0) {

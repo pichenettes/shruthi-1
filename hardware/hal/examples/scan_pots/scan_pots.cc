@@ -44,12 +44,12 @@ int main(void) {
   b.Init();
   c.Init();
   d.Init();
-  
+
   Timer<1>::set_prescaler(1);
   Timer<1>::set_mode(TIMER_PWM_PHASE_CORRECT);
   Timer<2>::set_prescaler(1);
   Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
-  
+
   idle = 0;
   debug_output << "Let's do some scanning" << endl;
   while (1) {

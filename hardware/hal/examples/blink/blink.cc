@@ -21,13 +21,13 @@ using namespace hardware_hal;
 
 int main(void) {
   Gpio<7> led;
-  
+
   InitAtmega(false);
   led.set_mode(DIGITAL_OUTPUT);
   while (1) {
     led.High();
     Delay(500);
-   
+ 
     led.Low();
     Delay(500);
   }

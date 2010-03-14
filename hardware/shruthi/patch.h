@@ -50,7 +50,7 @@ enum SysExReceptionState {
   RECEIVING_HEADER = 0,
   RECEIVING_DATA = 1,
   RECEIVING_FOOTER = 2,
-  
+
   RECEPTION_OK = 3,
   RECEPTION_ERROR = 4,
 };
@@ -64,7 +64,7 @@ class Patch {
   uint8_t osc_parameter[2];
   int8_t osc_range[2];
   uint8_t osc_option[2];
-  
+
   // Offset: 8-12
   uint8_t mix_balance;
   uint8_t mix_sub_osc;
@@ -76,34 +76,34 @@ class Patch {
   uint8_t filter_resonance;
   int8_t filter_env;
   int8_t filter_lfo;
-  
+
   // Offset: 16-24
   uint8_t env_attack[2];
   uint8_t env_decay[2];
   uint8_t env_sustain[2];
   uint8_t env_release[2];
-  
+
   // Offset: 24-28
   uint8_t lfo_wave[2];
   uint8_t lfo_rate[2];
-  
+
   // Offset: 28-58, 58-70
   ModulationMatrix modulation_matrix;
-  
+
   // Offset: 70-74, not saved
-  
+
   uint8_t arp_tempo;
   uint8_t arp_octave;
   uint8_t arp_pattern;
   uint8_t arp_swing;
-  
+
   // Offset: 74-82
   uint8_t sequence[8];
-  
+
   // Offset: 82-86, not saved
   int8_t kbd_octave;
   uint8_t kbd_raga;
-  
+
   // Positive: always on. Negative: auto.
   int8_t kbd_portamento;
 
@@ -111,10 +111,10 @@ class Patch {
 
   // Offset: 86-94
   uint8_t name[kPatchNameSize];
-  
+
   // Offset: 94, not saved
   uint8_t pattern_size;
-  
+
   // Get the value of a step in the sequence.
   uint8_t sequence_step(uint8_t step) const {
     return (step & 1) ? sequence[step >> 1] << 4 : sequence[step >> 1] & 0xf0;
@@ -134,7 +134,7 @@ class Patch {
   void SysExReceive(uint8_t sysex_byte);
   void Backup() const;
   void Restore();
-  
+
   inline uint8_t sysex_reception_state() const {
     return sysex_reception_state_;
   }
@@ -143,14 +143,14 @@ class Patch {
   static uint8_t CheckBuffer() __attribute__((noinline));
   void Pack(uint8_t* patch_buffer) const;
   void Unpack(const uint8_t* patch_buffer);
-  
+
   // Buffer in which the patch is compressed for load/save operations. The last
   // byte is for the checksum added to the stream during sysex dumps.
   static uint8_t load_save_buffer_[kSerializedPatchSize + 1];
   // Buffer used to allow the user to undo the loading of a patch (similar to
   // the "compare" function on some synths).
   static uint8_t undo_buffer_[kSerializedPatchSize];
-  
+
   static uint8_t sysex_bytes_received_;
   static uint8_t sysex_reception_state_;
   static uint8_t sysex_reception_checksum_;
@@ -174,7 +174,7 @@ enum ModulationSource {
   MOD_SRC_CV_2,
   MOD_SRC_CV_3,
   MOD_SRC_RANDOM,
-  
+
   /* Then those which are different for each note. */
   MOD_SRC_ENV_1 = kNumGlobalModulationSources,
   MOD_SRC_ENV_2,
@@ -245,16 +245,16 @@ enum Parameter {
   PRM_ARP_OCTAVE,
   PRM_ARP_PATTERN,
   PRM_ARP_SWING,
-  
+
   PRM_SEQUENCE = 3 * kModulationMatrixSize + 28 + 4,
 
   PRM_KBD_OCTAVE = 3 * kModulationMatrixSize + 28 + 12,
   PRM_KBD_RAGA,
   PRM_KBD_PORTAMENTO,
   PRM_KBD_MIDI_CHANNEL,
-  
+
   PRM_NAME = 3 * kModulationMatrixSize + 28 + 16,
-  
+
   PRM_ARP_PATTERN_SIZE = 94
 };
 

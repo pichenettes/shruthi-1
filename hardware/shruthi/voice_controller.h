@@ -95,7 +95,7 @@ class VoiceController {
   // Increment by 1 every 1/16th note, with swing.
   static uint8_t pattern_step_;
   static uint8_t pattern_size_;
-  
+
   // Incremented/decremented by 1 for up/down pattern.
   static int8_t arpeggio_step_;
   // Direction increment.
@@ -108,20 +108,20 @@ class VoiceController {
   static NoteStack notes_;
   static Voice* voices_;
   static uint8_t num_voices_;
-  
+
   static uint8_t tempo_;
   // After 4 beats without event, the sequencer is not active. The LED stops
   // blinking and the sequencer will restart from the first note in the pattern. 
   static uint8_t active_;
   static uint8_t inactive_steps_;
-  
+
   // In order to sync the LFOs to an external MIDI clock, we need to estimate at
   // which BPM the master MIDI clock is running. This attemps to track this by
   // counting the number of control rate cycles in a beat.
   static uint16_t step_duration_estimator_num_;
   static uint8_t step_duration_estimator_den_;
   static uint16_t estimated_beat_duration_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(VoiceController);
 };
 

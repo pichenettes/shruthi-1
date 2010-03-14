@@ -71,7 +71,7 @@ class InputArray {
   static Event Read() {
     Event e;
     e.id = active_input_;
-    
+
     // Read a value from the ADC and check if something occurred.
     e.value = Input::Read();
     uint8_t same;
@@ -95,13 +95,13 @@ class InputArray {
         e.event = EVENT_CHANGED;
       }
     }
-    
+
     // The next call to Read() will read the next input.
     ++active_input_;
     if (active_input_ == num_inputs) {
       active_input_ = 0;
     }
-    
+
     // During the first cycle, do not raise any event - just record the values.
     if (starting_up_) {
       if (active_input_ == 0) {
@@ -113,13 +113,13 @@ class InputArray {
     return e;
   }
   static uint8_t active_input() { return active_input_; }
-  
+
  private:
   static T values_[num_inputs];
   static uint8_t active_input_;
   static uint8_t starting_up_;
   static uint32_t last_event_time_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(InputArray);
 };
 

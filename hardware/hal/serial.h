@@ -92,19 +92,19 @@ struct SerialInput : public Input {
     data_size = 8
   };
   typedef uint8_t Value;
-  
+
   // Blocking!
-  static inline Value Read() { while (!readable()); return ImmediateRead(); }  
-  
+  static inline Value Read() { while (!readable()); return ImmediateRead(); }
+
   // Number of bytes available for read.
   static inline uint8_t readable() { return SerialPort::rx_ready(); }
-  
+
   // A byte, or -1 if reading failed.
   static inline int16_t NonBlockingRead() { return readable() ? Read() : -1; }
-  
+
   // No check for ready state.
   static inline Value ImmediateRead() { return SerialPort::data(); }
-  
+
   // Called in data reception interrupt.
   static inline void Received() {
     if (!readable()) {
@@ -122,13 +122,13 @@ struct SerialOutput : public Output {
     data_size = 8
   };
   typedef uint8_t Value;
-  
+
   // Blocking!
   static inline void Write(Value v) { while (!writable()); Overwrite(v); }
-  
+
   // Number of bytes that can be fed.
   static inline uint8_t writable() { return SerialPort::tx_ready(); }
-  
+
   // 1 if success.
   static inline uint8_t NonBlockingWrite(Value v) {
     if (!writable()) {
@@ -137,10 +137,10 @@ struct SerialOutput : public Output {
     Overwrite(v);
     return 1;
   } 
-  
+
   // No check for ready state.
   static inline void Overwrite(Value v) { SerialPort::set_data(v); }
-  
+
   // Called in data emission interrupt.
   static inline Value Requested() {
     Value v = Buffer<SerialOutput<SerialPort> >::NonBlockingRead();

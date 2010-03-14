@@ -29,11 +29,11 @@ int main(void) {
   InitAtmega(true);
   OutputArray<Gpio<22>, Gpio<7>, Gpio<23>, 8, 4, MSB_FIRST, false> leds;
   SwitchArray<Gpio<22>, Gpio<7>, Gpio<6>, 6> switches;
-  
+
   uint8_t current_led = 0;
   uint8_t intensity = 15;
   uint8_t divide = 0;
-  
+
   Debug::Init();
   leds.Init();
   switches.Init();
@@ -53,13 +53,13 @@ int main(void) {
               --current_led;
             }
             break;
-          
+
           case 4:
             if (current_led < 7) {
               ++current_led;
             }
             break;
-          
+
           case 3:
             if (intensity > 0) {
               --intensity;
@@ -77,7 +77,7 @@ int main(void) {
             current_led = 0;
             full = 0;
             break;
-            
+
           case 0:
             full = ~full;
             break;
@@ -89,5 +89,5 @@ int main(void) {
       leds.set_value(i, (i == current_led || full) ? intensity : 0);
     }
     leds.Output();
-  }  
+  }
 }

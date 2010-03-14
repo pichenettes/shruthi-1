@@ -27,7 +27,7 @@
 using hardware_utils::Random;
 
 namespace hardware_shruthi {
-  
+
 /* <static> */
 int16_t VoiceController::internal_clock_counter_;
 uint8_t VoiceController::midi_clock_counter_;
@@ -36,7 +36,7 @@ int16_t VoiceController::step_duration_[2];
 uint16_t VoiceController::pattern_;
 uint16_t VoiceController::pattern_mask_;
 uint8_t VoiceController::pattern_step_;
-  
+
 int8_t VoiceController::arpeggio_step_;
 int8_t VoiceController::direction_;
 int8_t VoiceController::octave_step_;
@@ -46,7 +46,7 @@ uint8_t VoiceController::mode_;
 NoteStack VoiceController::notes_;
 Voice* VoiceController::voices_;
 uint8_t VoiceController::num_voices_;
-  
+
 uint8_t VoiceController::tempo_;
 uint8_t VoiceController::pattern_size_;
 uint8_t VoiceController::active_;
@@ -175,7 +175,7 @@ uint8_t VoiceController::Control() {
     return 0;
   }
   ++step_duration_estimator_den_;
-  
+
   // Move to the next step in the x-o-x pattern.
   pattern_mask_ <<= 1;
   pattern_step_ += 1;
@@ -190,7 +190,7 @@ uint8_t VoiceController::Control() {
       inactive_steps_ = 0;
     }
   }
-  
+
   // Update the value of the counter depending on which steps we are on.
   // Steps 1, 2 are longer than steps 3, 4 if swing is enabled.
   if (tempo_) {
@@ -211,7 +211,7 @@ uint8_t VoiceController::Control() {
   if (notes_.size() == 0 || octaves_ == 0) {
     return 1;
   }
-  
+
   // If the bit is set in the x-o-x pattern, move to the next note.
   if (has_arpeggiator_note()) {
     Step();
@@ -280,6 +280,6 @@ void VoiceController::Step() {
     note -= 12;
   }
   voices_[0].Trigger(note, notes_.sorted_note(arpeggio_step_).velocity, false);
-}    
+}
 
 }  // namespace hardware_shruthi

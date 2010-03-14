@@ -102,7 +102,7 @@ class MuxedAnalogInput {
   static void set_pin(uint8_t current_pin) {
     current_pin_ = current_pin;
   }
-  
+
  private:
   static uint8_t current_pin_;
 };

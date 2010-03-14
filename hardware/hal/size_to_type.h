@@ -36,7 +36,7 @@ template<> struct DataTypeForSize<5> { typedef uint8_t Type; };
 template<> struct DataTypeForSize<6> { typedef uint8_t Type; };
 template<> struct DataTypeForSize<7> { typedef uint8_t Type; };
 template<> struct DataTypeForSize<8> { typedef uint8_t Type; };
-  
+
 }  // namespace hardware_hal
 
 #endif   // HARDWARE_HAL_SIZE_TO_TYPE_H_

@@ -52,7 +52,7 @@ excursion = 32767.0
 gamma = 0.25
 min_increment = excursion / (max_time * control_rate)
 max_increment = excursion / (min_time * control_rate)
-          
+
 rates = numpy.linspace(numpy.power(max_increment, -gamma),
                        numpy.power(min_increment, -gamma), num_values)
 
@@ -207,7 +207,7 @@ def LayoutRaga(raga):
           break
       else:
         mapping[i] = candidates[0]
-  
+
   scale = [shruti_dictionary.get(swara) for swara in mapping]
   return Compute(' '.join(mapping))
 
@@ -336,7 +336,7 @@ lookup_tables.append(
       'o--o --o- -o-- o-o-',
       'o-o- -o-- o--o --o-',
       'oo-o o-oo oo-o o-oo',
-      
+
       'oooo o-oo -oo- ooo-',
       'o--- o--- o--o -o-o',
       'o--o o--- o-o- o-oo',

@@ -31,7 +31,7 @@ namespace hardware_hal {
 
 inline void InitAtmega(bool init_timers) {
   sei();
-  
+
   if (init_timers) {
     Timer<1>::set_prescaler(3);
     Timer<1>::set_mode(TIMER_PWM_PHASE_CORRECT);
@@ -39,13 +39,13 @@ inline void InitAtmega(bool init_timers) {
     Timer<2>::set_prescaler(3);
     Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
   }
-  
+
   InitClock();
-  
+
   // ADC setup.
   Adc::set_prescaler(7);  // 128 -> 125kHz sampling rate.
   Adc::Enable();
-  
+
   // Neuter the UARTs.
   UCSR0B = 0;
   UCSR1B = 0;

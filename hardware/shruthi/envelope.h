@@ -44,9 +44,9 @@ enum EnvelopeStage {
 class Envelope {
  public:
   Envelope() { }
-   
+ 
   void Init();
-  
+
   uint8_t dead() { return stage_ == DEAD; }
   uint8_t stage() { return stage_; }
   int16_t value() { return value_; }
@@ -82,9 +82,9 @@ class Envelope {
   // Increment and target for each stage of the envelope.
   int16_t stage_increment_[UNKNOWN + 1];
   int16_t stage_target_[UNKNOWN + 1];
-   
+ 
   static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale);
-  
+
   DISALLOW_COPY_AND_ASSIGN(Envelope);
 };
 

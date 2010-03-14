@@ -23,12 +23,12 @@
 #include "hardware/hal/gpio.h"
 
 namespace hardware_hal {
-  
+
 template<typename Input, bool pulled_up = true>
 class DebouncedSwitch {
  public:
   DebouncedSwitch() { }
-  
+
   static inline void Init() {
     Input::set_mode(DIGITAL_INPUT);
     if (pulled_up) {
@@ -36,7 +36,7 @@ class DebouncedSwitch {
     }
     state_ = 0xff;
   }
-  
+
   // To be called at a rate < 1000 Hz.
   static inline void Read() {
     state_ = (state_ << 1) | Input::value();
@@ -46,18 +46,18 @@ class DebouncedSwitch {
       debounced_value_ = 0;
     }
   }
-  
+
   static inline uint8_t lowered() { return state_ == 0x80; }
   static inline uint8_t raised() { return state_ == 0x7f; }
   static inline uint8_t high() { return state_ == 0xff; }
   static inline uint8_t low() { return state_ == 0x00; }
-  
+
   static inline uint8_t debounced_value() { return debounced_value_; }
-  
+
  private:
   static uint8_t state_;
   static uint8_t debounced_value_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(DebouncedSwitch);
 };
 

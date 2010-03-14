@@ -29,7 +29,7 @@ int main(void) {
   PrettyPrinter<Debug> debug_output;
   Encoder encoder;
   int16_t value = 0;
-  
+
   InitAtmega(true);
   Debug::Init();
   encoder.Init();

@@ -118,7 +118,7 @@ class BufferedSoftwareSerialOutput {
 
   static uint8_t tx_state_;
   static uint8_t tx_byte_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(BufferedSoftwareSerialOutput);
 };
 
@@ -166,7 +166,7 @@ struct SoftwareSerialOutput {
     SREG = oldSREG;
     TunedDelay(delay);
   }
-  
+
   static inline void TunedDelay(uint16_t delay) {
     uint8_t tmp = 0;
     asm volatile(

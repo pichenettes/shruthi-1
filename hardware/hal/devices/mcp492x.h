@@ -44,11 +44,11 @@ class Dac {
     data_size = 8,
   };
   Dac() { }
-  
+
   static void Init() {
     DacInterface::Init();
   }
-  
+
   static void Write(uint8_t value) {
     Write(value, 0);
   }

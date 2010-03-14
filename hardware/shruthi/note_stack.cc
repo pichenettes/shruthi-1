@@ -115,7 +115,7 @@ void NoteStack::Clear() {
   size_ = 0;
   memset(pool_ + 1, 0, sizeof(NoteEntry) * kNoteStackSize);
   memset(sorted_ptr_ + 1, 0, kNoteStackSize);
-  root_ptr_ = 0;  
+  root_ptr_ = 0;
 }
 
 }  // namespace hardware_shruthi

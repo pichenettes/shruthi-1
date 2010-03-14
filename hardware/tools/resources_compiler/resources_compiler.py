@@ -85,9 +85,9 @@ def GenerateHeader(base_name, res):
 
   if res.namespace:
     f.write('namespace %s {\n\n' % res.namespace)
-  
+
   f.write('typedef %s ResourceId;\n\n' % res.types[max_num_resources > 255])
-  
+
   for resource, table_name, prefix, c_type, python_type, ram in res.resources:
     f.write('extern const %s* %s_table[];\n\n' % (c_type, table_name))
 
@@ -111,14 +111,14 @@ def GenerateHeader(base_name, res):
         f.write('#define %s_%s %d\n' % (prefix, Canonicalize(name).upper(), i))
         args = (prefix, Canonicalize(name).upper(), len(data))
         f.write('#define %s_%s_SIZE %d\n' % args)
-    
+
   if res.create_specialized_manager:
     f.write('typedef hardware_resources::ResourcesManager<\n')
     f.write('    ResourceId,\n')
     f.write('    hardware_resources::ResourcesTables<\n')
     f.write('        %s_table,\n' % res.resources[0][1])
     f.write('        %s_table> > ResourcesManager; \n' % res.resources[1][1])
-  
+
   if res.namespace:
     f.write('\n}  // namespace %s\n' % res.namespace)
   f.write('\n#endif  // %s_%s_H_\n' % (header_guard, base_name.upper()))
@@ -130,7 +130,7 @@ def GenerateCc(base_name, res):
   f.write('#include "%s.h"\n' % base_name)
   if res.namespace:
     f.write('\nnamespace %s {\n\n' % res.namespace)
-    
+
   for resource, table_name, prefix, c_type, python_type, ram in res.resources:
     if python_type == str:
       for string in resource:
@@ -183,7 +183,7 @@ def Compile(path):
   res = __import__(base_name.replace('/', '.'))
   for part in base_name.split('/')[1:]:
     res = getattr(res, part)
-  
+
   # Convert any big multi-line string into a list of string.
   for i, resource_tuple in enumerate(res.resources):
     if resource_tuple[-2] == str:
@@ -194,7 +194,7 @@ def Compile(path):
       if CheckDups([Canonicalize(x) for x in resource_tuple[0]]):
         return
       res.resources[i] = tuple(resource_tuple)
-  
+
   base_name = 'resources'  #os.path.split(base_name)[-1]
   GenerateHeader(base_name, res)
   GenerateCc(base_name, res)

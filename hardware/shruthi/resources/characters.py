@@ -21,7 +21,7 @@
 
 def StringImageToBytes(string_image):
   """Converts an "ASCII art" image into character definition data.
-  
+
   The output is a list of bytes, and the image is made of spaces or . and X.
   """
   rows = [row.strip() for row in string_image.split('\n') if row.strip()]

@@ -51,7 +51,7 @@ TIMER_2_TICK {
   }
 }
 
-int main(void) {  
+int main(void) {
   InitAtmega(false);
 
   lcd.Init();
@@ -59,11 +59,11 @@ int main(void) {
   Timer<2>::set_prescaler(1);
   Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
   Timer<2>::Start();
-  
+
   display.Init();
-  
+
   lcd.SetCustomCharMap(chars, 8, 0);
-  
+
   display.Print(0, "hello \x01\x02\x03\x04\x05\x06\x07");
   uint16_t cpt = 0;
   display.set_cursor_position(31);

@@ -64,11 +64,11 @@ template<typename StatusRegisterA,
 struct TimerImpl {
   typedef StatusRegisterA A;
   typedef StatusRegisterB B;
-  
+
   static inline uint8_t value() {
     return *ValueRegister::ptr();
   }
-  
+
   static inline void Start() {
     if (!tweakable) return;
     *ModeRegister::ptr() |= 1;

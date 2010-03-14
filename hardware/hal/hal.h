@@ -78,19 +78,19 @@ struct Input {
     data_size = 0,  // 0 for disabled port, 1 for digital, 8 for byte.
   };
   typedef uint8_t Value;
-  
+
   // Blocking!
-  static inline Value Read() { while (!readable()); return ImmediateRead(); }  
-  
+  static inline Value Read() { while (!readable()); return ImmediateRead(); }
+
   // Number of bytes available for read.
   static inline uint8_t readable() { return 1; }
-  
+
   // A byte, or -1 if reading failed.
   static inline int16_t NonBlockingRead() { return readable() ? Read() : -1; }
-  
+
   // No check for ready state.
   static inline Value ImmediateRead() { return 0; }
-  
+
   // Called in data reception interrupt.
   static inline void Received() { }
 };
@@ -101,13 +101,13 @@ struct Output {
     data_size = 0  // 0 for disabled port, 1 for digital, 8 for byte.
   };
   typedef uint8_t Value;
-  
+
   // Blocking!
   static inline void Write(Value v) { while (!writable()); Overwrite(v); }
-  
+
   // Number of bytes that can be fed.
   static inline uint8_t writable() { return 1; }
-  
+
   // 1 if success.
   static inline uint8_t NonBlockingWrite(Value v) {
     if (!writable()) {
@@ -116,12 +116,12 @@ struct Output {
     Overwrite(v);
     return 1;
   } 
-  
+
   // No check for ready state.
   static inline void Overwrite(Value) { return; }
-  
+
   // Called in data emission interrupt.
-  static inline Value Requested() { return 0; }  
+  static inline Value Requested() { return 0; }
 };
 
 // An object capable both of input and output, composed from an Input and an
@@ -130,7 +130,7 @@ template<typename I, typename O>
 struct InputOutput {
   typedef I Input;
   typedef O Output;
-  
+
   static inline void Write(typename O::Value v) { O::Write(v); }
   static inline uint8_t writable() { return O::wriable(); }
   static inline uint8_t NonBlockingWrite(typename O::Value v ) {
@@ -142,7 +142,7 @@ struct InputOutput {
   static inline uint8_t readable() { return I::readable(); }
   static inline int16_t NonBlockingRead() { return I::NonBlockingRead(); }
   static inline typename I::Value ImmediateRead() { return I::ImmediateRead(); }
-  static inline void Received() { I::Received(); }  
+  static inline void Received() { I::Received(); }
 };
 
 
