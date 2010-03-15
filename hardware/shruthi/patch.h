@@ -129,7 +129,7 @@ class Patch {
   uint8_t sys_midi_out_chain;
 
   // Sequencer.
-  
+
   // Offset: 84-88
   uint8_t arp_tempo;
   uint8_t arp_octave;
@@ -138,7 +138,7 @@ class Patch {
 
   // Offset: 88-96
   uint8_t sequence[8];
-  
+
   // Offset: 96-112
   uint8_t note_sequence[16];
   // Offset: 113
@@ -236,7 +236,7 @@ enum Parameter {
   PRM_OSC_PARAMETER_1,
   PRM_OSC_RANGE_1,
   PRM_OSC_OPTION_1,
-  
+
   PRM_OSC_SHAPE_2,
   PRM_OSC_PARAMETER_2,
   PRM_OSC_RANGE_2,
@@ -256,7 +256,7 @@ enum Parameter {
   PRM_ENV_DECAY_1,
   PRM_ENV_SUSTAIN_1,
   PRM_ENV_RELEASE_1,
-  
+
   PRM_ENV_ATTACK_2,
   PRM_ENV_DECAY_2,
   PRM_ENV_SUSTAIN_2,
@@ -266,7 +266,7 @@ enum Parameter {
   PRM_LFO_RATE_1,
   PRM_LFO_ATTACK_1,
   PRM_LFO_RETRIGGER_1,
-  
+
   PRM_LFO_WAVE_2,
   PRM_LFO_RATE_2,
   PRM_LFO_ATTACK_2,
@@ -276,7 +276,7 @@ enum Parameter {
   PRM_MOD_DESTINATION,
   PRM_MOD_AMOUNT,
   PRM_MOD_ROW,
-  
+
   PRM_SYS_OCTAVE = 3 * kModulationMatrixSize + PRM_MOD_SOURCE + kPatchNameSize,
   PRM_SYS_RAGA,
   PRM_SYS_PORTAMENTO,

@@ -71,7 +71,7 @@ class Envelope {
       Trigger(stage_);
     }
   }
-  
+
   static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale);
 
  private:

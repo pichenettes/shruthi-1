@@ -38,10 +38,10 @@ namespace hardware_shruthi {
 class Lfo {
  public:
   Lfo() { }
-  
+
   uint8_t Render() {
     uint8_t value;
-    
+
     // Ramp up the intensity envelope.
     if (!intensity_envelope_stage_) {
       intensity_ += intensity_increment_;
@@ -50,7 +50,7 @@ class Lfo {
         intensity_envelope_stage_ = 1;
       }
     }
-    
+
     // Compute the LFO value.
     switch (shape_) {
       case LFO_WAVEFORM_S_H:
@@ -76,19 +76,19 @@ class Lfo {
         break;
     }
     phase_ += phase_increment_;
-    
+
     // Apply the intensity envelope.
     return SignedMulScale8(
         static_cast<int8_t>(value) - 128,
         hardware_utils_op::ShiftRight6(intensity_)
     ) + 128;
   }
-  
+
   void Reset() {
     phase_ = 0;
     Trigger();
   }
-  
+
   void Trigger() {
     if (retrigger_) {
       phase_ = 0;
@@ -96,7 +96,7 @@ class Lfo {
     intensity_ = 0;
     intensity_envelope_stage_ = 0;
   }
-  
+
   void Update(uint8_t shape, uint16_t phase_increment,
               uint8_t attack, uint8_t retrigger) {
     shape_ = shape;

@@ -200,7 +200,7 @@ static const prog_char raw_parameter_definition[
   0, 127 + 16,
   UNIT_LFO_RATE,
   STR_RES_RATE, STR_RES_RATE,
-  
+
   PRM_LFO_ATTACK_1,
   0, 127,
   UNIT_RAW_UINT8,
@@ -210,7 +210,7 @@ static const prog_char raw_parameter_definition[
   0, 1,
   UNIT_BOOLEAN,
   STR_RES_RST, STR_RES_RESET,
-  
+
   // Lfo 2.
   PRM_LFO_WAVE_2,
   LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_RAMP,
@@ -221,7 +221,7 @@ static const prog_char raw_parameter_definition[
   0, 127 + 16,
   UNIT_LFO_RATE,
   STR_RES_RATE, STR_RES_RATE,
-  
+
   PRM_LFO_ATTACK_2,
   0, 127,
   UNIT_RAW_UINT8,
@@ -294,22 +294,22 @@ static const prog_char raw_parameter_definition[
   0, 1,
   UNIT_BOOLEAN,
   STR_RES_LEGATO, STR_RES_LEGATO,
-  
+
   PRM_SYS_MASTER_TUNING,
   -127, 127,
   UNIT_INT8,
   STR_RES_TUNING, STR_RES_TUNING,
-  
+
   PRM_SYS_MIDI_CHANNEL,
   0, 16, 
   UNIT_UINT8,
   STR_RES_CHN, STR_RES_MIDI_CHAN,
-  
+
   PRM_SYS_MIDI_OUT_MODE,
   MIDI_OUT_OFF, MIDI_OUT_DAISY_CHAIN,
   UNIT_MIDI_MODE,
   STR_RES_MIDI_OUT, STR_RES_MIDI_OUT,
-  
+
   PRM_SYS_MIDI_OUT_CHAIN,
   1, 8,
   UNIT_UINT8,
@@ -468,7 +468,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         display.set_status('x');
         engine.ResetPatch();
         break;
-        
+
       case GROUP_FILTER:
         display.set_status('?');
         // TODO(pichenettes): random patch
