@@ -15,7 +15,23 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Envelopes
+// Envelopes.
+//
+// This implements a piece-wise ADSR envelope, with an inflection point in the
+// decay and release segments to make it sound logarithmitc-y:
+//
+// 
+// 
+// <-- A --><-- D -->           <-- R -->
+//          1  2                4  5
+//        /\
+//       /  \
+//      /    \
+//     /       \
+//    /          \ ____________
+//   /                         \
+//  /                           \
+// /                              \
 
 #ifndef HARDWARE_SHRUTHI_ENVELOPE_H_
 #define HARDWARE_SHRUTHI_ENVELOPE_H_
@@ -31,12 +47,14 @@ namespace hardware_shruthi {
 
 enum EnvelopeStage {
   ATTACK = 0,
-  DECAY = 1,
-  SUSTAIN = 2,
-  RELEASE = 3,
-  DEAD = 4,
+  DECAY_1 = 1,
+  DECAY_2 = 2,
+  SUSTAIN = 3,
+  RELEASE_1 = 4,
+  RELEASE_2 = 5,
+  DEAD = 6,
   // Padding added so that the size of an envelope object is exactly 32 bytes.
-  UNKNOWN = 5,
+  UNKNOWN = 7,
 };
 
 

@@ -69,7 +69,7 @@ class Voice {
 
   // Move this voice to the release stage.
   static void Release() { 
-    TriggerEnvelope(RELEASE);
+    TriggerEnvelope(RELEASE_1);
     if (last_note_ != 0) {
       midi_out_filter.NoteKilled(last_note_);
       last_note_ = 0;

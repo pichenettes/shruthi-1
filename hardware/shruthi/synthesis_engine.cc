@@ -482,7 +482,7 @@ void Voice::Control() {
   modulation_sources_[MOD_SRC_NOTE - kNumGlobalModulationSources] =
       ShiftRight6(pitch_value_);
   modulation_sources_[MOD_SRC_GATE - kNumGlobalModulationSources] =
-      envelope_[0].stage() >= RELEASE ? 0 : 255;
+      envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
 
   modulation_destinations_[MOD_DST_VCA] = 255;
 

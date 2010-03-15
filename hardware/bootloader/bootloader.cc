@@ -51,7 +51,7 @@ const uint8_t kMaxErrorCount = 5;
 
 uint16_t page = 0;
 uint8_t eeprom;
-uint8_t rx_buffer[257];
+uint8_t rx_buffer[2 * (SPM_PAGESIZE + 1)];
 uint8_t num_failures = 0;
 
 Word address;
