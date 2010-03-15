@@ -132,7 +132,7 @@ struct InputOutput {
   typedef O Output;
 
   static inline void Write(typename O::Value v) { O::Write(v); }
-  static inline uint8_t writable() { return O::wriable(); }
+  static inline uint8_t writable() { return O::writable(); }
   static inline uint8_t NonBlockingWrite(typename O::Value v ) {
     return O::NonBlockingWrite(v);
   }

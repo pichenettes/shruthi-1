@@ -178,6 +178,7 @@ gate
  off
 thru
 ctrl
+ seq
 poly
 
 touch a knob to

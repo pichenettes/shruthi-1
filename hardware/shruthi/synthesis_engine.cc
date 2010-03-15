@@ -260,17 +260,17 @@ void SynthesisEngine::SetParameter(
   if (parameter_index >= PRM_ENV_ATTACK_1 &&
       parameter_index <= PRM_LFO_RATE_2) {
     UpdateModulationIncrements();
-  }
-  if ((parameter_index <= PRM_OSC_SHAPE_2) ||
-      (parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
+  } else if ((parameter_index <= PRM_OSC_SHAPE_2) ||
+             (parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
     UpdateOscillatorAlgorithms();
-  }
-  // A copy of those parameters is stored by the note dispatcher/arpeggiator,
-  // so any parameter change must be forwarded to it.
-  if ((parameter_index >= PRM_ARP_TEMPO &&
-       parameter_index <= PRM_ARP_SWING) ||
-      (parameter_index == PRM_ARP_PATTERN_SIZE)) {
+  } else if (parameter_index >= PRM_ARP_TEMPO) {
+    // A copy of those parameters is stored by the note dispatcher/arpeggiator,
+    // so any parameter change must be forwarded to it.
     controller_.UpdateArpeggiatorParameters(patch_);
+  } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL && 
+      parameter_index <= PRM_SYS_MIDI_OUT_CHAIN) {
+    // A copy of those parameters are used by the MIDI out dispatcher.
+    midi_out_filter.UpdateParameters(patch_);
   }
 }
 
@@ -383,11 +383,13 @@ uint8_t Voice::modulation_sources_[kNumVoiceModulationSources];
 int8_t Voice::modulation_destinations_[kNumModulationDestinations];
 uint8_t Voice::signal_;
 uint8_t Voice::osc1_phase_msb_;
+uint8_t Voice::last_note_;
 /* </static> */
 
 /* static */
 void Voice::Init() {
   pitch_value_ = 0;
+  last_note_ = 0;
   signal_ = 128;
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
     envelope_[i].Init();
@@ -440,6 +442,13 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
       pitch_increment_ = 1;
     }
   }
+  // If this note is triggered by the sequencer/arpeggiator, we might have to
+  // forward it to the MIDI out too.
+  if (last_note_ != 0) {
+    midi_out_filter.NoteKilled(last_note_);
+  }
+  midi_out_filter.NoteTriggered(note, velocity);
+  last_note_ = note;
 }
 
 /* static */

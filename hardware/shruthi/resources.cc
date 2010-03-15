@@ -171,6 +171,7 @@ static const prog_char str_res_gate[] PROGMEM = "gate";
 static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
+static const prog_char str_res__seq[] PROGMEM = "seq";
 static const prog_char str_res_poly[] PROGMEM = "poly";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
@@ -409,6 +410,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res__off,
   str_res_thru,
   str_res_ctrl,
+  str_res__seq,
   str_res_poly,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,

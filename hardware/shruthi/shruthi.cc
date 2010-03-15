@@ -27,6 +27,7 @@
 #include "hardware/midi/midi.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/editor.h"
+#include "hardware/shruthi/midi_out_filter.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/pretty_printer.h"
 #include "hardware/utils/task.h"
@@ -161,6 +162,8 @@ TASK_BEGIN_NEAR
       }
     } else {
       editor.HandleInput(pot_event.id, pot_event.value);
+      // We might have to transmit the event by MIDI too
+      midi_out_filter.KnobTweaked(pot_event.id, pot_event.value);
     }
     TASK_SWITCH;
 
@@ -196,7 +199,7 @@ void MidiTask() {
     // Copy the byte to the MIDI output (thru). We could use Overwrite here
     // since the output rate is the same as the input rate, which ensures that
     // 0.32ms have elapsed between the writes.
-    midi_io.Write(value);
+    midi_out_filter.RawDataReceived(value);
 
     // Also, parse the message.
     uint8_t status = midi_parser.PushByte(value);
@@ -235,6 +238,13 @@ void MidiTask() {
           }
         }
         break;
+    }
+  }
+  
+  // Flush to the output the buffered MIDI data.
+  if (midi_out_filter.readable()) {
+    if (midi_io.writable()) {
+      midi_io.Overwrite(midi_out_filter.ImmediateRead());
     }
   }
 }

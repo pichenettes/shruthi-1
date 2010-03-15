@@ -42,6 +42,7 @@
 #include "hardware/midi/midi.h"
 #include "hardware/shruthi/envelope.h"
 #include "hardware/shruthi/lfo.h"
+#include "hardware/shruthi/midi_out_filter.h"
 #include "hardware/shruthi/patch.h"
 
 #include "hardware/shruthi/voice_controller.h"
@@ -67,7 +68,13 @@ class Voice {
   static void Trigger(uint8_t note, uint8_t velocity, uint8_t legato);
 
   // Move this voice to the release stage.
-  static void Release() { TriggerEnvelope(RELEASE); }
+  static void Release() { 
+    TriggerEnvelope(RELEASE);
+    if (last_note_ != 0) {
+      midi_out_filter.NoteKilled(last_note_);
+      last_note_ = 0;
+    }
+  }
 
   // Move this voice to the release stage.
   static void Kill() { TriggerEnvelope(DEAD); }
@@ -131,7 +138,7 @@ class Voice {
   static int8_t modulation_destinations_[kNumModulationDestinations];
 
   static uint8_t signal_;
-
+  static uint8_t last_note_;
   static uint8_t osc1_phase_msb_;
 
   DISALLOW_COPY_AND_ASSIGN(Voice);
@@ -192,6 +199,8 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static inline void TouchPatch() {
     UpdateModulationIncrements();
     UpdateOscillatorAlgorithms();
+    controller_.UpdateArpeggiatorParameters(patch_);
+    midi_out_filter.UpdateParameters(patch_);
   }
   static void TriggerLfos() {
     for (uint8_t i = 0; i < kNumLfos; ++i) {
