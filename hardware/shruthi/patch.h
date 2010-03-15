@@ -32,8 +32,7 @@ namespace hardware_shruthi {
 
 const uint8_t kPatchNameSize = 8;
 const uint8_t kSerializedPatchSize = 64;
-const uint8_t kModulationMatrixSize = 14;
-const uint8_t kSavedModulationMatrixSize = 10;
+const uint8_t kModulationMatrixSize = 12;
 
 struct Modulation {
   uint8_t source;
@@ -79,11 +78,15 @@ struct EnvelopeSettings {
 struct LfoSettings {
   uint8_t waveform;
   uint8_t rate;
+  uint8_t attack;
+  uint8_t retrigger;
 };
 
 class Patch {
  public:
   uint8_t keep_me_at_the_top[1];
+
+  // Sound generation.
 
   // Offset: 0-8
   OscillatorSettings osc[2];
@@ -103,37 +106,42 @@ class Patch {
   // Offset: 16-24
   EnvelopeSettings env[2];
 
-  // Offset: 24-28
+  // Offset: 24-32
   LfoSettings lfo[2];
 
-  // Offset: 28-58, 58-70
+  // Offset: 32-68
   ModulationMatrix modulation_matrix;
+  // Offset: 68-76
+  uint8_t name[kPatchNameSize];
 
-  // Offset: 70-74, not saved
+  // Settings.
 
-  uint8_t arp_tempo;
-  uint8_t arp_octave;
-  uint8_t arp_pattern;
-  uint8_t arp_swing;
-
-  // Offset: 74-82
-  uint8_t sequence[8];
-
-  // Offset: 82-86, not saved
+  // Offset: 76-80
   int8_t sys_octave;
   uint8_t sys_raga;
   uint8_t sys_portamento;
   uint8_t sys_legato;
 
+  // Offset: 80-84
   int8_t sys_master_tuning;
   uint8_t sys_midi_channel;
   uint8_t sys_midi_out_mode;
   uint8_t sys_midi_out_chain;
 
-  // Offset: 86-94
-  uint8_t name[kPatchNameSize];
+  // Sequencer.
+  
+  // Offset: 84-88
+  uint8_t arp_tempo;
+  uint8_t arp_octave;
+  uint8_t arp_pattern;
+  uint8_t arp_swing;
 
-  // Offset: 94, not saved
+  // Offset: 88-96
+  uint8_t sequence[8];
+  
+  // Offset: 96-112
+  uint8_t note_sequence[16];
+  // Offset: 113
   uint8_t pattern_size;
 
   // Get the value of a step in the sequence.
@@ -228,6 +236,7 @@ enum Parameter {
   PRM_OSC_PARAMETER_1,
   PRM_OSC_RANGE_1,
   PRM_OSC_OPTION_1,
+  
   PRM_OSC_SHAPE_2,
   PRM_OSC_PARAMETER_2,
   PRM_OSC_RANGE_2,
@@ -247,6 +256,7 @@ enum Parameter {
   PRM_ENV_DECAY_1,
   PRM_ENV_SUSTAIN_1,
   PRM_ENV_RELEASE_1,
+  
   PRM_ENV_ATTACK_2,
   PRM_ENV_DECAY_2,
   PRM_ENV_SUSTAIN_2,
@@ -254,22 +264,20 @@ enum Parameter {
 
   PRM_LFO_WAVE_1,
   PRM_LFO_RATE_1,
+  PRM_LFO_ATTACK_1,
+  PRM_LFO_RETRIGGER_1,
+  
   PRM_LFO_WAVE_2,
   PRM_LFO_RATE_2,
+  PRM_LFO_ATTACK_2,
+  PRM_LFO_RETRIGGER_2,
 
-  PRM_MOD_SOURCE = 28,
-  PRM_MOD_DESTINATION = 29,
-  PRM_MOD_AMOUNT = 30,
-  PRM_MOD_ROW = 31,
-
-  PRM_ARP_TEMPO = 3 * kModulationMatrixSize + 28,
-  PRM_ARP_OCTAVE,
-  PRM_ARP_PATTERN,
-  PRM_ARP_SWING,
-
-  PRM_SEQUENCE = 3 * kModulationMatrixSize + 28 + 4,
-
-  PRM_SYS_OCTAVE = 3 * kModulationMatrixSize + 28 + 12,
+  PRM_MOD_SOURCE,
+  PRM_MOD_DESTINATION,
+  PRM_MOD_AMOUNT,
+  PRM_MOD_ROW,
+  
+  PRM_SYS_OCTAVE = 3 * kModulationMatrixSize + PRM_MOD_SOURCE + kPatchNameSize,
   PRM_SYS_RAGA,
   PRM_SYS_PORTAMENTO,
   PRM_SYS_LEGATO,
@@ -279,9 +287,12 @@ enum Parameter {
   PRM_SYS_MIDI_OUT_MODE,
   PRM_SYS_MIDI_OUT_CHAIN,
 
-  PRM_NAME = 3 * kModulationMatrixSize + 28 + 16,
+  PRM_ARP_TEMPO,
+  PRM_ARP_OCTAVE,
+  PRM_ARP_PATTERN,
+  PRM_ARP_SWING,
 
-  PRM_ARP_PATTERN_SIZE = 94
+  PRM_ARP_PATTERN_SIZE = PRM_ARP_SWING + 1 + 8 + 16,
 };
 
 enum OscillatorAlgorithm {
@@ -320,7 +331,7 @@ enum OPERATOR {
   XOR = 3
 };
 
-static const uint8_t kNumEditableParameters = 44;
+static const uint8_t kNumEditableParameters = 48;
 
 static const uint8_t kNumArpeggiatorPatterns = 15;
 

@@ -25,10 +25,11 @@
 #define HARDWARE_SHRUTHI_LFO_H_
 
 #include "hardware/base/base.h"
-#include "hardware/shruthi/shruthi.h"
-
+#include "hardware/shruthi/envelope.h"
 #include "hardware/shruthi/patch.h"
+#include "hardware/shruthi/shruthi.h"
 #include "hardware/utils/random.h"
+#include "hardware/utils/op.h"
 
 using hardware_utils::Random;
 
@@ -37,41 +38,79 @@ namespace hardware_shruthi {
 class Lfo {
  public:
   Lfo() { }
+  
   uint8_t Render() {
+    uint8_t value;
+    
+    // Ramp up the intensity envelope.
+    if (!intensity_envelope_stage_) {
+      intensity_ += intensity_increment_;
+      if (intensity_ >= 16384) {
+        intensity_ = 16383;
+        intensity_envelope_stage_ = 1;
+      }
+    }
+    
+    // Compute the LFO value.
     switch (shape_) {
       case LFO_WAVEFORM_S_H:
         if (phase_ < previous_phase_) {
           value_ = Random::GetByte();
         }
         previous_phase_ = phase_;
-        return value_;
+        value = value_;
+        break;
 
       case LFO_WAVEFORM_TRIANGLE:
-        return (phase_ & 0X8000) ?
+        value = (phase_ & 0X8000) ?
             phase_ >> 7 :
             ~static_cast<uint8_t>(phase_ >> 7);
+        break;
 
       case LFO_WAVEFORM_SQUARE:
-        return (phase_ & 0x8000) ? 255 : 0;
+        value = (phase_ & 0x8000) ? 255 : 0;
+        break;
 
       default:
-        return phase_ >> 8;
+        value = phase_ >> 8;
+        break;
     }
+    phase_ += phase_increment_;
+    
+    // Apply the intensity envelope.
+    return SignedMulScale8(
+        static_cast<int8_t>(value) - 128,
+        hardware_utils_op::ShiftRight6(intensity_)
+    ) + 128;
   }
+  
   void Reset() {
     phase_ = 0;
+    Trigger();
   }
-  void Increment() {
-    phase_ += phase_increment_;
+  
+  void Trigger() {
+    if (retrigger_) {
+      phase_ = 0;
+    }
+    intensity_ = 0;
+    intensity_envelope_stage_ = 0;
   }
-  void Update(uint8_t shape, uint16_t increment) {
+  
+  void Update(uint8_t shape, uint16_t phase_increment,
+              uint8_t attack, uint8_t retrigger) {
     shape_ = shape;
-    phase_increment_ = increment;
+    phase_increment_ = phase_increment;
+    intensity_increment_ = Envelope::ScaleEnvelopeIncrement(attack, 127);
+    retrigger_ = retrigger;
   }
 
  private:
   // Phase increment.
   uint16_t phase_increment_;
+  uint8_t intensity_envelope_stage_;
+  uint16_t intensity_increment_;
+  uint16_t intensity_;
 
   // Current phase of the lfo.
   uint16_t phase_;
@@ -79,6 +118,7 @@ class Lfo {
 
   // Copy of the shape used by this lfo.
   uint8_t shape_;
+  uint8_t retrigger_;
 
   // Current value of S&H.
   uint8_t value_;

@@ -78,8 +78,8 @@ static const prog_char empty_patch[] PROGMEM = {
     20, 60, 20, 60,
     0, 40, 80, 40,
     // LFO
-    LFO_WAVEFORM_TRIANGLE, 96,
-    LFO_WAVEFORM_TRIANGLE, 3,
+    LFO_WAVEFORM_TRIANGLE, 96, 0, 1,
+    LFO_WAVEFORM_TRIANGLE, 3, 0, 1,
     // Routing
     MOD_SRC_LFO_1, MOD_DST_VCO_1, 0,
     MOD_SRC_LFO_1, MOD_DST_VCO_2, 0,
@@ -93,20 +93,23 @@ static const prog_char empty_patch[] PROGMEM = {
     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
     MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
     MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_FINE, 32,
-    MOD_SRC_LFO_1, MOD_DST_VCO_1_2_FINE, 16,
     MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
     MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
-    MOD_SRC_CV_3, MOD_DST_FILTER_CUTOFF, 0,
-    MOD_SRC_RANDOM, MOD_DST_FILTER_CUTOFF, 0,
-    // Tempo
-    120, 0, 0, 0,
-    // Sequence
-    0x00, 0x00, 0xff, 0xff, 0xcc, 0xcc, 0x44, 0x44,
+    MOD_SRC_LFO_1, MOD_DST_VCO_1_2_FINE, 16,
+    // Name
+    'n', 'e', 'w', ' ', ' ', ' ', ' ', ' ', 
     // Keyboard
     0, 0, 0, 0,
     // MIDI
     0, 1, 1, 1,
-    'n', 'e', 'w', ' ', ' ', ' ', ' ', ' ', 16
+    // Tempo
+    120, 0, 0, 0,
+    // Sequence
+    0x00, 0x00, 0xff, 0xff, 0xcc, 0xcc, 0x44, 0x44,
+    // Note sequence
+    60, 0, 0, 0, 60, 0, 0, 0, 60, 0, 60, 0, 60, 61, 63, 58,
+    // Pattern size
+    16
 };
 
 /* static */
@@ -284,21 +287,27 @@ void SynthesisEngine::UpdateModulationIncrements() {
   num_lfo_reset_steps_ = 0;
   lfo_to_reset_ = 0;
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    uint16_t increment;
+    uint16_t phase_increment;
     // The LFO rates 0 to 15 are translated into a multiple of the step
     // sequencer/arpeggiator step size.
     if (patch_.lfo[i].rate < 16) {
-      increment = 65536 / (controller_.estimated_beat_duration() *
+      phase_increment = 65536 / (controller_.estimated_beat_duration() *
                            (1 + patch_.lfo[i].rate) / 4);
       num_lfo_reset_steps_ = UnsignedUnsignedMul(
           num_lfo_reset_steps_ ? num_lfo_reset_steps_ : 1,
           1 + patch_.lfo[i].rate);
       lfo_to_reset_ |= _BV(i);
     } else {
-      increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
+      phase_increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
           lut_res_lfo_increments, patch_.lfo[i].rate - 16);
     }
-    lfo_[i].Update(patch_.lfo[i].waveform, increment);
+    uint16_t envelope_increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
+        lut_res_lfo_increments, patch_.lfo[i].rate - 16);
+    lfo_[i].Update(
+        patch_.lfo[i].waveform,
+        phase_increment,
+        patch_.lfo[i].attack,
+        patch_.lfo[i].retrigger);
 
     for (uint8_t j = 0; j < kNumVoices; ++j) {
       voice_[j].mutable_envelope(i)->Update(
@@ -313,7 +322,6 @@ void SynthesisEngine::UpdateModulationIncrements() {
 /* static */
 void SynthesisEngine::Control() {
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    lfo_[i].Increment();
     modulation_sources_[MOD_SRC_LFO_1 + i] = lfo_[i].Render();
   }
   modulation_sources_[MOD_SRC_RANDOM] = Random::state_msb();
@@ -400,6 +408,11 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     osc_1.Reset();
     osc_2.Reset();
     sub_osc.Reset();
+    // The LFOs are shared by all voices, so if there are other voices still
+    // playing there will be a discontinuity. We don't care because we're
+    // doing monophonic things anyway (and some pseudo-polysynths/organs are
+    // doing the same things).
+    engine.TriggerLfos();
     modulation_sources_[MOD_SRC_VELOCITY - kNumGlobalModulationSources] =
         velocity << 1;
   }
@@ -485,7 +498,7 @@ void Voice::Control() {
     }
 
     // The rate of the last modulation is adjusted by the wheel.
-    if (i == kSavedModulationMatrixSize - 1) {
+    if (i == kModulationMatrixSize - 1) {
       amount = SignedMulScale8(
           amount,
           engine.modulation_sources_[MOD_SRC_WHEEL]);

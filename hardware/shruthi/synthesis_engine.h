@@ -193,6 +193,11 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
     UpdateModulationIncrements();
     UpdateOscillatorAlgorithms();
   }
+  static void TriggerLfos() {
+    for (uint8_t i = 0; i < kNumLfos; ++i) {
+      lfo_[i].Trigger();
+    }
+  }
   static inline const Patch& patch() { return patch_; }
   static inline const VoiceController& voice_controller() {
     return controller_;

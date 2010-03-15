@@ -21,9 +21,8 @@
 #define HARDWARE_SHRUTHI_ENVELOPE_H_
 
 #include "hardware/base/base.h"
-#include "hardware/shruthi/shruthi.h"
-
 #include "hardware/shruthi/patch.h"
+#include "hardware/shruthi/shruthi.h"
 #include "hardware/utils/op.h"
 
 using namespace hardware_utils_op;
@@ -72,6 +71,8 @@ class Envelope {
       Trigger(stage_);
     }
   }
+  
+  static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale);
 
  private:
   uint8_t release_;  // release time.
@@ -83,8 +84,6 @@ class Envelope {
   int16_t stage_increment_[UNKNOWN + 1];
   int16_t stage_target_[UNKNOWN + 1];
  
-  static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale);
-
   DISALLOW_COPY_AND_ASSIGN(Envelope);
 };
 

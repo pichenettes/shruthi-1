@@ -50,7 +50,8 @@ enum Page {
   PAGE_FILTER_FILTER,
   PAGE_MOD_ENV_1,
   PAGE_MOD_ENV_2,
-  PAGE_MOD_LFO,
+  PAGE_MOD_LFO_1,
+  PAGE_MOD_LFO_2,
   PAGE_MOD_MATRIX,
   PAGE_PLAY_ARP,
   PAGE_PLAY_STEP_SEQUENCER,
@@ -115,9 +116,7 @@ enum PageUiType {
 typedef uint8_t UiType;
 
 struct PageDefinition {
-  ParameterPage id;
   ParameterPage next;
-
   ParameterGroup group;
 
   // Previous and next page when cycling with encoder.

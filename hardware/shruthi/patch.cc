@@ -32,7 +32,7 @@ using namespace hardware_utils_op;
 namespace hardware_shruthi {
 
 void Patch::Pack(uint8_t* patch_buffer) const {
-  for (uint8_t i = 0; i < 28; ++i) {
+  /*for (uint8_t i = 0; i < 28; ++i) {
     patch_buffer[i] = keep_me_at_the_top[i + 1];
   }
   for (uint8_t i = 0; i < kSavedModulationMatrixSize; ++i) {
@@ -45,11 +45,11 @@ void Patch::Pack(uint8_t* patch_buffer) const {
   }
   for (uint8_t i = 0; i < kPatchNameSize; ++i) {
     patch_buffer[2 * kSavedModulationMatrixSize + 28 + 8 + i] = name[i];
-  }
+  }*/
 }
 
 uint8_t Patch::CheckBuffer() {
-  for (uint8_t i = 6; i < 26; ++i) {
+  /*for (uint8_t i = 6; i < 26; ++i) {
     if (load_save_buffer_[i] > 128) {
       return 0;
     }
@@ -60,11 +60,11 @@ uint8_t Patch::CheckBuffer() {
       return 0;
     }
   }
-  return 1;
+  return 1;*/
 }
 
 void Patch::Unpack(const uint8_t* patch_buffer) {
-  for (uint8_t i = 0; i < 28; ++i) {
+  /*for (uint8_t i = 0; i < 28; ++i) {
     keep_me_at_the_top[i + 1] = patch_buffer[i];
   }
   for (uint8_t i = 0; i < kSavedModulationMatrixSize; ++i) {
@@ -78,7 +78,7 @@ void Patch::Unpack(const uint8_t* patch_buffer) {
   }
   for (uint8_t i = 0; i < 8; ++i) {
     name[i] = patch_buffer[i + 2 * kSavedModulationMatrixSize + 28 + 8];
-  }
+  }*/
 }
 
 void Patch::EepromSave(uint8_t slot) const {

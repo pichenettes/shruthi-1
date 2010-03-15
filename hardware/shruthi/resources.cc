@@ -33,6 +33,8 @@ static const prog_char str_res_prt[] PROGMEM = "prt";
 static const prog_char str_res_porta[] PROGMEM = "porta";
 static const prog_char str_res_legato[] PROGMEM = "legato";
 static const prog_char str_res_midi_out[] PROGMEM = "midi out";
+static const prog_char str_res_reset[] PROGMEM = "reset";
+static const prog_char str_res_rst[] PROGMEM = "rst";
 static const prog_char str_res_parameter[] PROGMEM = "parameter";
 static const prog_char str_res_range[] PROGMEM = "range";
 static const prog_char str_res_operator[] PROGMEM = "operator";
@@ -73,8 +75,8 @@ static const prog_char str_res_mix[] PROGMEM = "mix";
 static const prog_char str_res_noi[] PROGMEM = "noi";
 static const prog_char str_res_sub[] PROGMEM = "sub";
 static const prog_char str_res_res[] PROGMEM = "res";
-static const prog_char str_res___cv1[] PROGMEM = "cv1";
-static const prog_char str_res___cv2[] PROGMEM = "cv2";
+static const prog_char str_res__cv1[] PROGMEM = "cv1";
+static const prog_char str_res__cv2[] PROGMEM = "cv2";
 static const prog_char str_res_bit[] PROGMEM = "bit";
 static const prog_char str_res_cutoff[] PROGMEM = "cutoff";
 static const prog_char str_res__vca[] PROGMEM = "vca";
@@ -87,8 +89,8 @@ static const prog_char str_res__mix[] PROGMEM = "mix";
 static const prog_char str_res__noise[] PROGMEM = "noise";
 static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_reso[] PROGMEM = "reso";
-static const prog_char str_res____cv1[] PROGMEM = "cv1";
-static const prog_char str_res____cv2[] PROGMEM = "cv2";
+static const prog_char str_res__cv_1[] PROGMEM = "cv 1";
+static const prog_char str_res__cv_2[] PROGMEM = "cv 2";
 static const prog_char str_res_2_bits[] PROGMEM = "2 bits";
 static const prog_char str_res_mutable[] PROGMEM = "mutable";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
@@ -114,10 +116,7 @@ static const prog_char str_res_attack[] PROGMEM = "attack";
 static const prog_char str_res_decay[] PROGMEM = "decay";
 static const prog_char str_res_sustain[] PROGMEM = "sustain";
 static const prog_char str_res_release[] PROGMEM = "release";
-static const prog_char str_res_lfo1_wave[] PROGMEM = "lfo1 wave";
-static const prog_char str_res_lfo1_rate[] PROGMEM = "lfo1 rate";
-static const prog_char str_res_lfo2_wave[] PROGMEM = "lfo2 wave";
-static const prog_char str_res_lfo2_rate[] PROGMEM = "lfo2 rate";
+static const prog_char str_res_rate[] PROGMEM = "rate";
 static const prog_char str_res_mod_[] PROGMEM = "mod.";
 static const prog_char str_res_source[] PROGMEM = "source";
 static const prog_char str_res_dest_[] PROGMEM = "dest.";
@@ -128,7 +127,6 @@ static const prog_char str_res_midi_chan[] PROGMEM = "midi chan";
 static const prog_char str_res_tempo[] PROGMEM = "tempo";
 static const prog_char str_res_mixer[] PROGMEM = "mixer";
 static const prog_char str_res_filter[] PROGMEM = "filter";
-static const prog_char str_res_lfos[] PROGMEM = "lfos";
 static const prog_char str_res_modulation[] PROGMEM = "modulation";
 static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
 static const prog_char str_res_midi[] PROGMEM = "midi";
@@ -154,19 +152,19 @@ static const prog_char str_res_en2[] PROGMEM = "en2";
 static const prog_char str_res_vel[] PROGMEM = "vel";
 static const prog_char str_res_not[] PROGMEM = "not";
 static const prog_char str_res_gat[] PROGMEM = "gat";
-static const prog_char str_res_lfo1[] PROGMEM = "lfo1";
-static const prog_char str_res_lfo2[] PROGMEM = "lfo2";
+static const prog_char str_res_lfo_1[] PROGMEM = "lfo 1";
+static const prog_char str_res_lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_stpseq[] PROGMEM = "stpseq";
 static const prog_char str_res__arp[] PROGMEM = "arp";
 static const prog_char str_res_mwheel[] PROGMEM = "mwheel";
 static const prog_char str_res_bender[] PROGMEM = "bender";
 static const prog_char str_res_offset[] PROGMEM = "offset";
-static const prog_char str_res__cv1[] PROGMEM = "cv1";
-static const prog_char str_res__cv2[] PROGMEM = "cv2";
-static const prog_char str_res__cv3[] PROGMEM = "cv3";
+static const prog_char str_res_cv_1[] PROGMEM = "cv 1";
+static const prog_char str_res_cv_2[] PROGMEM = "cv 2";
+static const prog_char str_res_cv_3[] PROGMEM = "cv 3";
 static const prog_char str_res_random[] PROGMEM = "random";
-static const prog_char str_res_env1[] PROGMEM = "env1";
-static const prog_char str_res_env2[] PROGMEM = "env2";
+static const prog_char str_res_env_1[] PROGMEM = "env 1";
+static const prog_char str_res_env_2[] PROGMEM = "env 2";
 static const prog_char str_res_velo[] PROGMEM = "velo";
 static const prog_char str_res_note[] PROGMEM = "note";
 static const prog_char str_res_gate[] PROGMEM = "gate";
@@ -273,6 +271,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_porta,
   str_res_legato,
   str_res_midi_out,
+  str_res_reset,
+  str_res_rst,
   str_res_parameter,
   str_res_range,
   str_res_operator,
@@ -313,8 +313,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_noi,
   str_res_sub,
   str_res_res,
-  str_res___cv1,
-  str_res___cv2,
+  str_res__cv1,
+  str_res__cv2,
   str_res_bit,
   str_res_cutoff,
   str_res__vca,
@@ -327,8 +327,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res__noise,
   str_res_subosc,
   str_res_reso,
-  str_res____cv1,
-  str_res____cv2,
+  str_res__cv_1,
+  str_res__cv_2,
   str_res_2_bits,
   str_res_mutable,
   str_res_instruments_671,
@@ -354,10 +354,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_decay,
   str_res_sustain,
   str_res_release,
-  str_res_lfo1_wave,
-  str_res_lfo1_rate,
-  str_res_lfo2_wave,
-  str_res_lfo2_rate,
+  str_res_rate,
   str_res_mod_,
   str_res_source,
   str_res_dest_,
@@ -368,7 +365,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_tempo,
   str_res_mixer,
   str_res_filter,
-  str_res_lfos,
   str_res_modulation,
   str_res_keyboard,
   str_res_midi,
@@ -394,19 +390,19 @@ PROGMEM const prog_char* string_table[] = {
   str_res_vel,
   str_res_not,
   str_res_gat,
-  str_res_lfo1,
-  str_res_lfo2,
+  str_res_lfo_1,
+  str_res_lfo_2,
   str_res_stpseq,
   str_res__arp,
   str_res_mwheel,
   str_res_bender,
   str_res_offset,
-  str_res__cv1,
-  str_res__cv2,
-  str_res__cv3,
+  str_res_cv_1,
+  str_res_cv_2,
+  str_res_cv_3,
   str_res_random,
-  str_res_env1,
-  str_res_env2,
+  str_res_env_1,
+  str_res_env_2,
   str_res_velo,
   str_res_note,
   str_res_gate,

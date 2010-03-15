@@ -28,6 +28,8 @@ prt
 porta
 legato
 midi out
+reset
+rst
 
 parameter
 range
@@ -72,8 +74,8 @@ mix
 noi
 sub
 res
-  cv1
-  cv2
+ cv1
+ cv2
 bit
 
 cutoff
@@ -87,8 +89,8 @@ osc1+2
  noise
 subosc
 reso
-   cv1
-   cv2
+ cv 1
+ cv 2
 2 bits
 
 mutable
@@ -117,10 +119,7 @@ attack
 decay
 sustain
 release
-lfo1 wave
-lfo1 rate
-lfo2 wave
-lfo2 rate
+rate
 mod.
 source
 dest.
@@ -132,7 +131,6 @@ tempo
 
 mixer
 filter
-lfos
 modulation
 keyboard
 midi
@@ -160,19 +158,19 @@ en2
 vel
 not
 gat
-lfo1
-lfo2
+lfo 1
+lfo 2
 stpseq
  arp
 mwheel
 bender
 offset
- cv1
- cv2
- cv3
+cv 1
+cv 2
+cv 3
 random
-env1
-env2
+env 1
+env 2
 velo
 note
 gate
