@@ -33,9 +33,9 @@ namespace hardware_shruthi {
 /* extern */
 SynthesisEngine engine;
 
-Oscillator<1, FULL> osc_1;
-Oscillator<2, LOW_COMPLEXITY> osc_2;
-Oscillator<3, SUB_OSCILLATOR> sub_osc;
+Oscillator<1> osc_1;
+Oscillator<2> osc_2;
+SubOscillator<1> sub_osc;
 
 /* <static> */
 uint8_t SynthesisEngine::modulation_sources_[kNumGlobalModulationSources];
@@ -407,9 +407,6 @@ void Voice::TriggerEnvelope(uint8_t stage) {
 void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
   if (!legato || !engine.patch_.sys_legato) {
     TriggerEnvelope(ATTACK);
-    osc_1.Reset();
-    osc_2.Reset();
-    sub_osc.Reset();
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're
     // doing monophonic things anyway (and some pseudo-polysynths/organs are
@@ -595,7 +592,11 @@ void Voice::Control() {
     int16_t pitch = pitch_value_;
     // -24 / +24 semitones by the range controller.
     if (engine.patch_.osc[i].shape == WAVEFORM_FM) {
-      osc_1.UpdateSecondaryParameter(engine.patch_.osc[i].range + 12);
+      if (i == 0) {
+        osc_1.UpdateSecondaryParameter(engine.patch_.osc[i].range + 12);
+      } else {
+        osc_2.UpdateSecondaryParameter(engine.patch_.osc[i].range + 12);
+      }
     } else {
       pitch += static_cast<int16_t>(engine.patch_.osc[i].range) << 7;
     }

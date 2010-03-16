@@ -49,14 +49,22 @@ blit
 saw
 square
 triang
-cz
+czres
+cztri
+czpuls
+czsync
 fm
+bell
+drone
+female
+male
+sines
+waves
+shaper
 8bits
 pwm
 noise
 vowel
-table
-sweep
 
 1+2
 1>2

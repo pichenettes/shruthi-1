@@ -151,15 +151,28 @@ for zone in range(num_zones):
 # Blit are never generated at SR, always at SR/2.
 del bl_pulse_tables[0]
 
+def LoadWavetable(x):
+  array = numpy.array(map(ord, list(file(x).read())))
+  num_cycles = len(array) / 256
+  assert num_cycles == 16
+  wavetable = numpy.zeros((num_cycles * 257,))
+  for i in xrange(num_cycles):
+    wavetable[i * 257:(i + 1) * 257 - 1] = array[i * 256:(i + 1) * 256]
+    wavetable[(i + 1) * 257 - 1] = wavetable[i * 257]
+  return wavetable
+
 waveforms.extend(bl_pulse_tables)
 waveforms.extend(bl_square_tables)
 waveforms.extend(bl_saw_tables)
 waveforms.extend(bl_tri_tables)
-waveforms.append((
-    'wavetable',
-    numpy.loadtxt('hardware/shruthi/data/wavetable.txt').ravel()
-))
-
+waveforms.extend([
+    ('wavetable_1', LoadWavetable('hardware/shruthi/data/bell.bin')),
+    ('wavetable_2', LoadWavetable('hardware/shruthi/data/drone.bin')),
+    ('wavetable_3', LoadWavetable('hardware/shruthi/data/female.bin')),
+    ('wavetable_4', LoadWavetable('hardware/shruthi/data/male.bin')),
+    ('wavetable_5', LoadWavetable('hardware/shruthi/data/sines.bin')),
+    ('wavetable_6', LoadWavetable('hardware/shruthi/data/waves.bin')),
+])
 
 """----------------------------------------------------------------------------
 Vowel data (formant amplitudes)

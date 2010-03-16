@@ -89,7 +89,12 @@ extern const prog_uint8_t wav_res_bandlimited_triangle_2[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_3[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_4[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_5[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable[] PROGMEM;
+extern const prog_uint8_t wav_res_wavetable_1[] PROGMEM;
+extern const prog_uint8_t wav_res_wavetable_2[] PROGMEM;
+extern const prog_uint8_t wav_res_wavetable_3[] PROGMEM;
+extern const prog_uint8_t wav_res_wavetable_4[] PROGMEM;
+extern const prog_uint8_t wav_res_wavetable_5[] PROGMEM;
+extern const prog_uint8_t wav_res_wavetable_6[] PROGMEM;
 extern const prog_uint8_t wav_res_vowel_data[] PROGMEM;
 extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_PRM 0  // prm
@@ -119,215 +124,223 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_SAW 24  // saw
 #define STR_RES_SQUARE 25  // square
 #define STR_RES_TRIANG 26  // triang
-#define STR_RES_CZ 27  // cz
-#define STR_RES_FM 28  // fm
-#define STR_RES_8BITS 29  // 8bits
-#define STR_RES_PWM 30  // pwm
-#define STR_RES_NOISE 31  // noise
-#define STR_RES_VOWEL 32  // vowel
-#define STR_RES_TABLE 33  // table
-#define STR_RES_SWEEP 34  // sweep
-#define STR_RES_1S2 35  // 1+2
-#define STR_RES_1_2 36  // 1>2
-#define STR_RES_1P2 37  // 1*2
-#define STR_RES_1X2 38  // 1^2
-#define STR_RES_CUT 39  // cut
-#define STR_RES_VCA 40  // vca
-#define STR_RES_PW1 41  // pw1
-#define STR_RES_PW2 42  // pw2
-#define STR_RES_51 43  // 1
-#define STR_RES_52 44  // 2
-#define STR_RES_5 45  // 
-#define STR_RES_MIX 46  // mix
-#define STR_RES_NOI 47  // noi
-#define STR_RES_SUB 48  // sub
-#define STR_RES_RES 49  // res
-#define STR_RES__CV1 50  //  cv1
-#define STR_RES__CV2 51  //  cv2
-#define STR_RES_BIT 52  // bit
-#define STR_RES_CUTOFF 53  // cutoff
-#define STR_RES__VCA 54  //  vca
-#define STR_RES_PWM1 55  // pwm1
-#define STR_RES_PWM2 56  // pwm2
-#define STR_RES_OSC1 57  // osc1
-#define STR_RES_OSC2 58  // osc2
-#define STR_RES_OSC1S2 59  // osc1+2
-#define STR_RES__MIX 60  //  mix
-#define STR_RES__NOISE 61  //  noise
-#define STR_RES_SUBOSC 62  // subosc
-#define STR_RES_RESO 63  // reso
-#define STR_RES__CV_1 64  //  cv 1
-#define STR_RES__CV_2 65  //  cv 2
-#define STR_RES_2_BITS 66  // 2 bits
-#define STR_RES_MUTABLE 67  // mutable
-#define STR_RES_INSTRUMENTS_671 68  // instruments -1
-#define STR_RES_ATK 69  // atk
-#define STR_RES_WV1 70  // wv1
-#define STR_RES_RT1 71  // rt1
-#define STR_RES_WV2 72  // wv2
-#define STR_RES_RT2 73  // rt2
-#define STR_RES_SRC 74  // src
-#define STR_RES_DST 75  // dst
-#define STR_RES_AMT 76  // amt
-#define STR_RES_CHN 77  // chn
-#define STR_RES_BPM 78  // bpm
-#define STR_RES_SWG 79  // swg
-#define STR_RES_SHAPE 80  // shape
-#define STR_RES_ENV1TVCF 81  // env1~vcf
-#define STR_RES_LFO2TVCF 82  // lfo2~vcf
-#define STR_RES_RESONANCE 83  // resonance
-#define STR_RES_ENVELOPE_1 84  // envelope 1
-#define STR_RES_ENVELOPE_2 85  // envelope 2
-#define STR_RES_SEQUENCER 86  // sequencer
-#define STR_RES_ATTACK 87  // attack
-#define STR_RES_DECAY 88  // decay
-#define STR_RES_SUSTAIN 89  // sustain
-#define STR_RES_RELEASE 90  // release
-#define STR_RES_RATE 91  // rate
-#define STR_RES_MOD_ 92  // mod.
-#define STR_RES_SOURCE 93  // source
-#define STR_RES_DEST_ 94  // dest.
-#define STR_RES_AMOUNT 95  // amount
-#define STR_RES_OCTAVE 96  // octave
-#define STR_RES_RAGA 97  // raga
-#define STR_RES_MIDI_CHAN 98  // midi chan
-#define STR_RES_TEMPO 99  // tempo
-#define STR_RES_MIXER 100  // mixer
-#define STR_RES_FILTER 101  // filter
-#define STR_RES_MODULATION 102  // modulation
-#define STR_RES_KEYBOARD 103  // keyboard
-#define STR_RES_MIDI 104  // midi
-#define STR_RES_OFF 105  // off
-#define STR_RES_ON 106  // on
-#define STR_RES_TRI 107  // tri
-#define STR_RES_SQR 108  // sqr
-#define STR_RES_S_H 109  // s&h
-#define STR_RES_3 110  // 
-#define STR_RES_LF1 111  // lf1
-#define STR_RES_LF2 112  // lf2
-#define STR_RES_SEQ 113  // seq
-#define STR_RES_ARP 114  // arp
-#define STR_RES_WHL 115  // whl
-#define STR_RES_BND 116  // bnd
-#define STR_RES_OFS 117  // ofs
-#define STR_RES_CV1 118  // cv1
-#define STR_RES_CV2 119  // cv2
-#define STR_RES_CV3 120  // cv3
-#define STR_RES_RND 121  // rnd
-#define STR_RES_EN1 122  // en1
-#define STR_RES_EN2 123  // en2
-#define STR_RES_VEL 124  // vel
-#define STR_RES_NOT 125  // not
-#define STR_RES_GAT 126  // gat
-#define STR_RES_LFO_1 127  // lfo 1
-#define STR_RES_LFO_2 128  // lfo 2
-#define STR_RES_STPSEQ 129  // stpseq
-#define STR_RES__ARP 130  //  arp
-#define STR_RES_MWHEEL 131  // mwheel
-#define STR_RES_BENDER 132  // bender
-#define STR_RES_OFFSET 133  // offset
-#define STR_RES_CV_1 134  // cv 1
-#define STR_RES_CV_2 135  // cv 2
-#define STR_RES_CV_3 136  // cv 3
-#define STR_RES_RANDOM 137  // random
-#define STR_RES_ENV_1 138  // env 1
-#define STR_RES_ENV_2 139  // env 2
-#define STR_RES_VELO 140  // velo
-#define STR_RES_NOTE 141  // note
-#define STR_RES_GATE 142  // gate
-#define STR_RES__OFF 143  //  off
-#define STR_RES_THRU 144  // thru
-#define STR_RES_CTRL 145  // ctrl
-#define STR_RES__SEQ 146  //  seq
-#define STR_RES_POLY 147  // poly
-#define STR_RES_TOUCH_A_KNOB_TO 148  // touch a knob to
-#define STR_RES_ASSIGN_PARAMETER 149  // assign parameter
-#define STR_RES_READY 150  // ready
-#define STR_RES_FOR_OS_UPDATE 151  // for os update
-#define STR_RES_PATCH_BANK 152  // patch bank
-#define STR_RES_STEP_SEQUENCER 153  // step sequencer
-#define STR_RES_LOAD 154  // load
-#define STR_RES_ 155  // ----
-#define STR_RES_SAVE 156  // save
-#define STR_RES_EXTERN 157  // extern
-#define STR_RES_EQUAL 158  // equal
-#define STR_RES_JUST 159  // just
-#define STR_RES_PYTHAG 160  // pythag
-#define STR_RES_1_4_EB 161  // 1/4 eb
-#define STR_RES_1_4_E 162  // 1/4 e
-#define STR_RES_1_4_EA 163  // 1/4 ea
-#define STR_RES_KANAKA 164  // kanaka
-#define STR_RES_RATNAN 165  // ratnan
-#define STR_RES_GANAMU 166  // ganamu
-#define STR_RES_VANASP 167  // vanasp
-#define STR_RES_MANAVA 168  // manava
-#define STR_RES_TANARU 169  // tanaru
-#define STR_RES_SENAVA 170  // senava
-#define STR_RES_HANUMA 171  // hanuma
-#define STR_RES_DHENUK 172  // dhenuk
-#define STR_RES_NATAKA 173  // nataka
-#define STR_RES_KOKILA 174  // kokila
-#define STR_RES_RUPAVA 175  // rupava
-#define STR_RES_GAYAKA 176  // gayaka
-#define STR_RES_VAKULA 177  // vakula
-#define STR_RES_MAYAMA 178  // mayama
-#define STR_RES_CHAKRA 179  // chakra
-#define STR_RES_SURYAK 180  // suryak
-#define STR_RES_HATAKA 181  // hataka
-#define STR_RES_JHANKA 182  // jhanka
-#define STR_RES_NATABH 183  // natabh
-#define STR_RES_KEERAV 184  // keerav
-#define STR_RES_KHARAH 185  // kharah
-#define STR_RES_GOURIM 186  // gourim
-#define STR_RES_VARUNA 187  // varuna
-#define STR_RES_MARARA 188  // marara
-#define STR_RES_CHARUK 189  // charuk
-#define STR_RES_SARASA 190  // sarasa
-#define STR_RES_HARIKA 191  // harika
-#define STR_RES_DHEERA 192  // dheera
-#define STR_RES_NAGANA 193  // nagana
-#define STR_RES_YAGAPR 194  // yagapr
-#define STR_RES_RAGAVA 195  // ragava
-#define STR_RES_GANGEY 196  // gangey
-#define STR_RES_VAGADH 197  // vagadh
-#define STR_RES_SHULIN 198  // shulin
-#define STR_RES_CHALAN 199  // chalan
-#define STR_RES_SALAGA 200  // salaga
-#define STR_RES_JALARN 201  // jalarn
-#define STR_RES_JHALAV 202  // jhalav
-#define STR_RES_NAVANE 203  // navane
-#define STR_RES_PAVANI 204  // pavani
-#define STR_RES_RAGHUP 205  // raghup
-#define STR_RES_GAVAMB 206  // gavamb
-#define STR_RES_BHAVAP 207  // bhavap
-#define STR_RES_SHUBHA 208  // shubha
-#define STR_RES_SHADVI 209  // shadvi
-#define STR_RES_SUVARN 210  // suvarn
-#define STR_RES_DIVYAM 211  // divyam
-#define STR_RES_DHAVAL 212  // dhaval
-#define STR_RES_NAMANA 213  // namana
-#define STR_RES_KAMAVA 214  // kamava
-#define STR_RES_RAMAPR 215  // ramapr
-#define STR_RES_GAMANA 216  // gamana
-#define STR_RES_VISHWA 217  // vishwa
-#define STR_RES_SHAMAL 218  // shamal
-#define STR_RES_SHANMU 219  // shanmu
-#define STR_RES_SIMHEN 220  // simhen
-#define STR_RES_HEMAVA 221  // hemava
-#define STR_RES_DHARMA 222  // dharma
-#define STR_RES_NEETIM 223  // neetim
-#define STR_RES_KANTAM 224  // kantam
-#define STR_RES_RISHAB 225  // rishab
-#define STR_RES_LATANG 226  // latang
-#define STR_RES_VACHAS 227  // vachas
-#define STR_RES_MECHAK 228  // mechak
-#define STR_RES_CHITRA 229  // chitra
-#define STR_RES_SUCHAR 230  // suchar
-#define STR_RES_JYOTIS 231  // jyotis
-#define STR_RES_DHATUV 232  // dhatuv
-#define STR_RES_NASIKA 233  // nasika
-#define STR_RES_KOSALA 234  // kosala
-#define STR_RES_RASIKA 235  // rasika
+#define STR_RES_CZSAW 27  // czsaw
+#define STR_RES_CZRES 28  // czres
+#define STR_RES_CZTRI 29  // cztri
+#define STR_RES_CZPULS 30  // czpuls
+#define STR_RES_FM 31  // fm
+#define STR_RES_BELL 32  // bell
+#define STR_RES_DRONE 33  // drone
+#define STR_RES_FEMALE 34  // female
+#define STR_RES_MALE 35  // male
+#define STR_RES_SINES 36  // sines
+#define STR_RES_WAVES 37  // waves
+#define STR_RES_SHAPER 38  // shaper
+#define STR_RES_8BITS 39  // 8bits
+#define STR_RES_PWM 40  // pwm
+#define STR_RES_NOISE 41  // noise
+#define STR_RES_VOWEL 42  // vowel
+#define STR_RES_1S2 43  // 1+2
+#define STR_RES_1_2 44  // 1>2
+#define STR_RES_1P2 45  // 1*2
+#define STR_RES_1X2 46  // 1^2
+#define STR_RES_CUT 47  // cut
+#define STR_RES_VCA 48  // vca
+#define STR_RES_PW1 49  // pw1
+#define STR_RES_PW2 50  // pw2
+#define STR_RES_51 51  // 1
+#define STR_RES_52 52  // 2
+#define STR_RES_5 53  // 
+#define STR_RES_MIX 54  // mix
+#define STR_RES_NOI 55  // noi
+#define STR_RES_SUB 56  // sub
+#define STR_RES_RES 57  // res
+#define STR_RES__CV1 58  //  cv1
+#define STR_RES__CV2 59  //  cv2
+#define STR_RES_BIT 60  // bit
+#define STR_RES_CUTOFF 61  // cutoff
+#define STR_RES__VCA 62  //  vca
+#define STR_RES_PWM1 63  // pwm1
+#define STR_RES_PWM2 64  // pwm2
+#define STR_RES_OSC1 65  // osc1
+#define STR_RES_OSC2 66  // osc2
+#define STR_RES_OSC1S2 67  // osc1+2
+#define STR_RES__MIX 68  //  mix
+#define STR_RES__NOISE 69  //  noise
+#define STR_RES_SUBOSC 70  // subosc
+#define STR_RES_RESO 71  // reso
+#define STR_RES__CV_1 72  //  cv 1
+#define STR_RES__CV_2 73  //  cv 2
+#define STR_RES_2_BITS 74  // 2 bits
+#define STR_RES_MUTABLE 75  // mutable
+#define STR_RES_INSTRUMENTS_671 76  // instruments -1
+#define STR_RES_ATK 77  // atk
+#define STR_RES_WV1 78  // wv1
+#define STR_RES_RT1 79  // rt1
+#define STR_RES_WV2 80  // wv2
+#define STR_RES_RT2 81  // rt2
+#define STR_RES_SRC 82  // src
+#define STR_RES_DST 83  // dst
+#define STR_RES_AMT 84  // amt
+#define STR_RES_CHN 85  // chn
+#define STR_RES_BPM 86  // bpm
+#define STR_RES_SWG 87  // swg
+#define STR_RES_SHAPE 88  // shape
+#define STR_RES_ENV1TVCF 89  // env1~vcf
+#define STR_RES_LFO2TVCF 90  // lfo2~vcf
+#define STR_RES_RESONANCE 91  // resonance
+#define STR_RES_ENVELOPE_1 92  // envelope 1
+#define STR_RES_ENVELOPE_2 93  // envelope 2
+#define STR_RES_SEQUENCER 94  // sequencer
+#define STR_RES_ATTACK 95  // attack
+#define STR_RES_DECAY 96  // decay
+#define STR_RES_SUSTAIN 97  // sustain
+#define STR_RES_RELEASE 98  // release
+#define STR_RES_RATE 99  // rate
+#define STR_RES_MOD_ 100  // mod.
+#define STR_RES_SOURCE 101  // source
+#define STR_RES_DEST_ 102  // dest.
+#define STR_RES_AMOUNT 103  // amount
+#define STR_RES_OCTAVE 104  // octave
+#define STR_RES_RAGA 105  // raga
+#define STR_RES_MIDI_CHAN 106  // midi chan
+#define STR_RES_TEMPO 107  // tempo
+#define STR_RES_MIXER 108  // mixer
+#define STR_RES_FILTER 109  // filter
+#define STR_RES_MODULATION 110  // modulation
+#define STR_RES_KEYBOARD 111  // keyboard
+#define STR_RES_MIDI 112  // midi
+#define STR_RES_OFF 113  // off
+#define STR_RES_ON 114  // on
+#define STR_RES_TRI 115  // tri
+#define STR_RES_SQR 116  // sqr
+#define STR_RES_S_H 117  // s&h
+#define STR_RES_3 118  // 
+#define STR_RES_LF1 119  // lf1
+#define STR_RES_LF2 120  // lf2
+#define STR_RES_SEQ 121  // seq
+#define STR_RES_ARP 122  // arp
+#define STR_RES_WHL 123  // whl
+#define STR_RES_BND 124  // bnd
+#define STR_RES_OFS 125  // ofs
+#define STR_RES_CV1 126  // cv1
+#define STR_RES_CV2 127  // cv2
+#define STR_RES_CV3 128  // cv3
+#define STR_RES_RND 129  // rnd
+#define STR_RES_EN1 130  // en1
+#define STR_RES_EN2 131  // en2
+#define STR_RES_VEL 132  // vel
+#define STR_RES_NOT 133  // not
+#define STR_RES_GAT 134  // gat
+#define STR_RES_LFO_1 135  // lfo 1
+#define STR_RES_LFO_2 136  // lfo 2
+#define STR_RES_STPSEQ 137  // stpseq
+#define STR_RES__ARP 138  //  arp
+#define STR_RES_MWHEEL 139  // mwheel
+#define STR_RES_BENDER 140  // bender
+#define STR_RES_OFFSET 141  // offset
+#define STR_RES_CV_1 142  // cv 1
+#define STR_RES_CV_2 143  // cv 2
+#define STR_RES_CV_3 144  // cv 3
+#define STR_RES_RANDOM 145  // random
+#define STR_RES_ENV_1 146  // env 1
+#define STR_RES_ENV_2 147  // env 2
+#define STR_RES_VELO 148  // velo
+#define STR_RES_NOTE 149  // note
+#define STR_RES_GATE 150  // gate
+#define STR_RES__OFF 151  //  off
+#define STR_RES_THRU 152  // thru
+#define STR_RES_CTRL 153  // ctrl
+#define STR_RES__SEQ 154  //  seq
+#define STR_RES_POLY 155  // poly
+#define STR_RES_TOUCH_A_KNOB_TO 156  // touch a knob to
+#define STR_RES_ASSIGN_PARAMETER 157  // assign parameter
+#define STR_RES_READY 158  // ready
+#define STR_RES_FOR_OS_UPDATE 159  // for os update
+#define STR_RES_PATCH_BANK 160  // patch bank
+#define STR_RES_STEP_SEQUENCER 161  // step sequencer
+#define STR_RES_LOAD 162  // load
+#define STR_RES_ 163  // ----
+#define STR_RES_SAVE 164  // save
+#define STR_RES_EXTERN 165  // extern
+#define STR_RES_EQUAL 166  // equal
+#define STR_RES_JUST 167  // just
+#define STR_RES_PYTHAG 168  // pythag
+#define STR_RES_1_4_EB 169  // 1/4 eb
+#define STR_RES_1_4_E 170  // 1/4 e
+#define STR_RES_1_4_EA 171  // 1/4 ea
+#define STR_RES_KANAKA 172  // kanaka
+#define STR_RES_RATNAN 173  // ratnan
+#define STR_RES_GANAMU 174  // ganamu
+#define STR_RES_VANASP 175  // vanasp
+#define STR_RES_MANAVA 176  // manava
+#define STR_RES_TANARU 177  // tanaru
+#define STR_RES_SENAVA 178  // senava
+#define STR_RES_HANUMA 179  // hanuma
+#define STR_RES_DHENUK 180  // dhenuk
+#define STR_RES_NATAKA 181  // nataka
+#define STR_RES_KOKILA 182  // kokila
+#define STR_RES_RUPAVA 183  // rupava
+#define STR_RES_GAYAKA 184  // gayaka
+#define STR_RES_VAKULA 185  // vakula
+#define STR_RES_MAYAMA 186  // mayama
+#define STR_RES_CHAKRA 187  // chakra
+#define STR_RES_SURYAK 188  // suryak
+#define STR_RES_HATAKA 189  // hataka
+#define STR_RES_JHANKA 190  // jhanka
+#define STR_RES_NATABH 191  // natabh
+#define STR_RES_KEERAV 192  // keerav
+#define STR_RES_KHARAH 193  // kharah
+#define STR_RES_GOURIM 194  // gourim
+#define STR_RES_VARUNA 195  // varuna
+#define STR_RES_MARARA 196  // marara
+#define STR_RES_CHARUK 197  // charuk
+#define STR_RES_SARASA 198  // sarasa
+#define STR_RES_HARIKA 199  // harika
+#define STR_RES_DHEERA 200  // dheera
+#define STR_RES_NAGANA 201  // nagana
+#define STR_RES_YAGAPR 202  // yagapr
+#define STR_RES_RAGAVA 203  // ragava
+#define STR_RES_GANGEY 204  // gangey
+#define STR_RES_VAGADH 205  // vagadh
+#define STR_RES_SHULIN 206  // shulin
+#define STR_RES_CHALAN 207  // chalan
+#define STR_RES_SALAGA 208  // salaga
+#define STR_RES_JALARN 209  // jalarn
+#define STR_RES_JHALAV 210  // jhalav
+#define STR_RES_NAVANE 211  // navane
+#define STR_RES_PAVANI 212  // pavani
+#define STR_RES_RAGHUP 213  // raghup
+#define STR_RES_GAVAMB 214  // gavamb
+#define STR_RES_BHAVAP 215  // bhavap
+#define STR_RES_SHUBHA 216  // shubha
+#define STR_RES_SHADVI 217  // shadvi
+#define STR_RES_SUVARN 218  // suvarn
+#define STR_RES_DIVYAM 219  // divyam
+#define STR_RES_DHAVAL 220  // dhaval
+#define STR_RES_NAMANA 221  // namana
+#define STR_RES_KAMAVA 222  // kamava
+#define STR_RES_RAMAPR 223  // ramapr
+#define STR_RES_GAMANA 224  // gamana
+#define STR_RES_VISHWA 225  // vishwa
+#define STR_RES_SHAMAL 226  // shamal
+#define STR_RES_SHANMU 227  // shanmu
+#define STR_RES_SIMHEN 228  // simhen
+#define STR_RES_HEMAVA 229  // hemava
+#define STR_RES_DHARMA 230  // dharma
+#define STR_RES_NEETIM 231  // neetim
+#define STR_RES_KANTAM 232  // kantam
+#define STR_RES_RISHAB 233  // rishab
+#define STR_RES_LATANG 234  // latang
+#define STR_RES_VACHAS 235  // vachas
+#define STR_RES_MECHAK 236  // mechak
+#define STR_RES_CHITRA 237  // chitra
+#define STR_RES_SUCHAR 238  // suchar
+#define STR_RES_JYOTIS 239  // jyotis
+#define STR_RES_DHATUV 240  // dhatuv
+#define STR_RES_NASIKA 241  // nasika
+#define STR_RES_KOSALA 242  // kosala
+#define STR_RES_RASIKA 243  // rasika
 #define LUT_RES_LFO_INCREMENTS 0
 #define LUT_RES_LFO_INCREMENTS_SIZE 128
 #define LUT_RES_ENV_PORTAMENTO_INCREMENTS 1
@@ -550,9 +563,19 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES_BANDLIMITED_TRIANGLE_5_SIZE 257
 #define WAV_RES_BANDLIMITED_TRIANGLE_6 28
 #define WAV_RES_BANDLIMITED_TRIANGLE_6_SIZE 257
-#define WAV_RES_WAVETABLE 29
-#define WAV_RES_WAVETABLE_SIZE 2145
-#define WAV_RES_VOWEL_DATA 30
+#define WAV_RES_WAVETABLE_1 29
+#define WAV_RES_WAVETABLE_1_SIZE 4112
+#define WAV_RES_WAVETABLE_2 30
+#define WAV_RES_WAVETABLE_2_SIZE 4112
+#define WAV_RES_WAVETABLE_3 31
+#define WAV_RES_WAVETABLE_3_SIZE 4112
+#define WAV_RES_WAVETABLE_4 32
+#define WAV_RES_WAVETABLE_4_SIZE 4112
+#define WAV_RES_WAVETABLE_5 33
+#define WAV_RES_WAVETABLE_5_SIZE 4112
+#define WAV_RES_WAVETABLE_6 34
+#define WAV_RES_WAVETABLE_6_SIZE 4112
+#define WAV_RES_VOWEL_DATA 35
 #define WAV_RES_VOWEL_DATA_SIZE 45
 #define CHR_RES_SPECIAL_CHARACTERS 0
 #define CHR_RES_SPECIAL_CHARACTERS_SIZE 64
