@@ -48,10 +48,11 @@ none
 saw
 square
 triang
-czres
-cztri
-czpuls
-czsync
+zsaw
+zreso
+ztri
+zpulse
+zsync
 fm
 bell
 drone
@@ -59,7 +60,6 @@ female
 male
 sines
 waves
-shaper
 8bits
 pwm
 noise

@@ -76,6 +76,22 @@ static inline uint8_t Mix(uint8_t a, uint8_t b, uint8_t balance) {
   return sum.bytes[1];
 }
 
+static inline uint16_t Mix16(uint8_t a, uint8_t b, uint8_t balance) {
+  Word sum;
+  asm(
+    "mul %3, %2"      "\n\t"  // b * balance
+    "movw %A0, r0"    "\n\t"  // to sum
+    "com %2"          "\n\t"  // 255 - balance
+    "mul %1, %2"      "\n\t"  // a * (255 - balance)
+    "com %2"          "\n\t"  // reset balance to its previous value
+    "add %A0, r0"     "\n\t"  // add to sum L
+    "adc %B0, r1"     "\n\t"  // add to sum H
+    "eor r1, r1"      "\n\t"  // reset r1 after multiplication
+    : "&=r" (sum)
+    : "a" (a), "a" (balance), "a" (b)
+    );
+  return sum.value;
+}
 
 static inline uint8_t Mix4(uint8_t a, uint8_t b, uint8_t balance) {
   uint16_t sum;
@@ -273,6 +289,10 @@ static inline int8_t SignedClip8(int16_t value) {
 
 static inline uint8_t Mix(uint8_t a, uint8_t b, uint8_t balance) {
   return a * (255 - balance) + b * balance >> 8;
+}
+
+static inline uint16_t Mix16(uint8_t a, uint8_t b, uint8_t balance) {
+  return a * (255 - balance) + b * balance;
 }
 
 static inline uint8_t Mix4(uint8_t a, uint8_t b, uint8_t balance) {

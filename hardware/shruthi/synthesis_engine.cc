@@ -510,7 +510,7 @@ void Voice::Control() {
   dst[MOD_DST_CV_1] = 0;
   dst[MOD_DST_CV_2] = 0;
   dst[MOD_DST_2_BITS] = 0;
-
+  
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     int8_t amount = engine.patch_.modulation_matrix.modulation[i].amount;

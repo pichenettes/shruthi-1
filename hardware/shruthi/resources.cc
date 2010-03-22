@@ -51,10 +51,11 @@ static const prog_char str_res_none[] PROGMEM = "none";
 static const prog_char str_res_saw[] PROGMEM = "saw";
 static const prog_char str_res_square[] PROGMEM = "square";
 static const prog_char str_res_triang[] PROGMEM = "triang";
-static const prog_char str_res_czres[] PROGMEM = "czres";
-static const prog_char str_res_cztri[] PROGMEM = "cztri";
-static const prog_char str_res_czpuls[] PROGMEM = "czpuls";
-static const prog_char str_res_czsync[] PROGMEM = "czsync";
+static const prog_char str_res_zsaw[] PROGMEM = "zsaw";
+static const prog_char str_res_zres[] PROGMEM = "zres";
+static const prog_char str_res_ztri[] PROGMEM = "ztri";
+static const prog_char str_res_zpuls[] PROGMEM = "zpuls";
+static const prog_char str_res_zsync[] PROGMEM = "zsync";
 static const prog_char str_res_fm[] PROGMEM = "fm";
 static const prog_char str_res_bell[] PROGMEM = "bell";
 static const prog_char str_res_drone[] PROGMEM = "drone";
@@ -62,7 +63,6 @@ static const prog_char str_res_female[] PROGMEM = "female";
 static const prog_char str_res_male[] PROGMEM = "male";
 static const prog_char str_res_sines[] PROGMEM = "sines";
 static const prog_char str_res_waves[] PROGMEM = "waves";
-static const prog_char str_res_shaper[] PROGMEM = "shaper";
 static const prog_char str_res_8bits[] PROGMEM = "8bits";
 static const prog_char str_res_pwm[] PROGMEM = "pwm";
 static const prog_char str_res_noise[] PROGMEM = "noise";
@@ -307,10 +307,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_saw,
   str_res_square,
   str_res_triang,
-  str_res_czres,
-  str_res_cztri,
-  str_res_czpuls,
-  str_res_czsync,
+  str_res_zsaw,
+  str_res_zres,
+  str_res_ztri,
+  str_res_zpuls,
+  str_res_zsync,
   str_res_fm,
   str_res_bell,
   str_res_drone,
@@ -318,7 +319,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_male,
   str_res_sines,
   str_res_waves,
-  str_res_shaper,
   str_res_8bits,
   str_res_pwm,
   str_res_noise,

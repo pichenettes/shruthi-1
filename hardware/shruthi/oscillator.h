@@ -347,6 +347,14 @@ class Oscillator {
         (phase_increment_ * uint32_t(parameter_)) >> 3);
   }
   
+  static void RenderCzSaw() {
+    phase_ += phase_increment_;
+    uint8_t phase = phase_ >> 8;
+    uint8_t clipped_phase = phase < 0x20 ? phase << 3 : 0xff;
+    held_sample_ = InterpolateSample(waveform_table[WAV_RES_SINE],
+        Mix16(phase, clipped_phase, parameter_ << 1));
+  }
+  
   static void RenderCzPulseReso() {
     uint8_t old_phase_msb = phase_ >> 8;
     phase_ += phase_increment_;
@@ -448,13 +456,6 @@ class Oscillator {
     held_sample_ = (((phase_ >> 8) ^ (x << 1)) & (~x)) + (x >> 1);
   }
   
-  // ------- Dirty waveshaper --------------------------------------------------
-  static void UpdateShaper() {
-  }
-  
-  static void RenderShaper() {
-  }
-
   // ------- Vowel ------------------------------------------------------------
   //
   // The algorithm used here is a reimplementation of the synthesis algorithm
@@ -572,7 +573,8 @@ template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   { &Osc::UpdateSimpleWavetable, &Osc::RenderSimpleWavetable },
   { &Osc::UpdateBandlimitedPwm, &Osc::RenderBandlimitedPwm },
   { &Osc::UpdateSimpleWavetable, &Osc::RenderSimpleWavetable },
-  
+
+  { &Osc::UpdateSilence, &Osc::RenderCzSaw },  
   { &Osc::UpdateCz, &Osc::RenderCzSawReso },
   { &Osc::UpdateCz, &Osc::RenderCzTriReso },
   { &Osc::UpdateCz, &Osc::RenderCzPulseReso },
@@ -587,7 +589,6 @@ template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   
-  { &Osc::UpdateShaper, &Osc::RenderShaper },
   { &Osc::UpdateSilence, &Osc::Render8BitLand },
   { &Osc::UpdateSilence, &Osc::RenderDirtyPwm },
   { &Osc::UpdateSilence, &Osc::RenderFilteredNoise },
