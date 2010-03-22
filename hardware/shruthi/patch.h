@@ -186,8 +186,8 @@ class Patch {
   static uint8_t sysex_reception_checksum_;
 };
 
-static const uint8_t kNumModulationSources = 16;
-static const uint8_t kNumGlobalModulationSources = 11;
+static const uint8_t kNumModulationSources = 21;
+static const uint8_t kNumGlobalModulationSources = 15;
 static const uint8_t kNumVoiceModulationSources = kNumModulationSources -
     kNumGlobalModulationSources;
 
@@ -196,19 +196,24 @@ enum ModulationSource {
   MOD_SRC_LFO_1 = 0,
   MOD_SRC_LFO_2,
   MOD_SRC_SEQ,
+  MOD_SRC_SEQ_1,
+  MOD_SRC_SEQ_2,
   MOD_SRC_STEP,
   MOD_SRC_WHEEL,
+  MOD_SRC_AFTERTOUCH,
   MOD_SRC_PITCH_BEND,
   MOD_SRC_OFFSET,
   MOD_SRC_CV_1,
   MOD_SRC_CV_2,
   MOD_SRC_CV_3,
-  MOD_SRC_RANDOM,
+  MOD_SRC_CV_4,
+  MOD_SRC_NOISE,
 
   /* Then those which are different for each note. */
   MOD_SRC_ENV_1 = kNumGlobalModulationSources,
   MOD_SRC_ENV_2,
   MOD_SRC_VELOCITY,
+  MOD_SRC_RANDOM,
   MOD_SRC_NOTE,
   MOD_SRC_GATE,
 };
@@ -298,13 +303,12 @@ enum Parameter {
 
 enum OscillatorAlgorithm {
   WAVEFORM_NONE,
-  WAVEFORM_IMPULSE_TRAIN,
   WAVEFORM_SAW,
   WAVEFORM_SQUARE,
   WAVEFORM_TRIANGLE,
-  WAVEFORM_CZ_PULSE,
   WAVEFORM_CZ_RESO,
   WAVEFORM_CZ_TRIANGLE,
+  WAVEFORM_CZ_PULSE,
   WAVEFORM_CZ_SYNC,
   WAVEFORM_FM,
   WAVEFORM_WAVETABLE_1,

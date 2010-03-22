@@ -28,7 +28,7 @@ LFO and envelope increments.
 lookup_tables = []
 
 sample_rate = 39062.0
-control_rate = sample_rate / 32
+control_rate = sample_rate / 40.0
 min_frequency = 1.0 / 16.0  # Hertz
 max_frequency = 100.0  # Hertz
 
@@ -81,8 +81,8 @@ pitch to create phasing/detune effects, low octaves, and 7/4, 9/4 that I really
 like.
 ----------------------------------------------------------------------------"""
 
-fm_frequency_ratios = numpy.array([
-  0.125,
+fm_frequency_ratios = numpy.array(
+[ 0.125,
   0.25,
   0.5,
   0.5 * 2 ** (16 / 1200.0),
@@ -106,8 +106,8 @@ fm_frequency_ratios = numpy.array([
   numpy.pi * 3 / 2,
   5,
   numpy.sqrt(2) * 4,
-  8,
-])
+  8]
+)
 
 lookup_tables.append(
     ('fm_frequency_ratios', (fm_frequency_ratios * 256).astype(int))

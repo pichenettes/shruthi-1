@@ -57,15 +57,15 @@ static const uint8_t kNumSwitches = 6;
 // Rate of the main timer. For now, 1 sample is generated per tick, but we might
 // want to do something different to achieve other sample rates
 // (20kHz or 16kHz).
-static const uint16_t kMainTimerRate = 39062;
 static const uint16_t kSampleRate = 39062;
 
-// One control signal sample is generated for each 32 audio sample.
-static const uint8_t kControlRate = 32;
+// One control signal sample is generated for each 40 audio sample (this gives
+// the same resolution as for the Shruti-1: 31250/32 ~= 39062/40)
+static const uint8_t kControlRate = 40;
 
 // The latency is 1ms, with a buffer storing 4ms of audio.
 static const uint8_t kAudioBlockSize = kControlRate;
-static const uint8_t kAudioBufferSize = kAudioBlockSize * 4;
+static const uint8_t kAudioBufferSize = 128;
 
 // ---- Wirings ----------------------------------------------------------------
 

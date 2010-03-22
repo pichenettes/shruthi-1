@@ -46,7 +46,6 @@ Patch SynthesisEngine::patch_;
 Voice SynthesisEngine::voice_[kNumVoices];
 VoiceController SynthesisEngine::controller_;
 Lfo SynthesisEngine::lfo_[kNumLfos];
-uint8_t SynthesisEngine::qux_[2];
 uint8_t SynthesisEngine::nrpn_parameter_number_;
 uint8_t SynthesisEngine::data_entry_msb_;
 uint8_t SynthesisEngine::num_lfo_reset_steps_;
@@ -71,9 +70,9 @@ static const prog_char empty_patch[] PROGMEM = {
     WAVEFORM_SAW, 0, 0, 0,
     WAVEFORM_SQUARE, 24, -12, 12,
     // Mixer
-    16, 0, 0, WAVEFORM_SQUARE,
+    0, 0, 0, WAVEFORM_SQUARE,
     // Filter
-    90, 0, 20, 0,
+    127, 0, 20, 0,
     // ADSR
     20, 60, 20, 60,
     0, 40, 80, 40,
@@ -180,6 +179,17 @@ uint8_t SynthesisEngine::CheckChannel(uint8_t channel) {
 /* static */
 void SynthesisEngine::PitchBend(uint8_t channel, uint16_t pitch_bend) {
   modulation_sources_[MOD_SRC_PITCH_BEND] = ShiftRight6(pitch_bend);
+}
+
+/* static */
+void SynthesisEngine::Aftertouch(uint8_t channel, uint8_t note,
+                                 uint8_t velocity) {
+  modulation_sources_[MOD_SRC_AFTERTOUCH] = velocity << 1;
+}
+
+/* static */
+void SynthesisEngine::Aftertouch(uint8_t channel, uint8_t velocity) {
+  modulation_sources_[MOD_SRC_AFTERTOUCH] = velocity << 1;
 }
 
 /* static */
@@ -324,7 +334,7 @@ void SynthesisEngine::Control() {
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     modulation_sources_[MOD_SRC_LFO_1 + i] = lfo_[i].Render();
   }
-  modulation_sources_[MOD_SRC_RANDOM] = Random::state_msb();
+  modulation_sources_[MOD_SRC_NOISE] = Random::state_msb();
   modulation_sources_[MOD_SRC_OFFSET] = 255;
 
   // Update the arpeggiator / step sequencer.
@@ -351,6 +361,9 @@ void SynthesisEngine::Control() {
 
   // Read/shift the value of the step sequencer.
   modulation_sources_[MOD_SRC_SEQ] = patch_.sequence_step(controller_.step());
+  uint8_t half_step = controller_.step() & 0x07;
+  modulation_sources_[MOD_SRC_SEQ_1] = patch_.sequence_step(half_step);
+  modulation_sources_[MOD_SRC_SEQ_2] = patch_.sequence_step(half_step + 8);
   modulation_sources_[MOD_SRC_STEP] = (
       controller_.has_arpeggiator_note() ? 255 : 0);
 
@@ -414,6 +427,8 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     engine.TriggerLfos();
     modulation_sources_[MOD_SRC_VELOCITY - kNumGlobalModulationSources] =
         velocity << 1;
+    modulation_sources_[MOD_SRC_RANDOM - kNumGlobalModulationSources] =
+        Random::state_msb();
   }
   pitch_target_ = static_cast<uint16_t>(note) << 7;
   if (engine.patch_.sys_raga) {
@@ -578,7 +593,6 @@ void Voice::Control() {
   } else {
     modulation_destinations_[MOD_DST_2_BITS] = 0xff;
   }
-
   modulation_destinations_[MOD_DST_PWM_1] = dst[MOD_DST_PWM_1] >> 7;
   modulation_destinations_[MOD_DST_PWM_2] = dst[MOD_DST_PWM_2] >> 7;
 
@@ -593,9 +607,9 @@ void Voice::Control() {
     // -24 / +24 semitones by the range controller.
     if (engine.patch_.osc[i].shape == WAVEFORM_FM) {
       if (i == 0) {
-        osc_1.UpdateSecondaryParameter(engine.patch_.osc[i].range + 12);
+        osc_1.UpdateSecondaryParameter(engine.patch_.osc[i].range + 24);
       } else {
-        osc_2.UpdateSecondaryParameter(engine.patch_.osc[i].range + 12);
+        osc_2.UpdateSecondaryParameter(engine.patch_.osc[i].range + 24);
       }
     } else {
       pitch += static_cast<int16_t>(engine.patch_.osc[i].range) << 7;
@@ -667,7 +681,7 @@ void Voice::Audio() {
     mix = SignedSignedMulScale8(mix + 128, osc_2_signal + 128) + 128;
   } else if (op == XOR) {
     mix ^= osc_2_signal;
-    mix += modulation_destinations_[MOD_DST_MIX_BALANCE];
+    mix ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
   } else {
     mix = Mix(
         mix,
@@ -700,7 +714,6 @@ void Voice::Audio() {
         Random::state_msb(),
         modulation_destinations_[MOD_DST_MIX_NOISE]);
   }
-
   signal_ = mix;
 }
 

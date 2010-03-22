@@ -42,17 +42,23 @@ class RotaryEncoder {
     next_readout_ = 0;
   }
 
-  static inline int8_t Read() {
+  static inline int8_t TimedRead() {
     uint32_t t = milliseconds();
     int8_t increment = 0;
     if (t >= next_readout_) {
       next_readout_ = t + debounce_time;
-      SwitchA::Read();
-      SwitchB::Read();
-      SwitchClick::Read();
-      if (SwitchA::raised()) {
-        increment = SwitchB::debounced_value() ? 1 : -1;
-      }
+      increment = Read();
+    }
+    return increment;
+  }
+
+  static inline int8_t Read() {
+    int8_t increment = 0;
+    SwitchA::Read();
+    SwitchB::Read();
+    SwitchClick::Read();
+    if (SwitchA::raised()) {
+      increment = SwitchB::debounced_value() ? 1 : -1;
     }
     return increment;
   }
@@ -65,9 +71,47 @@ class RotaryEncoder {
   DISALLOW_COPY_AND_ASSIGN(RotaryEncoder);
 };
 
+template<typename Encoder>
+class RotaryEncoderBuffer {
+ public:
+  RotaryEncoderBuffer() { }
+  
+  static void Init() {
+    Encoder::Init();
+  }
+  
+  static inline void Read() {
+    if (!increment_) {
+      increment_ = Encoder::Read();
+    }
+    if (!clicked_) {
+      clicked_ = Encoder::clicked();
+    }
+  }
+  
+  static inline uint8_t clicked() { return clicked_; }
+  static inline uint8_t increment() { return increment_; }
+  static void Flush() {
+    increment_ = 0;
+    clicked_ = 0; 
+  }
+  
+ private:
+  static int8_t increment_;
+  static uint8_t clicked_;
+
+  DISALLOW_COPY_AND_ASSIGN(RotaryEncoderBuffer);
+};
+
 /* static */
 template<typename A, typename B, typename Click, uint16_t debounce_time>
 uint32_t RotaryEncoder<A, B, Click, debounce_time>::next_readout_;
+
+/* static */
+template<typename Encoder> uint8_t RotaryEncoderBuffer<Encoder>::clicked_;
+
+/* static */
+template<typename Encoder> int8_t RotaryEncoderBuffer<Encoder>::increment_;
 
 }  // namespace hardware_hal
 

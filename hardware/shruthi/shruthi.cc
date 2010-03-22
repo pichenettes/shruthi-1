@@ -64,10 +64,10 @@ SwitchArray<
   kNumSwitches,
   GROUP_LOAD_SAVE> switches;
 
-RotaryEncoder<
+RotaryEncoderBuffer<RotaryEncoder<
     Gpio<kPinEncoderA>,
     Gpio<kPinEncoderB>,
-    Gpio<kPinEncoderClick> > encoder;
+    Gpio<kPinEncoderClick> > > encoder;
 
 AudioOutput<PwmOutput<kPinVcoOut>, kAudioBufferSize, kAudioBlockSize> audio_out;
 PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
@@ -127,6 +127,8 @@ void UpdateDisplayTask() {
   display.Tick();
 }
 
+int8_t last_increment = 0;
+
 void InputTask() {
   KeyEvent switch_event;
   Pots::Event pot_event;
@@ -167,16 +169,16 @@ TASK_BEGIN_NEAR
     }
     TASK_SWITCH;
 
-    delta = encoder.Read();
-    if (delta) {
+    if (encoder.increment()) {
       switches.Touch();
-      editor.HandleIncrement(delta);
+      editor.HandleIncrement(encoder.increment());
     } else {
       if (encoder.clicked()) {
         switches.Touch();
         editor.HandleClick();
       }
     }
+    encoder.Flush();
     TASK_SWITCH;
   }
 TASK_END
@@ -297,12 +299,17 @@ Task Scheduler::tasks_[] = {
 };
 
 uint8_t lcd_write_cycle = 0;
+uint8_t encoder_read_cycle = 0;
 
 TIMER_2_TICK {
   audio_out.EmitSample();
   lcd_write_cycle = (lcd_write_cycle + 1) & 0x0f;
   if (lcd_write_cycle == 0) {
     lcd.Tick();
+    ++encoder_read_cycle;
+    if (encoder_read_cycle & 1) {
+      encoder.Read();
+    }
   }
 }
 
@@ -331,7 +338,7 @@ void Init() {
   cv_1_out.Init();
   cv_2_out.Init();
 
-  editor.DisplaySplashScreen(STR_RES_MUTABLE);
+  editor.DisplaySplashScreen(STR_RES_ + 1);
 
   // In case the bootloader has not done it, enable the pull-up on the MIDI in.
   DigitalInput<10>::EnablePullUpResistor();

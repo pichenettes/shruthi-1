@@ -103,8 +103,8 @@ struct ParameterDefinition {
   uint8_t min_value;
   uint8_t max_value;
   ParameterUnit unit;
-  ResourceId short_name;
-  ResourceId long_name;
+  uint8_t short_name;
+  uint8_t long_name;
 };
 
 enum PageUiType {

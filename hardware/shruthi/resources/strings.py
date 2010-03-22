@@ -45,7 +45,6 @@ arpeggio
 performance
 
 none
-blit
 saw
 square
 triang
@@ -84,7 +83,7 @@ sub
 res
  cv1
  cv2
-bit
+2bt
 
 cutoff
  vca
@@ -100,9 +99,6 @@ reso
  cv 1
  cv 2
 2 bits
-
-mutable
-instruments \x06\x07-1
 
 atk
 wv1
@@ -153,33 +149,44 @@ s&h
 lf1
 lf2
 seq
+sq1
+sq2
 arp
 whl
+aft
 bnd
 ofs
 cv1
 cv2
 cv3
-rnd
+cv4
+ noi
 en1
 en2
 vel
+rnd
 not
 gat
+
 lfo 1
 lfo 2
 stpseq
+stpsq1
+stpsq2
  arp
 mwheel
+afttch
 bender
 offset
 cv 1
 cv 2
 cv 3
-random
+cv 4
+  noise
 env 1
 env 2
 velo
+random
 note
 gate
 
@@ -197,6 +204,8 @@ patch bank
 step sequencer
 load
 ----
+mutable    v1.00
+instruments \x06\x07-1
 save
 extern
 equal

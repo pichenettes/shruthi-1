@@ -158,6 +158,8 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   // Handled.
   static void ControlChange(uint8_t channel, uint8_t controller, uint8_t value);
   static void PitchBend(uint8_t channel, uint16_t pitch_bend);
+  static void Aftertouch(uint8_t channel, uint8_t note, uint8_t velocity);
+  static void Aftertouch(uint8_t channel, uint8_t velocity);
   static void AllSoundOff(uint8_t channel);
   static void ResetAllControllers(uint8_t channel);
   static void AllNotesOff(uint8_t channel);
@@ -234,7 +236,6 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static Voice voice_[kNumVoices];
   static VoiceController controller_;
   static uint8_t oscillator_decimation_;
-  static uint8_t qux_[2];
   static uint8_t nrpn_parameter_number_;
   static uint8_t data_entry_msb_;
 

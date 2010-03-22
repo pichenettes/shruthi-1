@@ -123,8 +123,6 @@ for zone in range(num_zones):
     pulse = MinimumPhaseReconstruction(pulse)[:(WAVETABLE_SIZE + 1)]
   else:
     pulse = pulse[fill]
-  bl_pulse_tables.append(('bandlimited_pulse_%d' % zone,
-                          Scale(pulse, center=False)))
 
   square = numpy.cumsum(pulse - pulse[wrap])
   triangle = -numpy.cumsum(square[::-1] - square.mean()) / WAVETABLE_SIZE
@@ -148,18 +146,35 @@ for zone in range(num_zones):
   bl_saw_tables.append(('bandlimited_saw_%d' % zone,
                        Scale(saw[quadrature])))
 
-# Blit are never generated at SR, always at SR/2.
-del bl_pulse_tables[0]
 
-def LoadWavetable(x):
+def SpectralCentroid(x):
+  x = numpy.fft.fft(x)
+  x = x[:len(x) / 2]
+  spectrum = numpy.abs(x)
+  centroid = (spectrum * xrange(len(x))).sum() / spectrum.sum()
+  return centroid
+
+
+def LoadWavetable(x, sort=True):
+  # Load the data and split/pad single cycle waveforms.
   array = numpy.array(map(ord, list(file(x).read())))
   num_cycles = len(array) / 256
   assert num_cycles == 16
-  wavetable = numpy.zeros((num_cycles * 257,))
+  wavetable = numpy.zeros((num_cycles, 257))
   for i in xrange(num_cycles):
-    wavetable[i * 257:(i + 1) * 257 - 1] = array[i * 256:(i + 1) * 256]
-    wavetable[(i + 1) * 257 - 1] = wavetable[i * 257]
-  return wavetable
+    for j in xrange(256):
+      wavetable[i, j] = array[i * 256 + j]
+    wavetable[i, 256] = wavetable[i, 0]
+  
+  if not sort:
+    return wavetable.ravel()
+  else:
+    sorted_wavetable = numpy.zeros((num_cycles, 257))
+    arg_sort = sorted([(SpectralCentroid(x), i) for (i, x) in enumerate(wavetable)])
+    for target_index, (_, index) in enumerate(arg_sort):
+      sorted_wavetable[target_index, :] = wavetable[index, :]
+    return sorted_wavetable.ravel()
+
 
 waveforms.extend(bl_pulse_tables)
 waveforms.extend(bl_square_tables)
@@ -171,7 +186,7 @@ waveforms.extend([
     ('wavetable_3', LoadWavetable('hardware/shruthi/data/female.bin')),
     ('wavetable_4', LoadWavetable('hardware/shruthi/data/male.bin')),
     ('wavetable_5', LoadWavetable('hardware/shruthi/data/sines.bin')),
-    ('wavetable_6', LoadWavetable('hardware/shruthi/data/waves.bin')),
+    ('wavetable_6', LoadWavetable('hardware/shruthi/data/waves.bin', sort=False)),
 ])
 
 """----------------------------------------------------------------------------
