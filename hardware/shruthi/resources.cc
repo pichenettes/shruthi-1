@@ -193,6 +193,8 @@ static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_ready[] PROGMEM = "ready";
 static const prog_char str_res_for_os_update[] PROGMEM = "for os update";
 static const prog_char str_res_patch_bank[] PROGMEM = "patch bank";
+static const prog_char str_res_sequences[] PROGMEM = "sequences";
+static const prog_char str_res_system_settings[] PROGMEM = "system settings";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_load[] PROGMEM = "load";
 static const prog_char str_res_[] PROGMEM = "----";
@@ -450,6 +452,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_ready,
   str_res_for_os_update,
   str_res_patch_bank,
+  str_res_sequences,
+  str_res_system_settings,
   str_res_step_sequencer,
   str_res_load,
   str_res_,

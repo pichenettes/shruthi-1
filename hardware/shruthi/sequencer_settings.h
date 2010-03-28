@@ -108,6 +108,9 @@ struct SequenceStep {
   uint8_t controller() const {
     return data_[1] & 0x0f;
   }
+  char character() const {
+    return gate() ? (legato() ? '-' : '\x01') : ' ';
+  }
 };
 
 static const uint8_t kNumSteps = 16;
@@ -127,8 +130,14 @@ struct SequencerSettings {
   uint8_t pattern_size;
   SequenceStep steps[kNumSteps];
   
+  
   void EepromSave(uint8_t slot) const;
   void EepromLoad(uint8_t slot);
+  void Backup() const;
+  void Restore();
+  
+ private:
+  static uint8_t undo_buffer_[sizeof(SequenceStep) * kNumSteps];
 };
 
 static const uint8_t kSequenceSize = sizeof(SequenceStep) * kNumSteps;

@@ -33,7 +33,7 @@
 #include "hardware/resources/resources_manager.h"
 namespace hardware_shruthi {
 
-typedef uint8_t ResourceId;
+typedef uint16_t ResourceId;
 
 extern const prog_char* string_table[];
 
@@ -259,92 +259,94 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_READY 165  // ready
 #define STR_RES_FOR_OS_UPDATE 166  // for os update
 #define STR_RES_PATCH_BANK 167  // patch bank
-#define STR_RES_STEP_SEQUENCER 168  // step sequencer
-#define STR_RES_LOAD 169  // load
-#define STR_RES_ 170  // ----
-#define STR_RES_SAVE 171  // save
-#define STR_RES_V 172  // v
-#define STR_RES_MUTABLE____V1_00 173  // mutable    v1.00
-#define STR_RES_INSTRUMENTS_671 174  // instruments -1
-#define STR_RES_EXTERN 175  // extern
-#define STR_RES_EQUAL 176  // equal
-#define STR_RES_JUST 177  // just
-#define STR_RES_PYTHAG 178  // pythag
-#define STR_RES_1_4_EB 179  // 1/4 eb
-#define STR_RES_1_4_E 180  // 1/4 e
-#define STR_RES_1_4_EA 181  // 1/4 ea
-#define STR_RES_KANAKA 182  // kanaka
-#define STR_RES_RATNAN 183  // ratnan
-#define STR_RES_GANAMU 184  // ganamu
-#define STR_RES_VANASP 185  // vanasp
-#define STR_RES_MANAVA 186  // manava
-#define STR_RES_TANARU 187  // tanaru
-#define STR_RES_SENAVA 188  // senava
-#define STR_RES_HANUMA 189  // hanuma
-#define STR_RES_DHENUK 190  // dhenuk
-#define STR_RES_NATAKA 191  // nataka
-#define STR_RES_KOKILA 192  // kokila
-#define STR_RES_RUPAVA 193  // rupava
-#define STR_RES_GAYAKA 194  // gayaka
-#define STR_RES_VAKULA 195  // vakula
-#define STR_RES_MAYAMA 196  // mayama
-#define STR_RES_CHAKRA 197  // chakra
-#define STR_RES_SURYAK 198  // suryak
-#define STR_RES_HATAKA 199  // hataka
-#define STR_RES_JHANKA 200  // jhanka
-#define STR_RES_NATABH 201  // natabh
-#define STR_RES_KEERAV 202  // keerav
-#define STR_RES_KHARAH 203  // kharah
-#define STR_RES_GOURIM 204  // gourim
-#define STR_RES_VARUNA 205  // varuna
-#define STR_RES_MARARA 206  // marara
-#define STR_RES_CHARUK 207  // charuk
-#define STR_RES_SARASA 208  // sarasa
-#define STR_RES_HARIKA 209  // harika
-#define STR_RES_DHEERA 210  // dheera
-#define STR_RES_NAGANA 211  // nagana
-#define STR_RES_YAGAPR 212  // yagapr
-#define STR_RES_RAGAVA 213  // ragava
-#define STR_RES_GANGEY 214  // gangey
-#define STR_RES_VAGADH 215  // vagadh
-#define STR_RES_SHULIN 216  // shulin
-#define STR_RES_CHALAN 217  // chalan
-#define STR_RES_SALAGA 218  // salaga
-#define STR_RES_JALARN 219  // jalarn
-#define STR_RES_JHALAV 220  // jhalav
-#define STR_RES_NAVANE 221  // navane
-#define STR_RES_PAVANI 222  // pavani
-#define STR_RES_RAGHUP 223  // raghup
-#define STR_RES_GAVAMB 224  // gavamb
-#define STR_RES_BHAVAP 225  // bhavap
-#define STR_RES_SHUBHA 226  // shubha
-#define STR_RES_SHADVI 227  // shadvi
-#define STR_RES_SUVARN 228  // suvarn
-#define STR_RES_DIVYAM 229  // divyam
-#define STR_RES_DHAVAL 230  // dhaval
-#define STR_RES_NAMANA 231  // namana
-#define STR_RES_KAMAVA 232  // kamava
-#define STR_RES_RAMAPR 233  // ramapr
-#define STR_RES_GAMANA 234  // gamana
-#define STR_RES_VISHWA 235  // vishwa
-#define STR_RES_SHAMAL 236  // shamal
-#define STR_RES_SHANMU 237  // shanmu
-#define STR_RES_SIMHEN 238  // simhen
-#define STR_RES_HEMAVA 239  // hemava
-#define STR_RES_DHARMA 240  // dharma
-#define STR_RES_NEETIM 241  // neetim
-#define STR_RES_KANTAM 242  // kantam
-#define STR_RES_RISHAB 243  // rishab
-#define STR_RES_LATANG 244  // latang
-#define STR_RES_VACHAS 245  // vachas
-#define STR_RES_MECHAK 246  // mechak
-#define STR_RES_CHITRA 247  // chitra
-#define STR_RES_SUCHAR 248  // suchar
-#define STR_RES_JYOTIS 249  // jyotis
-#define STR_RES_DHATUV 250  // dhatuv
-#define STR_RES_NASIKA 251  // nasika
-#define STR_RES_KOSALA 252  // kosala
-#define STR_RES_RASIKA 253  // rasika
+#define STR_RES_SEQUENCES 168  // sequences
+#define STR_RES_SYSTEM_SETTINGS 169  // system settings
+#define STR_RES_STEP_SEQUENCER 170  // step sequencer
+#define STR_RES_LOAD 171  // load
+#define STR_RES_ 172  // ----
+#define STR_RES_SAVE 173  // save
+#define STR_RES_V 174  // v
+#define STR_RES_MUTABLE____V1_00 175  // mutable    v1.00
+#define STR_RES_INSTRUMENTS_671 176  // instruments -1
+#define STR_RES_EXTERN 177  // extern
+#define STR_RES_EQUAL 178  // equal
+#define STR_RES_JUST 179  // just
+#define STR_RES_PYTHAG 180  // pythag
+#define STR_RES_1_4_EB 181  // 1/4 eb
+#define STR_RES_1_4_E 182  // 1/4 e
+#define STR_RES_1_4_EA 183  // 1/4 ea
+#define STR_RES_KANAKA 184  // kanaka
+#define STR_RES_RATNAN 185  // ratnan
+#define STR_RES_GANAMU 186  // ganamu
+#define STR_RES_VANASP 187  // vanasp
+#define STR_RES_MANAVA 188  // manava
+#define STR_RES_TANARU 189  // tanaru
+#define STR_RES_SENAVA 190  // senava
+#define STR_RES_HANUMA 191  // hanuma
+#define STR_RES_DHENUK 192  // dhenuk
+#define STR_RES_NATAKA 193  // nataka
+#define STR_RES_KOKILA 194  // kokila
+#define STR_RES_RUPAVA 195  // rupava
+#define STR_RES_GAYAKA 196  // gayaka
+#define STR_RES_VAKULA 197  // vakula
+#define STR_RES_MAYAMA 198  // mayama
+#define STR_RES_CHAKRA 199  // chakra
+#define STR_RES_SURYAK 200  // suryak
+#define STR_RES_HATAKA 201  // hataka
+#define STR_RES_JHANKA 202  // jhanka
+#define STR_RES_NATABH 203  // natabh
+#define STR_RES_KEERAV 204  // keerav
+#define STR_RES_KHARAH 205  // kharah
+#define STR_RES_GOURIM 206  // gourim
+#define STR_RES_VARUNA 207  // varuna
+#define STR_RES_MARARA 208  // marara
+#define STR_RES_CHARUK 209  // charuk
+#define STR_RES_SARASA 210  // sarasa
+#define STR_RES_HARIKA 211  // harika
+#define STR_RES_DHEERA 212  // dheera
+#define STR_RES_NAGANA 213  // nagana
+#define STR_RES_YAGAPR 214  // yagapr
+#define STR_RES_RAGAVA 215  // ragava
+#define STR_RES_GANGEY 216  // gangey
+#define STR_RES_VAGADH 217  // vagadh
+#define STR_RES_SHULIN 218  // shulin
+#define STR_RES_CHALAN 219  // chalan
+#define STR_RES_SALAGA 220  // salaga
+#define STR_RES_JALARN 221  // jalarn
+#define STR_RES_JHALAV 222  // jhalav
+#define STR_RES_NAVANE 223  // navane
+#define STR_RES_PAVANI 224  // pavani
+#define STR_RES_RAGHUP 225  // raghup
+#define STR_RES_GAVAMB 226  // gavamb
+#define STR_RES_BHAVAP 227  // bhavap
+#define STR_RES_SHUBHA 228  // shubha
+#define STR_RES_SHADVI 229  // shadvi
+#define STR_RES_SUVARN 230  // suvarn
+#define STR_RES_DIVYAM 231  // divyam
+#define STR_RES_DHAVAL 232  // dhaval
+#define STR_RES_NAMANA 233  // namana
+#define STR_RES_KAMAVA 234  // kamava
+#define STR_RES_RAMAPR 235  // ramapr
+#define STR_RES_GAMANA 236  // gamana
+#define STR_RES_VISHWA 237  // vishwa
+#define STR_RES_SHAMAL 238  // shamal
+#define STR_RES_SHANMU 239  // shanmu
+#define STR_RES_SIMHEN 240  // simhen
+#define STR_RES_HEMAVA 241  // hemava
+#define STR_RES_DHARMA 242  // dharma
+#define STR_RES_NEETIM 243  // neetim
+#define STR_RES_KANTAM 244  // kantam
+#define STR_RES_RISHAB 245  // rishab
+#define STR_RES_LATANG 246  // latang
+#define STR_RES_VACHAS 247  // vachas
+#define STR_RES_MECHAK 248  // mechak
+#define STR_RES_CHITRA 249  // chitra
+#define STR_RES_SUCHAR 250  // suchar
+#define STR_RES_JYOTIS 251  // jyotis
+#define STR_RES_DHATUV 252  // dhatuv
+#define STR_RES_NASIKA 253  // nasika
+#define STR_RES_KOSALA 254  // kosala
+#define STR_RES_RASIKA 255  // rasika
 #define LUT_RES_LFO_INCREMENTS 0
 #define LUT_RES_LFO_INCREMENTS_SIZE 128
 #define LUT_RES_ENV_PORTAMENTO_INCREMENTS 1

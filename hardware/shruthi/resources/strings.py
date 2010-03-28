@@ -201,6 +201,8 @@ assign parameter
 ready
 for os update
 patch bank
+sequences
+system settings
 step sequencer
 load
 ----

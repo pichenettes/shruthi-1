@@ -21,21 +21,35 @@
 
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
+#include <string.h>
 
 namespace hardware_shruthi {
 
 static const uint16_t kSequencerSettingsOffset = sizeof(Patch) * kPatchBankSize;
 
 void SequencerSettings::EepromSave(uint8_t slot) const {
-  uint8_t* data = (uint8_t *)(&steps);
+  uint8_t* data = (uint8_t *)(steps);
   uint8_t* destination = (uint8_t*)(kSequencerSettingsOffset + slot * kSequenceSize);
   eeprom_write_block(data, destination, kSequenceSize);
+  // TODO(pichenettes): recompute pattern length
 }
 
 void SequencerSettings::EepromLoad(uint8_t slot) {
   uint8_t* source = (uint8_t*)(kSequencerSettingsOffset + slot * kSequenceSize);
-  uint8_t* data = (uint8_t *)(&steps);
+  uint8_t* data = (uint8_t *)(steps);
   eeprom_read_block(data, source, kSequenceSize);
+  // TODO(pichenettes): recompute pattern length
 }
+
+void SequencerSettings::Backup() const {
+  memcpy(undo_buffer_, steps, sizeof(SequenceStep) * kNumSteps);
+}
+
+void SequencerSettings::Restore() {
+  memcpy(steps, undo_buffer_, sizeof(SequenceStep) * kNumSteps);
+}
+
+/* static */
+uint8_t SequencerSettings::undo_buffer_[sizeof(SequenceStep) * kNumSteps];
 
 }  // hardware_shruthi

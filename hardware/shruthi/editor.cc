@@ -411,6 +411,9 @@ uint8_t Editor::subpage_;
 uint8_t Editor::action_;
 uint8_t Editor::current_patch_number_ = 0;
 uint8_t Editor::previous_patch_number_ = 0;
+uint8_t Editor::current_sequence_number_ = 0;
+uint8_t Editor::previous_sequence_number_ = 0;
+
 uint8_t Editor::test_note_playing_ = 0;
 uint8_t Editor::assign_in_progress_ = 0;
 ParameterAssignment Editor::assigned_parameters_[kNumEditingPots] = {
@@ -430,7 +433,6 @@ void Editor::Init() {
 /* static */
 void Editor::ToggleGroup(uint8_t group) {
   cursor_ = 0;
-  subpage_ = 0;
   assign_in_progress_ = 0;
   display.set_cursor_position(kLcdNoCursor);
 
@@ -441,6 +443,7 @@ void Editor::ToggleGroup(uint8_t group) {
     EnterLoadSaveMode();
     current_page_ = PAGE_LOAD_SAVE;
   } else {
+    subpage_ = 0;
     // Make sure that we won't confirm a save when moving back to the
     // Load/save page.
     action_ = ACTION_EXIT;
@@ -453,7 +456,7 @@ void Editor::ToggleGroup(uint8_t group) {
     // When switching to the modulation matrix page, go back to the previously
     // edited modulation.
     if (current_page_ == PAGE_MOD_MATRIX) {
-        subpage_ = last_visited_subpage_;
+      subpage_ = last_visited_subpage_;
     }
     last_visited_page_[group] = current_page_;
   }
@@ -549,15 +552,40 @@ void Editor::Refresh() {
 
 /* static */
 void Editor::EnterLoadSaveMode() {
-  if (current_page_ == PAGE_LOAD_SAVE && action_ == ACTION_SAVE) {
-    // The Load/save button has been pressed twice, we were in the load/save
-    // mode, and the action was set to "save": all the conditions are met to
-    // overwrite the patch.
-    engine.mutable_patch()->EepromSave(current_patch_number_);
+  // We've just confirmed a save.
+  if (current_page_ == PAGE_LOAD_SAVE) {
+    if (action_ == ACTION_SAVE) {
+      display.set_status('w');
+      switch (subpage_) {
+        case LOAD_SAVE_PATCH:
+          engine.mutable_patch()->EepromSave(current_patch_number_);
+          break;
+      
+        case LOAD_SAVE_SEQUENCE:
+          engine.mutable_sequencer_settings()->EepromSave(current_sequence_number_);
+          break;
+        
+        case LOAD_SAVE_SYSTEM_SETTINGS:
+          engine.mutable_system_settings()->EepromSave();
+          break;
+      }
+    }
+  } else {
+    // From which page are we coming from? Depending on the answer, show the
+    // patch library, sequence library, or system settings write pages.
+    if (current_page_ <= PAGE_MOD_MATRIX) {
+      subpage_ = LOAD_SAVE_PATCH;
+      previous_patch_number_ = current_patch_number_;
+      engine.mutable_patch()->Backup();
+    } else if (current_page_ >= PAGE_SYS_KBD) {
+      subpage_ = LOAD_SAVE_SYSTEM_SETTINGS;
+    } else {
+      subpage_ = LOAD_SAVE_SEQUENCE;
+      previous_sequence_number_ = current_sequence_number_;
+      engine.mutable_sequencer_settings()->Backup();
+    }
   }
   current_page_ = PAGE_LOAD_SAVE;
-  previous_patch_number_ = current_patch_number_;
-  engine.mutable_patch()->Backup();
   action_ = ACTION_EXIT;
 }
 
@@ -573,31 +601,51 @@ void Editor::LoadPatch(uint8_t index) {
 }
 
 /* static */
+void Editor::LoadSequence(uint8_t index) {
+  if (index != current_sequence_number_ && action_ == ACTION_LOAD) {
+    engine.mutable_sequencer_settings()->EepromLoad(index);
+    engine.TouchSequence();
+  }
+  if (action_ != ACTION_EXIT) {
+    current_sequence_number_ = index;
+  }
+}
+
+/* static */
 void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
   switch (knob_index) {
     case 0:
-      LoadPatch(value * kPatchBankSize / 1024);
+      if (subpage_ == LOAD_SAVE_PATCH) {
+        LoadPatch(value * kPatchBankSize / 1024);
+      } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+        LoadSequence(value * kSequenceBankSize / 1024);
+      }
       break;
     case 1:
-      if (action_ == ACTION_SAVE) {
+      if (action_ == ACTION_SAVE && subpage_ == LOAD_SAVE_PATCH) {
         cursor_ = value * kPatchNameSize / 1024;
       }
       break;
     case 2:
-      if (action_ == ACTION_SAVE) {
+      if (action_ == ACTION_SAVE && subpage_ == LOAD_SAVE_PATCH) {
         value += (value << 1);
         engine.mutable_patch()->name[cursor_] = 32 + (value >> 5);
       }
       break;
     case 3:
-      if (value < 64) {
+      if (value < 64 && subpage_ != LOAD_SAVE_SYSTEM_SETTINGS) {
         action_ = ACTION_LOAD;
       } else {
-        // We are leaving the load mode - restore the previously saved patch.
         if (action_ == ACTION_LOAD) {
-          current_patch_number_ = previous_patch_number_;
-          engine.mutable_patch()->Restore();
-          engine.TouchPatch();
+          if (subpage_ == LOAD_SAVE_PATCH) {
+            current_patch_number_ = previous_patch_number_;
+            engine.mutable_patch()->Restore();
+            engine.TouchPatch();
+          } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+            current_sequence_number_ = previous_sequence_number_;
+            engine.mutable_sequencer_settings()->Restore();
+            engine.TouchSequence();
+          }
         }
         action_ = value >= 960 ? ACTION_SAVE : ACTION_EXIT;
       }
@@ -607,7 +655,7 @@ void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
 
 /* static */
 void Editor::HandleLoadSaveIncrement(int8_t direction) {
-  if (action_ == ACTION_SAVE) {
+  if (action_ == ACTION_SAVE && subpage_ == LOAD_SAVE_PATCH) {
     if (mode_ == EDITOR_MODE_OVERVIEW) {
       int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
       if (new_cursor >= 0 & new_cursor < kPatchNameSize) {
@@ -621,9 +669,16 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
       }
     }
   } else {
-    int8_t patch_number = static_cast<int8_t>(current_patch_number_) + direction;
-    if (patch_number >= 0 && patch_number < kPatchBankSize) {
-      LoadPatch(patch_number);
+    if (subpage_ == LOAD_SAVE_PATCH) {
+      int8_t patch_number = static_cast<int8_t>(current_patch_number_) + direction;
+      if (patch_number >= 0 && patch_number < kPatchBankSize) {
+        LoadPatch(patch_number);
+      }
+    } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+      int8_t sequence_number = static_cast<int8_t>(current_sequence_number_) + direction;
+      if (sequence_number >= 0 && sequence_number < kSequenceBankSize) {
+        LoadSequence(sequence_number);
+      }
     }
   }
 }
@@ -632,24 +687,34 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
 void Editor::DisplayLoadSavePage() {
   // 0123456789abcdef
   // load/save patch
-  // 32 barbpapa save 
+  // 32 barbpapa save
   ResourcesManager::LoadStringResource(
-      STR_RES_PATCH_BANK,
+      STR_RES_PATCH_BANK + subpage_,
       line_buffer_,
       kLcdWidth);
   AlignLeft(line_buffer_, kLcdWidth);
   display.Print(0, line_buffer_);
 
-  UnsafeItoa<int16_t>(current_patch_number_ + 1, 2, line_buffer_);
-  AlignRight(line_buffer_, 2);
-  line_buffer_[2] = ' ';
-  memcpy(line_buffer_ + 3, engine.patch().name, kPatchNameSize);
-  line_buffer_[11] = ' ';
-  if (action_ == ACTION_SAVE) {
-    display.set_cursor_position(kLcdWidth + 3 + cursor_);
+  if (subpage_ == LOAD_SAVE_PATCH) {
+    UnsafeItoa<int16_t>(current_patch_number_ + 1, 2, line_buffer_);
+    AlignRight(line_buffer_, 2);
+    memcpy(line_buffer_ + 3, engine.patch().name, kPatchNameSize);
+    if (action_ == ACTION_SAVE) {
+      display.set_cursor_position(kLcdWidth + 3 + cursor_);
+    } else {
+      display.set_cursor_position(kLcdNoCursor);
+    }
+  } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+    UnsafeItoa<int16_t>(current_sequence_number_ + 1, 2, line_buffer_);
+    AlignRight(line_buffer_, 2);
+    for (uint8_t i = 0; i < 8; ++i) {
+      line_buffer_[i + 3] = engine.sequencer_settings().steps[i].character();
+    }
   } else {
-    display.set_cursor_position(kLcdNoCursor);
+    memset(line_buffer_ + 1, ' ', 10);
   }
+  line_buffer_[2] = ' ';
+  line_buffer_[11] = ' ';
   ResourcesManager::LoadStringResource(
       action_ + STR_RES_LOAD,
       line_buffer_ + 12,

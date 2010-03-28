@@ -63,6 +63,12 @@ enum Page {
   PAGE_PERFORMANCE,
 };
 
+enum LoadSavePage {
+  LOAD_SAVE_PATCH,
+  LOAD_SAVE_SEQUENCE,
+  LOAD_SAVE_SYSTEM_SETTINGS,
+};
+
 enum Unit {
   UNIT_RAW_UINT8,
   UNIT_UINT8,
@@ -211,6 +217,7 @@ class Editor {
   static void HandleLoadSaveIncrement(int8_t direction);
   static void DumpCurrentPatch();
   static void LoadPatch(uint8_t index);
+  static void LoadSequence(uint8_t index);
 
   static void DisplayStepSequencerPage();
   static void HandleStepSequencerInput(uint8_t knob_index, uint16_t value);
@@ -238,6 +245,8 @@ class Editor {
   static uint8_t action_;
   static uint8_t current_patch_number_;
   static uint8_t previous_patch_number_;
+  static uint8_t current_sequence_number_;
+  static uint8_t previous_sequence_number_;
 
   static uint8_t assign_in_progress_; 
   static uint8_t test_note_playing_;
