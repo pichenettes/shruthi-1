@@ -37,6 +37,7 @@ operator
 detune
 osc bal
 sub osc.
+direction
 pattern
 swing
 oscillator 1
@@ -145,13 +146,16 @@ tri
 sqr
 s&h
 \x03
+\x04
+\x03\x04
+?
 
 lf1
 lf2
 seq
 sq1
 sq2
-arp
+ arp
 whl
 aft
 bnd
@@ -173,7 +177,7 @@ lfo 2
 stpseq
 stpsq1
 stpsq2
- arp
+  arp
 mwheel
 afttch
 bender
@@ -193,8 +197,35 @@ gate
  off
 thru
 ctrl
- seq
+  seq
 poly
+
+mode
+stp
+arp
+ seq
+rps
+
+flow
+\x7e
+ \x7f
+\x7e\x7f
+ \x7e-\x7f
+krama
+jata
+sikha
+ghana
+2krama
+2jata
+2sikha
+2ghana
+4krama
+4jata
+4sikha
+4ghana
+
+kbd
+   seq
 
 touch a knob to
 assign parameter

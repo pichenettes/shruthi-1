@@ -100,7 +100,7 @@ void UpdateLedsTask() {
                 editor.subpage()].destination));
     leds.set_value(LED_MOD_1, current_modulation_source_value >> 4);
     leds.set_value(LED_MOD_2, current_modulation_destination_value >> 4);
-  } else if (editor.current_page() == PAGE_PERFORMANCE) {
+  } else if (editor.current_page() >= PAGE_PERFORMANCE) {
     leds.set_value(engine.voice_controller().step() & 0x07, 15);
   } else {
     uint8_t pattern = editor.leds_pattern();
@@ -117,7 +117,7 @@ void UpdateLedsTask() {
   if (engine.voice_controller().active() &&
       editor.current_page() != PAGE_PERFORMANCE) {
     if (!(engine.voice_controller().step() & 3)) {
-      leds.set_value(LED_PLAY, engine.voice_controller().step() ? 1 : 15);
+      leds.set_value(LED_SEQUENCER, engine.voice_controller().step() ? 1 : 15);
     }
   }
   leds.Output();

@@ -66,9 +66,8 @@ enum ArpeggioDirection {
   ARPEGGIO_DIRECTION_RANDOM,
 };
 
-struct SequenceStep {
-  uint8_t data_[2];
-  
+class SequenceStep {
+ public:
   void set_gate(uint8_t gate) {
     if (gate) {
       data_[0] |= 0x80;
@@ -92,6 +91,22 @@ struct SequenceStep {
   void set_controller(uint8_t controller) {
     data_[1] = (data_[1] & 0xf0) | (controller & 0x0f);
   }
+  void set_flags(uint8_t flags) {
+    if (flags == 0) {
+      set_gate(0);
+      set_legato(0);
+      set_velocity(0);
+    } else {
+      --flags;
+      set_gate(1);
+      set_velocity(flags << 4);
+      if (flags >= 8) {
+        set_legato(1);
+      } else {
+        set_legato(0);
+      }
+    }
+  }
   
   uint8_t gate() const {
     return data_[0] & 0x80;
@@ -108,9 +123,31 @@ struct SequenceStep {
   uint8_t controller() const {
     return data_[1] & 0x0f;
   }
+  uint8_t flags() const {
+    uint8_t flags = 0;
+    if (gate()) {
+      ++flags;
+      flags += velocity() >> 4;
+      if (legato()) {
+        flags += 8;
+      }
+    }
+    return flags;
+  }
   char character() const {
     return gate() ? (legato() ? '-' : '\x01') : ' ';
   }
+  
+  void clear() {
+    data_[0] = 0;
+    data_[1] = 0;
+  }
+  uint8_t blank() {
+    return (data_[0] == 0) && (data_[1] == 0);
+  }
+
+ private:
+  uint8_t data_[2];
 };
 
 static const uint8_t kNumSteps = 16;
@@ -131,10 +168,11 @@ struct SequencerSettings {
   SequenceStep steps[kNumSteps];
   
   
-  void EepromSave(uint8_t slot) const;
+  void EepromSave(uint8_t slot);
   void EepromLoad(uint8_t slot);
   void Backup() const;
   void Restore();
+  void PrintStep(uint8_t step, char* buffer) const;
   
  private:
   static uint8_t undo_buffer_[sizeof(SequenceStep) * kNumSteps];

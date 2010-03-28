@@ -41,6 +41,7 @@ static const prog_char str_res_operator[] PROGMEM = "operator";
 static const prog_char str_res_detune[] PROGMEM = "detune";
 static const prog_char str_res_osc_bal[] PROGMEM = "osc bal";
 static const prog_char str_res_sub_osc_[] PROGMEM = "sub osc.";
+static const prog_char str_res_direction[] PROGMEM = "direction";
 static const prog_char str_res_pattern[] PROGMEM = "pattern";
 static const prog_char str_res_swing[] PROGMEM = "swing";
 static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
@@ -141,12 +142,15 @@ static const prog_char str_res_tri[] PROGMEM = "tri";
 static const prog_char str_res_sqr[] PROGMEM = "sqr";
 static const prog_char str_res_s_h[] PROGMEM = "s&h";
 static const prog_char str_res_3[] PROGMEM = "";
+static const prog_char str_res_4[] PROGMEM = "";
+static const prog_char str_res_34[] PROGMEM = "";
+static const prog_char str_res__[] PROGMEM = "?";
 static const prog_char str_res_lf1[] PROGMEM = "lf1";
 static const prog_char str_res_lf2[] PROGMEM = "lf2";
 static const prog_char str_res_seq[] PROGMEM = "seq";
 static const prog_char str_res_sq1[] PROGMEM = "sq1";
 static const prog_char str_res_sq2[] PROGMEM = "sq2";
-static const prog_char str_res_arp[] PROGMEM = "arp";
+static const prog_char str_res__arp[] PROGMEM = "arp";
 static const prog_char str_res_whl[] PROGMEM = "whl";
 static const prog_char str_res_aft[] PROGMEM = "aft";
 static const prog_char str_res_bnd[] PROGMEM = "bnd";
@@ -167,7 +171,7 @@ static const prog_char str_res_lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_stpseq[] PROGMEM = "stpseq";
 static const prog_char str_res_stpsq1[] PROGMEM = "stpsq1";
 static const prog_char str_res_stpsq2[] PROGMEM = "stpsq2";
-static const prog_char str_res__arp[] PROGMEM = "arp";
+static const prog_char str_res___arp[] PROGMEM = "arp";
 static const prog_char str_res_mwheel[] PROGMEM = "mwheel";
 static const prog_char str_res_afttch[] PROGMEM = "afttch";
 static const prog_char str_res_bender[] PROGMEM = "bender";
@@ -186,8 +190,32 @@ static const prog_char str_res_gate[] PROGMEM = "gate";
 static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
-static const prog_char str_res__seq[] PROGMEM = "seq";
+static const prog_char str_res___seq[] PROGMEM = "seq";
 static const prog_char str_res_poly[] PROGMEM = "poly";
+static const prog_char str_res_mode[] PROGMEM = "mode";
+static const prog_char str_res_stp[] PROGMEM = "stp";
+static const prog_char str_res_arp[] PROGMEM = "arp";
+static const prog_char str_res__seq[] PROGMEM = "seq";
+static const prog_char str_res_rps[] PROGMEM = "rps";
+static const prog_char str_res_flow[] PROGMEM = "flow";
+static const prog_char str_res_T[] PROGMEM = "~";
+static const prog_char str_res___[] PROGMEM = "";
+static const prog_char str_res_T_[] PROGMEM = "~";
+static const prog_char str_res__T_[] PROGMEM = "~-";
+static const prog_char str_res_krama[] PROGMEM = "krama";
+static const prog_char str_res_jata[] PROGMEM = "jata";
+static const prog_char str_res_sikha[] PROGMEM = "sikha";
+static const prog_char str_res_ghana[] PROGMEM = "ghana";
+static const prog_char str_res_2krama[] PROGMEM = "2krama";
+static const prog_char str_res_2jata[] PROGMEM = "2jata";
+static const prog_char str_res_2sikha[] PROGMEM = "2sikha";
+static const prog_char str_res_2ghana[] PROGMEM = "2ghana";
+static const prog_char str_res_4krama[] PROGMEM = "4krama";
+static const prog_char str_res_4jata[] PROGMEM = "4jata";
+static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
+static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
+static const prog_char str_res_kbd[] PROGMEM = "kbd";
+static const prog_char str_res____seq[] PROGMEM = "seq";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_ready[] PROGMEM = "ready";
@@ -300,6 +328,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_detune,
   str_res_osc_bal,
   str_res_sub_osc_,
+  str_res_direction,
   str_res_pattern,
   str_res_swing,
   str_res_oscillator_1,
@@ -400,12 +429,15 @@ PROGMEM const prog_char* string_table[] = {
   str_res_sqr,
   str_res_s_h,
   str_res_3,
+  str_res_4,
+  str_res_34,
+  str_res__,
   str_res_lf1,
   str_res_lf2,
   str_res_seq,
   str_res_sq1,
   str_res_sq2,
-  str_res_arp,
+  str_res__arp,
   str_res_whl,
   str_res_aft,
   str_res_bnd,
@@ -426,7 +458,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_stpseq,
   str_res_stpsq1,
   str_res_stpsq2,
-  str_res__arp,
+  str_res___arp,
   str_res_mwheel,
   str_res_afttch,
   str_res_bender,
@@ -445,8 +477,32 @@ PROGMEM const prog_char* string_table[] = {
   str_res__off,
   str_res_thru,
   str_res_ctrl,
-  str_res__seq,
+  str_res___seq,
   str_res_poly,
+  str_res_mode,
+  str_res_stp,
+  str_res_arp,
+  str_res__seq,
+  str_res_rps,
+  str_res_flow,
+  str_res_T,
+  str_res___,
+  str_res_T_,
+  str_res__T_,
+  str_res_krama,
+  str_res_jata,
+  str_res_sikha,
+  str_res_ghana,
+  str_res_2krama,
+  str_res_2jata,
+  str_res_2sikha,
+  str_res_2ghana,
+  str_res_4krama,
+  str_res_4jata,
+  str_res_4sikha,
+  str_res_4ghana,
+  str_res_kbd,
+  str_res____seq,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,
   str_res_ready,

@@ -39,7 +39,7 @@ enum Group {
   GROUP_OSC,
   GROUP_FILTER,
   GROUP_MOD,
-  GROUP_PLAY,
+  GROUP_SEQUENCER,
   GROUP_SYS,
   GROUP_LOAD_SAVE,
   GROUP_PERFORMANCE,
@@ -55,8 +55,13 @@ enum Page {
   PAGE_MOD_LFO_1,
   PAGE_MOD_LFO_2,
   PAGE_MOD_MATRIX,
-  PAGE_PLAY_ARP,
-  PAGE_PLAY_STEP_SEQUENCER,
+  
+  PAGE_SEQ_SEQUENCER,
+  PAGE_SEQ_ARPEGGIATOR,
+  PAGE_SEQ_TRACKER,
+  PAGE_SEQ_RHYTHM,
+  PAGE_SEQ_CONTROLLER,
+  
   PAGE_SYS_KBD,
   PAGE_SYS_MIDI,
   PAGE_LOAD_SAVE,
@@ -81,10 +86,13 @@ enum Unit {
   UNIT_INDEX,
   UNIT_MODULATION_SOURCE,
   UNIT_MODULATION_DESTINATION,
-  UNIT_PATTERN,
+  UNIT_ARPEGGIO_DIRECTION,
   UNIT_RAGA,
   UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
   UNIT_MIDI_MODE,
+  UNIT_SEQUENCER_MODE,
+  UNIT_SEQUENCER_FLOW,
+  UNIT_ARPEGGIO_VELOCITY_SOURCE
 };
 
 enum Action {
@@ -116,9 +124,11 @@ struct ParameterDefinition {
 };
 
 enum PageUiType {
-  PARAMETER_EDITOR = 0,
-  STEP_SEQUENCER = 1,
-  LOAD_SAVE = 2,
+  PARAMETER_EDITOR,
+  TRACKER_EDITOR,
+  PAGE_R_EDITOR,
+  STEP_SEQUENCER,
+  LOAD_SAVE,
 };
 
 typedef uint8_t UiType;
@@ -211,17 +221,29 @@ class Editor {
   static void HandleEditInput(uint8_t knob_index, uint16_t value);
   static void HandleEditIncrement(int8_t direction);
 
-  static void DisplayLoadSavePage();
-  static void HandleLoadSaveInput(uint8_t knob_index, uint16_t value);
-  static void EnterLoadSaveMode();
-  static void HandleLoadSaveIncrement(int8_t direction);
-  static void DumpCurrentPatch();
-  static void LoadPatch(uint8_t index);
-  static void LoadSequence(uint8_t index);
+  static void MoveSequencerCursor(int8_t direction);
+  static void HandleSequencerNavigation(uint8_t knob, uint16_t value);
+  
+  static void DisplayTrackerPage();
+  static void HandleTrackerInput(uint8_t knob_index, uint16_t value);
+  static void HandleTrackerIncrement(int8_t direction);
+
+  static void DisplayPageRPage();
+  static void HandlePageRInput(uint8_t knob_index, uint16_t value);
+  static void HandlePageRIncrement(int8_t direction);
 
   static void DisplayStepSequencerPage();
   static void HandleStepSequencerInput(uint8_t knob_index, uint16_t value);
   static void HandleStepSequencerIncrement(int8_t direction);
+
+  static void DisplayLoadSavePage();
+  static void HandleLoadSaveInput(uint8_t knob_index, uint16_t value);
+  static void EnterLoadSaveMode();
+  static void HandleLoadSaveIncrement(int8_t direction);
+  
+  static void DumpCurrentPatch();
+  static void LoadPatch(uint8_t index);
+  static void LoadSequence(uint8_t index);
 
   static const ParameterDefinition& parameter_definition(uint8_t index);
 

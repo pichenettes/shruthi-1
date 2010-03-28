@@ -64,8 +64,7 @@ class BufferedDisplay {
     while (*text && row) {
       uint8_t character = *text;
       // Skip control characters.
-      if (character == 124 || character == 254 ||
-          (character >= 8 && character < 32)) {
+      if (character >= 8 && character < 32) {
         *destination++ = ' ';
       } else {
         *destination++ = character;
