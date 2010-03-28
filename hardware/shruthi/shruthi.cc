@@ -338,7 +338,7 @@ void Init() {
   cv_1_out.Init();
   cv_2_out.Init();
 
-  editor.DisplaySplashScreen(STR_RES_ + 1);
+  editor.DisplaySplashScreen(STR_RES_V + 1);
 
   // In case the bootloader has not done it, enable the pull-up on the MIDI in.
   DigitalInput<10>::EnablePullUpResistor();

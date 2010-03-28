@@ -114,18 +114,18 @@ void VoiceController::AllNotesOff() {
 }
 
 /* static */
-void VoiceController::UpdateArpeggiatorParameters(const Patch& patch) {
-  tempo_ = patch.arp_tempo;
+void VoiceController::UpdateSequencerSettings(const SequencerSettings& sequencer_settings) {
+  tempo_ = sequencer_settings.seq_tempo;
   pattern_ = ResourcesManager::Lookup<uint16_t, uint8_t>(
-      lut_res_arpeggiator_patterns, patch.arp_pattern >> 2);
-  mode_ = patch.arp_pattern & 0x03;
+      lut_res_arpeggiator_patterns, sequencer_settings.arp_pattern >> 2);
+  mode_ = sequencer_settings.arp_pattern & 0x03;
   direction_ = mode_ == ARPEGGIO_DIRECTION_DOWN ? -1 : 1;
-  octaves_ = patch.arp_octave;
-  pattern_size_ = patch.pattern_size;
+  octaves_ = sequencer_settings.arp_range;
+  pattern_size_ = sequencer_settings.pattern_size;
   step_duration_[0] = (kSampleRate * 60L / 4) / static_cast<int32_t>(tempo_);
   step_duration_[1] = step_duration_[0];
   estimated_beat_duration_ = step_duration_[0] / (kControlRate / 4);
-  int16_t swing = (step_duration_[0] * static_cast<int32_t>(patch.arp_swing)) >> 9;
+  int16_t swing = (step_duration_[0] * static_cast<int32_t>(sequencer_settings.seq_swing)) >> 9;
   step_duration_[0] += swing;
   step_duration_[1] -= swing;
 }

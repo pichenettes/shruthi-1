@@ -23,8 +23,8 @@
 
 #include "hardware/base/base.h"
 #include "hardware/hal/ring_buffer.h"
-#include "hardware/shruthi/patch.h"
 #include "hardware/shruthi/shruthi.h"
+#include "hardware/shruthi/system_settings.h"
 
 namespace hardware_shruthi {
 
@@ -39,9 +39,11 @@ class MidiOutFilter {
 
   MidiOutFilter() { }
   
-  static void UpdateParameters(const Patch& patch) {
-    channel_ = patch.sys_midi_channel == 0 ? 0 : patch.sys_midi_channel - 1;
-    mode_ = patch.sys_midi_out_mode;
+  static void UpdateSystemSettings(const SystemSettings& system_settings) {
+    channel_ = system_settings.midi_channel == 0
+        ? 0
+        : system_settings.midi_channel - 1;
+    mode_ = system_settings.midi_out_mode;
   }
   
   static void KnobTweaked(uint8_t id, uint16_t value) {

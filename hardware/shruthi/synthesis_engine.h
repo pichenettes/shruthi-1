@@ -44,7 +44,8 @@
 #include "hardware/shruthi/lfo.h"
 #include "hardware/shruthi/midi_out_filter.h"
 #include "hardware/shruthi/patch.h"
-
+#include "hardware/shruthi/sequencer_settings.h"
+#include "hardware/shruthi/system_settings.h"
 #include "hardware/shruthi/voice_controller.h"
 
 namespace hardware_shruthi {
@@ -180,19 +181,15 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   // Patch manipulation stuff.
   static void SetParameter(uint8_t parameter_index, uint8_t parameter_value);
   static inline uint8_t GetParameter(uint8_t parameter_index) {
-    return patch_.keep_me_at_the_top[parameter_index + 1];
-  }
-  static uint8_t sequence_step(uint8_t step) {
-    return patch_.sequence_step(step);
-  }
-  static void set_sequence_step(uint8_t step, uint8_t value) {
-    patch_.set_sequence_step(step, value);
+    return data_access_byte_[parameter_index + 1];
   }
   static void set_cv(uint8_t cv, uint8_t value) {
     modulation_sources_[MOD_SRC_CV_1 + cv] = value;
   }
   static uint8_t oscillator_decimation() { return oscillator_decimation_; }
   static void ResetPatch();
+  static void ResetSequencerSettings();
+  static void ResetSystemSettings();
   // Variables dependent on parameters (increments) are recomputed in
   // SetParameter when the related parameter is modified. Sometimes, the patch
   // is modified all at once without any call to SetParameter (for example when
@@ -201,8 +198,6 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static inline void TouchPatch() {
     UpdateModulationIncrements();
     UpdateOscillatorAlgorithms();
-    controller_.UpdateArpeggiatorParameters(patch_);
-    midi_out_filter.UpdateParameters(patch_);
   }
   static void TriggerLfos() {
     for (uint8_t i = 0; i < kNumLfos; ++i) {
@@ -213,7 +208,19 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static inline const VoiceController& voice_controller() {
     return controller_;
   }
+  static inline const SequencerSettings& sequencer_settings() {
+    return sequencer_settings_;
+  }
+  static inline const SystemSettings& system_settings() {
+    return system_settings_;
+  }
   static inline Patch* mutable_patch() { return &patch_; }
+  static inline SequencerSettings* mutable_sequencer_settings() {
+    return &sequencer_settings_;
+  }
+  static inline SystemSettings* mutable_system_settings() {
+    return &system_settings_;
+  }
 
   // These variables are sent to I/O pins, and are made accessible here.
   static inline uint8_t modulation_source(uint8_t i, uint8_t j) {
@@ -228,7 +235,11 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   // Value of global modulation parameters, scaled to 0-255;
   static uint8_t modulation_sources_[kNumGlobalModulationSources];
 
+  static uint8_t data_access_byte_[1];
   static Patch patch_;
+  static SequencerSettings sequencer_settings_;
+  static SystemSettings system_settings_;
+  
   static Lfo lfo_[kNumLfos];
   static uint8_t num_lfo_reset_steps_;  // resync the LFO every n-th step.
   static uint8_t lfo_reset_counter_;

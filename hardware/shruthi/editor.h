@@ -24,7 +24,9 @@
 #include "hardware/shruthi/resources.h"
 #include "hardware/shruthi/shruthi.h"
 
-class hardware_hal::KeyEvent;
+namespace hardware_hal {
+  class KeyEvent;
+}
 
 namespace hardware_shruthi {
 

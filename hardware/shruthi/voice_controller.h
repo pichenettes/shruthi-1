@@ -38,14 +38,7 @@ namespace hardware_shruthi {
 
 static const uint8_t kMidiClockPrescaler = 24 / 4;  // MIDI ppqn / xox ppqn.
 
-enum ArpeggioDirection {
-  ARPEGGIO_DIRECTION_UP = 0,
-  ARPEGGIO_DIRECTION_DOWN,
-  ARPEGGIO_DIRECTION_UP_DOWN,
-  ARPEGGIO_DIRECTION_RANDOM,
-};
-
-class Patch;
+class SequencerSettings;
 class Voice;
 
 class VoiceController {
@@ -58,7 +51,7 @@ class VoiceController {
   static void Step();
   static void NoteOn(uint8_t note, uint8_t velocity);
   static void NoteOff(uint8_t note);
-  static void UpdateArpeggiatorParameters(const Patch&);
+  static void UpdateSequencerSettings(const SequencerSettings&);
   static inline void Audio() { --internal_clock_counter_; }
   static inline void ExternalSync() { --midi_clock_counter_; }
   static inline uint8_t step() { return pattern_step_; }

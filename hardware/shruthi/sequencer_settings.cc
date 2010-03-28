@@ -15,33 +15,27 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Base header.
+// Sequencer settings.
 
-#ifndef HARDWARE_BASE_BASE_H_
-#define HARDWARE_BASE_BASE_H_
+#include "hardware/shruthi/sequencer_settings.h"
 
-#include <inttypes.h>
+#include <avr/eeprom.h>
+#include <avr/pgmspace.h>
 
-#ifndef NULL
-#define NULL 0
-#endif
+namespace hardware_shruthi {
 
-typedef union {
-  uint16_t value;
-  uint8_t bytes[2];
-} Word;
+static const uint16_t kSequencerSettingsOffset = sizeof(Patch) * kPatchBankSize;
 
-#define abs(x) ((x) > 0 ? (x) : -(x))
-
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
-
-template<bool b>
-inline void StaticAssertImplementation() {
-	char static_assert_size_mismatch[b] = { 0 };
+void SequencerSettings::EepromSave(uint8_t slot) const {
+  uint8_t* data = (uint8_t *)(&steps);
+  uint8_t* destination = (uint8_t*)(kSequencerSettingsOffset + slot * kSequenceSize);
+  eeprom_write_block(data, destination, kSequenceSize);
 }
- 
-#define STATIC_ASSERT(expression) StaticAssertImplementation<(expression)>()
 
-#endif  // HARDWARE_BASE_BASE_H_
+void SequencerSettings::EepromLoad(uint8_t slot) {
+  uint8_t* source = (uint8_t*)(kSequencerSettingsOffset + slot * kSequenceSize);
+  uint8_t* data = (uint8_t *)(&steps);
+  eeprom_read_block(data, source, kSequenceSize);
+}
+
+}  // hardware_shruthi

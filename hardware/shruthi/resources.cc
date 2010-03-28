@@ -52,9 +52,9 @@ static const prog_char str_res_saw[] PROGMEM = "saw";
 static const prog_char str_res_square[] PROGMEM = "square";
 static const prog_char str_res_triang[] PROGMEM = "triang";
 static const prog_char str_res_zsaw[] PROGMEM = "zsaw";
-static const prog_char str_res_zres[] PROGMEM = "zres";
+static const prog_char str_res_zreso[] PROGMEM = "zreso";
 static const prog_char str_res_ztri[] PROGMEM = "ztri";
-static const prog_char str_res_zpuls[] PROGMEM = "zpuls";
+static const prog_char str_res_zpulse[] PROGMEM = "zpulse";
 static const prog_char str_res_zsync[] PROGMEM = "zsync";
 static const prog_char str_res_fm[] PROGMEM = "fm";
 static const prog_char str_res_bell[] PROGMEM = "bell";
@@ -196,9 +196,10 @@ static const prog_char str_res_patch_bank[] PROGMEM = "patch bank";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_load[] PROGMEM = "load";
 static const prog_char str_res_[] PROGMEM = "----";
+static const prog_char str_res_save[] PROGMEM = "save";
+static const prog_char str_res_v[] PROGMEM = "v";
 static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
-static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_equal[] PROGMEM = "equal";
 static const prog_char str_res_just[] PROGMEM = "just";
@@ -308,9 +309,9 @@ PROGMEM const prog_char* string_table[] = {
   str_res_square,
   str_res_triang,
   str_res_zsaw,
-  str_res_zres,
+  str_res_zreso,
   str_res_ztri,
-  str_res_zpuls,
+  str_res_zpulse,
   str_res_zsync,
   str_res_fm,
   str_res_bell,
@@ -452,9 +453,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res_step_sequencer,
   str_res_load,
   str_res_,
+  str_res_save,
+  str_res_v,
   str_res_mutable____v1_00,
   str_res_instruments_671,
-  str_res_save,
   str_res_extern,
   str_res_equal,
   str_res_just,

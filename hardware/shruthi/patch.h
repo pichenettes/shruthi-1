@@ -31,8 +31,8 @@
 namespace hardware_shruthi {
 
 const uint8_t kPatchNameSize = 8;
-const uint8_t kSerializedPatchSize = 64;
 const uint8_t kModulationMatrixSize = 12;
+const uint8_t kPatchBankSize = 20;
 
 struct Modulation {
   uint8_t source;
@@ -83,12 +83,10 @@ struct LfoSettings {
   uint8_t retrigger;
 };
 
+const uint8_t kPatchSize = 76;
+
 class Patch {
  public:
-  uint8_t keep_me_at_the_top[1];
-
-  // Sound generation.
-
   // Offset: 0-8
   OscillatorSettings osc[2];
 
@@ -115,49 +113,6 @@ class Patch {
   // Offset: 68-76
   uint8_t name[kPatchNameSize];
 
-  // Settings.
-
-  // Offset: 76-80
-  int8_t sys_octave;
-  uint8_t sys_raga;
-  uint8_t sys_portamento;
-  uint8_t sys_legato;
-
-  // Offset: 80-84
-  int8_t sys_master_tuning;
-  uint8_t sys_midi_channel;
-  uint8_t sys_midi_out_mode;
-  uint8_t sys_midi_out_chain;
-
-  // Sequencer.
-
-  // Offset: 84-88
-  uint8_t arp_tempo;
-  uint8_t arp_octave;
-  uint8_t arp_pattern;
-  uint8_t arp_swing;
-
-  // Offset: 88-96
-  uint8_t sequence[8];
-
-  // Offset: 96-112
-  uint8_t note_sequence[16];
-  // Offset: 113
-  uint8_t pattern_size;
-
-  // Get the value of a step in the sequence.
-  uint8_t sequence_step(uint8_t step) const {
-    return (step & 1) ? sequence[step >> 1] << 4 : sequence[step >> 1] & 0xf0;
-  }
-  // Set the value of a step in the sequence.
-  void set_sequence_step(uint8_t step, uint8_t value) {
-    if (step & 1) {
-      sequence[step >> 1] = (sequence[step >> 1] & 0xf0) | (value >> 4);
-    } else {
-      sequence[step >> 1] = (sequence[step >> 1] & 0x0f) | (value & 0xf0);
-    }
-  }
-
   void EepromSave(uint8_t slot) const;
   void EepromLoad(uint8_t slot);
   void SysExSend() const;
@@ -176,10 +131,10 @@ class Patch {
 
   // Buffer in which the patch is compressed for load/save operations. The last
   // byte is for the checksum added to the stream during sysex dumps.
-  static uint8_t load_save_buffer_[kSerializedPatchSize + 1];
+  static uint8_t load_save_buffer_[kPatchSize + 1];
   // Buffer used to allow the user to undo the loading of a patch (similar to
   // the "compare" function on some synths).
-  static uint8_t undo_buffer_[kSerializedPatchSize];
+  static uint8_t undo_buffer_[kPatchSize];
 
   static uint8_t sysex_bytes_received_;
   static uint8_t sysex_reception_state_;
@@ -237,7 +192,7 @@ enum ModulationDestination {
 
 static const uint8_t kNumModulationDestinations = 14;
 
-enum Parameter {
+enum PatchParameter {
   PRM_OSC_SHAPE_1,
   PRM_OSC_PARAMETER_1,
   PRM_OSC_RANGE_1,
@@ -282,23 +237,6 @@ enum Parameter {
   PRM_MOD_DESTINATION,
   PRM_MOD_AMOUNT,
   PRM_MOD_ROW,
-
-  PRM_SYS_OCTAVE = 3 * kModulationMatrixSize + PRM_MOD_SOURCE + kPatchNameSize,
-  PRM_SYS_RAGA,
-  PRM_SYS_PORTAMENTO,
-  PRM_SYS_LEGATO,
-
-  PRM_SYS_MASTER_TUNING,
-  PRM_SYS_MIDI_CHANNEL,
-  PRM_SYS_MIDI_OUT_MODE,
-  PRM_SYS_MIDI_OUT_CHAIN,
-
-  PRM_ARP_TEMPO,
-  PRM_ARP_OCTAVE,
-  PRM_ARP_PATTERN,
-  PRM_ARP_SWING,
-
-  PRM_ARP_PATTERN_SIZE = PRM_ARP_SWING + 1 + 8 + 16,
 };
 
 enum OscillatorAlgorithm {
@@ -343,10 +281,6 @@ enum OPERATOR {
   RING_MOD = 2,
   XOR = 3
 };
-
-static const uint8_t kNumEditableParameters = 48;
-
-static const uint8_t kNumArpeggiatorPatterns = 15;
 
 }  // namespace hardware_shruthi
 

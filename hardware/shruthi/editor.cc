@@ -20,9 +20,10 @@
 // I really hate this code. Work on a "UI" framework to avoid such horrible
 // things in progress...
 
+#include "hardware/shruthi/editor.h"
+
 #include "hardware/hal/devices/switch_array.h"
 #include "hardware/hal/watchdog_timer.h"
-#include "hardware/shruthi/editor.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/string.h"
@@ -33,8 +34,6 @@ using namespace hardware_utils;
 using hardware_hal::kLcdNoCursor;
 
 namespace hardware_shruthi {
-
-const uint8_t kNumSavedPatches = kEepromSize / kSerializedPatchSize;
 
 /* extern */
 Editor editor;
@@ -63,7 +62,7 @@ static const prog_char arp_pattern_prefix[4] PROGMEM = {
 };
 
 static const prog_char raw_parameter_definition[
-    kNumEditableParameters * sizeof(ParameterDefinition)] PROGMEM = {
+    48 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_VOWEL,
@@ -254,12 +253,12 @@ static const prog_char raw_parameter_definition[
   STR_RES_AMT, STR_RES_AMOUNT,
 
   // Arpeggiator.
-  PRM_ARP_TEMPO,
+  PRM_SEQ_TEMPO,
   24, 240,
   UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
   STR_RES_BPM, STR_RES_TEMPO,
 
-  PRM_ARP_OCTAVE,
+  PRM_ARP_RANGE,
   OFF, 4,
   UNIT_UINT8,
   STR_RES_OCTAVE, STR_RES_OCTAVE,
@@ -269,7 +268,7 @@ static const prog_char raw_parameter_definition[
   UNIT_PATTERN,
   STR_RES_PATTERN, STR_RES_PATTERN,
 
-  PRM_ARP_SWING,
+  PRM_SEQ_SWING,
   0, 127, 
   UNIT_RAW_UINT8,
   STR_RES_SWG, STR_RES_SWING,
@@ -467,11 +466,12 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       case GROUP_OSC:
         display.set_status('x');
         engine.ResetPatch();
+        // TODO(pichenettes): reinit sequence too
         break;
 
       case GROUP_FILTER:
         display.set_status('?');
-        // TODO(pichenettes): random patch
+        // TODO(pichenettes): random patch/sequence
         break;
 
       case GROUP_MOD:
@@ -576,7 +576,7 @@ void Editor::LoadPatch(uint8_t index) {
 void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
   switch (knob_index) {
     case 0:
-      LoadPatch(value * kNumSavedPatches / 1024);
+      LoadPatch(value * kPatchBankSize / 1024);
       break;
     case 1:
       if (action_ == ACTION_SAVE) {
@@ -622,7 +622,7 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
     }
   } else {
     int8_t patch_number = static_cast<int8_t>(current_patch_number_) + direction;
-    if (patch_number >= 0 && patch_number < kNumSavedPatches) {
+    if (patch_number >= 0 && patch_number < kPatchBankSize) {
       LoadPatch(patch_number);
     }
   }
@@ -669,8 +669,8 @@ void Editor::DisplayStepSequencerPage() {
   AlignLeft(line_buffer_, kLcdWidth);
   display.Print(0, line_buffer_);
   for (uint8_t i = 0; i < 16; ++i) {
-    uint8_t value = engine.patch().sequence_step(i) >> 4;
-    line_buffer_[i] = i < engine.patch().pattern_size ?
+    uint8_t value = engine.sequencer_settings().steps[i].controller();
+    line_buffer_[i] = i < engine.sequencer_settings().pattern_size ?
         NibbleToAscii(value) : ' ';
   }
   display.Print(1, line_buffer_);
@@ -685,14 +685,15 @@ void Editor::HandleStepSequencerInput(
     case 1:
       {
         cursor_ = value >> 6;
-        uint8_t max_position = engine.GetParameter(PRM_ARP_PATTERN_SIZE) - 1;
+        uint8_t max_position = engine.GetParameter(PRM_SEQ_PATTERN_SIZE) - 1;
         if (cursor_ > max_position) {
           cursor_ = max_position;
         }
       }
       break;
     case 2:
-      engine.mutable_patch()->set_sequence_step(cursor_, value >> 2);
+      engine.mutable_sequencer_settings()->steps[cursor_].set_controller(
+          value >> 6);
       break;
     case 3:
       {
@@ -700,7 +701,7 @@ void Editor::HandleStepSequencerInput(
         if (cursor_ >= new_size) {
           cursor_ = new_size - 1;
         }
-        engine.SetParameter(PRM_ARP_PATTERN_SIZE, new_size);
+        engine.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size);
       }
       break;
   }
@@ -710,12 +711,14 @@ void Editor::HandleStepSequencerInput(
 void Editor::HandleStepSequencerIncrement(int8_t direction) {
   if (mode_ == EDITOR_MODE_OVERVIEW) {
     int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
-    if (new_cursor >= 0 & new_cursor < engine.patch().pattern_size) {
+    if (new_cursor >= 0 & new_cursor < engine.sequencer_settings().pattern_size) {
       cursor_ = static_cast<uint8_t>(new_cursor);
     }
   } else {
-    engine.mutable_patch()->set_sequence_step(cursor_, 
-        engine.patch().sequence_step(cursor_) + (direction << 4));
+    engine.mutable_sequencer_settings()->steps[cursor_].set_controller(
+        engine.mutable_sequencer_settings()->steps[cursor_].controller() + \
+        direction
+    );
   }
 }
 
@@ -884,7 +887,7 @@ void Editor::HandleEditIncrement(int8_t direction) {
 /* static */
 void Editor::SetParameterValue(uint8_t id, uint8_t value) {
   // Set the tempo to 0 for external clock.
-  if (id == PRM_ARP_TEMPO) {
+  if (id == PRM_SEQ_TEMPO) {
     if (value < 40) {
       value = 0;
     }
@@ -907,7 +910,7 @@ uint8_t Editor::GetParameterValue(uint8_t id) {
   } else {
     value = engine.GetParameter(id + subpage_ * 3);
   }
-  if (id == PRM_ARP_TEMPO && value == 0) {
+  if (id == PRM_SEQ_TEMPO && value == 0) {
     value = 39;
   }
   return value;

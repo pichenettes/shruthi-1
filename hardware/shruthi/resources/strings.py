@@ -204,9 +204,11 @@ patch bank
 step sequencer
 load
 ----
+save
+
+v
 mutable    v1.00
 instruments \x06\x07-1
-save
 extern
 equal
 """
