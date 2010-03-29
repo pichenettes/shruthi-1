@@ -60,7 +60,7 @@ uint8_t SynthesisEngine::lfo_to_reset_;
 
 /* static */
 void SynthesisEngine::Init() {
-  controller_.Init(voice_, kNumVoices);
+  controller_.Init(&sequencer_settings_, voice_, kNumVoices);
   ResetPatch();
   ResetSequencerSettings();
   if (!system_settings_.EepromLoad()) {
@@ -150,7 +150,7 @@ void SynthesisEngine::ResetPatch() {
 /* static */
 void SynthesisEngine::ResetSequencerSettings() {
   ResourcesManager::Load(init_sequence, 0, &sequencer_settings_);
-  controller_.UpdateSequencerSettings(sequencer_settings_);
+  controller_.TouchSequence();
 }
 
 /* static */
@@ -318,7 +318,7 @@ void SynthesisEngine::SetParameter(
   } else if (parameter_index >= PRM_SEQ_TEMPO) {
       // A copy of those parameters is stored by the note dispatcher/arpeggiator,
       // so any parameter change must be forwarded to it.
-    controller_.UpdateSequencerSettings(sequencer_settings_);
+    controller_.TouchSequence();
   } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL && 
       parameter_index <= PRM_SYS_MIDI_OUT_CHAIN) {
     // A copy of those parameters are used by the MIDI out dispatcher.

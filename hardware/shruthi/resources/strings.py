@@ -209,8 +209,8 @@ rps
 flow
 \x7e
  \x7f
-\x7e\x7f
- \x7e-\x7f
+\x7e-\x7f
+ \x7e\x7f
 krama
 jata
 sikha

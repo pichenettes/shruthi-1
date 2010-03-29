@@ -29,6 +29,8 @@ using hardware_utils::Random;
 namespace hardware_shruthi {
 
 /* <static> */
+const SequencerSettings* VoiceController::sequencer_settings_;
+
 int16_t VoiceController::internal_clock_counter_;
 uint8_t VoiceController::midi_clock_counter_;
 int16_t VoiceController::step_duration_[2];
@@ -36,19 +38,17 @@ int16_t VoiceController::step_duration_[2];
 uint16_t VoiceController::pattern_;
 uint16_t VoiceController::pattern_mask_;
 uint8_t VoiceController::pattern_step_;
+uint8_t VoiceController::expanded_pattern_step_;
+uint8_t VoiceController::expanded_pattern_size_;
 
-int8_t VoiceController::arpeggio_step_;
-int8_t VoiceController::direction_;
-int8_t VoiceController::octave_step_;
-int8_t VoiceController::octaves_;
-uint8_t VoiceController::mode_;
+int8_t VoiceController::arp_step_;
+int8_t VoiceController::arp_current_direction_;
+int8_t VoiceController::arp_octave_step_;
 
 NoteStack VoiceController::notes_;
 Voice* VoiceController::voices_;
 uint8_t VoiceController::num_voices_;
 
-uint8_t VoiceController::tempo_;
-uint8_t VoiceController::pattern_size_;
 uint8_t VoiceController::active_;
 uint8_t VoiceController::inactive_steps_;
 
@@ -58,19 +58,27 @@ uint16_t VoiceController::estimated_beat_duration_;
 /* </static> */
 
 /* static */
-void VoiceController::Init(Voice* voices, uint8_t num_voices) {
+void VoiceController::Init(
+    const SequencerSettings* sequencer_settings,
+    Voice* voices,
+    uint8_t num_voices) {
+  sequencer_settings_ = sequencer_settings;
   voices_ = voices;
   num_voices_ = num_voices;
   notes_.Clear();
-  tempo_ = 120;
-  step_duration_[0] = step_duration_[1] = (kSampleRate * 60L / 4) / 120;
-  octaves_ = 0;
-  pattern_size_ = 16;
-  pattern_ = 0x5555;
-  mode_ = 0;
+  TouchSequence();
   inactive_steps_ = 0;
   active_ = 0;
   Reset();
+}
+
+/* static */
+uint8_t VoiceController::has_arpeggiator_note() {
+  if (sequencer_settings_->arp_pattern != kNumArpeggiatorPatterns) {
+    return pattern_mask_ & pattern_;
+  } else {
+    return sequencer_settings_->steps[pattern_step_].gate();
+  }
 }
 
 /* static */
@@ -84,15 +92,16 @@ void VoiceController::Reset() {
   // stopped".
   if (!active_) {
     midi_clock_counter_ = kMidiClockPrescaler;
-    if (tempo_) {
+    if (sequencer_settings_->seq_tempo) {
       estimated_beat_duration_ = step_duration_[0] / (kControlRate / 4);
     }
     pattern_mask_ = 255;
     internal_clock_counter_ = 0;
     step_duration_estimator_num_ = 0xffff;
     step_duration_estimator_den_ = 0xff;
-    pattern_step_ = pattern_size_ - 1;
-    direction_ = mode_ == ARPEGGIO_DIRECTION_DOWN ? -1 : 1; 
+    expanded_pattern_step_ = expanded_pattern_size_ - 1;
+    arp_current_direction_ = (
+        sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_DOWN ? -1 : 1); 
     ArpeggioStart();
   }
 }
@@ -114,18 +123,59 @@ void VoiceController::AllNotesOff() {
 }
 
 /* static */
-void VoiceController::UpdateSequencerSettings(const SequencerSettings& sequencer_settings) {
-  tempo_ = sequencer_settings.seq_tempo;
+void VoiceController::ComputeExpandedPatternSize() {
+  uint8_t flow = sequencer_settings_->seq_flow;
+  uint8_t pattern_size = sequencer_settings_->pattern_size;
+  if (flow >= FLOW_KRAMA_2) {
+    pattern_size >>= 1;
+  }
+  if (flow >= FLOW_KRAMA_4) {
+    pattern_size >>= 1;
+  }
+  switch (flow & 0x3) {
+    case FLOW_NORMAL:  // and 
+      expanded_pattern_size_ = flow < 4
+          ? pattern_size
+          : 2 * (pattern_size - 1);
+      break;
+    case FLOW_REVERSE:
+      expanded_pattern_size_ = flow < 4
+          ? pattern_size
+          : 6 * (pattern_size - 1);
+      break;
+    case FLOW_BACK_FORTH_1:
+      expanded_pattern_size_ = flow < 4
+          ? 2 * pattern_size
+          : 9 * (pattern_size - 2);
+      break;
+    case FLOW_BACK_FORTH_2:
+      expanded_pattern_size_ = flow < 4
+          ? 2 * (pattern_size - 1)
+          : 13 * (pattern_size - 2);
+      break;
+  }
+  if (flow >= FLOW_KRAMA_2) {
+    expanded_pattern_size_ <<= 1;
+  }
+  if (flow >= FLOW_KRAMA_4) {
+    expanded_pattern_size_ <<= 1;
+  }
+}
+
+/* static */
+void VoiceController::TouchSequence() {
   pattern_ = ResourcesManager::Lookup<uint16_t, uint8_t>(
-      lut_res_arpeggiator_patterns, sequencer_settings.arp_pattern >> 2);
-  mode_ = sequencer_settings.arp_pattern & 0x03;
-  direction_ = mode_ == ARPEGGIO_DIRECTION_DOWN ? -1 : 1;
-  octaves_ = sequencer_settings.arp_range;
-  pattern_size_ = sequencer_settings.pattern_size;
-  step_duration_[0] = (kSampleRate * 60L / 4) / static_cast<int32_t>(tempo_);
+      lut_res_arpeggiator_patterns,
+      sequencer_settings_->arp_pattern);
+      
+  arp_current_direction_ = (
+      sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_DOWN ? -1 : 1);
+  ComputeExpandedPatternSize();
+  
+  step_duration_[0] = (kSampleRate * 60L / 4) / static_cast<int32_t>(sequencer_settings_->seq_tempo);
   step_duration_[1] = step_duration_[0];
   estimated_beat_duration_ = step_duration_[0] / (kControlRate / 4);
-  int16_t swing = (step_duration_[0] * static_cast<int32_t>(sequencer_settings.seq_swing)) >> 9;
+  int16_t swing = (step_duration_[0] * static_cast<int32_t>(sequencer_settings_->seq_swing)) >> 9;
   step_duration_[0] += swing;
   step_duration_[1] -= swing;
 }
@@ -140,7 +190,7 @@ void VoiceController::NoteOn(uint8_t note, uint8_t velocity) {
     // sequencer/arpeggiator stuff.
     Start();
     // Trigger the note.
-    if (octaves_ == 0) {
+    if (sequencer_settings_->seq_mode == SEQUENCER_MODE_STEP) {
       voices_[0].Trigger(note, velocity, notes_.size() > 1);
     }
   }
@@ -159,7 +209,7 @@ void VoiceController::NoteOff(uint8_t note) {
     // Otherwise retrigger the previously played note, or let the arpeggiator
     // do it. No need to retrigger if we just removed notes different from
     // the one currently played.
-    if (octaves_ == 0) {
+    if (sequencer_settings_->seq_mode == SEQUENCER_MODE_STEP) {
       if (top_note == note) {
         voices_[0].Trigger(notes_.most_recent_note().note, 0, true);
       }
@@ -168,24 +218,76 @@ void VoiceController::NoteOff(uint8_t note) {
 }
 
 /* static */
+int8_t VoiceController::FoldPattern() {
+  int8_t before = pattern_step_;
+  uint8_t step = expanded_pattern_step_;
+  uint8_t flow = sequencer_settings_->seq_flow;
+  uint8_t pattern_size = sequencer_settings_->pattern_size;
+  if (flow >= FLOW_KRAMA_2) {
+    step >>= 1;
+  }
+  if (flow >= FLOW_KRAMA_4) {
+    step >>= 1;
+  }
+  switch (flow) {
+    case FLOW_NORMAL:  // and 
+      pattern_step_ = step;
+      break;
+
+    case FLOW_REVERSE:
+      pattern_step_ = pattern_size - step - 1;
+      break;
+
+    case FLOW_BACK_FORTH_1:
+      pattern_step_ = step < pattern_size ? step : 2 * pattern_size - step - 1;
+      break;
+
+    case FLOW_BACK_FORTH_2:
+      pattern_step_ = step < pattern_size ? step : 2 * pattern_size - step - 2;
+      break;
+      
+    default:
+      pattern_step_ = ResourcesManager::Lookup<uint8_t, uint8_t>(
+          waveform_table[WAV_RES_EXPANSION_KRAMA + (flow & 0x3)],
+          step);
+      break;
+  }
+  if (flow >= FLOW_KRAMA_4) {
+    pattern_step_ <<= 2;
+    pattern_step_ += (expanded_pattern_step_ & 0x3);
+  } else if (flow >= FLOW_KRAMA_2) {
+    pattern_step_ <<= 1;
+    pattern_step_ += (expanded_pattern_step_ & 0x1);
+  }
+  pattern_mask_ = 1 << pattern_step_;
+  if (pattern_step_ > before) {
+    return 1;
+  } else if (pattern_step_ < before) {
+    return -1;
+  } else {
+    return 0;
+  }
+}
+
+/* static */
 uint8_t VoiceController::Control() {
   ++step_duration_estimator_num_;
-  if ((tempo_ && internal_clock_counter_ > 0) ||
-      (!tempo_ && midi_clock_counter_ > 0)) {
+  if ((sequencer_settings_->seq_tempo && internal_clock_counter_ > 0) ||
+      (!sequencer_settings_->seq_tempo && midi_clock_counter_ > 0)) {
     return 0;
   }
   ++step_duration_estimator_den_;
 
-  // Move to the next step in the x-o-x pattern.
-  pattern_mask_ <<= 1;
-  pattern_step_ += 1;
-  if (pattern_step_ >= pattern_size_) {
-    pattern_mask_ = 1;
-    pattern_step_ = 0;
+  // Advance to the next step.
+  ++expanded_pattern_step_;
+  if (expanded_pattern_step_ >= expanded_pattern_size_) {
+    expanded_pattern_step_ = 0;
   }
-  if (notes_.size() == 0 && tempo_) {
+
+  // Start counting inactive steps when no key is currently pressed.
+  if (notes_.size() == 0 && sequencer_settings_->seq_tempo) {
     ++inactive_steps_;
-    if (inactive_steps_ >= pattern_size_) {
+    if (inactive_steps_ >= sequencer_settings_->pattern_size) {
       Stop();
       inactive_steps_ = 0;
     }
@@ -193,8 +295,8 @@ uint8_t VoiceController::Control() {
 
   // Update the value of the counter depending on which steps we are on.
   // Steps 1, 2 are longer than steps 3, 4 if swing is enabled.
-  if (tempo_) {
-    if (pattern_step_ & 2) {
+  if (sequencer_settings_->seq_tempo) {
+    if (expanded_pattern_step_ & 2) {
       internal_clock_counter_ += step_duration_[1];
     } else {
       internal_clock_counter_ += step_duration_[0];
@@ -207,79 +309,96 @@ uint8_t VoiceController::Control() {
     step_duration_estimator_den_ = 0;
     step_duration_estimator_num_ = 0;
   }
-
-  if (notes_.size() == 0 || octaves_ == 0) {
-    return 1;
-  }
-
-  // If the bit is set in the x-o-x pattern, move to the next note.
-  if (has_arpeggiator_note()) {
-    Step();
-  }
-  return 2;
+  
+  Step(FoldPattern());
 }
 
 /* static */
 void VoiceController::ArpeggioStart() {
-  if (direction_ == 1) {
-    octave_step_ = 0;
-    arpeggio_step_ = 0; 
+  if (arp_current_direction_ == 1) {
+    arp_octave_step_ = 0;
+    arp_step_ = 0; 
   } else {
-    octave_step_ = octaves_ - 1;
-    arpeggio_step_ = notes_.size() - 1;
+    arp_octave_step_ = sequencer_settings_->arp_range - 1;
+    arp_step_ = notes_.size() - 1;
   }
 }
 
 /* static */
-void VoiceController::ArpeggioStep() {
+void VoiceController::ArpeggioStep(int8_t delta) {
   uint8_t num_notes = notes_.size();
-  arpeggio_step_ += direction_;
-  uint8_t next_octave = 0;
-  if (arpeggio_step_ >= num_notes) {
-    arpeggio_step_ = 0;
-    next_octave = 1;
-  } else if (arpeggio_step_ < 0) {
-    arpeggio_step_ = num_notes - 1;
-    next_octave = 1;
-  }
-  if (next_octave) {
-    octave_step_ += direction_;
-    if (octave_step_ >= octaves_ || octave_step_ < 0) {
-      if (mode_ == ARPEGGIO_DIRECTION_UP_DOWN) {
-        direction_ = -direction_;
-        ArpeggioStart();
-        if (num_notes > 1 || octaves_ > 1) {
-          ArpeggioStep();
+  if (sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_RANDOM) {
+    uint8_t random_byte = Random::state_msb();
+    arp_octave_step_ = random_byte & 0xf;
+    arp_step_ = (random_byte & 0xf0) >> 4;
+    while (arp_octave_step_ >= sequencer_settings_->arp_range) {
+      arp_octave_step_ -= sequencer_settings_->arp_range;
+    }
+    while (arp_step_ >= num_notes) {
+      arp_step_ -= num_notes;
+    }
+  } else {
+    arp_step_ += arp_current_direction_ * delta;
+    uint8_t next_octave = 0;
+    if (arp_step_ >= num_notes) {
+      arp_step_ = 0;
+      next_octave = 1;
+    } else if (arp_step_ < 0) {
+      arp_step_ = num_notes - 1;
+      next_octave = 1;
+    }
+    if (next_octave) {
+      arp_octave_step_ += arp_current_direction_;
+      if (arp_octave_step_ >= sequencer_settings_->arp_range ||
+          arp_octave_step_ < 0) {
+        if (sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_UP_DOWN) {
+          arp_current_direction_ = -arp_current_direction_;
+          ArpeggioStart();
+          if (num_notes > 1 || sequencer_settings_->arp_range > 1) {
+            ArpeggioStep(delta);
+          }
+        } else {
+          ArpeggioStart();
         }
-      } else {
-        ArpeggioStart();
       }
     }
   }
 }
 
 /* static */
-void VoiceController::Step() {
-  uint8_t num_notes = notes_.size();
-  if (mode_ == ARPEGGIO_DIRECTION_RANDOM) {
-    uint8_t random_byte = Random::state_msb();
-    octave_step_ = random_byte & 0xf;
-    arpeggio_step_ = (random_byte & 0xf0) >> 4;
-    while (octave_step_ >= octaves_) {
-      octave_step_ -= octaves_;
-    }
-    while (arpeggio_step_ >= num_notes) {
-      arpeggio_step_ -= num_notes;
-    }
-  } else {
-    ArpeggioStep();
+void VoiceController::Step(int8_t delta) {
+  switch (sequencer_settings_->seq_mode) {
+    case SEQUENCER_MODE_STEP:
+      return;
+      
+    case SEQUENCER_MODE_ARP:
+      if (notes_.size() == 0) {
+        return;
+      }
+      if (has_arpeggiator_note()) {
+        ArpeggioStep(delta);
+        uint8_t note = notes_.sorted_note(arp_step_).note;
+        note += 12 * arp_octave_step_;
+        while (note > 127) {
+          note -= 12;
+        }
+        uint8_t velocity = (sequencer_settings_->arp_velocity_source == \
+                            ARPEGGIO_VELOCITY_SOURCE_KEYBOARD)
+            ? notes_.sorted_note(arp_step_).velocity
+            : sequencer_settings_->steps[pattern_step_].velocity();
+        uint8_t legato = (sequencer_settings_->arp_pattern != kNumArpeggiatorPatterns)
+            ? false
+            : sequencer_settings_->steps[pattern_step_].legato();
+        voices_[0].Trigger(note, velocity, legato);
+      }
+      return;
+      
+    case SEQUENCER_MODE_SEQUENCER:
+      return;
+      
+    case SEQUENCER_MODE_RPS:
+      return;
   }
-  uint8_t note = notes_.sorted_note(arpeggio_step_).note;
-  note += 12 * octave_step_;
-  while (note > 127) {
-    note -= 12;
-  }
-  voices_[0].Trigger(note, notes_.sorted_note(arpeggio_step_).velocity, false);
 }
 
 }  // namespace hardware_shruthi

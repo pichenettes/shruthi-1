@@ -44,21 +44,20 @@ class Voice;
 class VoiceController {
  public:
   VoiceController() { }
-  static void Init(Voice* voices, uint8_t num_voices_);
+  static void Init(const SequencerSettings* sequencer_settings,
+                   Voice* voices, uint8_t num_voices_);
   static void AllNotesOff();
   static void AllSoundOff();
   static void Reset();
-  static void Step();
+  static void Step(int8_t delta);
   static void NoteOn(uint8_t note, uint8_t velocity);
   static void NoteOff(uint8_t note);
-  static void UpdateSequencerSettings(const SequencerSettings&);
+  static void TouchSequence();
   static inline void Audio() { --internal_clock_counter_; }
   static inline void ExternalSync() { --midi_clock_counter_; }
   static inline uint8_t step() { return pattern_step_; }
   static inline uint8_t active() { return active_; }
-  static inline uint16_t has_arpeggiator_note() {
-    return pattern_mask_ & pattern_;
-  }
+  static uint8_t has_arpeggiator_note();
   // Returns 1 when the clock has advanced.
   static uint8_t Control();
   static uint16_t estimated_beat_duration() {
@@ -74,8 +73,10 @@ class VoiceController {
   }
 
  private:
-  static void ArpeggioStep();
+  static void ArpeggioStep(int8_t delta);
   static void ArpeggioStart();
+  static int8_t FoldPattern();
+  static void ComputeExpandedPatternSize();
 
   static int16_t internal_clock_counter_;
   static uint8_t midi_clock_counter_;
@@ -87,22 +88,19 @@ class VoiceController {
   static uint16_t pattern_mask_;
   // Increment by 1 every 1/16th note, with swing.
   static uint8_t pattern_step_;
-  static uint8_t pattern_size_;
+  static uint8_t expanded_pattern_step_;
+  static uint8_t expanded_pattern_size_;
 
   // Incremented/decremented by 1 for up/down pattern.
-  static int8_t arpeggio_step_;
+  static int8_t arp_step_;
   // Direction increment.
-  static int8_t direction_;
-  static int8_t octave_step_;
-  // Number of octaves
-  static int8_t octaves_;
-  static uint8_t mode_;
+  static int8_t arp_current_direction_;
+  static int8_t arp_octave_step_;
 
   static NoteStack notes_;
   static Voice* voices_;
   static uint8_t num_voices_;
 
-  static uint8_t tempo_;
   // After 4 beats without event, the sequencer is not active. The LED stops
   // blinking and the sequencer will restart from the first note in the pattern. 
   static uint8_t active_;
@@ -114,6 +112,8 @@ class VoiceController {
   static uint16_t step_duration_estimator_num_;
   static uint8_t step_duration_estimator_den_;
   static uint16_t estimated_beat_duration_;
+  
+  static const SequencerSettings* sequencer_settings_;
 
   DISALLOW_COPY_AND_ASSIGN(VoiceController);
 };

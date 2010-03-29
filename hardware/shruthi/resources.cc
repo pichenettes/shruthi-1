@@ -200,8 +200,8 @@ static const prog_char str_res_rps[] PROGMEM = "rps";
 static const prog_char str_res_flow[] PROGMEM = "flow";
 static const prog_char str_res_T[] PROGMEM = "~";
 static const prog_char str_res___[] PROGMEM = "";
-static const prog_char str_res_T_[] PROGMEM = "~";
-static const prog_char str_res__T_[] PROGMEM = "~-";
+static const prog_char str_res_T_[] PROGMEM = "~-";
+static const prog_char str_res__T_[] PROGMEM = "~";
 static const prog_char str_res_krama[] PROGMEM = "krama";
 static const prog_char str_res_jata[] PROGMEM = "jata";
 static const prog_char str_res_sikha[] PROGMEM = "sikha";
@@ -4722,6 +4722,69 @@ const prog_uint8_t wav_res_vowel_data[] PROGMEM = {
       81,    195,      0,      9,     51,     95,    243,      3, 
        6,     73,     99,    122,    233, 
 };
+const prog_uint8_t wav_res_expansion_krama[] PROGMEM = {
+       0,      1,      1,      2,      2,      3,      3,      4, 
+       4,      5,      5,      6,      6,      7,      7,      8, 
+       8,      9,      9,     10,     10,     11,     11,     12, 
+      12,     13,     13,     14,     14,     15, 
+};
+const prog_uint8_t wav_res_expansion_jata[] PROGMEM = {
+       0,      1,      1,      0,      0,      1,      1,      2, 
+       2,      1,      1,      2,      2,      3,      3,      2, 
+       2,      3,      3,      4,      4,      3,      3,      4, 
+       4,      5,      5,      4,      4,      5,      5,      6, 
+       6,      5,      5,      6,      6,      7,      7,      6, 
+       6,      7,      7,      8,      8,      7,      7,      8, 
+       8,      9,      9,      8,      8,      9,      9,     10, 
+      10,      9,      9,     10,     10,     11,     11,     10, 
+      10,     11,     11,     12,     12,     11,     11,     12, 
+      12,     13,     13,     12,     12,     13,     13,     14, 
+      14,     13,     13,     14,     14,     15,     15,     14, 
+      14,     15, 
+};
+const prog_uint8_t wav_res_expansion_sikha[] PROGMEM = {
+       0,      1,      2,      2,      1,      0,      0,      1, 
+       2,      1,      2,      3,      3,      2,      1,      1, 
+       2,      3,      2,      3,      4,      4,      3,      2, 
+       2,      3,      4,      3,      4,      5,      5,      4, 
+       3,      3,      4,      5,      4,      5,      6,      6, 
+       5,      4,      4,      5,      6,      5,      6,      7, 
+       7,      6,      5,      5,      6,      7,      6,      7, 
+       8,      8,      7,      6,      6,      7,      8,      7, 
+       8,      9,      9,      8,      7,      7,      8,      9, 
+       8,      9,     10,     10,      9,      8,      8,      9, 
+      10,      9,     10,     11,     11,     10,      9,      9, 
+      10,     11,     10,     11,     12,     12,     11,     10, 
+      10,     11,     12,     11,     12,     13,     13,     12, 
+      11,     11,     12,     13,     12,     13,     14,     14, 
+      13,     12,     12,     13,     14,     13,     14,     15, 
+      15,     14,     13,     13,     14,     15, 
+};
+const prog_uint8_t wav_res_expansion_ghana[] PROGMEM = {
+       0,      1,      1,      0,      0,      1,      2,      2, 
+       1,      0,      0,      1,      2,      1,      2,      2, 
+       1,      1,      2,      3,      3,      2,      1,      1, 
+       2,      3,      2,      3,      3,      2,      2,      3, 
+       4,      4,      3,      2,      2,      3,      4,      3, 
+       4,      4,      3,      3,      4,      5,      5,      4, 
+       3,      3,      4,      5,      4,      5,      5,      4, 
+       4,      5,      6,      6,      5,      4,      4,      5, 
+       6,      5,      6,      6,      5,      5,      6,      7, 
+       7,      6,      5,      5,      6,      7,      6,      7, 
+       7,      6,      6,      7,      8,      8,      7,      6, 
+       6,      7,      8,      7,      8,      8,      7,      7, 
+       8,      9,      9,      8,      7,      7,      8,      9, 
+       8,      9,      9,      8,      8,      9,     10,     10, 
+       9,      8,      8,      9,     10,      9,     10,     10, 
+       9,      9,     10,     11,     11,     10,      9,      9, 
+      10,     11,     10,     11,     11,     10,     10,     11, 
+      12,     12,     11,     10,     10,     11,     12,     11, 
+      12,     12,     11,     11,     12,     13,     13,     12, 
+      11,     11,     12,     13,     12,     13,     13,     12, 
+      12,     13,     14,     14,     13,     12,     12,     13, 
+      14,     13,     14,     14,     13,     13,     14,     15, 
+      15,     14,     13,     13,     14,     15, 
+};
 
 
 const prog_uint8_t* waveform_table[] = {
@@ -4755,6 +4818,10 @@ const prog_uint8_t* waveform_table[] = {
   wav_res_wavetable_5,
   wav_res_wavetable_6,
   wav_res_vowel_data,
+  wav_res_expansion_krama,
+  wav_res_expansion_jata,
+  wav_res_expansion_sikha,
+  wav_res_expansion_ghana,
 };
 
 const prog_uint8_t chr_res_special_characters[] PROGMEM = {

@@ -38,7 +38,7 @@ namespace hardware_shruthi {
 /* extern */
 Editor editor;
 
-static const prog_char units_definitions[UNIT_ARPEGGIO_VELOCITY_SOURCE + 1]
+static const prog_char units_definitions[UNIT_ARPEGGIO_PATTERN + 1]
     PROGMEM = {
   0,
   0,
@@ -58,6 +58,7 @@ static const prog_char units_definitions[UNIT_ARPEGGIO_VELOCITY_SOURCE + 1]
   STR_RES_STP,
   STR_RES_T,
   STR_RES_KBD,
+  0,
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -289,7 +290,7 @@ static const prog_char raw_parameter_definition[
   
   PRM_ARP_PATTERN,
   0, kNumArpeggiatorPatterns,
-  UNIT_INT8,
+  UNIT_ARPEGGIO_PATTERN,
   STR_RES_PATTERN, STR_RES_PATTERN,
   
   PRM_ARP_VELOCITY_SOURCE,
@@ -1230,6 +1231,13 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
         value = 0;
         text = STR_RES_EXTERN;
       }
+      break;
+    case UNIT_ARPEGGIO_PATTERN:
+      if (value == kNumArpeggiatorPatterns) {
+        value = 0;
+        text = STR_RES_SEQUENCER;
+      }
+      break;
   }
   if (prefix) {
     *buffer++ = prefix;

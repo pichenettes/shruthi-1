@@ -200,7 +200,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
     UpdateOscillatorAlgorithms();
   }
   static inline void TouchSequence() {
-    controller_.UpdateSequencerSettings(sequencer_settings_);
+    controller_.TouchSequence();
   }
   static void TriggerLfos() {
     for (uint8_t i = 0; i < kNumLfos; ++i) {

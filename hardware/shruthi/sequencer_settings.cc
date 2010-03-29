@@ -82,11 +82,10 @@ void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
     note -= 12;
   }
   buffer[4] = 0x7c;
-  buffer[5] = SimpleResourcesManager::Lookup<char, uint8_t>(note_names,
-                                                            note << 1);
-  buffer[6] = SimpleResourcesManager::Lookup<char, uint8_t>(note_names,
-                                                            1 + (note << 1));
-  buffer[7] = SimpleResourcesManager::Lookup<char, uint8_t>(octaves, octave);
+  buffer[5] = ResourcesManager::Lookup<char, uint8_t>(note_names, note << 1);
+  buffer[6] = ResourcesManager::Lookup<char, uint8_t>(note_names,
+                                                      1 + (note << 1));
+  buffer[7] = ResourcesManager::Lookup<char, uint8_t>(octaves, octave);
   buffer[9] = steps[step].character();
   if (steps[step].gate()) {
     buffer[11] = NibbleToAscii(steps[step].velocity() >> 4);

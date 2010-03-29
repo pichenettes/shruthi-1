@@ -90,6 +90,10 @@ extern const prog_uint8_t wav_res_wavetable_4[] PROGMEM;
 extern const prog_uint8_t wav_res_wavetable_5[] PROGMEM;
 extern const prog_uint8_t wav_res_wavetable_6[] PROGMEM;
 extern const prog_uint8_t wav_res_vowel_data[] PROGMEM;
+extern const prog_uint8_t wav_res_expansion_krama[] PROGMEM;
+extern const prog_uint8_t wav_res_expansion_jata[] PROGMEM;
+extern const prog_uint8_t wav_res_expansion_sikha[] PROGMEM;
+extern const prog_uint8_t wav_res_expansion_ghana[] PROGMEM;
 extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_PRM 0  // prm
 #define STR_RES_RNG 1  // rng
@@ -266,8 +270,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_FLOW 172  // flow
 #define STR_RES_T 173  // ~
 #define STR_RES___ 174  //  
-#define STR_RES_T_ 175  // ~
-#define STR_RES__T_ 176  //  ~-
+#define STR_RES_T_ 175  // ~-
+#define STR_RES__T_ 176  //  ~
 #define STR_RES_KRAMA 177  // krama
 #define STR_RES_JATA 178  // jata
 #define STR_RES_SIKHA 179  // sikha
@@ -599,6 +603,14 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES_WAVETABLE_6_SIZE 4112
 #define WAV_RES_VOWEL_DATA 29
 #define WAV_RES_VOWEL_DATA_SIZE 45
+#define WAV_RES_EXPANSION_KRAMA 30
+#define WAV_RES_EXPANSION_KRAMA_SIZE 30
+#define WAV_RES_EXPANSION_JATA 31
+#define WAV_RES_EXPANSION_JATA_SIZE 90
+#define WAV_RES_EXPANSION_SIKHA 32
+#define WAV_RES_EXPANSION_SIKHA_SIZE 126
+#define WAV_RES_EXPANSION_GHANA 33
+#define WAV_RES_EXPANSION_GHANA_SIZE 182
 #define CHR_RES_SPECIAL_CHARACTERS 0
 #define CHR_RES_SPECIAL_CHARACTERS_SIZE 64
 typedef hardware_resources::ResourcesManager<
