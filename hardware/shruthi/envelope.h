@@ -81,8 +81,6 @@ class Envelope {
     // if ((increment_ > 0) ^ (value_ < target_)) {
     //
     // but the first test is more expensive on AVR...
-    // TODO(pichenettes): to get a more exponential feel, divide the increment
-    // by 2 mid-stage.
     if ((stage_ == ATTACK) ^ (value_ < target_)) {
       value_ = target_;
       ++stage_;

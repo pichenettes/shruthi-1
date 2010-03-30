@@ -315,7 +315,7 @@ void SynthesisEngine::SetParameter(
   } else if ((parameter_index <= PRM_OSC_SHAPE_2) ||
              (parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
     UpdateOscillatorAlgorithms();
-  } else if (parameter_index >= PRM_SEQ_TEMPO) {
+  } else if (parameter_index >= PRM_SEQ_MODE) {
       // A copy of those parameters is stored by the note dispatcher/arpeggiator,
       // so any parameter change must be forwarded to it.
     controller_.TouchSequence();

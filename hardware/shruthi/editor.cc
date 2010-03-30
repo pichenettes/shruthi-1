@@ -1113,10 +1113,15 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
 void Editor::HandleEditIncrement(int8_t direction) {
   if (mode_ == EDITOR_MODE_OVERVIEW) {
     int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
+    if (current_page_ == PAGE_MOD_MATRIX) {
+      last_visited_subpage_ = subpage_;
+    }
     if (new_cursor < 0) {
+      subpage_ = 0;
       cursor_ = 0xff;
       current_page_ = page_definition_[current_page_].overall_previous;
     } else if (new_cursor >= 4) {
+      subpage_ = 0;
       cursor_ = 0;
       current_page_ = page_definition_[current_page_].overall_next;
     } else {

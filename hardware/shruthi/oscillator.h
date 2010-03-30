@@ -390,8 +390,6 @@ class Oscillator {
     held_sample_ = MulScale8(result, ~phase_msb);
   }
   
-  // TODO(pichenettes): check those waveforms on a scope, there's some serious
-  // mis-synchronisation going on here.
   static void RenderCzTriReso() {
     uint8_t old_phase_msb = phase_ >> 8;
     phase_ += phase_increment_;

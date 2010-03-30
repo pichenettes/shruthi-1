@@ -57,7 +57,7 @@ class VoiceController {
   static inline void ExternalSync() { --midi_clock_counter_; }
   static inline uint8_t step() { return pattern_step_; }
   static inline uint8_t active() { return active_; }
-  static uint8_t has_arpeggiator_note();
+  static uint16_t has_arpeggiator_note();
   // Returns 1 when the clock has advanced.
   static uint8_t Control();
   static uint16_t estimated_beat_duration() {
@@ -105,6 +105,7 @@ class VoiceController {
   // blinking and the sequencer will restart from the first note in the pattern. 
   static uint8_t active_;
   static uint8_t inactive_steps_;
+  static uint8_t previous_mode_;
 
   // In order to sync the LFOs to an external MIDI clock, we need to estimate at
   // which BPM the master MIDI clock is running. This attemps to track this by
