@@ -509,8 +509,13 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
     switch (event.id) {
       case GROUP_OSC:
         display.set_status('x');
-        engine.ResetPatch();
-        // TODO(pichenettes): reinit sequence too
+        if (subpage_ == LOAD_SAVE_PATCH) {
+          engine.ResetPatch();
+        } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+          engine.ResetSequencerSettings();
+        } else if (subpage_ == LOAD_SAVE_SYSTEM_SETTINGS) {
+          engine.ResetSystemSettings();
+        }
         break;
 
       case GROUP_FILTER:

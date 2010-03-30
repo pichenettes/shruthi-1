@@ -78,9 +78,9 @@ static const prog_char init_patch[] PROGMEM = {
     WAVEFORM_SAW, 0, 0, 0,
     WAVEFORM_SQUARE, 24, -12, 12,
     // Mixer
-    0, 0, 0, WAVEFORM_SQUARE,
+    16, 0, 0, WAVEFORM_SQUARE,
     // Filter
-    127, 0, 20, 0,
+    90, 0, 20, 0,
     // ADSR
     20, 60, 20, 60,
     0, 40, 80, 40,
@@ -93,6 +93,8 @@ static const prog_char init_patch[] PROGMEM = {
     MOD_SRC_LFO_1, MOD_DST_PWM_1, 0,
     MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
     MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
+    MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
+    MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
     // By default, the resonance tracks the note. This value was empirically
     // obtained and it is not clear whether it depends on the positive supply
     // voltage, and if it varies from chip to chip.
@@ -100,8 +102,6 @@ static const prog_char init_patch[] PROGMEM = {
     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
     MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
     MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_FINE, 32,
-    MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
-    MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
     MOD_SRC_LFO_1, MOD_DST_VCO_1_2_FINE, 16,
     // Name
     'i', 'n', 'i', 't', ' ', ' ', ' ', ' '
@@ -137,7 +137,7 @@ static const prog_char init_sequence[] PROGMEM = {
 
 static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
-    0, 0, 0, 0,
+    0, 0, 10, 1,
     0, 1, 1, 1
 };
 
