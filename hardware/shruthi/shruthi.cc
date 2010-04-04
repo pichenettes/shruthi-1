@@ -303,7 +303,7 @@ uint8_t encoder_read_cycle = 0;
 
 TIMER_2_TICK {
   audio_out.EmitSample();
-  lcd_write_cycle = (lcd_write_cycle + 1) & 0x0f;
+  lcd_write_cycle = (lcd_write_cycle + 1) & 0x1f;
   if (lcd_write_cycle == 0) {
     lcd.Tick();
     ++encoder_read_cycle;

@@ -434,12 +434,12 @@ uint8_t Editor::parameter_definition_index_ = 0xff;
 
 ParameterPage Editor::current_page_ = PAGE_FILTER_FILTER;
 ParameterPage Editor::last_visited_page_[kNumGroups] = {
-    PAGE_OSC_OSC_1,
-    PAGE_FILTER_FILTER,
-    PAGE_MOD_ENV_1,
-    PAGE_SEQ_SEQUENCER,
-    PAGE_SYS_KBD,
     PAGE_LOAD_SAVE,
+    PAGE_SYS_KBD,
+    PAGE_SEQ_SEQUENCER,
+    PAGE_MOD_ENV_1,
+    PAGE_FILTER_FILTER,
+    PAGE_OSC_OSC_1,
     PAGE_PERFORMANCE
 };
 uint8_t Editor::last_visited_subpage_ = 0;

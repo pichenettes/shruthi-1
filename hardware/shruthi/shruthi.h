@@ -70,8 +70,8 @@ static const uint8_t kAudioBufferSize = 128;
 // ---- Wirings ----------------------------------------------------------------
 
 // Encoder
-static const uint8_t kPinEncoderA = 0;
-static const uint8_t kPinEncoderB = 1;
+static const uint8_t kPinEncoderA = 1;
+static const uint8_t kPinEncoderB = 0;
 static const uint8_t kPinEncoderClick = 2;
 
 // Shift registers / muxes.
