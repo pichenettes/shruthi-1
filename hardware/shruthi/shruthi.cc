@@ -136,6 +136,8 @@ void InputTask() {
   static int8_t delta;
 TASK_BEGIN_NEAR
   while (1) {
+    // Prepare the read to the ADC.
+    PotsMux::set_pin(pots.active_input());
     idle = 0;
 
     // Read the switches.
@@ -150,11 +152,9 @@ TASK_BEGIN_NEAR
         editor.HandleKeyEvent(switches.key_event());
       }
     }
-
-    // Select which analog/digital inputs we want to read by a write to the
-    // multiplexer register.
+    
+    // Read the ADC.
     pot_event = pots.Read();
-    PotsMux::set_pin(pots.active_input());
 
     // Update the editor if something happened.
     // Revert back to the main page when nothing happened for 1.5s.
@@ -299,17 +299,13 @@ Task Scheduler::tasks_[] = {
 };
 
 uint8_t lcd_write_cycle = 0;
-uint8_t encoder_read_cycle = 0;
 
 TIMER_2_TICK {
   audio_out.EmitSample();
-  lcd_write_cycle = (lcd_write_cycle + 1) & 0x1f;
+  lcd_write_cycle = (lcd_write_cycle + 1) & 0x0f;
   if (lcd_write_cycle == 0) {
     lcd.Tick();
-    ++encoder_read_cycle;
-    if (encoder_read_cycle & 1) {
-      encoder.Read();
-    }
+    encoder.Read();
   }
 }
 

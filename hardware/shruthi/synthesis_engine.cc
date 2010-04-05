@@ -310,7 +310,7 @@ void SynthesisEngine::SetParameter(
     uint8_t parameter_value) {
   data_access_byte_[parameter_index + 1] = parameter_value;
   if (parameter_index >= PRM_ENV_ATTACK_1 &&
-      parameter_index <= PRM_LFO_RATE_2) {
+      parameter_index <= PRM_LFO_RETRIGGER_2) {
     UpdateModulationIncrements();
   } else if ((parameter_index <= PRM_OSC_SHAPE_2) ||
              (parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
@@ -394,7 +394,7 @@ void SynthesisEngine::Control() {
       UpdateModulationIncrements();
       for (uint8_t i = 0; i < kNumLfos; ++i) {
         if (lfo_to_reset_ & _BV(i)) {
-          lfo_[i].Reset();
+          lfo_[i].ResetPhase();
         }
       }
       lfo_reset_counter_ = 0;

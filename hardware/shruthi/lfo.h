@@ -85,8 +85,12 @@ class Lfo {
   }
 
   void Reset() {
-    phase_ = 0;
+    ResetPhase();
     Trigger();
+  }
+
+  void ResetPhase() {
+    phase_ = 0;
   }
 
   void Trigger() {
