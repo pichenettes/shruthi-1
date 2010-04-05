@@ -24,13 +24,6 @@
 // When event = EVENT_NONE, the time is the idle time (how many ms since an
 // event occurred).
 // When event != EVENT_NONE, the time is the time spent in the previous state.
-//
-// The "threshold" template parameter indicates the minimum magnitude of a
-// change in the ADC value that will raise an EVENT_CHANGED. This can be used,
-// for example, to avoid a costly update of internal variables to reflect a
-// change in the value read by a potentiometer - a change which turns out to be
-// only noise. Since the ATMega ADC is 10 bits, set this to 8 (1 << 3),
-// for example, if you only need 7 bits of resolution.
 
 #ifndef HARDWARE_HAL_DEVICES_INPUT_ARRAY_H_
 #define HARDWARE_HAL_DEVICES_INPUT_ARRAY_H_
@@ -47,7 +40,7 @@ enum InputEvent {
   EVENT_LOWERED = 3
 };
 
-template<typename Input, uint8_t num_inputs, uint8_t threshold = 1>
+template<typename Input, uint8_t num_inputs, uint8_t low_threshold = 8>
 class InputArray {
  public:
   InputArray() { }
@@ -65,6 +58,11 @@ class InputArray {
     starting_up_ = 1;
     Input::Init();
   }
+  static void Lock(uint16_t threshold) {
+    for (uint8_t i = 0; i < num_inputs; ++i) {
+      thresholds_[i] = threshold;
+    }
+  }
   static void Touch() {
     last_event_time_ = milliseconds();
   }
@@ -75,18 +73,17 @@ class InputArray {
     // Read a value from the ADC and check if something occurred.
     e.value = Input::Read();
     uint8_t same;
-    if (threshold == 1) {
-      same = values_[active_input_] == e.value;
-    } else {
-      int16_t delta = static_cast<int16_t>(values_[active_input_]) - 
-          static_cast<int16_t>(e.value);
-      same = abs(delta) < threshold;
-    }
+    int16_t delta = static_cast<int16_t>(values_[active_input_]) - 
+        static_cast<int16_t>(e.value);
+    same = abs(delta) < thresholds_[active_input_];
     uint32_t now = milliseconds();
     e.time = now - last_event_time_;
     if (same) {
       e.event = EVENT_NONE;
     } else {
+      // Since the input has been touched and the event has been recorded,
+      // lower the threshold.
+      thresholds_[active_input_] = low_threshold;
       values_[active_input_] = e.value;
       last_event_time_ = now;
       if (Input::data_size == 1) {
@@ -116,6 +113,7 @@ class InputArray {
 
  private:
   static T values_[num_inputs];
+  static T thresholds_[num_inputs];
   static uint8_t active_input_;
   static uint8_t starting_up_;
   static uint32_t last_event_time_;
@@ -123,18 +121,22 @@ class InputArray {
   DISALLOW_COPY_AND_ASSIGN(InputArray);
 };
 
-template<typename Input, uint8_t num_inputs, uint8_t robustness>
-typename InputArray<Input, num_inputs, robustness>::T
-InputArray<Input, num_inputs, robustness>::values_[num_inputs];
+template<typename Input, uint8_t num_inputs, uint8_t low_threshold>
+typename InputArray<Input, num_inputs, low_threshold>::T
+InputArray<Input, num_inputs, low_threshold>::values_[num_inputs];
 
-template<typename Input, uint8_t num_inputs,  uint8_t robustness>
-uint8_t InputArray<Input, num_inputs, robustness>::active_input_;
+template<typename Input, uint8_t num_inputs, uint8_t low_threshold>
+typename InputArray<Input, num_inputs, low_threshold>::T
+InputArray<Input, num_inputs, low_threshold>::thresholds_[num_inputs];
 
-template<typename Input, uint8_t num_inputs, uint8_t robustness>
-uint32_t InputArray<Input, num_inputs, robustness>::last_event_time_;
+template<typename Input, uint8_t num_inputs, uint8_t low_threshold>
+uint8_t InputArray<Input, num_inputs, low_threshold>::active_input_;
 
-template<typename Input, uint8_t num_inputs, uint8_t robustness>
-uint8_t InputArray<Input, num_inputs, robustness>::starting_up_;
+template<typename Input, uint8_t num_inputs, uint8_t low_threshold>
+uint32_t InputArray<Input, num_inputs, low_threshold>::last_event_time_;
+
+template<typename Input, uint8_t num_inputs, uint8_t low_threshold>
+uint8_t InputArray<Input, num_inputs, low_threshold>::starting_up_;
 
 }  // namespace hardware_hal
 

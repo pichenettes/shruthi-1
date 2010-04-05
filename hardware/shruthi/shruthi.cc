@@ -134,8 +134,10 @@ void InputTask() {
   Pots::Event pot_event;
   static uint8_t idle;
   static int8_t delta;
+  static uint8_t previous_page;
 TASK_BEGIN_NEAR
   while (1) {
+    previous_page = editor.current_page();
     // Prepare the read to the ADC.
     PotsMux::set_pin(pots.active_input());
     idle = 0;
@@ -179,6 +181,12 @@ TASK_BEGIN_NEAR
       }
     }
     encoder.Flush();
+    // In case we have moved to a different page, make the pots less sensitive
+    // to changes to make sure that a subtle change to a pot won't create a
+    // discontinuity.
+    if (editor.current_page() != previous_page) {
+      pots.Lock(32);
+    }
     TASK_SWITCH;
   }
 TASK_END
