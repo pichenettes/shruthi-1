@@ -15,7 +15,7 @@
 
 #include "hardware/hal/init_atmega.h"
 #include "hardware/hal/serial.h"
-#include "hardware/utils/pretty_printer.h"
+#include "hardware/utils/output_stream.h"
 
 using namespace hardware_hal;
 using namespace hardware_utils;
@@ -24,7 +24,7 @@ typedef Serial<SerialPort0, 9600, DISABLED, POLLED> DebugPort;
 Serial<SerialPort1, 31250, BUFFERED, DISABLED> midi;
 
 int main(void) {
-  PrettyPrinter<DebugPort> debug_output;
+  OutputStream<DebugPort> debug_output;
 
   InitAtmega(false);
   DebugPort::Init();

@@ -15,12 +15,12 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Pretty printer. Wraps any module implementing the basic Output interface
+// Output stream. Wraps any module implementing the basic Output interface
 // (in fact, just a Write method), and provide string and integer formatting
 // using the << stream operator.
 
-#ifndef HARDWARE_UTILS_PRETTY_PRINTER_H_
-#define HARDWARE_UTILS_PRETTY_PRINTER_H_
+#ifndef HARDWARE_UTILS_OUTPUT_STREAM_H_
+#define HARDWARE_UTILS_OUTPUT_STREAM_H_
 
 #include "hardware/utils/string.h"
 
@@ -34,7 +34,7 @@ enum EndOfLine {
 };
 
 template<typename Output>
-struct PrettyPrinter {
+struct OutputStream {
   static void Print(const char* string) {
     while (*string) {
       Output::Write(*string++);
@@ -66,7 +66,7 @@ struct PrettyPrinter {
     Print('\n');
   }
   template<class T>
-  inline PrettyPrinter<Output>& operator<<(const T value) {
+  inline OutputStream<Output>& operator<<(const T value) {
     Print(value);
     return *this;
   }
@@ -74,4 +74,4 @@ struct PrettyPrinter {
 
 }  // namespace hardware_utils
 
-#endif   // HARDWARE_UTILS_PRETTY_PRINTER_H_
+#endif   // HARDWARE_UTILS_OUTPUT_STREAM_H_

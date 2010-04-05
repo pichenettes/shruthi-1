@@ -17,13 +17,13 @@
 #include "hardware/hal/devices/output_array.h"
 #include "hardware/hal/devices/switch_array.h"
 #include "hardware/hal/serial.h"
-#include "hardware/utils/pretty_printer.h"
+#include "hardware/utils/output_stream.h"
 
 using namespace hardware_hal;
 using namespace hardware_utils;
 
 typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
-PrettyPrinter<Debug> debug_output;
+OutputStream<Debug> debug_output;
 
 int main(void) {
   InitAtmega(true);

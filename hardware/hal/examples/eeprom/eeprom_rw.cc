@@ -17,14 +17,14 @@
 #include "hardware/hal/init_atmega.h"
 #include "hardware/hal/serial.h"
 #include "hardware/hal/time.h"
-#include "hardware/utils/pretty_printer.h"
+#include "hardware/utils/output_stream.h"
 
 using namespace hardware_hal;
 using namespace hardware_utils;
 
 // Debug text output.
 typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
-PrettyPrinter<Debug> debug_output;
+OutputStream<Debug> debug_output;
 
 ExternalEeprom<> eeprom;
 

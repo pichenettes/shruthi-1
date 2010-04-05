@@ -17,7 +17,7 @@
 #include "hardware/hal/init_atmega.h"
 #include "hardware/hal/serial.h"
 #include "hardware/hal/time.h"
-#include "hardware/utils/pretty_printer.h"
+#include "hardware/utils/output_stream.h"
 
 using namespace hardware_hal;
 using namespace hardware_utils;
@@ -26,7 +26,7 @@ typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
 typedef RotaryEncoder<Gpio<0>, Gpio<1>, Gpio<2> > Encoder;
 
 int main(void) {
-  PrettyPrinter<Debug> debug_output;
+  OutputStream<Debug> debug_output;
   Encoder encoder;
   int16_t value = 0;
 

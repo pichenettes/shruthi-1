@@ -29,7 +29,7 @@
 #include "hardware/shruthi/editor.h"
 #include "hardware/shruthi/midi_out_filter.h"
 #include "hardware/shruthi/synthesis_engine.h"
-#include "hardware/utils/pretty_printer.h"
+#include "hardware/utils/output_stream.h"
 #include "hardware/utils/task.h"
 
 using namespace hardware_hal;
@@ -38,7 +38,7 @@ using namespace hardware_shruthi;
 
 using hardware_utils::NaiveScheduler;
 using hardware_utils::Task;
-using hardware_utils::PrettyPrinter;
+using hardware_utils::OutputStream;
 using hardware_utils::endl;
 
 // Midi input.
@@ -79,7 +79,7 @@ PwmOutput<kPinCv2Out> cv_2_out;
 MidiStreamParser<SynthesisEngine> midi_parser;
 
 typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
-PrettyPrinter<Debug> debug_output;
+OutputStream<Debug> debug_output;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they

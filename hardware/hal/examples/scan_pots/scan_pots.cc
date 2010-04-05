@@ -16,7 +16,7 @@
 #include "hardware/hal/init_atmega.h"
 #include "hardware/hal/input_array.h"
 #include "hardware/hal/serial.h"
-#include "hardware/utils/pretty_printer.h"
+#include "hardware/utils/output_stream.h"
 
 using namespace hardware_hal;
 using namespace hardware_utils;
@@ -34,7 +34,7 @@ using namespace hardware_hal;
 
 int main(void) {
   uint8_t idle;
-  PrettyPrinter<Debug> debug_output;
+  OutputStream<Debug> debug_output;
   Pots pots;
 
   InitAtmega(true);
