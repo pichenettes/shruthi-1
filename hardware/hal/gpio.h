@@ -78,6 +78,7 @@ struct GpioImpl {
   typedef BitInRegister<typename Port::Mode, bit> ModeBit;
   typedef BitInRegister<typename Port::Output, bit> OutputBit;
   typedef BitInRegister<typename Port::Input, bit> InputBit;
+  typedef PwmChannel Pwm;
 
   // Mode change.
   static inline void set_mode(uint8_t mode) {
@@ -213,6 +214,12 @@ struct PwmOutput {
   }
   static void Write(uint8_t value) {
     return Gpio<pin>::set_analog_value(value);
+  }
+  static void Stop() {
+    Gpio<pin>::Impl::Pwm::Stop();
+  }
+  static void Start() {
+    Gpio<pin>::Impl::Pwm::Start();
   }
 };
 

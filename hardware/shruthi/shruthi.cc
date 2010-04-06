@@ -138,8 +138,6 @@ void InputTask() {
 TASK_BEGIN_NEAR
   while (1) {
     previous_page = editor.current_page();
-    // Prepare the read to the ADC.
-    PotsMux::set_pin(pots.active_input());
     idle = 0;
 
     // Read the switches.
@@ -157,6 +155,7 @@ TASK_BEGIN_NEAR
     
     // Read the ADC.
     pot_event = pots.Read();
+    PotsMux::set_pin(pots.active_input());
 
     // Update the editor if something happened.
     // Revert back to the main page when nothing happened for 1.5s.

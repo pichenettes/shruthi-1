@@ -36,8 +36,6 @@ namespace hardware_hal {
 enum InputEvent {
   EVENT_NONE = 0,
   EVENT_CHANGED = 1,
-  EVENT_RAISED = 2,
-  EVENT_LOWERED = 3
 };
 
 template<typename Input, uint8_t num_inputs, uint8_t low_threshold = 8>
@@ -86,11 +84,7 @@ class InputArray {
       thresholds_[active_input_] = low_threshold;
       values_[active_input_] = e.value;
       last_event_time_ = now;
-      if (Input::data_size == 1) {
-        e.event = (e.value == 1) ? EVENT_RAISED : EVENT_LOWERED;
-      } else {
-        e.event = EVENT_CHANGED;
-      }
+      e.event = EVENT_CHANGED;
     }
 
     // The next call to Read() will read the next input.
