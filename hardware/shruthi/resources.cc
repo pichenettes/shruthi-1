@@ -237,78 +237,33 @@ static const prog_char str_res_pythag[] PROGMEM = "pythag";
 static const prog_char str_res_1_4_eb[] PROGMEM = "1/4 eb";
 static const prog_char str_res_1_4_e[] PROGMEM = "1/4 e";
 static const prog_char str_res_1_4_ea[] PROGMEM = "1/4 ea";
-static const prog_char str_res_kanaka[] PROGMEM = "kanaka";
-static const prog_char str_res_ratnan[] PROGMEM = "ratnan";
-static const prog_char str_res_ganamu[] PROGMEM = "ganamu";
-static const prog_char str_res_vanasp[] PROGMEM = "vanasp";
-static const prog_char str_res_manava[] PROGMEM = "manava";
-static const prog_char str_res_tanaru[] PROGMEM = "tanaru";
-static const prog_char str_res_senava[] PROGMEM = "senava";
-static const prog_char str_res_hanuma[] PROGMEM = "hanuma";
-static const prog_char str_res_dhenuk[] PROGMEM = "dhenuk";
-static const prog_char str_res_nataka[] PROGMEM = "nataka";
-static const prog_char str_res_kokila[] PROGMEM = "kokila";
-static const prog_char str_res_rupava[] PROGMEM = "rupava";
-static const prog_char str_res_gayaka[] PROGMEM = "gayaka";
-static const prog_char str_res_vakula[] PROGMEM = "vakula";
-static const prog_char str_res_mayama[] PROGMEM = "mayama";
-static const prog_char str_res_chakra[] PROGMEM = "chakra";
-static const prog_char str_res_suryak[] PROGMEM = "suryak";
-static const prog_char str_res_hataka[] PROGMEM = "hataka";
-static const prog_char str_res_jhanka[] PROGMEM = "jhanka";
-static const prog_char str_res_natabh[] PROGMEM = "natabh";
-static const prog_char str_res_keerav[] PROGMEM = "keerav";
-static const prog_char str_res_kharah[] PROGMEM = "kharah";
-static const prog_char str_res_gourim[] PROGMEM = "gourim";
-static const prog_char str_res_varuna[] PROGMEM = "varuna";
-static const prog_char str_res_marara[] PROGMEM = "marara";
-static const prog_char str_res_charuk[] PROGMEM = "charuk";
-static const prog_char str_res_sarasa[] PROGMEM = "sarasa";
-static const prog_char str_res_harika[] PROGMEM = "harika";
-static const prog_char str_res_dheera[] PROGMEM = "dheera";
-static const prog_char str_res_nagana[] PROGMEM = "nagana";
-static const prog_char str_res_yagapr[] PROGMEM = "yagapr";
-static const prog_char str_res_ragava[] PROGMEM = "ragava";
-static const prog_char str_res_gangey[] PROGMEM = "gangey";
-static const prog_char str_res_vagadh[] PROGMEM = "vagadh";
-static const prog_char str_res_shulin[] PROGMEM = "shulin";
-static const prog_char str_res_chalan[] PROGMEM = "chalan";
-static const prog_char str_res_salaga[] PROGMEM = "salaga";
-static const prog_char str_res_jalarn[] PROGMEM = "jalarn";
-static const prog_char str_res_jhalav[] PROGMEM = "jhalav";
-static const prog_char str_res_navane[] PROGMEM = "navane";
-static const prog_char str_res_pavani[] PROGMEM = "pavani";
-static const prog_char str_res_raghup[] PROGMEM = "raghup";
-static const prog_char str_res_gavamb[] PROGMEM = "gavamb";
-static const prog_char str_res_bhavap[] PROGMEM = "bhavap";
-static const prog_char str_res_shubha[] PROGMEM = "shubha";
-static const prog_char str_res_shadvi[] PROGMEM = "shadvi";
-static const prog_char str_res_suvarn[] PROGMEM = "suvarn";
-static const prog_char str_res_divyam[] PROGMEM = "divyam";
-static const prog_char str_res_dhaval[] PROGMEM = "dhaval";
-static const prog_char str_res_namana[] PROGMEM = "namana";
-static const prog_char str_res_kamava[] PROGMEM = "kamava";
-static const prog_char str_res_ramapr[] PROGMEM = "ramapr";
-static const prog_char str_res_gamana[] PROGMEM = "gamana";
-static const prog_char str_res_vishwa[] PROGMEM = "vishwa";
-static const prog_char str_res_shamal[] PROGMEM = "shamal";
-static const prog_char str_res_shanmu[] PROGMEM = "shanmu";
-static const prog_char str_res_simhen[] PROGMEM = "simhen";
-static const prog_char str_res_hemava[] PROGMEM = "hemava";
-static const prog_char str_res_dharma[] PROGMEM = "dharma";
-static const prog_char str_res_neetim[] PROGMEM = "neetim";
-static const prog_char str_res_kantam[] PROGMEM = "kantam";
-static const prog_char str_res_rishab[] PROGMEM = "rishab";
-static const prog_char str_res_latang[] PROGMEM = "latang";
-static const prog_char str_res_vachas[] PROGMEM = "vachas";
-static const prog_char str_res_mechak[] PROGMEM = "mechak";
-static const prog_char str_res_chitra[] PROGMEM = "chitra";
-static const prog_char str_res_suchar[] PROGMEM = "suchar";
-static const prog_char str_res_jyotis[] PROGMEM = "jyotis";
-static const prog_char str_res_dhatuv[] PROGMEM = "dhatuv";
-static const prog_char str_res_nasika[] PROGMEM = "nasika";
-static const prog_char str_res_kosala[] PROGMEM = "kosala";
-static const prog_char str_res_rasika[] PROGMEM = "rasika";
+static const prog_char str_res_bhaira[] PROGMEM = "bhaira";
+static const prog_char str_res_gunakr[] PROGMEM = "gunakr";
+static const prog_char str_res_marwa[] PROGMEM = "marwa";
+static const prog_char str_res_shree[] PROGMEM = "shree";
+static const prog_char str_res_purvi[] PROGMEM = "purvi";
+static const prog_char str_res_bilawa[] PROGMEM = "bilawa";
+static const prog_char str_res_yaman[] PROGMEM = "yaman";
+static const prog_char str_res_kafi[] PROGMEM = "kafi";
+static const prog_char str_res_bhimpa[] PROGMEM = "bhimpa";
+static const prog_char str_res_darbar[] PROGMEM = "darbar";
+static const prog_char str_res_bagesh[] PROGMEM = "bagesh";
+static const prog_char str_res_ragesh[] PROGMEM = "ragesh";
+static const prog_char str_res_khamaj[] PROGMEM = "khamaj";
+static const prog_char str_res_mimal[] PROGMEM = "mi'mal";
+static const prog_char str_res_parame[] PROGMEM = "parame";
+static const prog_char str_res_ranges[] PROGMEM = "ranges";
+static const prog_char str_res_ganges[] PROGMEM = "ganges";
+static const prog_char str_res_kamesh[] PROGMEM = "kamesh";
+static const prog_char str_res_palas_[] PROGMEM = "palas";
+static const prog_char str_res_natbha[] PROGMEM = "natbha";
+static const prog_char str_res_m_kaun[] PROGMEM = "m.kaun";
+static const prog_char str_res_bairag[] PROGMEM = "bairag";
+static const prog_char str_res_b_todi[] PROGMEM = "b.todi";
+static const prog_char str_res_chandr[] PROGMEM = "chandr";
+static const prog_char str_res_kaushi[] PROGMEM = "kaushi";
+static const prog_char str_res_jogesh[] PROGMEM = "jogesh";
+static const prog_char str_res_rasia[] PROGMEM = "rasia";
 
 
 PROGMEM const prog_char* string_table[] = {
@@ -524,78 +479,33 @@ PROGMEM const prog_char* string_table[] = {
   str_res_1_4_eb,
   str_res_1_4_e,
   str_res_1_4_ea,
-  str_res_kanaka,
-  str_res_ratnan,
-  str_res_ganamu,
-  str_res_vanasp,
-  str_res_manava,
-  str_res_tanaru,
-  str_res_senava,
-  str_res_hanuma,
-  str_res_dhenuk,
-  str_res_nataka,
-  str_res_kokila,
-  str_res_rupava,
-  str_res_gayaka,
-  str_res_vakula,
-  str_res_mayama,
-  str_res_chakra,
-  str_res_suryak,
-  str_res_hataka,
-  str_res_jhanka,
-  str_res_natabh,
-  str_res_keerav,
-  str_res_kharah,
-  str_res_gourim,
-  str_res_varuna,
-  str_res_marara,
-  str_res_charuk,
-  str_res_sarasa,
-  str_res_harika,
-  str_res_dheera,
-  str_res_nagana,
-  str_res_yagapr,
-  str_res_ragava,
-  str_res_gangey,
-  str_res_vagadh,
-  str_res_shulin,
-  str_res_chalan,
-  str_res_salaga,
-  str_res_jalarn,
-  str_res_jhalav,
-  str_res_navane,
-  str_res_pavani,
-  str_res_raghup,
-  str_res_gavamb,
-  str_res_bhavap,
-  str_res_shubha,
-  str_res_shadvi,
-  str_res_suvarn,
-  str_res_divyam,
-  str_res_dhaval,
-  str_res_namana,
-  str_res_kamava,
-  str_res_ramapr,
-  str_res_gamana,
-  str_res_vishwa,
-  str_res_shamal,
-  str_res_shanmu,
-  str_res_simhen,
-  str_res_hemava,
-  str_res_dharma,
-  str_res_neetim,
-  str_res_kantam,
-  str_res_rishab,
-  str_res_latang,
-  str_res_vachas,
-  str_res_mechak,
-  str_res_chitra,
-  str_res_suchar,
-  str_res_jyotis,
-  str_res_dhatuv,
-  str_res_nasika,
-  str_res_kosala,
-  str_res_rasika,
+  str_res_bhaira,
+  str_res_gunakr,
+  str_res_marwa,
+  str_res_shree,
+  str_res_purvi,
+  str_res_bilawa,
+  str_res_yaman,
+  str_res_kafi,
+  str_res_bhimpa,
+  str_res_darbar,
+  str_res_bagesh,
+  str_res_ragesh,
+  str_res_khamaj,
+  str_res_mimal,
+  str_res_parame,
+  str_res_ranges,
+  str_res_ganges,
+  str_res_kamesh,
+  str_res_palas_,
+  str_res_natbha,
+  str_res_m_kaun,
+  str_res_bairag,
+  str_res_b_todi,
+  str_res_chandr,
+  str_res_kaushi,
+  str_res_jogesh,
+  str_res_rasia,
 };
 
 const prog_uint16_t lut_res_lfo_increments[] PROGMEM = {
@@ -758,41 +668,105 @@ const prog_uint16_t lut_res_scale_1_4_ea[] PROGMEM = {
        0,      0,      0,      0,    -64,      0,      0,      0, 
        0,    -64,      0,      0, 
 };
-const prog_uint16_t lut_res_scale_kanakangi[] PROGMEM = {
-       0,    -12,    120,     20,    -17,     -2,   -102,      2, 
-     -10,    122,     22,    -15, 
+const prog_uint16_t lut_res_scale_bhairav[] PROGMEM = {
+       0,    -12,  32767,  32767,    -17,     -2,  32767,      2, 
+     -10,  32767,  32767,    -15, 
 };
-const prog_uint16_t lut_res_scale_vanaspati[] PROGMEM = {
-       0,    -12,    120,     20,    -17,     -2,   -102,      2, 
-     -10,   -110,     22,    -15, 
+const prog_uint16_t lut_res_scale_gunakri[] PROGMEM = {
+       0,     15,  32767,  32767,  32767,     -2,  32767,      2, 
+      17,  32767,  32767,  32767, 
 };
-const prog_uint16_t lut_res_scale_tanarupi[] PROGMEM = {
-       0,    -12,    120,     20,    -17,     -2,   -102,      2, 
-     -10,    122,   -148,    -15, 
+const prog_uint16_t lut_res_scale_marwa[] PROGMEM = {
+       0,     15,  32767,  32767,    -17,  32767,    -12,  32767, 
+   32767,    -20,  32767,    -15, 
 };
-const prog_uint16_t lut_res_scale_jhankaradhwani[] PROGMEM = {
-       0,    -12,   -112,     20,    -17,     -2,   -102,      2, 
-     -10,    122,     22,    -15, 
+const prog_uint16_t lut_res_scale_shree[] PROGMEM = {
+       0,    -12,  32767,  32767,    -17,  32767,    -12,      2, 
+     -10,  32767,  32767,    -15, 
 };
-const prog_uint16_t lut_res_scale_kharaharapriya[] PROGMEM = {
-       0,    -12,   -112,     20,    -17,     -2,   -102,      2, 
-     -10,   -110,     22,    -15, 
+const prog_uint16_t lut_res_scale_purvi[] PROGMEM = {
+       0,     15,  32767,  32767,    -17,  32767,    -12,      2, 
+      17,  32767,  32767,    -15, 
 };
-const prog_uint16_t lut_res_scale_varunapriya[] PROGMEM = {
-       0,    -12,   -112,     20,    -17,     -2,   -102,      2, 
-     -10,    122,   -148,    -15, 
+const prog_uint16_t lut_res_scale_bilawal[] PROGMEM = {
+       0,  32767,      5,  32767,    -17,     -2,  32767,      2, 
+   32767,      7,  32767,    -15, 
 };
-const prog_uint16_t lut_res_scale_yagapriya[] PROGMEM = {
-       0,    -12,    120,   -150,    -17,     -2,   -102,      2, 
-     -10,    122,     22,    -15, 
+const prog_uint16_t lut_res_scale_yaman[] PROGMEM = {
+       0,  32767,      5,  32767,     10,  32767,     15,      2, 
+   32767,      7,  32767,     12, 
 };
-const prog_uint16_t lut_res_scale_vagadheeswari[] PROGMEM = {
-       0,    -12,    120,   -150,    -17,     -2,   -102,      2, 
-     -10,   -110,     22,    -15, 
+const prog_uint16_t lut_res_scale_kafi[] PROGMEM = {
+       0,  32767,    -22,     -7,  32767,     -2,  32767,      2, 
+   32767,    -20,     -5,  32767, 
 };
-const prog_uint16_t lut_res_scale_chalanata[] PROGMEM = {
-       0,    -12,    120,   -150,    -17,     -2,   -102,      2, 
-     -10,    122,   -148,    -15, 
+const prog_uint16_t lut_res_scale_bhimpalasree[] PROGMEM = {
+       0,  32767,      5,     20,  32767,     -2,  32767,      2, 
+   32767,      7,     22,  32767, 
+};
+const prog_uint16_t lut_res_scale_darbari[] PROGMEM = {
+       0,  32767,      5,     -7,  32767,     -2,  32767,      2, 
+     -10,  32767,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_rageshree[] PROGMEM = {
+       0,  32767,      5,  32767,    -17,     -2,  32767,      2, 
+   32767,    -20,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_khamaj[] PROGMEM = {
+       0,  32767,      5,  32767,    -17,     -2,  32767,      2, 
+   32767,      7,     -5,     12, 
+};
+const prog_uint16_t lut_res_scale_mimal[] PROGMEM = {
+       0,  32767,      5,     -7,  32767,     -2,  32767,      2, 
+   32767,    -20,     -5,    -15, 
+};
+const prog_uint16_t lut_res_scale_parameshwari[] PROGMEM = {
+       0,    -12,  32767,     -7,  32767,     -2,  32767,  32767, 
+   32767,    -20,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_rangeshwari[] PROGMEM = {
+       0,  32767,      5,     -7,  32767,     -2,  32767,      2, 
+   32767,  32767,  32767,    -15, 
+};
+const prog_uint16_t lut_res_scale_gangeshwari[] PROGMEM = {
+       0,  32767,  32767,  32767,    -17,     -2,  32767,      2, 
+     -10,  32767,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_kameshwari[] PROGMEM = {
+       0,  32767,      5,  32767,  32767,  32767,    -12,      2, 
+   32767,    -20,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_palas_kafi[] PROGMEM = {
+       0,  32767,      5,     -7,  32767,     -2,  32767,      2, 
+   32767,      7,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_natbhairav[] PROGMEM = {
+       0,  32767,      5,  32767,    -17,     -2,  32767,      2, 
+     -10,  32767,  32767,    -15, 
+};
+const prog_uint16_t lut_res_scale_m_kauns[] PROGMEM = {
+       0,  32767,      5,  32767,     10,     -2,  32767,  32767, 
+     -10,  32767,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_bairagi[] PROGMEM = {
+       0,    -12,  32767,  32767,  32767,     -2,  32767,      2, 
+   32767,  32767,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_b_todi[] PROGMEM = {
+       0,    -12,  32767,     -7,  32767,  32767,  32767,      2, 
+   32767,  32767,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_chandradeep[] PROGMEM = {
+       0,  32767,  32767,     -7,  32767,     -2,  32767,      2, 
+   32767,  32767,     -5,  32767, 
+};
+const prog_uint16_t lut_res_scale_kaushik_todi[] PROGMEM = {
+       0,  32767,  32767,     -7,  32767,     -2,    -12,  32767, 
+     -10,  32767,  32767,  32767, 
+};
+const prog_uint16_t lut_res_scale_jogeshwari[] PROGMEM = {
+       0,  32767,  32767,     -7,    -17,     -2,  32767,  32767, 
+   32767,    -20,     -5,  32767, 
 };
 const prog_uint16_t lut_res_arpeggiator_patterns[] PROGMEM = {
    21845,  30583,  62965,  46517,  28527,   2313,  18761,  21065, 
@@ -810,78 +784,33 @@ PROGMEM const prog_uint16_t* lookup_table_table[] = {
   lut_res_scale_1_4_eb,
   lut_res_scale_1_4_e,
   lut_res_scale_1_4_ea,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_vanaspati,
-  lut_res_scale_vanaspati,
-  lut_res_scale_tanarupi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_vanaspati,
-  lut_res_scale_vanaspati,
-  lut_res_scale_tanarupi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_vanaspati,
-  lut_res_scale_vanaspati,
-  lut_res_scale_tanarupi,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_varunapriya,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_varunapriya,
-  lut_res_scale_yagapriya,
-  lut_res_scale_yagapriya,
-  lut_res_scale_yagapriya,
-  lut_res_scale_vagadheeswari,
-  lut_res_scale_vagadheeswari,
-  lut_res_scale_chalanata,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_vanaspati,
-  lut_res_scale_vanaspati,
-  lut_res_scale_tanarupi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_vanaspati,
-  lut_res_scale_vanaspati,
-  lut_res_scale_tanarupi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_kanakangi,
-  lut_res_scale_vanaspati,
-  lut_res_scale_vanaspati,
-  lut_res_scale_tanarupi,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_varunapriya,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_jhankaradhwani,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_kharaharapriya,
-  lut_res_scale_varunapriya,
-  lut_res_scale_yagapriya,
-  lut_res_scale_yagapriya,
-  lut_res_scale_yagapriya,
-  lut_res_scale_vagadheeswari,
-  lut_res_scale_vagadheeswari,
-  lut_res_scale_chalanata,
+  lut_res_scale_bhairav,
+  lut_res_scale_gunakri,
+  lut_res_scale_marwa,
+  lut_res_scale_shree,
+  lut_res_scale_purvi,
+  lut_res_scale_bilawal,
+  lut_res_scale_yaman,
+  lut_res_scale_kafi,
+  lut_res_scale_bhimpalasree,
+  lut_res_scale_darbari,
+  lut_res_scale_kafi,
+  lut_res_scale_rageshree,
+  lut_res_scale_khamaj,
+  lut_res_scale_mimal,
+  lut_res_scale_parameshwari,
+  lut_res_scale_rangeshwari,
+  lut_res_scale_gangeshwari,
+  lut_res_scale_kameshwari,
+  lut_res_scale_palas_kafi,
+  lut_res_scale_natbhairav,
+  lut_res_scale_m_kauns,
+  lut_res_scale_bairagi,
+  lut_res_scale_b_todi,
+  lut_res_scale_chandradeep,
+  lut_res_scale_kaushik_todi,
+  lut_res_scale_jogeshwari,
+  lut_res_scale_yaman,
   lut_res_arpeggiator_patterns,
 };
 

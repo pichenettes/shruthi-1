@@ -305,7 +305,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_OCTAVE, STR_RES_OCTAVE,
 
   PRM_SYS_RAGA,
-  0, 77, 
+  0, 32,
   UNIT_RAGA,
   STR_RES_RAGA, STR_RES_RAGA,
 

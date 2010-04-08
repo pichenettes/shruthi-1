@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+VERSION        = 0.1
 TARGET         = shruthi1
 PACKAGES       = hardware/base hardware/hal hardware/hal/devices hardware/midi hardware/utils hardware/shruthi
 RESOURCES      = hardware/shruthi/resources
@@ -28,18 +29,6 @@ resources:	$(wildcard $(RESOURCES)/*.py)
 		python $(RESOURCE_COMPILER) $(RESOURCES)/resources.py
 
 include $(DEP_FILE)
-
-
-# ------------------------------------------------------------------------------
-# Midi files for firmware update
-# ------------------------------------------------------------------------------
-
-HEX2SYSEX = hardware/tools/hex2sysex/hex2sysex.py
-
-$(BUILD_DIR)/%.mid: $(BUILD_DIR)/%.hex
-	$(HEX2SYSEX) -o $@ $<
-
-midi: $(BUILD_DIR)/$(TARGET).mid
 
 
 # ------------------------------------------------------------------------------

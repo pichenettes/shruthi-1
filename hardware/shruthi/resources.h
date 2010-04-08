@@ -33,7 +33,7 @@
 #include "hardware/resources/resources_manager.h"
 namespace hardware_shruthi {
 
-typedef uint16_t ResourceId;
+typedef uint8_t ResourceId;
 
 extern const prog_char* string_table[];
 
@@ -52,15 +52,31 @@ extern const prog_uint16_t lut_res_scale_pythagorean[] PROGMEM;
 extern const prog_uint16_t lut_res_scale_1_4_eb[] PROGMEM;
 extern const prog_uint16_t lut_res_scale_1_4_e[] PROGMEM;
 extern const prog_uint16_t lut_res_scale_1_4_ea[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_kanakangi[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_vanaspati[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_tanarupi[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_jhankaradhwani[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_kharaharapriya[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_varunapriya[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_yagapriya[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_vagadheeswari[] PROGMEM;
-extern const prog_uint16_t lut_res_scale_chalanata[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_bhairav[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_gunakri[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_marwa[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_shree[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_purvi[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_bilawal[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_yaman[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_kafi[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_bhimpalasree[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_darbari[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_rageshree[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_khamaj[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_mimal[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_parameshwari[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_rangeshwari[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_gangeshwari[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_kameshwari[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_palas_kafi[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_natbhairav[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_m_kauns[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_bairagi[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_b_todi[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_chandradeep[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_kaushik_todi[] PROGMEM;
+extern const prog_uint16_t lut_res_scale_jogeshwari[] PROGMEM;
 extern const prog_uint16_t lut_res_arpeggiator_patterns[] PROGMEM;
 extern const prog_uint8_t wav_res_formant_sine[] PROGMEM;
 extern const prog_uint8_t wav_res_formant_square[] PROGMEM;
@@ -307,78 +323,33 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_1_4_EB 209  // 1/4 eb
 #define STR_RES_1_4_E 210  // 1/4 e
 #define STR_RES_1_4_EA 211  // 1/4 ea
-#define STR_RES_KANAKA 212  // kanaka
-#define STR_RES_RATNAN 213  // ratnan
-#define STR_RES_GANAMU 214  // ganamu
-#define STR_RES_VANASP 215  // vanasp
-#define STR_RES_MANAVA 216  // manava
-#define STR_RES_TANARU 217  // tanaru
-#define STR_RES_SENAVA 218  // senava
-#define STR_RES_HANUMA 219  // hanuma
-#define STR_RES_DHENUK 220  // dhenuk
-#define STR_RES_NATAKA 221  // nataka
-#define STR_RES_KOKILA 222  // kokila
-#define STR_RES_RUPAVA 223  // rupava
-#define STR_RES_GAYAKA 224  // gayaka
-#define STR_RES_VAKULA 225  // vakula
-#define STR_RES_MAYAMA 226  // mayama
-#define STR_RES_CHAKRA 227  // chakra
-#define STR_RES_SURYAK 228  // suryak
-#define STR_RES_HATAKA 229  // hataka
-#define STR_RES_JHANKA 230  // jhanka
-#define STR_RES_NATABH 231  // natabh
-#define STR_RES_KEERAV 232  // keerav
-#define STR_RES_KHARAH 233  // kharah
-#define STR_RES_GOURIM 234  // gourim
-#define STR_RES_VARUNA 235  // varuna
-#define STR_RES_MARARA 236  // marara
-#define STR_RES_CHARUK 237  // charuk
-#define STR_RES_SARASA 238  // sarasa
-#define STR_RES_HARIKA 239  // harika
-#define STR_RES_DHEERA 240  // dheera
-#define STR_RES_NAGANA 241  // nagana
-#define STR_RES_YAGAPR 242  // yagapr
-#define STR_RES_RAGAVA 243  // ragava
-#define STR_RES_GANGEY 244  // gangey
-#define STR_RES_VAGADH 245  // vagadh
-#define STR_RES_SHULIN 246  // shulin
-#define STR_RES_CHALAN 247  // chalan
-#define STR_RES_SALAGA 248  // salaga
-#define STR_RES_JALARN 249  // jalarn
-#define STR_RES_JHALAV 250  // jhalav
-#define STR_RES_NAVANE 251  // navane
-#define STR_RES_PAVANI 252  // pavani
-#define STR_RES_RAGHUP 253  // raghup
-#define STR_RES_GAVAMB 254  // gavamb
-#define STR_RES_BHAVAP 255  // bhavap
-#define STR_RES_SHUBHA 256  // shubha
-#define STR_RES_SHADVI 257  // shadvi
-#define STR_RES_SUVARN 258  // suvarn
-#define STR_RES_DIVYAM 259  // divyam
-#define STR_RES_DHAVAL 260  // dhaval
-#define STR_RES_NAMANA 261  // namana
-#define STR_RES_KAMAVA 262  // kamava
-#define STR_RES_RAMAPR 263  // ramapr
-#define STR_RES_GAMANA 264  // gamana
-#define STR_RES_VISHWA 265  // vishwa
-#define STR_RES_SHAMAL 266  // shamal
-#define STR_RES_SHANMU 267  // shanmu
-#define STR_RES_SIMHEN 268  // simhen
-#define STR_RES_HEMAVA 269  // hemava
-#define STR_RES_DHARMA 270  // dharma
-#define STR_RES_NEETIM 271  // neetim
-#define STR_RES_KANTAM 272  // kantam
-#define STR_RES_RISHAB 273  // rishab
-#define STR_RES_LATANG 274  // latang
-#define STR_RES_VACHAS 275  // vachas
-#define STR_RES_MECHAK 276  // mechak
-#define STR_RES_CHITRA 277  // chitra
-#define STR_RES_SUCHAR 278  // suchar
-#define STR_RES_JYOTIS 279  // jyotis
-#define STR_RES_DHATUV 280  // dhatuv
-#define STR_RES_NASIKA 281  // nasika
-#define STR_RES_KOSALA 282  // kosala
-#define STR_RES_RASIKA 283  // rasika
+#define STR_RES_BHAIRA 212  // bhaira
+#define STR_RES_GUNAKR 213  // gunakr
+#define STR_RES_MARWA 214  // marwa
+#define STR_RES_SHREE 215  // shree
+#define STR_RES_PURVI 216  // purvi
+#define STR_RES_BILAWA 217  // bilawa
+#define STR_RES_YAMAN 218  // yaman
+#define STR_RES_KAFI 219  // kafi
+#define STR_RES_BHIMPA 220  // bhimpa
+#define STR_RES_DARBAR 221  // darbar
+#define STR_RES_BAGESH 222  // bagesh
+#define STR_RES_RAGESH 223  // ragesh
+#define STR_RES_KHAMAJ 224  // khamaj
+#define STR_RES_MIMAL 225  // mi'mal
+#define STR_RES_PARAME 226  // parame
+#define STR_RES_RANGES 227  // ranges
+#define STR_RES_GANGES 228  // ganges
+#define STR_RES_KAMESH 229  // kamesh
+#define STR_RES_PALAS_ 230  // palas 
+#define STR_RES_NATBHA 231  // natbha
+#define STR_RES_M_KAUN 232  // m.kaun
+#define STR_RES_BAIRAG 233  // bairag
+#define STR_RES_B_TODI 234  // b.todi
+#define STR_RES_CHANDR 235  // chandr
+#define STR_RES_KAUSHI 236  // kaushi
+#define STR_RES_JOGESH 237  // jogesh
+#define STR_RES_RASIA 238  // rasia
 #define LUT_RES_LFO_INCREMENTS 0
 #define LUT_RES_LFO_INCREMENTS_SIZE 128
 #define LUT_RES_ENV_PORTAMENTO_INCREMENTS 1
@@ -397,151 +368,61 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define LUT_RES_SCALE_1_4_E_SIZE 12
 #define LUT_RES_SCALE_1_4_EA 8
 #define LUT_RES_SCALE_1_4_EA_SIZE 12
-#define LUT_RES_SCALE_KANAKANGI 9
-#define LUT_RES_SCALE_KANAKANGI_SIZE 12
-#define LUT_RES_SCALE_RATNANGI 10
-#define LUT_RES_SCALE_RATNANGI_SIZE 12
-#define LUT_RES_SCALE_GANAMURTI 11
-#define LUT_RES_SCALE_GANAMURTI_SIZE 12
-#define LUT_RES_SCALE_VANASPATI 12
-#define LUT_RES_SCALE_VANASPATI_SIZE 12
-#define LUT_RES_SCALE_MANAVATI 13
-#define LUT_RES_SCALE_MANAVATI_SIZE 12
-#define LUT_RES_SCALE_TANARUPI 14
-#define LUT_RES_SCALE_TANARUPI_SIZE 12
-#define LUT_RES_SCALE_SENAVATI 15
-#define LUT_RES_SCALE_SENAVATI_SIZE 12
-#define LUT_RES_SCALE_HANUMATODI 16
-#define LUT_RES_SCALE_HANUMATODI_SIZE 12
-#define LUT_RES_SCALE_DHENUKA 17
-#define LUT_RES_SCALE_DHENUKA_SIZE 12
-#define LUT_RES_SCALE_NATAKAPRIYA 18
-#define LUT_RES_SCALE_NATAKAPRIYA_SIZE 12
-#define LUT_RES_SCALE_KOKILAPRIYA 19
-#define LUT_RES_SCALE_KOKILAPRIYA_SIZE 12
-#define LUT_RES_SCALE_RUPAVATI 20
-#define LUT_RES_SCALE_RUPAVATI_SIZE 12
-#define LUT_RES_SCALE_GAYAKAPRIYA 21
-#define LUT_RES_SCALE_GAYAKAPRIYA_SIZE 12
-#define LUT_RES_SCALE_VAKULABHARANAM 22
-#define LUT_RES_SCALE_VAKULABHARANAM_SIZE 12
-#define LUT_RES_SCALE_MAYAMALAVAGOWLA 23
-#define LUT_RES_SCALE_MAYAMALAVAGOWLA_SIZE 12
-#define LUT_RES_SCALE_CHAKRAVAKAM 24
-#define LUT_RES_SCALE_CHAKRAVAKAM_SIZE 12
-#define LUT_RES_SCALE_SURYAKANTAM 25
-#define LUT_RES_SCALE_SURYAKANTAM_SIZE 12
-#define LUT_RES_SCALE_HATAKAMBARI 26
-#define LUT_RES_SCALE_HATAKAMBARI_SIZE 12
-#define LUT_RES_SCALE_JHANKARADHWANI 27
-#define LUT_RES_SCALE_JHANKARADHWANI_SIZE 12
-#define LUT_RES_SCALE_NATABHAIRAVI 28
-#define LUT_RES_SCALE_NATABHAIRAVI_SIZE 12
-#define LUT_RES_SCALE_KEERAVANI 29
-#define LUT_RES_SCALE_KEERAVANI_SIZE 12
-#define LUT_RES_SCALE_KHARAHARAPRIYA 30
-#define LUT_RES_SCALE_KHARAHARAPRIYA_SIZE 12
-#define LUT_RES_SCALE_GOURIMANOHARI 31
-#define LUT_RES_SCALE_GOURIMANOHARI_SIZE 12
-#define LUT_RES_SCALE_VARUNAPRIYA 32
-#define LUT_RES_SCALE_VARUNAPRIYA_SIZE 12
-#define LUT_RES_SCALE_MARARANJANI 33
-#define LUT_RES_SCALE_MARARANJANI_SIZE 12
-#define LUT_RES_SCALE_CHARUKESI 34
-#define LUT_RES_SCALE_CHARUKESI_SIZE 12
-#define LUT_RES_SCALE_SARASANGI 35
-#define LUT_RES_SCALE_SARASANGI_SIZE 12
-#define LUT_RES_SCALE_HARIKAMBHOJI 36
-#define LUT_RES_SCALE_HARIKAMBHOJI_SIZE 12
-#define LUT_RES_SCALE_DHEERASANKARABHARANAM 37
-#define LUT_RES_SCALE_DHEERASANKARABHARANAM_SIZE 12
-#define LUT_RES_SCALE_NAGANANDINI 38
-#define LUT_RES_SCALE_NAGANANDINI_SIZE 12
-#define LUT_RES_SCALE_YAGAPRIYA 39
-#define LUT_RES_SCALE_YAGAPRIYA_SIZE 12
-#define LUT_RES_SCALE_RAGAVARDHINI 40
-#define LUT_RES_SCALE_RAGAVARDHINI_SIZE 12
-#define LUT_RES_SCALE_GANGEYABHUSHANI 41
-#define LUT_RES_SCALE_GANGEYABHUSHANI_SIZE 12
-#define LUT_RES_SCALE_VAGADHEESWARI 42
-#define LUT_RES_SCALE_VAGADHEESWARI_SIZE 12
-#define LUT_RES_SCALE_SHULINI 43
-#define LUT_RES_SCALE_SHULINI_SIZE 12
-#define LUT_RES_SCALE_CHALANATA 44
-#define LUT_RES_SCALE_CHALANATA_SIZE 12
-#define LUT_RES_SCALE_SALAGAM 45
-#define LUT_RES_SCALE_SALAGAM_SIZE 12
-#define LUT_RES_SCALE_JALARNAVAM 46
-#define LUT_RES_SCALE_JALARNAVAM_SIZE 12
-#define LUT_RES_SCALE_JHALAVARALI 47
-#define LUT_RES_SCALE_JHALAVARALI_SIZE 12
-#define LUT_RES_SCALE_NAVANEETAM 48
-#define LUT_RES_SCALE_NAVANEETAM_SIZE 12
-#define LUT_RES_SCALE_PAVANI 49
-#define LUT_RES_SCALE_PAVANI_SIZE 12
-#define LUT_RES_SCALE_RAGHUPRIYA 50
-#define LUT_RES_SCALE_RAGHUPRIYA_SIZE 12
-#define LUT_RES_SCALE_GAVAMBHODI 51
-#define LUT_RES_SCALE_GAVAMBHODI_SIZE 12
-#define LUT_RES_SCALE_BHAVAPRIYA 52
-#define LUT_RES_SCALE_BHAVAPRIYA_SIZE 12
-#define LUT_RES_SCALE_SHUBHAPANTUVARALI 53
-#define LUT_RES_SCALE_SHUBHAPANTUVARALI_SIZE 12
-#define LUT_RES_SCALE_SHADVIDAMARGINI 54
-#define LUT_RES_SCALE_SHADVIDAMARGINI_SIZE 12
-#define LUT_RES_SCALE_SUVARNANGI 55
-#define LUT_RES_SCALE_SUVARNANGI_SIZE 12
-#define LUT_RES_SCALE_DIVYAMANI 56
-#define LUT_RES_SCALE_DIVYAMANI_SIZE 12
-#define LUT_RES_SCALE_DHAVALAMBARI 57
-#define LUT_RES_SCALE_DHAVALAMBARI_SIZE 12
-#define LUT_RES_SCALE_NAMANARAYANI 58
-#define LUT_RES_SCALE_NAMANARAYANI_SIZE 12
-#define LUT_RES_SCALE_KAMAVARDANI 59
-#define LUT_RES_SCALE_KAMAVARDANI_SIZE 12
-#define LUT_RES_SCALE_RAMAPRIYA 60
-#define LUT_RES_SCALE_RAMAPRIYA_SIZE 12
-#define LUT_RES_SCALE_GAMANASHRAMA 61
-#define LUT_RES_SCALE_GAMANASHRAMA_SIZE 12
-#define LUT_RES_SCALE_VISHWAMBARI 62
-#define LUT_RES_SCALE_VISHWAMBARI_SIZE 12
-#define LUT_RES_SCALE_SHAMALANGI 63
-#define LUT_RES_SCALE_SHAMALANGI_SIZE 12
-#define LUT_RES_SCALE_SHANMUKHAPRIYA 64
-#define LUT_RES_SCALE_SHANMUKHAPRIYA_SIZE 12
-#define LUT_RES_SCALE_SIMHENDRAMADHYAMAM 65
-#define LUT_RES_SCALE_SIMHENDRAMADHYAMAM_SIZE 12
-#define LUT_RES_SCALE_HEMAVATI 66
-#define LUT_RES_SCALE_HEMAVATI_SIZE 12
-#define LUT_RES_SCALE_DHARMAVATI 67
-#define LUT_RES_SCALE_DHARMAVATI_SIZE 12
-#define LUT_RES_SCALE_NEETIMATI 68
-#define LUT_RES_SCALE_NEETIMATI_SIZE 12
-#define LUT_RES_SCALE_KANTAMANI 69
-#define LUT_RES_SCALE_KANTAMANI_SIZE 12
-#define LUT_RES_SCALE_RISHABHAPRIYA 70
-#define LUT_RES_SCALE_RISHABHAPRIYA_SIZE 12
-#define LUT_RES_SCALE_LATANGI 71
-#define LUT_RES_SCALE_LATANGI_SIZE 12
-#define LUT_RES_SCALE_VACHASPATI 72
-#define LUT_RES_SCALE_VACHASPATI_SIZE 12
-#define LUT_RES_SCALE_MECHAKALYANI 73
-#define LUT_RES_SCALE_MECHAKALYANI_SIZE 12
-#define LUT_RES_SCALE_CHITRAMBARI 74
-#define LUT_RES_SCALE_CHITRAMBARI_SIZE 12
-#define LUT_RES_SCALE_SUCHARITRA 75
-#define LUT_RES_SCALE_SUCHARITRA_SIZE 12
-#define LUT_RES_SCALE_JYOTISWARUPINI 76
-#define LUT_RES_SCALE_JYOTISWARUPINI_SIZE 12
-#define LUT_RES_SCALE_DHATUVARDANI 77
-#define LUT_RES_SCALE_DHATUVARDANI_SIZE 12
-#define LUT_RES_SCALE_NASIKABHUSHANI 78
-#define LUT_RES_SCALE_NASIKABHUSHANI_SIZE 12
-#define LUT_RES_SCALE_KOSALAM 79
-#define LUT_RES_SCALE_KOSALAM_SIZE 12
-#define LUT_RES_SCALE_RASIKAPRIYA 80
-#define LUT_RES_SCALE_RASIKAPRIYA_SIZE 12
-#define LUT_RES_ARPEGGIATOR_PATTERNS 81
+#define LUT_RES_SCALE_BHAIRAV 9
+#define LUT_RES_SCALE_BHAIRAV_SIZE 12
+#define LUT_RES_SCALE_GUNAKRI 10
+#define LUT_RES_SCALE_GUNAKRI_SIZE 12
+#define LUT_RES_SCALE_MARWA 11
+#define LUT_RES_SCALE_MARWA_SIZE 12
+#define LUT_RES_SCALE_SHREE 12
+#define LUT_RES_SCALE_SHREE_SIZE 12
+#define LUT_RES_SCALE_PURVI 13
+#define LUT_RES_SCALE_PURVI_SIZE 12
+#define LUT_RES_SCALE_BILAWAL 14
+#define LUT_RES_SCALE_BILAWAL_SIZE 12
+#define LUT_RES_SCALE_YAMAN 15
+#define LUT_RES_SCALE_YAMAN_SIZE 12
+#define LUT_RES_SCALE_KAFI 16
+#define LUT_RES_SCALE_KAFI_SIZE 12
+#define LUT_RES_SCALE_BHIMPALASREE 17
+#define LUT_RES_SCALE_BHIMPALASREE_SIZE 12
+#define LUT_RES_SCALE_DARBARI 18
+#define LUT_RES_SCALE_DARBARI_SIZE 12
+#define LUT_RES_SCALE_BAGESHREE 19
+#define LUT_RES_SCALE_BAGESHREE_SIZE 12
+#define LUT_RES_SCALE_RAGESHREE 20
+#define LUT_RES_SCALE_RAGESHREE_SIZE 12
+#define LUT_RES_SCALE_KHAMAJ 21
+#define LUT_RES_SCALE_KHAMAJ_SIZE 12
+#define LUT_RES_SCALE_MIMAL 22
+#define LUT_RES_SCALE_MIMAL_SIZE 12
+#define LUT_RES_SCALE_PARAMESHWARI 23
+#define LUT_RES_SCALE_PARAMESHWARI_SIZE 12
+#define LUT_RES_SCALE_RANGESHWARI 24
+#define LUT_RES_SCALE_RANGESHWARI_SIZE 12
+#define LUT_RES_SCALE_GANGESHWARI 25
+#define LUT_RES_SCALE_GANGESHWARI_SIZE 12
+#define LUT_RES_SCALE_KAMESHWARI 26
+#define LUT_RES_SCALE_KAMESHWARI_SIZE 12
+#define LUT_RES_SCALE_PALAS_KAFI 27
+#define LUT_RES_SCALE_PALAS_KAFI_SIZE 12
+#define LUT_RES_SCALE_NATBHAIRAV 28
+#define LUT_RES_SCALE_NATBHAIRAV_SIZE 12
+#define LUT_RES_SCALE_M_KAUNS 29
+#define LUT_RES_SCALE_M_KAUNS_SIZE 12
+#define LUT_RES_SCALE_BAIRAGI 30
+#define LUT_RES_SCALE_BAIRAGI_SIZE 12
+#define LUT_RES_SCALE_B_TODI 31
+#define LUT_RES_SCALE_B_TODI_SIZE 12
+#define LUT_RES_SCALE_CHANDRADEEP 32
+#define LUT_RES_SCALE_CHANDRADEEP_SIZE 12
+#define LUT_RES_SCALE_KAUSHIK_TODI 33
+#define LUT_RES_SCALE_KAUSHIK_TODI_SIZE 12
+#define LUT_RES_SCALE_JOGESHWARI 34
+#define LUT_RES_SCALE_JOGESHWARI_SIZE 12
+#define LUT_RES_SCALE_RASIA 35
+#define LUT_RES_SCALE_RASIA_SIZE 12
+#define LUT_RES_ARPEGGIATOR_PATTERNS 36
 #define LUT_RES_ARPEGGIATOR_PATTERNS_SIZE 15
 #define WAV_RES_FORMANT_SINE 0
 #define WAV_RES_FORMANT_SINE_SIZE 256

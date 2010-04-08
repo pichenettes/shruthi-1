@@ -143,3 +143,27 @@ size_report:  build/$(TARGET)/$(TARGET).lss build/$(TARGET)/$(TARGET).top_symbol
 
 include $(DEP_FILE)
 
+# ------------------------------------------------------------------------------
+# Midi files for firmware update
+# ------------------------------------------------------------------------------
+
+HEX2SYSEX = hardware/tools/hex2sysex/hex2sysex.py
+
+$(BUILD_DIR)/%.mid: $(BUILD_DIR)/%.hex
+	$(HEX2SYSEX) -o $@ $<
+
+midi: $(BUILD_DIR)/$(TARGET).mid
+
+
+# ------------------------------------------------------------------------------
+# Publish a firmware version on the website
+# ------------------------------------------------------------------------------
+
+REMOTE_HOST = mutable-instruments.net
+REMOTE_USER = shruti
+REMOTE_PATH = public_html/static/firmware
+
+publish: $(BUILD_DIR)/$(TARGET).mid $(BUILD_DIR)/$(TARGET).hex
+	scp $(BUILD_DIR)/$(TARGET).mid $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)/$(TARGET)_$(VERSION).mid
+		scp $(BUILD_DIR)/$(TARGET).hex $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)//$(TARGET)_$(VERSION).hex
+

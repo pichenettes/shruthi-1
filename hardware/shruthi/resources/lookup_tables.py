@@ -144,7 +144,39 @@ shrutis = [
   ('n2', 'ni', 'n2', '?', 9.0/5.0),
   ('N1', 'nu', 'n3', 'B', 15.0/8.0),
   ('N2', 'ne', 'n4', 'pB', 243.0/128.0),
+  ('!', '!', '!', '!', 100),
 ]
+
+def DecodeShrutiChart(line):
+  values = [
+      's',
+      'r1',
+      'r2',
+      'r3',
+      'r4',
+      'g1',
+      'g2',
+      'g3',
+      'g4',
+      'm1',
+      'm2',
+      'm3',
+      'm4',
+      'p',
+      'd1',
+      'd2',
+      'd3',
+      'd4',
+      'n1',
+      'n2',
+      'n3',
+      'n4'
+  ]
+  decoded = []
+  for i, x in enumerate(line):
+    if x != '-':
+      decoded.append(values[i])
+  return ' '.join(decoded)
 
 
 """----------------------------------------------------------------------------
@@ -153,24 +185,32 @@ A recommended key on the keyboard for each of the swara.
 From:
 http://commons.wikimedia.org/wiki/Melakarta_ragams_(svg)
 ----------------------------------------------------------------------------"""
+
 recommended_keys = {
   's': 0,
   'r1': 1,
-  'r2': 2,
-  'r3': 3,
-  'g1': 2,
+  'r2': 1,
+  'r3': 2,
+  'r4': 2,
+  'g1': 3,
   'g2': 3,
   'g3': 4,
+  'g4': 4,
   'm1': 5,
   'm2': 6,
+  'm3': 6,
+  'm4': 6,
   'p': 7,
   'd1': 8,
-  'd2': 9,
-  'd3': 10,
-  'n1': 9,
+  'd2': 8,
+  'd3': 9,
+  'd4': 9,
+  'n1': 10,
   'n2': 10,
-  'n3': 11 
+  'n3': 11,
+  'n4': 11
 }
+
 
 shruti_dictionary = {}
 for entry in shrutis:
@@ -182,10 +222,14 @@ def Compute(scale):
   """Translate a list of 12 note/swaras names into pitch corrections."""
   values = [shruti_dictionary.get(x) for x in scale.split(' ')]
   equal = 2 ** (numpy.arange(12.0) / 12.0)
-  return (numpy.log2(values / equal) * 12 * 128).astype(int)
+  shifts = (numpy.log2(values / equal) * 12 * 128).astype(int)
+  silences = numpy.where(shifts > 127)
+  if len(silences[0]):
+    shifts[silences[0]] = 32767
+  return shifts
 
 
-def LayoutRaga(raga):
+def LayoutRaga(raga, silence_other_notes=False):
   """Find a good assignments of swaras to keys for a raga."""
   raga = raga.lower()
   scale = numpy.zeros((12,))
@@ -197,17 +241,20 @@ def LayoutRaga(raga):
   # Fill unassigned notes
   for i, n in enumerate(mapping):
     if n == '':
-      candidates = []
-      for swara, key in recommended_keys.items():
-        if key == i:
-          candidates.append(swara)
-      for candidate in candidates:
-        if candidate[0] != mapping[i - 1]:
-          mapping[i] = candidate
-          break
+      if silence_other_notes:
+        mapping[i] = '!'
       else:
-        mapping[i] = candidates[0]
-
+        candidates = []
+        for swara, key in recommended_keys.items():
+          if key == i:
+            candidates.append(swara)
+        for candidate in candidates:
+          if candidate[0] != mapping[i - 1]:
+            mapping[i] = candidate
+            break
+        else:
+          mapping[i] = candidates[0]
+    
   scale = [shruti_dictionary.get(swara) for swara in mapping]
   return Compute(' '.join(mapping))
 
@@ -222,78 +269,60 @@ scales = [
     ('1/4 eb', numpy.array(altered_e_b, dtype=int)),
     ('1/4 e', numpy.array(altered_e, dtype=int)),
     ('1/4 ea', numpy.array(altered_e_a, dtype=int)),
-    ('kanakangi', LayoutRaga('S R1 G1 M1 P D1 N1')),
-    ('ratnangi', LayoutRaga('S R1 G1 M1 P D1 N2')),
-    ('ganamurti', LayoutRaga('S R1 G1 M1 P D1 N3')),
-    ('vanaspati', LayoutRaga('S R1 G1 M1 P D2 N2')),
-    ('manavati', LayoutRaga('S R1 G1 M1 P D2 N3')),
-    ('tanarupi', LayoutRaga('S R1 G1 M1 P D3 N3')),
-    ('senavati', LayoutRaga('S R1 G2 M1 P D1 N1')),
-    ('hanumatodi', LayoutRaga('S R1 G2 M1 P D1 N2')),
-    ('dhenuka', LayoutRaga('S R1 G2 M1 P D1 N3')),
-    ('natakapriya', LayoutRaga('S R1 G2 M1 P D2 N2')),
-    ('kokilapriya', LayoutRaga('S R1 G2 M1 P D2 N3')),
-    ('rupavati', LayoutRaga('S R1 G2 M1 P D3 N3')),
-    ('gayakapriya', LayoutRaga('S R1 G3 M1 P D1 N1')),
-    ('vakulabharanam', LayoutRaga('S R1 G3 M1 P D1 N2')),
-    ('mayamalavagowla', LayoutRaga('S R1 G3 M1 P D1 N3')),
-    ('chakravakam', LayoutRaga('S R1 G3 M1 P D2 N2')),
-    ('suryakantam', LayoutRaga('S R1 G3 M1 P D2 N3')),
-    ('hatakambari', LayoutRaga('S R1 G3 M1 P D3 N3')),
-    ('jhankaradhwani', LayoutRaga('S R2 G2 M1 P D1 N1')),
-    ('natabhairavi', LayoutRaga('S R2 G2 M1 P D1 N2')),
-    ('keeravani', LayoutRaga('S R2 G2 M1 P D1 N3')),
-    ('kharaharapriya', LayoutRaga('S R2 G2 M1 P D2 N2')),
-    ('gourimanohari', LayoutRaga('S R2 G2 M1 P D2 N3')),
-    ('varunapriya', LayoutRaga('S R2 G2 M1 P D3 N3')),
-    ('mararanjani', LayoutRaga('S R2 G3 M1 P D1 N1')),
-    ('charukesi', LayoutRaga('S R2 G3 M1 P D1 N2')),
-    ('sarasangi', LayoutRaga('S R2 G3 M1 P D1 N3')),
-    ('harikambhoji', LayoutRaga('S R2 G3 M1 P D2 N2')),
-    ('dheerasankarabharanam', LayoutRaga('S R2 G3 M1 P D2 N3')),
-    ('naganandini', LayoutRaga('S R2 G3 M1 P D3 N3')),
-    ('yagapriya', LayoutRaga('S R3 G3 M1 P D1 N1')),
-    ('ragavardhini', LayoutRaga('S R3 G3 M1 P D1 N2')),
-    ('gangeyabhushani', LayoutRaga('S R3 G3 M1 P D1 N3')),
-    ('vagadheeswari', LayoutRaga('S R3 G3 M1 P D2 N2')),
-    ('shulini', LayoutRaga('S R3 G3 M1 P D2 N3')),
-    ('chalanata', LayoutRaga('S R3 G3 M1 P D3 N3')),
-    ('salagam', LayoutRaga('S R1 G1 M2 P D1 N1')),
-    ('jalarnavam', LayoutRaga('S R1 G1 M2 P D1 N2')),
-    ('jhalavarali', LayoutRaga('S R1 G1 M2 P D1 N3')),
-    ('navaneetam', LayoutRaga('S R1 G1 M2 P D2 N2')),
-    ('pavani', LayoutRaga('S R1 G1 M2 P D2 N3')),
-    ('raghupriya', LayoutRaga('S R1 G1 M2 P D3 N3')),
-    ('gavambhodi', LayoutRaga('S R1 G2 M2 P D1 N1')),
-    ('bhavapriya', LayoutRaga('S R1 G2 M2 P D1 N2')),
-    ('shubhapantuvarali', LayoutRaga('S R1 G2 M2 P D1 N3')),
-    ('shadvidamargini', LayoutRaga('S R1 G2 M2 P D2 N2')),
-    ('suvarnangi', LayoutRaga('S R1 G2 M2 P D2 N3')),
-    ('divyamani', LayoutRaga('S R1 G2 M2 P D3 N3')),
-    ('dhavalambari', LayoutRaga('S R1 G3 M2 P D1 N1')),
-    ('namanarayani', LayoutRaga('S R1 G3 M2 P D1 N2')),
-    ('kamavardani', LayoutRaga('S R1 G3 M2 P D1 N3')),
-    ('ramapriya', LayoutRaga('S R1 G3 M2 P D2 N2')),
-    ('gamanashrama', LayoutRaga('S R1 G3 M2 P D2 N3')),
-    ('vishwambari', LayoutRaga('S R1 G3 M2 P D3 N3')),
-    ('shamalangi', LayoutRaga('S R2 G2 M2 P D1 N1')),
-    ('shanmukhapriya', LayoutRaga('S R2 G2 M2 P D1 N2')),
-    ('simhendramadhyamam', LayoutRaga('S R2 G2 M2 P D1 N3')),
-    ('hemavati', LayoutRaga('S R2 G2 M2 P D2 N2')),
-    ('dharmavati', LayoutRaga('S R2 G2 M2 P D2 N3')),
-    ('neetimati', LayoutRaga('S R2 G2 M2 P D3 N3')),
-    ('kantamani', LayoutRaga('S R2 G3 M2 P D1 N1')),
-    ('rishabhapriya', LayoutRaga('S R2 G3 M2 P D1 N2')),
-    ('latangi', LayoutRaga('S R2 G3 M2 P D1 N3')),
-    ('vachaspati', LayoutRaga('S R2 G3 M2 P D2 N2')),
-    ('mechakalyani', LayoutRaga('S R2 G3 M2 P D2 N3')),
-    ('chitrambari', LayoutRaga('S R2 G3 M2 P D3 N3')),
-    ('sucharitra', LayoutRaga('S R3 G3 M2 P D1 N1')),
-    ('jyotiswarupini', LayoutRaga('S R3 G3 M2 P D1 N2')),
-    ('dhatuvardani', LayoutRaga('S R3 G3 M2 P D1 N3')),
-    ('nasikabhushani', LayoutRaga('S R3 G3 M2 P D2 N2')),
-    ('kosalam', LayoutRaga('S R3 G3 M2 P D2 N3')),
-    ('rasikapriya', LayoutRaga('S R3 G3 M2 P D3 N3')),
+    ('bhairav',
+     LayoutRaga(DecodeShrutiChart('sr-----g-m---pd-----n-'), True)),
+    ('gunakri',
+     LayoutRaga(DecodeShrutiChart('s-r------m---p-d------'), True)),
+    ('marwa',
+     LayoutRaga(DecodeShrutiChart('s-r----g---m----d---n-'), True)),
+    ('shree',
+     LayoutRaga(DecodeShrutiChart('sr-----g---m-pd-----n-'), True)),
+    ('purvi',
+     LayoutRaga(DecodeShrutiChart('s-r----g---m-p-d----n-'), True)),
+    ('bilawal',
+     LayoutRaga(DecodeShrutiChart('s---r--g-m---p---d--n-'), True)),
+    ('yaman',
+     LayoutRaga(DecodeShrutiChart('s---r---g---mp---d---n'), True)),
+    ('kafi',
+     LayoutRaga(DecodeShrutiChart('s--r-g---m---p--d-n---'), True)),
+    ('bhimpalasree',
+     LayoutRaga(DecodeShrutiChart('s---r-g--m---p---d-n--'), True)),
+    ('darbari',
+     LayoutRaga(DecodeShrutiChart('s---rg---m---pd---n---'), True)),
+    ('bageshree',
+     LayoutRaga(DecodeShrutiChart('s--r-g---m---p--d-n---'), True)),
+    ('rageshree',
+     LayoutRaga(DecodeShrutiChart('s---r--g-m---p--d-n---'), True)),
+    ('khamaj',
+     LayoutRaga(DecodeShrutiChart('s---r--g-m---p---dn--n'), True)),
+    ('mi\'mal',
+     LayoutRaga(DecodeShrutiChart('s---rg---m---p--d-n-n-'), True)),
+    ('parameshwari',
+     LayoutRaga(DecodeShrutiChart('sr---g---m------d-n---'), True)),
+    ('rangeshwari',
+     LayoutRaga(DecodeShrutiChart('s---rg---m---p------n-'), True)),
+    ('gangeshwari',
+     LayoutRaga(DecodeShrutiChart('s------g-m---pd---n---'), True)),
+    ('kameshwari',
+     LayoutRaga(DecodeShrutiChart('s---r------m-p--d-n---'), True)),
+    ('palas kafi',
+     LayoutRaga(DecodeShrutiChart('s---rg---m---p---dn---'), True)),
+    ('natbhairav',
+     LayoutRaga(DecodeShrutiChart('s---r--g-m---pd-----n-'), True)),
+    ('m.kauns',
+     LayoutRaga(DecodeShrutiChart('s---r---gm----d---n---'), True)),
+    ('bairagi',
+     LayoutRaga(DecodeShrutiChart('sr-------m---p----n---'), True)),
+    ('b.todi',
+     LayoutRaga(DecodeShrutiChart('sr---g-------p----n---'), True)),
+    ('chandradeep',
+     LayoutRaga(DecodeShrutiChart('s----g---m---p----n---'), True)),
+    ('kaushik todi',
+     LayoutRaga(DecodeShrutiChart('s----g---m-m--d-------'), True)),
+    ('jogeshwari',
+     LayoutRaga(DecodeShrutiChart('s----g-g-m------d-n---'), True)),
+    ('rasia',
+     LayoutRaga(DecodeShrutiChart('s---r---g---mp---d---n'), True)),
 ]
 
 strings = ''
@@ -336,7 +365,7 @@ lookup_tables.append(
       'o--o --o- -o-- o-o-',
       'o-o- -o-- o--o --o-',
       'oo-o o-oo oo-o o-oo',
-
+      
       'oooo o-oo -oo- ooo-',
       'o--- o--- o--o -o-o',
       'o--o o--- o-o- o-oo',
