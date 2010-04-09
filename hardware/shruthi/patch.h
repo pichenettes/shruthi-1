@@ -80,7 +80,7 @@ struct LfoSettings {
   uint8_t waveform;
   uint8_t rate;
   uint8_t attack;
-  uint8_t retrigger;
+  uint8_t retrigger_mode;
 };
 
 const uint8_t kPatchSize = 76;
@@ -268,6 +268,13 @@ enum LfoWave {
   LFO_WAVEFORM_SQUARE,
   LFO_WAVEFORM_S_H,
   LFO_WAVEFORM_RAMP,
+};
+
+enum LfoMode {
+  // For oscillators.
+  LFO_MODE_FREE,
+  LFO_MODE_SLAVE,
+  LFO_MODE_MASTER
 };
 
 enum Status {

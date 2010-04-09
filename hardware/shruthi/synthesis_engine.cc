@@ -359,7 +359,7 @@ void SynthesisEngine::UpdateModulationIncrements() {
         patch_.lfo[i].waveform,
         phase_increment,
         patch_.lfo[i].attack,
-        patch_.lfo[i].retrigger);
+        patch_.lfo[i].retrigger_mode);
 
     for (uint8_t j = 0; j < kNumVoices; ++j) {
       voice_[j].mutable_envelope(i)->Update(
@@ -416,6 +416,11 @@ void SynthesisEngine::Control() {
       controller_.has_arpeggiator_note() ? 255 : 0);
 
   for (uint8_t i = 0; i < kNumVoices; ++i) {
+    // Looping envelopes!
+    if (lfo_[i].triggered() &&
+        patch_.lfo[i].retrigger_mode == LFO_MODE_MASTER) {
+      voice_[i].TriggerEnvelope(i, ATTACK);
+    }
     voice_[i].Control();
   }
 }
@@ -462,6 +467,11 @@ void Voice::TriggerEnvelope(uint8_t stage) {
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
     envelope_[i].Trigger(stage);
   }
+}
+
+/* static */
+void Voice::TriggerEnvelope(uint8_t index, uint8_t stage) {
+  envelope_[index].Trigger(stage);
 }
 
 /* static */

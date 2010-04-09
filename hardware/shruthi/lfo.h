@@ -50,14 +50,15 @@ class Lfo {
         intensity_envelope_stage_ = 1;
       }
     }
-
+    
+    triggered_ = phase_ < previous_phase_;
+    
     // Compute the LFO value.
     switch (shape_) {
       case LFO_WAVEFORM_S_H:
-        if (phase_ < previous_phase_) {
+        if (triggered_) {
           value_ = Random::GetByte();
         }
-        previous_phase_ = phase_;
         value = value_;
         break;
 
@@ -75,6 +76,7 @@ class Lfo {
         value = phase_ >> 8;
         break;
     }
+    previous_phase_ = phase_;
     phase_ += phase_increment_;
 
     // Apply the intensity envelope.
@@ -91,11 +93,12 @@ class Lfo {
 
   void ResetPhase() {
     phase_ = 0;
+    triggered_ = 1;
   }
 
   void Trigger() {
     if (retrigger_) {
-      phase_ = 0;
+      ResetPhase();
     }
     intensity_ = 0;
     intensity_envelope_stage_ = 0;
@@ -108,6 +111,8 @@ class Lfo {
     intensity_increment_ = Envelope::ScaleEnvelopeIncrement(attack, 127);
     retrigger_ = retrigger;
   }
+  
+  uint8_t triggered() const { return triggered_; }
 
  private:
   // Phase increment.
@@ -123,6 +128,7 @@ class Lfo {
   // Copy of the shape used by this lfo.
   uint8_t shape_;
   uint8_t retrigger_;
+  uint8_t triggered_;
 
   // Current value of S&H.
   uint8_t value_;

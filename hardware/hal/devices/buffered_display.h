@@ -82,6 +82,10 @@ class BufferedDisplay {
   static inline void set_cursor_character(uint8_t character) {
     cursor_character_ = character;
   }
+  
+  static inline uint8_t cursor_position() {
+    return cursor_position_;
+  }
 
   static inline void set_status(uint8_t status) __attribute__((noinline)) {
     // TODO(pichenettes): we're using the same clock for blinking the cursor

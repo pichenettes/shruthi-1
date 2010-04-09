@@ -28,8 +28,6 @@ prt
 porta
 legato
 midi out
-reset
-rst
 
 parameter
 range
@@ -145,6 +143,7 @@ on
 tri
 sqr
 s&h
+ramp
 \x03
 \x04
 \x03\x04
@@ -203,8 +202,14 @@ poly
 mode
 stp
 arp
+arp+lt
  seq
-rps
+seq+lt
+impro
+
+free
+slave
+master
 
 flow
 \x7e
@@ -231,7 +236,7 @@ touch a knob to
 assign parameter
 ready
 for os update
-patch bank
+patches
 sequences
 system settings
 step sequencer

@@ -94,6 +94,7 @@ enum Unit {
   UNIT_SEQUENCER_FLOW,
   UNIT_ARPEGGIO_VELOCITY_SOURCE,
   UNIT_ARPEGGIO_PATTERN,
+  UNIT_LFO_RETRIGGER_MODE
 };
 
 enum Action {
@@ -185,6 +186,9 @@ class Editor {
 
   // Displays variants of the current page.
   static void Refresh();
+  
+  // Notify the editor that the user has not provided any input for 2s.
+  static void Relax();
 
   // Displays two lines of text read from a resource.
   static void DisplaySplashScreen(ResourceId first_line);
@@ -195,12 +199,6 @@ class Editor {
   }
   static inline uint8_t cursor() { return cursor_; }
   static inline uint8_t subpage() { return subpage_; }
-  static inline void set_mode(uint8_t new_mode) {
-    if (new_mode != mode_) {
-      mode_ = new_mode;
-      Refresh();
-    }
-  }
 
  private:
   static void PrettyPrintParameterValue(const ParameterDefinition& parameter,

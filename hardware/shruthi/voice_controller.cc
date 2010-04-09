@@ -28,6 +28,8 @@ using hardware_utils::Random;
 
 namespace hardware_shruthi {
 
+static const uint8_t kNumNotesForExitingLatchMode = 8;
+
 /* <static> */
 const SequencerSettings* VoiceController::sequencer_settings_;
 
@@ -52,6 +54,7 @@ uint8_t VoiceController::num_voices_;
 uint8_t VoiceController::active_;
 uint8_t VoiceController::inactive_steps_;
 uint8_t VoiceController::previous_mode_;
+uint8_t VoiceController::adding_notes_to_latched_arpeggio_;
 
 uint16_t VoiceController::step_duration_estimator_num_;
 uint8_t VoiceController::step_duration_estimator_den_;
@@ -172,10 +175,7 @@ void VoiceController::TouchSequence() {
   // (switching from latched arpeggiator to sequencer).
   if (sequencer_settings_->seq_mode != previous_mode_) {
     previous_mode_ = sequencer_settings_->seq_mode;
-    notes_.Clear();
-    voices_[0].Release();
-    Stop();
-    inactive_steps_ = 0;
+    StopAndKillNotes();
   }
   pattern_ = ResourcesManager::Lookup<uint16_t, uint8_t>(
       lut_res_arpeggiator_patterns,
@@ -210,16 +210,38 @@ void VoiceController::NoteOn(uint8_t note, uint8_t velocity) {
           voices_[0].Trigger(note, velocity, notes_.size() > 1);
         }
         break;
-      case SEQUENCER_MODE_SEQUENCER:
-        if (!active_) {
+      case SEQUENCER_MODE_ARP_LATCH:
+        if (!adding_notes_to_latched_arpeggio_) {
+          notes_.Clear();
+          adding_notes_to_latched_arpeggio_ = 1;
+        }
+        notes_.NoteOn(note, velocity);
+        Start();
+        if (notes_.size() == kNumNotesForExitingLatchMode) {
+          StopAndKillNotes();
+        }
+        break;
+      case SEQUENCER_MODE_RPS_LATCH:
+        if (notes_.size() == 0) {
           Start();
+          notes_.NoteOn(note, velocity);
+        } else if (notes_.most_recent_note().note == note) {
+          StopAndKillNotes();
         } else {
-          Stop();
+          notes_.Clear();
+          notes_.NoteOn(note, velocity);
         }
         break;
       case SEQUENCER_MODE_RPS:
+      case SEQUENCER_MODE_IMPROVISATION:
         notes_.NoteOn(note, velocity);
-        Start();
+        if (notes_.size() == 1) {
+          Start();
+        } else {
+          if (sequencer_settings_->seq_mode == SEQUENCER_MODE_IMPROVISATION) {
+            voices_[0].Trigger(note, velocity, notes_.size() > 2);
+          }
+        }
         break;
     }
   }
@@ -227,6 +249,11 @@ void VoiceController::NoteOn(uint8_t note, uint8_t velocity) {
 
 /* static */
 void VoiceController::NoteOff(uint8_t note) {
+  if (sequencer_settings_->seq_mode == SEQUENCER_MODE_RPS_LATCH ||
+      sequencer_settings_->seq_mode == SEQUENCER_MODE_ARP_LATCH) {
+    adding_notes_to_latched_arpeggio_ = 0;
+    return;
+  }
   // Get the currently playing note.
   uint8_t top_note = notes_.most_recent_note().note;
   notes_.NoteOff(note);
@@ -242,6 +269,11 @@ void VoiceController::NoteOff(uint8_t note) {
       if (top_note == note) {
         voices_[0].Trigger(notes_.most_recent_note().note, 0, true);
       }
+    }
+  }
+  if (sequencer_settings_->seq_mode == SEQUENCER_MODE_IMPROVISATION) {
+    if (notes_.size() == 1) {
+      Step(0);
     }
   }
 }
@@ -315,12 +347,11 @@ uint8_t VoiceController::Control() {
 
   // Start counting inactive steps when no key is currently pressed.
   if (notes_.size() == 0 && sequencer_settings_->seq_tempo && 
-      sequencer_settings_->seq_mode != SEQUENCER_MODE_SEQUENCER) {
+      sequencer_settings_->seq_mode != SEQUENCER_MODE_RPS_LATCH &&
+      sequencer_settings_->seq_mode != SEQUENCER_MODE_ARP_LATCH) {
     ++inactive_steps_;
     if (inactive_steps_ >= sequencer_settings_->pattern_size) {
-      Stop();
-      inactive_steps_ = 0;
-      voices_[0].Release();
+      StopAndKillNotes();
     }
   }
 
@@ -343,6 +374,15 @@ uint8_t VoiceController::Control() {
   
   Step(FoldPattern());
   return 1;
+}
+
+/* static */
+void VoiceController::StopAndKillNotes() {
+  active_ = 0;
+  inactive_steps_ = 0;
+  notes_.Clear();
+  voices_[0].Release();
+  adding_notes_to_latched_arpeggio_ = 0;
 }
 
 /* static */
@@ -410,6 +450,7 @@ void VoiceController::ArpeggioStep(int8_t delta) {
 void VoiceController::Step(int8_t delta) {
   switch (sequencer_settings_->seq_mode) {
     case SEQUENCER_MODE_ARP:
+    case SEQUENCER_MODE_ARP_LATCH:
       if (notes_.size() == 0) {
         return;
       }
@@ -435,17 +476,8 @@ void VoiceController::Step(int8_t delta) {
       }
       break;
       
-    case SEQUENCER_MODE_SEQUENCER:
-      if (active_) {
-        const SequenceStep& step = sequencer_settings_->steps[pattern_step_];
-        if (step.gate()) {
-          voices_[0].Trigger(step.note(), step.velocity(), step.legato());
-        } else {
-          voices_[0].Release();
-        }
-      }
-      break;
     case SEQUENCER_MODE_RPS:
+    case SEQUENCER_MODE_RPS_LATCH:
       if (notes_.size()) {
         const SequenceStep& step = sequencer_settings_->steps[pattern_step_];
         if (step.gate()) {
@@ -455,6 +487,18 @@ void VoiceController::Step(int8_t delta) {
               step.legato());
         } else {
           voices_[0].Release();
+        }
+      }
+      break;
+
+    case SEQUENCER_MODE_IMPROVISATION:
+      if (notes_.size() == 1) {
+        const SequenceStep& step = sequencer_settings_->steps[pattern_step_];
+        if (step.gate()) {
+          voices_[0].Trigger(
+              step.note() + notes_.most_recent_note().note - 60,
+              step.velocity(),
+              step.legato());
         }
       }
       break;

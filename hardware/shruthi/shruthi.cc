@@ -161,7 +161,7 @@ TASK_BEGIN_NEAR
     // Revert back to the main page when nothing happened for 1.5s.
     if (pot_event.event == EVENT_NONE) {
       if (idle && pot_event.time > 2000) {
-        editor.set_mode(EDITOR_MODE_OVERVIEW);
+        editor.Relax();
       }
     } else {
       editor.HandleInput(pot_event.id, pot_event.value);

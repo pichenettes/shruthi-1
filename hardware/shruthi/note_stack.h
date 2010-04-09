@@ -64,6 +64,13 @@ class NoteStack {
 
   static uint8_t size() { return size_; }
   static const NoteEntry& most_recent_note() { return pool_[root_ptr_]; }
+  static const NoteEntry& least_recent_note() {
+    uint8_t current = root_ptr_;
+    while (current && pool_[current].next_ptr) {
+      current = pool_[current].next_ptr;
+    }
+    return pool_[current];
+  }
   static const NoteEntry& sorted_note(uint8_t index) {
     return pool_[sorted_ptr_[index]];
   }

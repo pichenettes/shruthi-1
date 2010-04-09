@@ -116,6 +116,7 @@ class Voice {
   }
   static Envelope* mutable_envelope(uint8_t i) { return &envelope_[i]; }
   static void TriggerEnvelope(uint8_t stage);
+  static void TriggerEnvelope(uint8_t index, uint8_t stage);
 
  private:
   // Envelope generators.

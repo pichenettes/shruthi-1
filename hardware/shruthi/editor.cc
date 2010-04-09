@@ -38,7 +38,7 @@ namespace hardware_shruthi {
 /* extern */
 Editor editor;
 
-static const prog_char units_definitions[UNIT_ARPEGGIO_PATTERN + 1]
+static const prog_char units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
     PROGMEM = {
   0,
   0,
@@ -59,6 +59,7 @@ static const prog_char units_definitions[UNIT_ARPEGGIO_PATTERN + 1]
   STR_RES_T,
   STR_RES_KBD,
   0,
+  STR_RES_FREE
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -210,9 +211,9 @@ static const prog_char raw_parameter_definition[
   STR_RES_ATK, STR_RES_ATTACK,
 
   PRM_LFO_RETRIGGER_1,
-  0, 1,
-  UNIT_BOOLEAN,
-  STR_RES_RST, STR_RES_RESET,
+  LFO_MODE_FREE, LFO_MODE_MASTER,
+  UNIT_LFO_RETRIGGER_MODE,
+  STR_RES_MODE, STR_RES_MODE,
 
   // Lfo 2.
   PRM_LFO_WAVE_2,
@@ -231,9 +232,9 @@ static const prog_char raw_parameter_definition[
   STR_RES_ATK, STR_RES_ATTACK,
 
   PRM_LFO_RETRIGGER_2,
-  0, 1,
-  UNIT_BOOLEAN,
-  STR_RES_RST, STR_RES_RESET,
+  LFO_MODE_FREE, LFO_MODE_MASTER,
+  UNIT_LFO_RETRIGGER_MODE,
+  STR_RES_MODE, STR_RES_MODE,
 
   // Modulations.
   PRM_MOD_ROW,
@@ -258,7 +259,7 @@ static const prog_char raw_parameter_definition[
 
   // Sequencer.
   PRM_SEQ_MODE,
-  SEQUENCER_MODE_STEP, SEQUENCER_MODE_RPS,
+  SEQUENCER_MODE_STEP, SEQUENCER_MODE_IMPROVISATION,
   UNIT_SEQUENCER_MODE,
   STR_RES_MODE, STR_RES_MODE,
   
@@ -500,6 +501,17 @@ void Editor::ToggleGroup(uint8_t group) {
       subpage_ = last_visited_subpage_;
     }
     last_visited_page_[group] = current_page_;
+  }
+}
+
+/* static */
+void Editor::Relax() {
+  // Disable the "get back to overview page" thing in the sequencer pages or
+  // Load/save pages - in short, all pages where there's a moving cursor.
+  if (mode_ != EDITOR_MODE_OVERVIEW &&
+      display.cursor_position() == kLcdNoCursor) {
+    mode_ = EDITOR_MODE_OVERVIEW;
+    Refresh();
   }
 }
 

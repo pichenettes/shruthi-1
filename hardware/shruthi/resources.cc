@@ -33,8 +33,6 @@ static const prog_char str_res_prt[] PROGMEM = "prt";
 static const prog_char str_res_porta[] PROGMEM = "porta";
 static const prog_char str_res_legato[] PROGMEM = "legato";
 static const prog_char str_res_midi_out[] PROGMEM = "midi out";
-static const prog_char str_res_reset[] PROGMEM = "reset";
-static const prog_char str_res_rst[] PROGMEM = "rst";
 static const prog_char str_res_parameter[] PROGMEM = "parameter";
 static const prog_char str_res_range[] PROGMEM = "range";
 static const prog_char str_res_operator[] PROGMEM = "operator";
@@ -141,6 +139,7 @@ static const prog_char str_res_on[] PROGMEM = "on";
 static const prog_char str_res_tri[] PROGMEM = "tri";
 static const prog_char str_res_sqr[] PROGMEM = "sqr";
 static const prog_char str_res_s_h[] PROGMEM = "s&h";
+static const prog_char str_res_ramp[] PROGMEM = "ramp";
 static const prog_char str_res_3[] PROGMEM = "";
 static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
@@ -195,8 +194,13 @@ static const prog_char str_res_poly[] PROGMEM = "poly";
 static const prog_char str_res_mode[] PROGMEM = "mode";
 static const prog_char str_res_stp[] PROGMEM = "stp";
 static const prog_char str_res_arp[] PROGMEM = "arp";
+static const prog_char str_res_arpSlt[] PROGMEM = "arp+lt";
 static const prog_char str_res__seq[] PROGMEM = "seq";
-static const prog_char str_res_rps[] PROGMEM = "rps";
+static const prog_char str_res_seqSlt[] PROGMEM = "seq+lt";
+static const prog_char str_res_impro[] PROGMEM = "impro";
+static const prog_char str_res_free[] PROGMEM = "free";
+static const prog_char str_res_slave[] PROGMEM = "slave";
+static const prog_char str_res_master[] PROGMEM = "master";
 static const prog_char str_res_flow[] PROGMEM = "flow";
 static const prog_char str_res_T[] PROGMEM = "~";
 static const prog_char str_res___[] PROGMEM = "";
@@ -220,7 +224,7 @@ static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_ready[] PROGMEM = "ready";
 static const prog_char str_res_for_os_update[] PROGMEM = "for os update";
-static const prog_char str_res_patch_bank[] PROGMEM = "patch bank";
+static const prog_char str_res_patches[] PROGMEM = "patches";
 static const prog_char str_res_sequences[] PROGMEM = "sequences";
 static const prog_char str_res_system_settings[] PROGMEM = "system settings";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
@@ -275,8 +279,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_porta,
   str_res_legato,
   str_res_midi_out,
-  str_res_reset,
-  str_res_rst,
   str_res_parameter,
   str_res_range,
   str_res_operator,
@@ -383,6 +385,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_tri,
   str_res_sqr,
   str_res_s_h,
+  str_res_ramp,
   str_res_3,
   str_res_4,
   str_res_34,
@@ -437,8 +440,13 @@ PROGMEM const prog_char* string_table[] = {
   str_res_mode,
   str_res_stp,
   str_res_arp,
+  str_res_arpSlt,
   str_res__seq,
-  str_res_rps,
+  str_res_seqSlt,
+  str_res_impro,
+  str_res_free,
+  str_res_slave,
+  str_res_master,
   str_res_flow,
   str_res_T,
   str_res___,
@@ -462,7 +470,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_assign_parameter,
   str_res_ready,
   str_res_for_os_update,
-  str_res_patch_bank,
+  str_res_patches,
   str_res_sequences,
   str_res_system_settings,
   str_res_step_sequencer,

@@ -63,10 +63,12 @@ class VoiceController {
   static uint16_t estimated_beat_duration() {
     return estimated_beat_duration_;
   }
+  
   // (for external sync).
   static void Stop() {
     active_ = 0;
   }
+  static void StopAndKillNotes();
   static void Start() {
     Reset();
     active_ = 1;
@@ -104,6 +106,7 @@ class VoiceController {
   // After 4 beats without event, the sequencer is not active. The LED stops
   // blinking and the sequencer will restart from the first note in the pattern. 
   static uint8_t active_;
+  static uint8_t adding_notes_to_latched_arpeggio_;
   static uint8_t inactive_steps_;
   static uint8_t previous_mode_;
 
