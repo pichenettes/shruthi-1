@@ -16,8 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-AVR_TOOLS_PATH = /Applications/arduino-0016/hardware/tools/avr/bin
-AVR_ETC_PATH   = /Applications/arduino-0016/hardware/tools/avr/etc
+AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
+AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
 
 TARGET         = muboot
 PACKAGES       = hardware/bootloader

@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AVR_TOOLS_PATH = /Applications/arduino-0016/hardware/tools/avr/bin
-AVR_ETC_PATH   = /Applications/arduino-0016/hardware/tools/avr/etc
+AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
+AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
 BUILD_DIR      = build/$(TARGET)
 
 MCU            = atmega644p

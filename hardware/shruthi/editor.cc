@@ -422,7 +422,7 @@ const PageDefinition Editor::page_definition_[] = {
 
   /* PAGE_LOAD_SAVE */ { PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
-    STR_RES_PATCH_BANK, LOAD_SAVE, 0, LED_WRITE_MASK },
+    STR_RES_PATCHES, LOAD_SAVE, 0, LED_WRITE_MASK },
 
   /* PAGE_PERFORMANCE */ { PAGE_PERFORMANCE, GROUP_PERFORMANCE,
     PAGE_PERFORMANCE, PAGE_PERFORMANCE,
@@ -750,7 +750,7 @@ void Editor::DisplayLoadSavePage() {
     cursor_ = 7;
   }
   ResourcesManager::LoadStringResource(
-      STR_RES_PATCH_BANK + subpage_,
+      STR_RES_PATCHES + subpage_,
       line_buffer_,
       kLcdWidth);
   AlignLeft(line_buffer_, kLcdWidth);
