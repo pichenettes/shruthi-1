@@ -1145,8 +1145,10 @@ void Editor::HandleEditIncrement(int8_t direction) {
       cursor_ = new_cursor;
     }
     if (current_page_ == PAGE_MOD_MATRIX) {
-        subpage_ = last_visited_subpage_;
+      subpage_ = last_visited_subpage_;
+      last_visited_subpage_ = subpage_;
     }
+    last_visited_page_[page_definition_[current_page_].group] = current_page_;
   } else {
     uint8_t index = KnobIndexToParameterId(cursor_);
     const ParameterDefinition& parameter = parameter_definition(index);

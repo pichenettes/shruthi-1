@@ -76,7 +76,7 @@ class VoiceController {
 
  private:
   static void ArpeggioStep(int8_t delta);
-  static void ArpeggioStart();
+  static void ArpeggioStart(int8_t delta);
   static int8_t FoldPattern();
   static void ComputeExpandedPatternSize();
 

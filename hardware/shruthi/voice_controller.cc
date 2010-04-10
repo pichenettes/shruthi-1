@@ -107,7 +107,7 @@ void VoiceController::Reset() {
     expanded_pattern_step_ = expanded_pattern_size_ - 1;
     arp_current_direction_ = (
         sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_DOWN ? -1 : 1); 
-    ArpeggioStart();
+    ArpeggioStart(1);
   }
 }
 
@@ -386,8 +386,9 @@ void VoiceController::StopAndKillNotes() {
 }
 
 /* static */
-void VoiceController::ArpeggioStart() {
-  if (arp_current_direction_ == 1) {
+void VoiceController::ArpeggioStart(int8_t delta) {
+  int8_t sign = delta > 0 ? arp_current_direction_ : -arp_current_direction_;
+  if (sign == 1) {
     arp_octave_step_ = 0;
     arp_step_ = 0; 
   } else {
@@ -428,7 +429,7 @@ void VoiceController::ArpeggioStep(int8_t delta) {
           arp_octave_step_ < 0) {
         if (sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_UP_DOWN) {
           arp_current_direction_ = -arp_current_direction_;
-          ArpeggioStart();
+          ArpeggioStart(delta);
           if (num_notes > 1 || sequencer_settings_->arp_range > 1) {
             ArpeggioStep(delta);
           }
