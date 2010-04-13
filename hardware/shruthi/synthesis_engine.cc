@@ -416,10 +416,14 @@ void SynthesisEngine::Control() {
       controller_.has_arpeggiator_note() ? 255 : 0);
 
   for (uint8_t i = 0; i < kNumVoices; ++i) {
-    // Looping envelopes!
-    if (lfo_[i].triggered() &&
-        patch_.lfo[i].retrigger_mode == LFO_MODE_MASTER) {
-      voice_[i].TriggerEnvelope(i, ATTACK);
+    // Looping envelopes. Note that the second envelope stops looping after the
+    // key is released otherwise the note will never stops playing.
+    for (uint8_t j = 0; j < kNumLfos; ++j) {
+      if (lfo_[j].triggered() &&
+          patch_.lfo[j].retrigger_mode == LFO_MODE_MASTER &&
+          (j != 1 || voice_[i].mutable_envelope(j)->stage() <= RELEASE_1)) {
+        voice_[i].TriggerEnvelope(j, ATTACK);
+      }
     }
     voice_[i].Control();
   }
