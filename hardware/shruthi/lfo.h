@@ -27,6 +27,7 @@
 #include "hardware/base/base.h"
 #include "hardware/shruthi/envelope.h"
 #include "hardware/shruthi/patch.h"
+#include "hardware/shruthi/sequencer_settings.h"
 #include "hardware/shruthi/shruthi.h"
 #include "hardware/utils/random.h"
 #include "hardware/utils/op.h"
@@ -39,7 +40,7 @@ class Lfo {
  public:
   Lfo() { }
 
-  uint8_t Render() {
+  uint8_t Render(const SequencerSettings& sequence) {
     uint8_t value;
 
     // Ramp up the intensity envelope.
@@ -71,7 +72,15 @@ class Lfo {
       case LFO_WAVEFORM_SQUARE:
         value = (phase_ & 0x8000) ? 255 : 0;
         break;
-
+        
+      case LFO_WAVEFORM_STEP_SEQUENCER:
+        {
+          uint8_t phase_to_step = phase_ >> 8;
+          phase_to_step = MulScale8(phase_to_step, sequence.pattern_size);
+          value = sequence.steps[phase_to_step].controller() << 4;
+        }
+        break;
+        
       default:
         value = phase_ >> 8;
         break;
@@ -132,7 +141,8 @@ class Lfo {
 
   // Current value of S&H.
   uint8_t value_;
-
+  uint8_t step_;
+  
   DISALLOW_COPY_AND_ASSIGN(Lfo);
 };
 

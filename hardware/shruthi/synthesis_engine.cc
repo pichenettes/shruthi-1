@@ -49,7 +49,7 @@ SystemSettings SynthesisEngine::system_settings_;
 
 Voice SynthesisEngine::voice_[kNumVoices];
 VoiceController SynthesisEngine::controller_;
-Lfo SynthesisEngine::lfo_[kNumLfos];
+Lfo SynthesisEngine::lfo_[kNumLfos] = { };
 uint8_t SynthesisEngine::nrpn_parameter_number_;
 uint8_t SynthesisEngine::data_entry_msb_;
 uint8_t SynthesisEngine::num_lfo_reset_steps_;
@@ -95,10 +95,9 @@ static const prog_char init_patch[] PROGMEM = {
     MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
     MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
     MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
-    // By default, the resonance tracks the note. This value was empirically
-    // obtained and it is not clear whether it depends on the positive supply
-    // voltage, and if it varies from chip to chip.
-    MOD_SRC_NOTE, MOD_DST_FILTER_CUTOFF, 58,
+    // By default, the resonance tracks the note. Tracking works best when the
+    // transistors are thermically coupled.
+    MOD_SRC_NOTE, MOD_DST_FILTER_CUTOFF, 63,
     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
     MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
     MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_FINE, 32,
@@ -374,7 +373,8 @@ void SynthesisEngine::UpdateModulationIncrements() {
 /* static */
 void SynthesisEngine::Control() {
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    modulation_sources_[MOD_SRC_LFO_1 + i] = lfo_[i].Render();
+    modulation_sources_[MOD_SRC_LFO_1 + i] = lfo_[i].Render(
+        sequencer_settings_);
   }
   modulation_sources_[MOD_SRC_NOISE] = Random::state_msb();
   modulation_sources_[MOD_SRC_OFFSET] = 255;

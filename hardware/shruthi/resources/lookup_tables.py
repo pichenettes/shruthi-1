@@ -372,3 +372,7 @@ lookup_tables.append(
       'o--- --oo oooo -oo-',
       'o--- ---- o--- o-oo',
       ])))
+
+
+lookup_tables.append(
+    ('turbo_tempi', [270, 300, 330, 360, 420, 480, 600, 720, 960]))

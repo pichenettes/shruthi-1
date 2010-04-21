@@ -55,6 +55,7 @@ static const prog_char str_res_zreso[] PROGMEM = "zreso";
 static const prog_char str_res_ztri[] PROGMEM = "ztri";
 static const prog_char str_res_zpulse[] PROGMEM = "zpulse";
 static const prog_char str_res_zsync[] PROGMEM = "zsync";
+static const prog_char str_res_pad[] PROGMEM = "pad";
 static const prog_char str_res_fm[] PROGMEM = "fm";
 static const prog_char str_res_bell[] PROGMEM = "bell";
 static const prog_char str_res_drone[] PROGMEM = "drone";
@@ -140,6 +141,7 @@ static const prog_char str_res_tri[] PROGMEM = "tri";
 static const prog_char str_res_sqr[] PROGMEM = "sqr";
 static const prog_char str_res_s_h[] PROGMEM = "s&h";
 static const prog_char str_res_ramp[] PROGMEM = "ramp";
+static const prog_char str_res_step[] PROGMEM = "step";
 static const prog_char str_res_3[] PROGMEM = "";
 static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
@@ -220,6 +222,16 @@ static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
 static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
 static const prog_char str_res_kbd[] PROGMEM = "kbd";
 static const prog_char str_res____seq[] PROGMEM = "seq";
+static const prog_char str_res____[] PROGMEM = "";
+static const prog_char str_res_270[] PROGMEM = "270";
+static const prog_char str_res_300[] PROGMEM = "300";
+static const prog_char str_res_330[] PROGMEM = "330";
+static const prog_char str_res_360[] PROGMEM = "360";
+static const prog_char str_res_420[] PROGMEM = "420";
+static const prog_char str_res_480[] PROGMEM = "480";
+static const prog_char str_res_600[] PROGMEM = "600";
+static const prog_char str_res_720[] PROGMEM = "720";
+static const prog_char str_res_960[] PROGMEM = "960";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_ready[] PROGMEM = "ready";
@@ -301,6 +313,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_ztri,
   str_res_zpulse,
   str_res_zsync,
+  str_res_pad,
   str_res_fm,
   str_res_bell,
   str_res_drone,
@@ -386,6 +399,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_sqr,
   str_res_s_h,
   str_res_ramp,
+  str_res_step,
   str_res_3,
   str_res_4,
   str_res_34,
@@ -466,6 +480,16 @@ PROGMEM const prog_char* string_table[] = {
   str_res_4ghana,
   str_res_kbd,
   str_res____seq,
+  str_res____,
+  str_res_270,
+  str_res_300,
+  str_res_330,
+  str_res_360,
+  str_res_420,
+  str_res_480,
+  str_res_600,
+  str_res_720,
+  str_res_960,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,
   str_res_ready,
@@ -780,6 +804,10 @@ const prog_uint16_t lut_res_arpeggiator_patterns[] PROGMEM = {
    21845,  30583,  62965,  46517,  28527,   2313,  18761,  21065, 
    18725,  56283,  30431,  43281,  54553,  28609,  53505, 
 };
+const prog_uint16_t lut_res_turbo_tempi[] PROGMEM = {
+     270,    300,    330,    360,    420,    480,    600,    720, 
+     960, 
+};
 
 
 PROGMEM const prog_uint16_t* lookup_table_table[] = {
@@ -820,6 +848,7 @@ PROGMEM const prog_uint16_t* lookup_table_table[] = {
   lut_res_scale_jogeshwari,
   lut_res_scale_yaman,
   lut_res_arpeggiator_patterns,
+  lut_res_turbo_tempi,
 };
 
 const prog_uint8_t wav_res_formant_sine[] PROGMEM = {

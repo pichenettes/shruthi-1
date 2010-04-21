@@ -138,8 +138,9 @@ struct FilteredNoiseData {
   uint8_t lp_noise_sample;
 };
 
-struct WaveshapperData {
-  uint8_t mask;
+struct QuadSawPadData {
+  uint16_t phase_increment[4];
+  uint16_t phase[4];
 };
 
 union OscillatorData {
@@ -150,7 +151,7 @@ union OscillatorData {
   VowelSynthesizerData vw;
   Wavetable64OscillatorData wt;
   FilteredNoiseData no;
-  WaveshapperData ws;
+  QuadSawPadData qs;
 };
 
 struct AlgorithmFn {
@@ -249,8 +250,8 @@ class Oscillator {
     // For higher pitched notes, simply use 128
     data_.pw.scale = 192 - (parameter_ >> 1);
     if (note_ > 64) {
-      data_.pw.scale = Mix(data_.pw.scale, 128, (note_ - 64) << 2);
-      data_.pw.scale = Mix(data_.pw.scale, 128, (note_ - 64) << 2);
+      data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
+      data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
     }
   }
   static void RenderBandlimitedPwm() {
@@ -528,6 +529,28 @@ class Oscillator {
     phase_ += phase_increment_;
     held_sample_ = (phase_ >> 8) < 127 + parameter_ ? 0 : 255;
   }
+  
+  // ------- Quad saw (mit aliasing) -------------------------------------------
+  static void UpdateQuadSawPad() {
+    uint16_t phase_spread = (phase_increment_ * parameter_) >> 13;
+    ++phase_spread;
+    data_.qs.phase_increment[0] = phase_increment_;
+    for (uint8_t i = 1; i < 4; ++i) {
+      data_.qs.phase_increment[i] = data_.qs.phase_increment[i - 1] + \
+          phase_spread;
+    }
+  }
+
+  static void RenderQuadSawPad() {
+    data_.qs.phase[0] += data_.qs.phase_increment[0];
+    data_.qs.phase[1] += data_.qs.phase_increment[1];
+    data_.qs.phase[2] += data_.qs.phase_increment[2];
+    data_.qs.phase[3] += data_.qs.phase_increment[3];
+    held_sample_ = (data_.qs.phase[0] >> 10);
+    held_sample_ += (data_.qs.phase[1] >> 10);
+    held_sample_ += (data_.qs.phase[2] >> 10);
+    held_sample_ += (data_.qs.phase[3] >> 10);
+  }
 
   // ------- Low-passed, then high-passed white noise --------------------------
   static void RenderFilteredNoise() {
@@ -577,6 +600,8 @@ template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   { &Osc::UpdateCz, &Osc::RenderCzTriReso },
   { &Osc::UpdateCz, &Osc::RenderCzPulseReso },
   { &Osc::UpdateCz, &Osc::RenderCzSyncReso },
+  
+  { &Osc::UpdateQuadSawPad, &Osc::RenderQuadSawPad },
   
   { &Osc::UpdateFm, &Osc::RenderFm },
   

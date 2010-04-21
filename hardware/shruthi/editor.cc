@@ -196,7 +196,7 @@ static const prog_char raw_parameter_definition[
 
   // Lfo 1.
   PRM_LFO_WAVE_1,
-  LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_RAMP,
+  LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_STEP_SEQUENCER,
   UNIT_LFO_WAVEFORM,
   STR_RES_SHAPE, STR_RES_SHAPE,
 
@@ -217,7 +217,7 @@ static const prog_char raw_parameter_definition[
 
   // Lfo 2.
   PRM_LFO_WAVE_2,
-  LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_RAMP,
+  LFO_WAVEFORM_TRIANGLE, LFO_WAVEFORM_STEP_SEQUENCER,
   UNIT_LFO_WAVEFORM,
   STR_RES_SHAPE, STR_RES_SHAPE,
 
@@ -264,7 +264,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_MODE, STR_RES_MODE,
   
   PRM_SEQ_TEMPO,
-  24, 240,
+  24, 240 + STR_RES_960 - STR_RES_270 + 1,
   UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
   STR_RES_BPM, STR_RES_TEMPO,
   
@@ -1254,6 +1254,9 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
       if (value == 39) {
         value = 0;
         text = STR_RES_EXTERN;
+      } else if (value > 240) {
+        text = STR_RES_270 + value - 240 - 1;
+        value = 0;
       }
       break;
     case UNIT_ARPEGGIO_PATTERN:

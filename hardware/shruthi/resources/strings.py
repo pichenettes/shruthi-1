@@ -52,6 +52,7 @@ zreso
 ztri
 zpulse
 zsync
+pad
 fm
 bell
 drone
@@ -144,6 +145,7 @@ tri
 sqr
 s&h
 ramp
+step
 \x03
 \x04
 \x03\x04
@@ -231,6 +233,16 @@ ghana
 
 kbd
    seq
+   
+270
+300
+330
+360
+420
+480
+600
+720
+960
 
 touch a knob to
 assign parameter
