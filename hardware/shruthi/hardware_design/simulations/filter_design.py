@@ -89,18 +89,19 @@ i_max = CutoffToIcontrol(cutoff_max)
 
 print 'Expected control current range:', i_min, i_max
 
-# Check that the control current is within limits
+# Check that the control current is within limits.
 print 'Checking current...'
 assert i_max < 0.5 * m
 assert i_min > 0.05 * u
 
-# Check that the current limiting resistor will not allow very cutoff values,
+# Check that the current limiting resistor will not allow very high cutoff
+# values.
 max_current = (tl084_clipping - diode_drop) / (num_poles * r_current_clip)
 print 'Checking current limiting resistor...'
 assert max_current > i_max
 assert Cutoff(max_current) < 25000
 
-# Check that the audio op amp is reasonably sized
+# Check that the resistors around the audio op amp are reasonably sized
 print 'Checking audio op amp gain...'
 ideal_input_op_amp_gain = (input_range / r_input) / dvcc
 assert Near(audio_op_amp_gain, ideal_input_op_amp_gain, tolerance=1.2)
@@ -109,7 +110,7 @@ assert Near(RcCutoff(r_audio_input, c_audio_input), 1.0, tolerance=10)
 # Check that the PWM crap is filtered from the cutoff CV
 assert Near(RcCutoff(r_cutoff_feedback, c_cutoff_feedback), 1000, tolerance=1.5)
 
-# Check that the CV scaling op-amp is currently doing its job
+# Check that the CV scaling op-amp is correctly doing its job
 print 'Checking cutoff frequencies...'
 v_min = IControlToCvPost(CutoffToIcontrol(cutoff_min))
 v_max = IControlToCvPost(CutoffToIcontrol(cutoff_max))
@@ -119,6 +120,8 @@ r_cutoff_negative_trim_ideal = dvcc / v_min * r_cutoff_feedback * Divide(
     1.0, r_cutoff_divider_small, r_cutoff_divider_big)
 c_cutoff_min = Cutoff(CvPostToIcontrol(CvPreToCvPost(gnd)))
 c_cutoff_max = Cutoff(CvPostToIcontrol(CvPreToCvPost(dvcc)))
-print 'Cutoff range for current choice of components:', c_cutoff_min, c_cutoff_max
+
+print 'Estimate cutoff range for current choice of components:', \
+    c_cutoff_min, c_cutoff_max
 assert Near(c_cutoff_min, cutoff_min)
 assert Near(c_cutoff_max, cutoff_max)
