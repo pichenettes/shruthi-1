@@ -353,7 +353,8 @@ uint8_t VoiceController::Control() {
   // Start counting inactive steps when no key is currently pressed.
   if (notes_.size() == 0 && sequencer_settings_->seq_tempo && 
       sequencer_settings_->seq_mode != SEQUENCER_MODE_RPS_LATCH &&
-      sequencer_settings_->seq_mode != SEQUENCER_MODE_ARP_LATCH) {
+      sequencer_settings_->seq_mode != SEQUENCER_MODE_ARP_LATCH &&
+      active_) {
     ++inactive_steps_;
     if (inactive_steps_ >= sequencer_settings_->pattern_size) {
       StopAndKillNotes();

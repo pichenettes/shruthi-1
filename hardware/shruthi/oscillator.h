@@ -139,8 +139,8 @@ struct FilteredNoiseData {
 };
 
 struct QuadSawPadData {
-  uint16_t phase_increment[4];
-  uint16_t phase[4];
+  uint16_t phase_increment[3];
+  uint16_t phase[3];
 };
 
 union OscillatorData {
@@ -234,7 +234,7 @@ class Oscillator {
   }
   
   static void RenderSilence() {
-    held_sample_ = 128;
+    held_sample_ = 0;  // No PWM meanies
   }
 
   // ------- Band-limited PWM --------------------------------------------------
@@ -532,24 +532,25 @@ class Oscillator {
   
   // ------- Quad saw (mit aliasing) -------------------------------------------
   static void UpdateQuadSawPad() {
-    uint16_t phase_spread = (phase_increment_ * parameter_) >> 13;
+    uint16_t phase_spread = (
+        static_cast<uint32_t>(phase_increment_) * parameter_) >> 13;
     ++phase_spread;
-    data_.qs.phase_increment[0] = phase_increment_;
-    for (uint8_t i = 1; i < 4; ++i) {
-      data_.qs.phase_increment[i] = data_.qs.phase_increment[i - 1] + \
-          phase_spread;
+    uint16_t phase_increment = phase_increment_;
+    for (uint8_t i = 0; i < 3; ++i) {
+      phase_increment += phase_spread;
+      data_.qs.phase_increment[i] = phase_increment;
     }
   }
 
   static void RenderQuadSawPad() {
+    phase_ += phase_increment_;
     data_.qs.phase[0] += data_.qs.phase_increment[0];
     data_.qs.phase[1] += data_.qs.phase_increment[1];
     data_.qs.phase[2] += data_.qs.phase_increment[2];
-    data_.qs.phase[3] += data_.qs.phase_increment[3];
-    held_sample_ = (data_.qs.phase[0] >> 10);
+    held_sample_ = (phase_ >> 10);
+    held_sample_ += (data_.qs.phase[0] >> 10);
     held_sample_ += (data_.qs.phase[1] >> 10);
     held_sample_ += (data_.qs.phase[2] >> 10);
-    held_sample_ += (data_.qs.phase[3] >> 10);
   }
 
   // ------- Low-passed, then high-passed white noise --------------------------

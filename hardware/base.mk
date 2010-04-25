@@ -114,11 +114,7 @@ $(TARGET_ELF):  $(OBJS)
 $(DEP_FILE):  $(BUILD_DIR) $(DEPS)
 		cat $(DEPS) > $(DEP_FILE)
 
-upload:   $(TARGET_HEX)
-		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_SER_OPTS) \
-			-U flash:w:$(TARGET_HEX):i
-
-ispload:    $(TARGET_HEX)
+upload:    $(TARGET_HEX)
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
 			-U flash:w:$(TARGET_HEX):i
 

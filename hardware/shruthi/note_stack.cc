@@ -23,6 +23,8 @@
 
 namespace hardware_shruthi {
 
+static const uint8_t kFreeSlot = 0xff;
+
 /* static */
 uint8_t NoteStack::size_;
 
@@ -53,7 +55,7 @@ void NoteStack::NoteOn(uint8_t note, uint8_t velocity) {
   // Now we are ready to insert the new note. Find a free slot to insert it.
   uint8_t free_slot;
   for (uint8_t i = 1; i <= kNoteStackSize; ++i) {
-    if (pool_[i].note == 0) {
+    if (pool_[i].note == kFreeSlot) {
       free_slot = i;
     }
   }
@@ -104,7 +106,7 @@ void NoteStack::NoteOff(uint8_t note) {
       }
     }
     pool_[current].next_ptr = 0;
-    pool_[current].note = 0;
+    pool_[current].note = kFreeSlot;
     pool_[current].velocity = 0;
     --size_;
   }
@@ -116,6 +118,9 @@ void NoteStack::Clear() {
   memset(pool_ + 1, 0, sizeof(NoteEntry) * kNoteStackSize);
   memset(sorted_ptr_ + 1, 0, kNoteStackSize);
   root_ptr_ = 0;
+  for (uint8_t i = 0; i <= kNoteStackSize; ++i) {
+    pool_[i].note = kFreeSlot;
+  }
 }
 
 }  // namespace hardware_shruthi

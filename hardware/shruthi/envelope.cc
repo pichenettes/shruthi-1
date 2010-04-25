@@ -47,9 +47,6 @@ void Envelope::Trigger(uint8_t stage) {
   }
   increment_ = stage_increment_[stage];
   target_ = stage_target_[stage];
-  if (stage == ATTACK) {
-    value_ = 0;
-  }
 }
 
 void Envelope::Update(
