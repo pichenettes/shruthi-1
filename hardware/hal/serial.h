@@ -53,7 +53,7 @@
 namespace hardware_hal {
 
 const uint8_t kSerialOutputBufferSize = 32;
-const uint8_t kSerialInputBufferSize = 2;
+const uint8_t kSerialInputBufferSize = 32;
 
 // Low-level interface to the low-level UART registers. Several specializations
 // may be declared for each serial port. This class could theoretically be used

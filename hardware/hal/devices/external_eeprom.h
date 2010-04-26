@@ -32,7 +32,8 @@ namespace hardware_hal {
 template<uint16_t eeprom_size = 8192 /* bytes */,
         typename Bus = I2cMaster<8, 64>,
         uint8_t base_address = 0,
-        bool auto_banking = true>
+        bool auto_banking = true,
+        uint8_t block_size = 32>
 class ExternalEeprom {
  public:
   ExternalEeprom() { }
@@ -40,27 +41,29 @@ class ExternalEeprom {
   static void Init() {
     Bus::Init();
   }
+  
+  static void Done() {
+    Bus::Done();
+  }
 
   static void set_bank(uint8_t bank) {
     bank_ = bank;
   }
 
-  static uint8_t Read(uint8_t size, uint8_t* data) {
-    uint8_t remaining = size;
-    while (1) {
+  static uint16_t Read(uint16_t size, uint8_t* data) {
+    uint16_t read = 0;
+    while (size > 0) {
       // Try to read as much as possible from the buffer from the previous op.
-      while (Bus::readable() && remaining) {
-        --remaining;
+      while (Bus::readable()) {
+        --size;
         *data++ = Bus::ImmediateRead();
-      }
-      if (remaining == 0) {
-        break;
       }
       // We need to request more data!
       Bus::Wait();
-      uint8_t requested = Bus::Request((base_address + bank_) | 0x50, remaining);
+      uint8_t requested = size > block_size ? block_size : size;
+      Bus::Request((base_address + bank_) | 0x50, requested);
       if (Bus::Wait() != I2C_ERROR_NONE) {
-        return size - remaining;
+        return size - read;
       }
     }
     return size;
@@ -82,8 +85,30 @@ class ExternalEeprom {
       return 0;
     }
   }
+  
+  static uint16_t Write(uint16_t address, const uint8_t* data, uint16_t size) {
+    uint16_t written = 0;
+    while (size != 0) {
+      uint8_t writable = block_size - (address % block_size);
+      if (writable > size) {
+        writable = size;
+      }
+      if (WriteWithinBlock(address, data, writable) != writable) {
+        break;
+      }
+      Delay(4);
+      written += writable;
+      address += writable;
+      data += writable;
+      size -= writable;
+    }
+    return written;
+  }
 
-  static uint8_t Write(uint16_t address, const uint8_t* data, uint8_t size) {
+  static uint8_t WriteWithinBlock(
+      uint16_t address,
+      const uint8_t* data,
+      uint8_t size) {
     uint8_t header[2];
     if (auto_banking) {
       bank_ = (address / eeprom_size);
@@ -121,7 +146,7 @@ class ExternalEeprom {
       return Read(size, data);
     }
   }
-
+  
   static uint8_t Write(uint16_t address, uint8_t byte) {
     uint8_t data = byte;
     return Write(&data, 1);
@@ -164,8 +189,9 @@ class ExternalEeprom {
 
 /* static */
 template<uint16_t eeprom_size, typename Bus, uint8_t base_address,
-         bool auto_banking>
-uint8_t ExternalEeprom<eeprom_size, Bus, base_address, auto_banking>::bank_ = 0;
+         bool auto_banking, uint8_t block_size>
+uint8_t ExternalEeprom<eeprom_size, Bus, base_address,
+                       auto_banking, block_size>::bank_ = 0;
 
 }  // namespace hardware_hal
 

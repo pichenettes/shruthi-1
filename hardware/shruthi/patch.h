@@ -32,7 +32,10 @@ namespace hardware_shruthi {
 
 const uint8_t kPatchNameSize = 8;
 const uint8_t kModulationMatrixSize = 12;
-const uint8_t kPatchBankSize = 20;
+
+const uint8_t kInternalPatchBankSize = 20;
+const uint8_t kExternalPatchBankSize = 0 /* 80 */;
+const uint8_t kPatchBankSize = kInternalPatchBankSize + kExternalPatchBankSize;
 
 struct Modulation {
   uint8_t source;

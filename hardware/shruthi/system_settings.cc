@@ -27,18 +27,10 @@
 
 namespace hardware_shruthi {
 
-static const uint16_t kSystemSettingsOffset = sizeof(Patch) * kPatchBankSize + \
-    kSequenceSize * kSequenceBankSize;
-
 void SystemSettings::EepromSave() const {
-  
-  STATIC_ASSERT(
-      kSystemSettingsOffset + sizeof(SystemSettings) + 1 == \
-      hardware_hal::kEepromSize - 7);
-  
   uint8_t* data = (uint8_t *)(this);
   uint8_t checksum = 0;
-  uint8_t* destination = (uint8_t*)(kSystemSettingsOffset);
+  uint8_t* destination = (uint8_t*)(0);
   for (int16_t i = 0; i < sizeof(SystemSettings); ++i) {
     checksum += data[i];
   }
@@ -48,7 +40,7 @@ void SystemSettings::EepromSave() const {
 
 uint8_t SystemSettings::EepromLoad() {
   uint8_t buffer[sizeof(SystemSettings) + 1];
-  uint8_t* source = (uint8_t*)(kSystemSettingsOffset);
+  uint8_t* source = (uint8_t*)(0);
   uint8_t checksum = 0;
   eeprom_read_block(buffer, source, sizeof(SystemSettings) + 1);
   for (int16_t i = 0; i < sizeof(SystemSettings) + 1; ++i) {

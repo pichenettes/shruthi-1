@@ -31,6 +31,9 @@ using namespace hardware_utils_op;
 
 namespace hardware_shruthi {
 
+static const uint16_t kPatchInternalOffset = 16;
+static const uint16_t kPatchExternalOffset = 0;
+
 void Patch::Pack(uint8_t* patch_buffer) const {
   STATIC_ASSERT(kPatchSize == sizeof(Patch));
   
@@ -56,12 +59,12 @@ void Patch::Unpack(const uint8_t* patch_buffer) {
 
 void Patch::EepromSave(uint8_t slot) const {
   Pack(load_save_buffer_);
-  uint8_t* destination = (uint8_t*)(slot * sizeof(Patch));
+  uint8_t* destination = (uint8_t*)(kPatchInternalOffset + slot * sizeof(Patch));
   eeprom_write_block(load_save_buffer_, destination, sizeof(Patch));
 }
 
 void Patch::EepromLoad(uint8_t slot) {
-  uint8_t* source = (uint8_t*)(slot * sizeof(Patch));
+  uint8_t* source = (uint8_t*)(kPatchInternalOffset + slot * sizeof(Patch));
   eeprom_read_block(load_save_buffer_, source, sizeof(Patch));
   if (CheckBuffer()) {
     Unpack(load_save_buffer_);

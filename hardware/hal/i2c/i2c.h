@@ -105,6 +105,14 @@ class I2cMaster {
     state_ = I2C_STATE_READY;
     i2c_handler_ = &Handler;
   }
+  
+  static void Done() {
+    I2cInterrupt::clear();
+    I2cEnable::clear();
+    I2cAck::clear();
+    DigitalInput<16>::DisablePullUpResistor();
+    DigitalInput<17>::DisablePullUpResistor();
+  }
 
   static uint8_t Wait() {
     while (state_ != I2C_STATE_READY) { }

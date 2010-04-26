@@ -23,7 +23,10 @@
 
 namespace hardware_shruthi {
 
-const uint8_t kSequenceBankSize = 16;
+const uint8_t kInternalSequenceBankSize = 16;
+const uint8_t kExternalSequenceBankSize = 0 /* 64 */;
+const uint8_t kSequenceBankSize = kInternalSequenceBankSize + \
+    kExternalSequenceBankSize;
 
 enum SequencerMode {
   SEQUENCER_MODE_STEP,

@@ -198,6 +198,9 @@ struct DigitalInput {
   static void EnablePullUpResistor() {
     Gpio<pin>::High();
   }
+  static void DisablePullUpResistor() {
+    Gpio<pin>::Low();
+  }
   static uint8_t Read() {
     return Gpio<pin>::value();
   }

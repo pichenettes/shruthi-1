@@ -38,7 +38,7 @@ int main(void) {
     buffer[i] = i + 100;
   }
 
-  eeprom.Write(0x20, buffer, 32);
+  eeprom.WriteWithinBlock(0x20, buffer, 32);
   debug_output << "Written" << endl;
   Delay(4);  // Write/read cycles delay.
 

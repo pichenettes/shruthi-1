@@ -31,12 +31,15 @@ using namespace hardware_resources;
 
 namespace hardware_shruthi {
 
-static const uint16_t kSequencerSettingsOffset = sizeof(Patch) * kPatchBankSize;
+static const uint16_t kSequencerSettingsInternalOffset = 16 + \
+    sizeof(Patch) * kInternalPatchBankSize;
+static const uint16_t kSequencerSettingsExternalOffset = \
+    sizeof(Patch) * kExternalPatchBankSize;
 
 void SequencerSettings::EepromSave(uint8_t slot) {
   uint8_t* data = (uint8_t *)(steps);
   uint8_t* destination = (uint8_t*)(
-      kSequencerSettingsOffset + slot * kSequenceSize);
+      kSequencerSettingsInternalOffset + slot * kSequenceSize);
   // Clear all the notes after the cycle mark.
   for (uint8_t i = pattern_size; i < kNumSteps; ++i) {
     steps[i].clear();
@@ -45,7 +48,8 @@ void SequencerSettings::EepromSave(uint8_t slot) {
 }
 
 void SequencerSettings::EepromLoad(uint8_t slot) {
-  uint8_t* source = (uint8_t*)(kSequencerSettingsOffset + slot * kSequenceSize);
+  uint8_t* source = (uint8_t*)(
+      kSequencerSettingsInternalOffset + slot * kSequenceSize);
   uint8_t* data = (uint8_t *)(steps);
   eeprom_read_block(data, source, kSequenceSize);
   pattern_size = kNumSteps;
