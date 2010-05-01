@@ -234,7 +234,7 @@ class Oscillator {
   }
   
   static void RenderSilence() {
-    held_sample_ = 0;  // No PWM meanies
+    held_sample_ = 128;
   }
 
   // ------- Band-limited PWM --------------------------------------------------

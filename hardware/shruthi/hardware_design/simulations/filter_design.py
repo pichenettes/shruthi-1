@@ -33,7 +33,7 @@ num_poles = 4
 # Voltage divider resistors in filter stages.
 r_small = 220.0
 r_big = 10 * k
-input_range = 20 * m  #pp
+input_range = 25 * m * 2  #pp. x2 because the first stage has a higher R.
 
 # Experimental, not from the datasheet
 tl084_clipping = (7.6 / 8.0) * (vcc - 6) + 4.8
@@ -48,8 +48,8 @@ r_current_clip = 2.2 * k
 
 # Resistors in the audio op-amp gain scaling stage.
 r_audio_input = 100 * k
-r_audio_feedback = 22.0 * k
-c_audio_input = 1.0 * u
+r_audio_feedback = 47.0 * k
+c_audio_input = 4.7 * u
 
 # Resistor and caps in the cutoff scaling stage.
 r_cutoff_cv_input = 33.00 * k
@@ -91,6 +91,7 @@ print 'Expected control current range:', i_min, i_max
 
 # Check that the control current is within limits.
 print 'Checking current...'
+print i_max, i_min
 assert i_max < 0.5 * m
 assert i_min > 0.05 * u
 
@@ -104,8 +105,10 @@ assert Cutoff(max_current) < 25000
 # Check that the resistors around the audio op amp are reasonably sized
 print 'Checking audio op amp gain...'
 ideal_input_op_amp_gain = (input_range / r_input) / dvcc
+print ideal_input_op_amp_gain
+print audio_op_amp_gain
 assert Near(audio_op_amp_gain, ideal_input_op_amp_gain, tolerance=1.2)
-assert Near(RcCutoff(r_audio_input, c_audio_input), 1.0, tolerance=10)
+assert Near(RcCutoff(r_audio_input, c_audio_input), 1.0, tolerance=5.0)
 
 # Check that the PWM crap is filtered from the cutoff CV
 assert Near(RcCutoff(r_cutoff_feedback, c_cutoff_feedback), 1000, tolerance=1.5)

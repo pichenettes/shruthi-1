@@ -387,7 +387,7 @@ void VoiceController::StopAndKillNotes() {
   active_ = 0;
   inactive_steps_ = 0;
   notes_.Clear();
-  voices_[0].Release();
+  voices_[0].Kill();
   adding_notes_to_latched_arpeggio_ = 0;
 }
 
