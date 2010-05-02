@@ -15,20 +15,15 @@
 
 #include "hardware/hal/gpio.h"
 #include "hardware/hal/init_atmega.h"
-#include "hardware/hal/parallel_io.h"
 #include "hardware/hal/time.h"
 
 using namespace hardware_hal;
 
 Gpio<21> led;
 
-ParallelPort<PortC, PARALLEL_NIBBLE_LOW> port;
-
 int main(void) {
   InitAtmega(false);
   led.set_mode(DIGITAL_OUTPUT);
-  port.set_mode(DIGITAL_OUTPUT);
-  port.Write(5);
   while (1) {
     led.High();
     Delay(250);
