@@ -33,10 +33,6 @@ namespace hardware_shruthi {
 const uint8_t kPatchNameSize = 8;
 const uint8_t kModulationMatrixSize = 12;
 
-const uint8_t kInternalPatchBankSize = 20;
-const uint8_t kExternalPatchBankSize = 0 /* 80 */;
-const uint8_t kPatchBankSize = kInternalPatchBankSize + kExternalPatchBankSize;
-
 struct Modulation {
   uint8_t source;
   uint8_t destination;
@@ -46,15 +42,6 @@ struct Modulation {
 union ModulationMatrix {
   Modulation modulation[kModulationMatrixSize];
   uint8_t raw_modulation_data[kModulationMatrixSize * 3];
-};
-
-enum SysExReceptionState {
-  RECEIVING_HEADER = 0,
-  RECEIVING_DATA = 1,
-  RECEIVING_FOOTER = 2,
-
-  RECEPTION_OK = 3,
-  RECEPTION_ERROR = 4,
 };
 
 enum MidiOutMode {
@@ -86,8 +73,6 @@ struct LfoSettings {
   uint8_t retrigger_mode;
 };
 
-const uint8_t kPatchSize = 76;
-
 class Patch {
  public:
   // Offset: 0-8
@@ -115,33 +100,19 @@ class Patch {
   ModulationMatrix modulation_matrix;
   // Offset: 68-76
   uint8_t name[kPatchNameSize];
-
-  void EepromSave(uint8_t slot) const;
-  void EepromLoad(uint8_t slot);
-  void SysExSend() const;
-  void SysExReceive(uint8_t sysex_byte);
-  void Backup() const;
-  void Restore();
-
-  inline uint8_t sysex_reception_state() const {
-    return sysex_reception_state_;
+  
+  uint8_t* saved_data() { return (uint8_t*)(this); }
+  void PrepareForWrite() { return; }
+  uint8_t CheckBuffer(uint8_t* buffer) {
+    for (uint8_t i = 8; i < 32; ++i) {
+      if (buffer[i] >= 128) {
+        name[0] = '?';
+        return 0;
+      }
+    }
+    return 1;
   }
-
- private:
-  static uint8_t CheckBuffer() __attribute__((noinline));
-  void Pack(uint8_t* patch_buffer) const;
-  void Unpack(const uint8_t* patch_buffer);
-
-  // Buffer in which the patch is compressed for load/save operations. The last
-  // byte is for the checksum added to the stream during sysex dumps.
-  static uint8_t load_save_buffer_[kPatchSize + 1];
-  // Buffer used to allow the user to undo the loading of a patch (similar to
-  // the "compare" function on some synths).
-  static uint8_t undo_buffer_[kPatchSize];
-
-  static uint8_t sysex_bytes_received_;
-  static uint8_t sysex_reception_state_;
-  static uint8_t sysex_reception_checksum_;
+  void Update() { }
 };
 
 static const uint8_t kNumModulationSources = 21;

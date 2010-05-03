@@ -29,7 +29,7 @@ F_CPU          = 20000000
 
 LFUSE          = FF
 # Set to DC to enable bootloader
-HFUSE          = DC
+HFUSE          = D4
 EFUSE          = FD
 
 # ------------------------------------------------------------------------------

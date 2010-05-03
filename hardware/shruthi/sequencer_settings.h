@@ -23,11 +23,6 @@
 
 namespace hardware_shruthi {
 
-const uint8_t kInternalSequenceBankSize = 16;
-const uint8_t kExternalSequenceBankSize = 0 /* 64 */;
-const uint8_t kSequenceBankSize = kInternalSequenceBankSize + \
-    kExternalSequenceBankSize;
-
 enum SequencerMode {
   SEQUENCER_MODE_STEP,
   SEQUENCER_MODE_ARP,
@@ -112,6 +107,10 @@ class SequenceStep {
       }
     }
   }
+  void set_raw(uint8_t a, uint8_t b) {
+    data_[0] = a;
+    data_[0] = b;
+  }
   
   uint8_t gate() const {
     return data_[0] & 0x80;
@@ -172,18 +171,21 @@ struct SequencerSettings {
   uint8_t pattern_size;
   SequenceStep steps[kNumSteps];
   
-  
-  void EepromSave(uint8_t slot);
-  void EepromLoad(uint8_t slot);
-  void Backup() const;
-  void Restore();
   void PrintStep(uint8_t step, char* buffer) const;
   
- private:
-  static uint8_t undo_buffer_[sizeof(SequenceStep) * kNumSteps];
+  uint8_t* saved_data() { return (uint8_t*)(&steps[0]); }
+  void PrepareForWrite();
+  uint8_t CheckBuffer(uint8_t* buffer) { return 1; }
+  void Update() {
+    pattern_size = kNumSteps;
+    for (uint8_t i = 0; i < kNumSteps; ++i) {
+      if (steps[i].blank()) {
+        pattern_size = i;
+        break;
+      }
+    }
+  }
 };
-
-static const uint8_t kSequenceSize = sizeof(SequenceStep) * kNumSteps;
 
 enum SequencerParameter {
   PRM_SEQ_MODE = sizeof(Patch),

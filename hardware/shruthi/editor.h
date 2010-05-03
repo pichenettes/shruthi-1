@@ -240,9 +240,11 @@ class Editor {
   static void EnterLoadSaveMode();
   static void HandleLoadSaveIncrement(int8_t direction);
   
-  static void DumpCurrentPatch();
   static void LoadPatch(uint8_t index);
   static void LoadSequence(uint8_t index);
+  static void RandomizeParameter(uint8_t subpage, uint8_t parameter_index);
+  static void RandomizePatch();
+  static void RandomizeSequence();
 
   static const ParameterDefinition& parameter_definition(uint8_t index);
 

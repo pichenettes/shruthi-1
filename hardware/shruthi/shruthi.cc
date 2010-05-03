@@ -28,6 +28,7 @@
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/editor.h"
 #include "hardware/shruthi/midi_out_filter.h"
+#include "hardware/shruthi/storage.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/output_stream.h"
 #include "hardware/utils/task.h"
@@ -233,7 +234,7 @@ void MidiTask() {
       case 0xf0:
         // Display a status indicator to monitor SysEx patch reception.
         if (status == 0xf0 || status == 0xf7) {
-          switch (engine.patch().sysex_reception_state()) {
+          switch (Storage::sysex_rx_state()) {
             case RECEIVING_DATA:
               display.set_status('~');
               break;

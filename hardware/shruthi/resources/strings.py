@@ -246,8 +246,6 @@ kbd
 
 touch a knob to
 assign parameter
-ready
-for os update
 patches
 sequences
 system settings

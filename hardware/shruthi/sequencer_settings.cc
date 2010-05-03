@@ -19,7 +19,6 @@
 
 #include "hardware/shruthi/sequencer_settings.h"
 
-#include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <string.h>
 
@@ -31,46 +30,15 @@ using namespace hardware_resources;
 
 namespace hardware_shruthi {
 
-static const uint16_t kSequencerSettingsInternalOffset = 16 + \
-    sizeof(Patch) * kInternalPatchBankSize;
-static const uint16_t kSequencerSettingsExternalOffset = \
-    sizeof(Patch) * kExternalPatchBankSize;
+static const prog_char note_names[] PROGMEM = " CC# DD# E FF# GG# AA# B";
+static const prog_char octaves[] PROGMEM = "_-01234567";
 
-void SequencerSettings::EepromSave(uint8_t slot) {
-  uint8_t* data = (uint8_t *)(steps);
-  uint8_t* destination = (uint8_t*)(
-      kSequencerSettingsInternalOffset + slot * kSequenceSize);
+void SequencerSettings::PrepareForWrite() {
   // Clear all the notes after the cycle mark.
   for (uint8_t i = pattern_size; i < kNumSteps; ++i) {
     steps[i].clear();
   }
-  eeprom_write_block(data, destination, kSequenceSize);
 }
-
-void SequencerSettings::EepromLoad(uint8_t slot) {
-  uint8_t* source = (uint8_t*)(
-      kSequencerSettingsInternalOffset + slot * kSequenceSize);
-  uint8_t* data = (uint8_t *)(steps);
-  eeprom_read_block(data, source, kSequenceSize);
-  pattern_size = kNumSteps;
-  for (uint8_t i = 0; i < kNumSteps; ++i) {
-    if (steps[i].blank()) {
-      pattern_size = i;
-      break;
-    }
-  }
-}
-
-void SequencerSettings::Backup() const {
-  memcpy(undo_buffer_, steps, sizeof(SequenceStep) * kNumSteps);
-}
-
-void SequencerSettings::Restore() {
-  memcpy(steps, undo_buffer_, sizeof(SequenceStep) * kNumSteps);
-}
-
-static const prog_char note_names[] PROGMEM = " CC# DD# E FF# GG# AA# B";
-static const prog_char octaves[] PROGMEM = "_-01234567";
 
 void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
   buffer[1] = 0x7c;
@@ -97,8 +65,5 @@ void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
   buffer[13] = NibbleToAscii(steps[step].controller()),
   buffer[15] = 0x7c;
 }
-
-/* static */
-uint8_t SequencerSettings::undo_buffer_[sizeof(SequenceStep) * kNumSteps];
 
 }  // hardware_shruthi

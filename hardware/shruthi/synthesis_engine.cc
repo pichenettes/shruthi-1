@@ -23,6 +23,7 @@
 
 #include "hardware/resources/resources_manager.h"
 #include "hardware/shruthi/oscillator.h"
+#include "hardware/shruthi/storage.h"
 #include "hardware/utils/random.h"
 #include "hardware/utils/op.h"
 
@@ -264,17 +265,17 @@ void SynthesisEngine::OmniModeOn(uint8_t channel) {
 
 /* static */
 void SynthesisEngine::SysExStart() {
-  patch_.SysExReceive(0xf0);
+  Storage::SysExReceive(0xf0);
 }
 
 /* static */
 void SynthesisEngine::SysExByte(uint8_t sysex_byte) {
-  patch_.SysExReceive(sysex_byte);
+  Storage::SysExReceive(sysex_byte);
 }
 
 /* static */
 void SynthesisEngine::SysExEnd() {
-  patch_.SysExReceive(0xf7);
+  Storage::SysExReceive(0xf7);
 }
 
 /* static */

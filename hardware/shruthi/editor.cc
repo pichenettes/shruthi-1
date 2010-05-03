@@ -25,6 +25,7 @@
 #include "hardware/hal/devices/switch_array.h"
 #include "hardware/hal/watchdog_timer.h"
 #include "hardware/shruthi/display.h"
+#include "hardware/shruthi/storage.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/string.h"
 
@@ -516,6 +517,43 @@ void Editor::Relax() {
 }
 
 /* static */
+void Editor::RandomizeParameter(uint8_t subpage, uint8_t parameter_index) {
+  const ParameterDefinition& parameter = parameter_definition(parameter_index);
+  uint8_t range = parameter.max_value - parameter.min_value + 1;
+  uint8_t value = Random::GetByte();
+  while (value >= range) {
+    value -= range;
+  }
+  value += parameter.min_value;
+  engine.SetParameter(parameter.id + subpage * 3, value);
+}
+
+/* static */
+void Editor::RandomizePatch() {
+  // Randomize all the main parameters
+  for (uint8_t parameter = 0; parameter < 32; ++parameter) {
+    RandomizeParameter(0, parameter);
+  }
+  for (uint8_t slot = 0; slot < kModulationMatrixSize; ++slot) {
+    for (uint8_t parameter = 33; parameter < 36; ++parameter) {
+      RandomizeParameter(slot, parameter);
+    }
+  }
+}
+
+/* static */
+void Editor::RandomizeSequence() {
+  for (uint8_t i = 0; i < kNumSteps; ++i) {
+    SequencerSettings* settings = engine.mutable_sequencer_settings();
+    settings->steps[i].set_raw(
+        Random::GetByte(),
+        Random::GetByte());
+    settings->steps[i].set_note(
+        (settings->steps[i].note() & 0x3f) + 0x20);
+  }
+}
+
+/* static */
 void Editor::HandleKeyEvent(const KeyEvent& event) {
   if (event.shifted) {
     switch (event.id) {
@@ -532,17 +570,24 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
 
       case GROUP_FILTER:
         display.set_status('?');
-        // TODO(pichenettes): random patch/sequence
+        if (subpage_ == LOAD_SAVE_PATCH) {
+          RandomizePatch();
+        } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+          RandomizeSequence();
+        }
         break;
 
       case GROUP_MOD:
         display.set_status('>');
-        engine.patch().SysExSend();
+        if (subpage_ == LOAD_SAVE_PATCH) {
+          Storage::SysExDump(engine.mutable_patch());
+        } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+          Storage::SysExDump(engine.mutable_sequencer_settings());
+        }
         break;
 
-      case GROUP_SYS:
-        DisplaySplashScreen(STR_RES_READY);
-        SystemReset(WDTO_500MS);
+      case GROUP_SEQUENCER:
+        // TODO(pichenettes): BIG DUMP
         break;
     }
   } else if (event.hold_time >= 3) {
@@ -557,7 +602,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         break;
 
       case GROUP_FILTER:
-        if (current_page_ <= PAGE_SYS_KBD) {
+        if (current_page_ <= PAGE_MOD_MATRIX) {
           parameter_to_assign_.id = page_definition_[
               current_page_].first_parameter_index + cursor_;
           parameter_to_assign_.subpage = subpage_;
@@ -616,11 +661,12 @@ void Editor::EnterLoadSaveMode() {
       display.set_status('w');
       switch (subpage_) {
         case LOAD_SAVE_PATCH:
-          engine.mutable_patch()->EepromSave(current_patch_number_);
+          Storage::Write(engine.mutable_patch(), current_patch_number_);
           break;
       
         case LOAD_SAVE_SEQUENCE:
-          engine.mutable_sequencer_settings()->EepromSave(current_sequence_number_);
+          Storage::Write(engine.mutable_sequencer_settings(),
+                         current_sequence_number_);
           break;
         
         case LOAD_SAVE_SYSTEM_SETTINGS:
@@ -634,13 +680,13 @@ void Editor::EnterLoadSaveMode() {
     if (current_page_ <= PAGE_MOD_MATRIX) {
       subpage_ = LOAD_SAVE_PATCH;
       previous_patch_number_ = current_patch_number_;
-      engine.mutable_patch()->Backup();
+      Storage::Backup(engine.mutable_patch());
     } else if (current_page_ >= PAGE_SYS_KBD) {
       subpage_ = LOAD_SAVE_SYSTEM_SETTINGS;
     } else {
       subpage_ = LOAD_SAVE_SEQUENCE;
       previous_sequence_number_ = current_sequence_number_;
-      engine.mutable_sequencer_settings()->Backup();
+      Storage::Backup(engine.mutable_sequencer_settings());      
     }
   }
   current_page_ = PAGE_LOAD_SAVE;
@@ -650,7 +696,7 @@ void Editor::EnterLoadSaveMode() {
 /* static */
 void Editor::LoadPatch(uint8_t index) {
   if (index != current_patch_number_ && action_ == ACTION_LOAD) {
-    engine.mutable_patch()->EepromLoad(index);
+    Storage::Load(engine.mutable_patch(), index);
     engine.TouchPatch();
   }
   if (action_ != ACTION_EXIT) {
@@ -661,7 +707,7 @@ void Editor::LoadPatch(uint8_t index) {
 /* static */
 void Editor::LoadSequence(uint8_t index) {
   if (index != current_sequence_number_ && action_ == ACTION_LOAD) {
-    engine.mutable_sequencer_settings()->EepromLoad(index);
+    Storage::Load(engine.mutable_sequencer_settings(), index);
     engine.TouchSequence();
   }
   if (action_ != ACTION_EXIT) {
@@ -674,9 +720,9 @@ void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
   switch (knob_index) {
     case 0:
       if (subpage_ == LOAD_SAVE_PATCH) {
-        LoadPatch(value * kPatchBankSize / 1024);
+        LoadPatch(value * Storage::size<Patch>() / 1024);
       } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
-        LoadSequence(value * kSequenceBankSize / 1024);
+        LoadSequence(value * Storage::size<SequencerSettings>() / 1024);
       }
       break;
     case 1:
@@ -697,11 +743,11 @@ void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
         if (action_ == ACTION_LOAD) {
           if (subpage_ == LOAD_SAVE_PATCH) {
             current_patch_number_ = previous_patch_number_;
-            engine.mutable_patch()->Restore();
+            Storage::Restore(engine.mutable_patch());
             engine.TouchPatch();
           } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
             current_sequence_number_ = previous_sequence_number_;
-            engine.mutable_sequencer_settings()->Restore();
+            Storage::Restore(engine.mutable_sequencer_settings());
             engine.TouchSequence();
           }
         }
@@ -729,12 +775,14 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
   } else {
     if (subpage_ == LOAD_SAVE_PATCH) {
       int8_t patch_number = static_cast<int8_t>(current_patch_number_) + direction;
-      if (patch_number >= 0 && patch_number < kPatchBankSize) {
+      if (patch_number >= 0 &&
+          patch_number < Storage::size<Patch>()) {
         LoadPatch(patch_number);
       }
     } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
       int8_t sequence_number = static_cast<int8_t>(current_sequence_number_) + direction;
-      if (sequence_number >= 0 && sequence_number < kSequenceBankSize) {
+      if (sequence_number >= 0 &&
+          sequence_number < Storage::size<SequencerSettings>()) {
         LoadSequence(sequence_number);
       }
     }

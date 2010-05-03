@@ -33,6 +33,13 @@ void Envelope::Init() {
 }
 
 void Envelope::Trigger(uint8_t stage) {
+  // When the envelope has reached the end of its cycle, it can only be
+  // retriggered as an attack. This ensures that a sequencer-initiated request
+  // for a release only releases legit triggered notes, and do not resurect dead
+  // notes -- which would otherwise result in annoying Zombie clicks.
+  if (stage_ == DEAD && stage == RELEASE_1) {
+    return;
+  }
   stage_ = stage;
   // The note might be released at any moment, so we need to figure out
   // the right slope to make it reach 0 within the release time.
