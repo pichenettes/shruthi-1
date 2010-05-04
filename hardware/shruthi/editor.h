@@ -31,17 +31,33 @@ namespace hardware_hal {
 namespace hardware_shruthi {
 
 enum EditorMode {
-  EDITOR_MODE_OVERVIEW,
-  EDITOR_MODE_EDIT
+  EDITOR_MODE_PATCH,
+  EDITOR_MODE_SEQUENCE,
+  EDITOR_MODE_PERFORMANCE,
+};
+
+enum DisplayMode {
+  // Show the parameter names.
+  DISPLAY_MODE_OVERVIEW = 0,
+  // Show a single parameter without pesky acronyms.
+  DISPLAY_MODE_EDIT = 1,
+  // Show a single parameter without pesky acronyms, and revert to overview
+  // mode after a while
+  DISPLAY_MODE_EDIT_TEMPORARY = 2,
 };
 
 enum Group {
-  GROUP_LOAD_SAVE,
-  GROUP_SYS,
-  GROUP_SEQUENCER,
-  GROUP_MOD,
-  GROUP_FILTER,
   GROUP_OSC,
+  GROUP_FILTER,
+  GROUP_MOD_SOURCES,
+  GROUP_MOD_MATRIX,
+  
+  GROUP_SEQUENCER_ARPEGGIATOR,
+  GROUP_SEQUENCER_TRACKER,
+  GROUP_SEQUENCER_STEPS,
+  GROUP_SYS,
+
+  GROUP_LOAD_SAVE,
   GROUP_PERFORMANCE,
 };
 
@@ -92,7 +108,7 @@ enum Unit {
   UNIT_MIDI_MODE,
   UNIT_SEQUENCER_MODE,
   UNIT_SEQUENCER_FLOW,
-  UNIT_ARPEGGIO_VELOCITY_SOURCE,
+  UNIT_GROOVE_TEMPLATE,
   UNIT_ARPEGGIO_PATTERN,
   UNIT_LFO_RETRIGGER_MODE
 };
@@ -194,6 +210,7 @@ class Editor {
   static void DisplaySplashScreen(ResourceId first_line);
 
   static inline ParameterPage current_page() { return current_page_; }
+  static inline uint8_t current_mode() { return editor_mode_; }
   static inline uint8_t leds_pattern() {
     return page_definition_[current_page_].leds_pattern;
   }
@@ -212,7 +229,7 @@ class Editor {
   // touching knob #knob_index.
   static uint8_t KnobIndexToParameterId(uint8_t knob_index);
 
-  static void ToggleGroup(uint8_t id);
+  static void JumpToPageGroup(uint8_t id);
 
   // Output and Input handling for all the different category of pages.
   static void DisplayEditOverviewPage();
@@ -258,7 +275,9 @@ class Editor {
 
   static ParameterPage current_page_;
   static ParameterPage last_visited_page_[kNumGroups];
-  static uint8_t mode_;
+  static uint8_t last_visited_group_[3];
+  static uint8_t display_mode_;
+  static uint8_t editor_mode_;
   static uint8_t cursor_;
   static uint8_t last_visited_subpage_;
 

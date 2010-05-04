@@ -376,3 +376,34 @@ lookup_tables.append(
 
 lookup_tables.append(
     ('turbo_tempi', [270, 300, 330, 360, 420, 480, 600, 720, 960]))
+
+
+"""----------------------------------------------------------------------------
+Groove templates
+----------------------------------------------------------------------------"""
+
+def ConvertGrooveTemplate(values):
+  # Center
+  values = numpy.array(values)
+  values -= values.mean()
+  # Scale
+  scale = numpy.abs(values).max() / 127.0
+  values /= scale
+  values = values.astype(int)
+  # Fix rounding error
+  values[8] -= values.sum()
+  return values
+
+lookup_tables.extend([
+    ('groove_swing', ConvertGrooveTemplate(
+      [1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1])),
+    ('groove_shuffle', ConvertGrooveTemplate(
+      [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1])),
+    ('groove_push', ConvertGrooveTemplate(
+      [-0.5, -0.5, 1, 0, -1, 0, 0, 0.7, 0, 0, 0.7, -0.4, -0.7, 0, 0.7, 0.0])),
+    ('groove_lag', ConvertGrooveTemplate(
+      [0.1, 0.2, 0.4, 0, 0.15, -0.2, -0.35, -0.5,
+       0.5, 0.15, -0.4, -0.2, 0.45, -0.2, 0.4, -0.2])),
+    ('groove_human', ConvertGrooveTemplate(
+      [0.7, -0.8, 0.85, -0.75, 0.7, -0.7,  0.4, -0.3,
+       0.5, -0.7, 0.8, -0.75, 0.8, -1, 0.5, -0.25]))])

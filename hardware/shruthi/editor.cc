@@ -58,7 +58,7 @@ static const prog_char units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
   STR_RES__OFF,
   STR_RES_STP,
   STR_RES_T,
-  STR_RES_KBD,
+  STR_RES_SWING,
   0,
   STR_RES_FREE
 };
@@ -269,15 +269,15 @@ static const prog_char raw_parameter_definition[
   UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
   STR_RES_BPM, STR_RES_TEMPO,
   
-  PRM_SEQ_SWING,
+  PRM_SEQ_GROOVE_TEMPLATE,
+  0, STR_RES_HUMAN - STR_RES_SWING,
+  UNIT_GROOVE_TEMPLATE,
+  STR_RES_GROOVE, STR_RES_GROOVE,
+  
+  PRM_SEQ_GROOVE_AMOUNT,
   0, 127, 
   UNIT_RAW_UINT8,
-  STR_RES_SWG, STR_RES_SWING,
-  
-  PRM_SEQ_FLOW,
-  FLOW_NORMAL, FLOW_GHANA_4,
-  UNIT_SEQUENCER_FLOW,
-  STR_RES_FLOW, STR_RES_FLOW,
+  STR_RES_AMOUNT, STR_RES_AMOUNT,
   
   // Arpeggiator.
   PRM_ARP_DIRECTION,
@@ -295,11 +295,11 @@ static const prog_char raw_parameter_definition[
   UNIT_ARPEGGIO_PATTERN,
   STR_RES_PATTERN, STR_RES_PATTERN,
   
-  PRM_ARP_VELOCITY_SOURCE,
-  ARPEGGIO_VELOCITY_SOURCE_KEYBOARD, ARPEGGIO_VELOCITY_SOURCE_SEQUENCE,
-  UNIT_ARPEGGIO_VELOCITY_SOURCE,
-  STR_RES_VELO, STR_RES_VELO,
-
+  PRM_ARP_FLOW,
+  FLOW_NORMAL, FLOW_GHANA_4,
+  UNIT_SEQUENCER_FLOW,
+  STR_RES_FLOW, STR_RES_FLOW,
+  
   // Keyboard and system settings.
   PRM_SYS_OCTAVE,
   -2, +2,
@@ -359,67 +359,67 @@ const UiHandler Editor::ui_handler_[] = {
 const PageDefinition Editor::page_definition_[] = {
   /* PAGE_OSC_OSC_1 */ { PAGE_OSC_OSC_2, GROUP_OSC,
     PAGE_MOD_MATRIX, PAGE_OSC_OSC_2,
-    STR_RES_OSCILLATOR_1, PARAMETER_EDITOR, 0, LED_OSC_1_MASK },
+    STR_RES_OSCILLATOR_1, PARAMETER_EDITOR, 0, LED_1_MASK },
 
   /* PAGE_OSC_OSC_2 */ { PAGE_OSC_OSC_MIX, GROUP_OSC,
     PAGE_OSC_OSC_1, PAGE_OSC_OSC_MIX,
-    STR_RES_OSCILLATOR_2, PARAMETER_EDITOR, 4, LED_OSC_2_MASK },
+    STR_RES_OSCILLATOR_2, PARAMETER_EDITOR, 4, LED_2_MASK },
 
   /* PAGE_OSC_OSC_MIX */ { PAGE_OSC_OSC_1, GROUP_OSC,
     PAGE_OSC_OSC_2, PAGE_FILTER_FILTER,
-    STR_RES_MIXER, PARAMETER_EDITOR, 8, LED_OSC_1_MASK | LED_OSC_2_MASK },
+    STR_RES_MIXER, PARAMETER_EDITOR, 8, LED_1_MASK | LED_2_MASK },
 
   /* PAGE_FILTER_FILTER */ { PAGE_FILTER_FILTER, GROUP_FILTER,
     PAGE_OSC_OSC_MIX, PAGE_MOD_ENV_1,
-    STR_RES_FILTER, PARAMETER_EDITOR, 12, LED_FILTER_MASK },
+    STR_RES_FILTER, PARAMETER_EDITOR, 12, LED_3_MASK },
 
-  /* PAGE_MOD_ENV_1 */ { PAGE_MOD_ENV_2, GROUP_MOD,
+  /* PAGE_MOD_ENV_1 */ { PAGE_MOD_ENV_2, GROUP_MOD_SOURCES,
     PAGE_FILTER_FILTER, PAGE_MOD_ENV_2,
-    STR_RES_ENVELOPE_1, PARAMETER_EDITOR, 16, LED_MOD_1_MASK },
+    STR_RES_ENVELOPE_1, PARAMETER_EDITOR, 16, LED_4_MASK },
 
-  /* PAGE_MOD_ENV_2 */ { PAGE_MOD_LFO_1, GROUP_MOD,
+  /* PAGE_MOD_ENV_2 */ { PAGE_MOD_LFO_1, GROUP_MOD_SOURCES,
     PAGE_MOD_ENV_1, PAGE_MOD_LFO_1,
-    STR_RES_ENVELOPE_2, PARAMETER_EDITOR, 20, LED_MOD_2_MASK },
+    STR_RES_ENVELOPE_2, PARAMETER_EDITOR, 20, LED_5_MASK },
 
-  /* PAGE_MOD_LFO_1 */ { PAGE_MOD_LFO_2, GROUP_MOD,
+  /* PAGE_MOD_LFO_1 */ { PAGE_MOD_LFO_2, GROUP_MOD_SOURCES,
     PAGE_MOD_ENV_2, PAGE_MOD_LFO_2,
-    STR_RES_LFO_1, PARAMETER_EDITOR, 24, LED_MOD_1_MASK },
+    STR_RES_LFO_1, PARAMETER_EDITOR, 24, LED_4_MASK },
 
-  /* PAGE_MOD_LFO_2 */ { PAGE_MOD_MATRIX, GROUP_MOD,
+  /* PAGE_MOD_LFO_2 */ { PAGE_MOD_ENV_1, GROUP_MOD_SOURCES,
     PAGE_MOD_LFO_1, PAGE_MOD_MATRIX,
-    STR_RES_LFO_2, PARAMETER_EDITOR, 28, LED_MOD_2_MASK },
+    STR_RES_LFO_2, PARAMETER_EDITOR, 28, LED_5_MASK },
 
-  /* PAGE_MOD_MATRIX */ { PAGE_MOD_ENV_1, GROUP_MOD,
+  /* PAGE_MOD_MATRIX */ { PAGE_MOD_MATRIX, GROUP_MOD_MATRIX,
     PAGE_MOD_LFO_2, PAGE_OSC_OSC_1,
-    STR_RES_MODULATION, PARAMETER_EDITOR, 32, LED_MOD_1_MASK | LED_MOD_2_MASK },
+    STR_RES_MODULATION, PARAMETER_EDITOR, 32, 0 },
 
-  /* PAGE_SEQ_SEQUENCER */ { PAGE_SEQ_ARPEGGIATOR, GROUP_SEQUENCER,
+  /* PAGE_SEQ_SEQUENCER */ { PAGE_SEQ_ARPEGGIATOR, GROUP_SEQUENCER_ARPEGGIATOR,
     PAGE_SEQ_CONTROLLER, PAGE_SEQ_ARPEGGIATOR,
-    STR_RES_SEQUENCER, PARAMETER_EDITOR, 36, LED_SEQUENCER_MASK },
+    STR_RES_SEQUENCER, PARAMETER_EDITOR, 36, LED_1_MASK },
 
-  /* PAGE_SEQ_ARPEGGIATOR */ { PAGE_SEQ_TRACKER, GROUP_SEQUENCER,
+  /* PAGE_SEQ_ARPEGGIATOR */ { PAGE_SEQ_SEQUENCER, GROUP_SEQUENCER_ARPEGGIATOR,
     PAGE_SEQ_SEQUENCER, PAGE_SEQ_TRACKER,
-    STR_RES_ARPEGGIO, PARAMETER_EDITOR, 40, LED_SEQUENCER_MASK },
+    STR_RES_ARPEGGIO, PARAMETER_EDITOR, 40, LED_2_MASK },
 
-  /* PAGE_SEQ_TRACKER */ { PAGE_SEQ_RHYTHM, GROUP_SEQUENCER,
+  /* PAGE_SEQ_TRACKER */ { PAGE_SEQ_TRACKER, GROUP_SEQUENCER_TRACKER,
     PAGE_SEQ_ARPEGGIATOR, PAGE_SEQ_RHYTHM,
-    STR_RES_STEP_SEQUENCER, TRACKER_EDITOR, 0, LED_SEQUENCER_MASK },
+    STR_RES_STEP_SEQUENCER, TRACKER_EDITOR, 0, LED_3_MASK },
 
-  /* PAGE_SEQ_RHYTHM */ { PAGE_SEQ_CONTROLLER, GROUP_SEQUENCER,
+  /* PAGE_SEQ_RHYTHM */ { PAGE_SEQ_CONTROLLER, GROUP_SEQUENCER_STEPS,
     PAGE_SEQ_TRACKER, PAGE_SEQ_CONTROLLER,
-    STR_RES_STEP_SEQUENCER, PAGE_R_EDITOR, 0, LED_SEQUENCER_MASK },
+    STR_RES_STEP_SEQUENCER, PAGE_R_EDITOR, 0, LED_4_MASK },
 
-  /* PAGE_SEQ_CONTROLLER */ { PAGE_SEQ_SEQUENCER, GROUP_SEQUENCER,
+  /* PAGE_SEQ_CONTROLLER */ { PAGE_SEQ_RHYTHM, GROUP_SEQUENCER_STEPS,
     PAGE_SEQ_RHYTHM, PAGE_SEQ_SEQUENCER,
-    STR_RES_STEP_SEQUENCER, STEP_SEQUENCER, 0, LED_SEQUENCER_MASK },
+    STR_RES_STEP_SEQUENCER, STEP_SEQUENCER, 0, LED_5_MASK },
 
   /* PAGE_SYS_KBD */ { PAGE_SYS_MIDI, GROUP_SYS,
     PAGE_SYS_MIDI, PAGE_SYS_MIDI,
-    STR_RES_KEYBOARD, PARAMETER_EDITOR, 44, LED_SYS_MASK },
+    STR_RES_KEYBOARD, PARAMETER_EDITOR, 44, LED_6_MASK },
 
   /* PAGE_SYS_MIDI */ { PAGE_SYS_KBD, GROUP_SYS,
     PAGE_SYS_KBD, PAGE_SYS_KBD,
-    STR_RES_MIDI, PARAMETER_EDITOR, 48, LED_SYS_MASK },
+    STR_RES_MIDI, PARAMETER_EDITOR, 48, LED_6_MASK },
 
   /* PAGE_LOAD_SAVE */ { PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
@@ -427,7 +427,7 @@ const PageDefinition Editor::page_definition_[] = {
 
   /* PAGE_PERFORMANCE */ { PAGE_PERFORMANCE, GROUP_PERFORMANCE,
     PAGE_PERFORMANCE, PAGE_PERFORMANCE,
-    STR_RES_PERFORMANCE, PARAMETER_EDITOR, 0, 0x0 }
+    STR_RES_PERFORMANCE, PARAMETER_EDITOR, 0, 0 }
 };
 
 /* <static> */
@@ -436,16 +436,27 @@ uint8_t Editor::parameter_definition_index_ = 0xff;
 
 ParameterPage Editor::current_page_ = PAGE_FILTER_FILTER;
 ParameterPage Editor::last_visited_page_[kNumGroups] = {
-    PAGE_LOAD_SAVE,
-    PAGE_SYS_KBD,
-    PAGE_SEQ_SEQUENCER,
-    PAGE_MOD_ENV_1,
-    PAGE_FILTER_FILTER,
     PAGE_OSC_OSC_1,
+    PAGE_FILTER_FILTER,
+    PAGE_MOD_ENV_1,
+    PAGE_MOD_MATRIX,
+
+    PAGE_SEQ_SEQUENCER,
+    PAGE_SEQ_TRACKER,
+    PAGE_SEQ_RHYTHM,
+    PAGE_SYS_KBD,
+    
+    PAGE_LOAD_SAVE,
     PAGE_PERFORMANCE
 };
 uint8_t Editor::last_visited_subpage_ = 0;
-uint8_t Editor::mode_ = EDITOR_MODE_OVERVIEW;
+uint8_t Editor::display_mode_ = DISPLAY_MODE_OVERVIEW;
+uint8_t Editor::editor_mode_ = EDITOR_MODE_PATCH;
+uint8_t Editor::last_visited_group_[3] = {
+    GROUP_FILTER,
+    GROUP_SEQUENCER_ARPEGGIATOR,
+    GROUP_PERFORMANCE
+};
 
 char Editor::line_buffer_[kLcdWidth * kLcdHeight + 1];
 
@@ -474,44 +485,37 @@ void Editor::Init() {
 }
 
 /* static */
-void Editor::ToggleGroup(uint8_t group) {
+void Editor::JumpToPageGroup(uint8_t group) {
   cursor_ = 0;
   assign_in_progress_ = 0;
   display.set_cursor_position(kLcdNoCursor);
-
-  mode_ = EDITOR_MODE_OVERVIEW;
-
-  // Special case for the load/save page.
-  if (group == GROUP_LOAD_SAVE) {
-    EnterLoadSaveMode();
-    current_page_ = PAGE_LOAD_SAVE;
+  display_mode_ = DISPLAY_MODE_OVERVIEW;
+  subpage_ = 0;
+  // Make sure that we won't confirm a save when moving back to the
+  // Load/save page.
+  action_ = ACTION_EXIT;
+  // If we move to another group, go to the last visited page in this group.
+  if (group != page_definition_[current_page_].group) {
+    current_page_ = last_visited_page_[group];
   } else {
-    subpage_ = 0;
-    // Make sure that we won't confirm a save when moving back to the
-    // Load/save page.
-    action_ = ACTION_EXIT;
-    // If we move to another group, go to the last visited page in this group.
-    if (group != page_definition_[current_page_].group) {
-      current_page_ = last_visited_page_[group];
-    } else {
-      current_page_ = page_definition_[current_page_].next;
-    }
-    // When switching to the modulation matrix page, go back to the previously
-    // edited modulation.
-    if (current_page_ == PAGE_MOD_MATRIX) {
-      subpage_ = last_visited_subpage_;
-    }
-    last_visited_page_[group] = current_page_;
+    current_page_ = page_definition_[current_page_].next;
   }
+  // When switching to the modulation matrix page, go back to the previously
+  // edited modulation.
+  if (current_page_ == PAGE_MOD_MATRIX) {
+    subpage_ = last_visited_subpage_;
+  }
+  last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
+  last_visited_page_[group] = current_page_;
 }
 
 /* static */
 void Editor::Relax() {
   // Disable the "get back to overview page" thing in the sequencer pages or
   // Load/save pages - in short, all pages where there's a moving cursor.
-  if (mode_ != EDITOR_MODE_OVERVIEW &&
+  if (display_mode_ == DISPLAY_MODE_EDIT_TEMPORARY &&
       display.cursor_position() == kLcdNoCursor) {
-    mode_ = EDITOR_MODE_OVERVIEW;
+    display_mode_ = DISPLAY_MODE_OVERVIEW;
     Refresh();
   }
 }
@@ -557,7 +561,7 @@ void Editor::RandomizeSequence() {
 void Editor::HandleKeyEvent(const KeyEvent& event) {
   if (event.shifted) {
     switch (event.id) {
-      case GROUP_OSC:
+      case KEY_1:
         display.set_status('x');
         if (subpage_ == LOAD_SAVE_PATCH) {
           engine.ResetPatch();
@@ -568,7 +572,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         }
         break;
 
-      case GROUP_FILTER:
+      case KEY_2:
         display.set_status('?');
         if (subpage_ == LOAD_SAVE_PATCH) {
           RandomizePatch();
@@ -577,7 +581,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         }
         break;
 
-      case GROUP_MOD:
+      case KEY_3:
         display.set_status('>');
         if (subpage_ == LOAD_SAVE_PATCH) {
           Storage::SysExDump(engine.mutable_patch());
@@ -586,22 +590,18 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         }
         break;
 
-      case GROUP_SEQUENCER:
+      case KEY_4:
         // TODO(pichenettes): BIG DUMP
         break;
     }
   } else if (event.hold_time >= 3) {
     switch (event.id) {
-      case GROUP_SEQUENCER:
+      case KEY_1:
         engine.NoteOn(0, 48, test_note_playing_ ? 0 : 100);
         test_note_playing_ ^= 1;
         break;
 
-      case GROUP_OSC:
-        ToggleGroup(GROUP_PERFORMANCE);
-        break;
-
-      case GROUP_FILTER:
+      case KEY_2:
         if (current_page_ <= PAGE_MOD_MATRIX) {
           parameter_to_assign_.id = page_definition_[
               current_page_].first_parameter_index + cursor_;
@@ -611,9 +611,26 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
           return;  // To avoid refresh
         }
         break;
+
+      case KEY_MODE:
+        editor_mode_ = EDITOR_MODE_PERFORMANCE;
+        JumpToPageGroup(GROUP_PERFORMANCE);
+        break;
     }
+  } else if (event.id == KEY_MODE) {
+    editor_mode_ = (editor_mode_ != EDITOR_MODE_PATCH)
+      ? EDITOR_MODE_PATCH
+      : EDITOR_MODE_SEQUENCE;
+    JumpToPageGroup(last_visited_group_[editor_mode_]);
+  } else if (event.id == KEY_LOAD_SAVE) {
+    EnterLoadSaveMode();
   } else {
-    ToggleGroup(event.id);
+    uint8_t id = KEY_1 - event.id;
+    if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
+      JumpToPageGroup(id + GROUP_SEQUENCER_ARPEGGIATOR);
+    } else {
+      JumpToPageGroup(id + GROUP_OSC);
+    }
   }
   Refresh();
 }
@@ -634,11 +651,11 @@ void Editor::HandleIncrement(int8_t direction) {
 
 /* static */
 void Editor::HandleClick() {
-  if (mode_ == EDITOR_MODE_OVERVIEW) {
-    mode_ = EDITOR_MODE_EDIT;
+  if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
+    display_mode_ = DISPLAY_MODE_EDIT;
     display.set_cursor_character(' ');
   } else {
-    mode_ = EDITOR_MODE_OVERVIEW;
+    display_mode_ = DISPLAY_MODE_OVERVIEW;
     display.set_cursor_character(kLcdNoCursor);
   }
   Refresh();
@@ -646,7 +663,7 @@ void Editor::HandleClick() {
 
 /* static */
 void Editor::Refresh() {
-  if (mode_ == EDITOR_MODE_OVERVIEW) {
+  if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     (*ui_handler_[page_definition_[current_page_].ui_type].overview_page)();
   } else {
     (*ui_handler_[page_definition_[current_page_].ui_type].edit_page)();
@@ -656,6 +673,11 @@ void Editor::Refresh() {
 /* static */
 void Editor::EnterLoadSaveMode() {
   // We've just confirmed a save.
+  cursor_ = 0;
+  assign_in_progress_ = 0;
+  display.set_cursor_position(kLcdNoCursor);
+  display_mode_ = DISPLAY_MODE_OVERVIEW;
+  
   if (current_page_ == PAGE_LOAD_SAVE) {
     if (action_ == ACTION_SAVE) {
       display.set_status('w');
@@ -760,7 +782,7 @@ void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
 /* static */
 void Editor::HandleLoadSaveIncrement(int8_t direction) {
   if (action_ == ACTION_SAVE && subpage_ == LOAD_SAVE_PATCH) {
-    if (mode_ == EDITOR_MODE_OVERVIEW) {
+    if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
       int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
       if (new_cursor >= 0 & new_cursor < kPatchNameSize) {
         cursor_ = static_cast<uint8_t>(new_cursor);
@@ -846,6 +868,8 @@ void Editor::MoveSequencerCursor(int8_t direction) {
   } else {
     cursor_ = new_cursor;
   }
+  last_visited_page_[page_definition_[current_page_].group] = current_page_;
+  last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
 }
 
 /* static */
@@ -912,7 +936,7 @@ void Editor::HandleStepSequencerInput(
 
 /* static */
 void Editor::HandleStepSequencerIncrement(int8_t direction) {
-  if (mode_ == EDITOR_MODE_OVERVIEW) {
+  if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(direction);
   } else {
     engine.mutable_sequencer_settings()->steps[cursor_].set_controller(
@@ -935,10 +959,10 @@ void Editor::DisplayTrackerPage() {
   engine.sequencer_settings().PrintStep(cursor_, line_buffer_);
   line_buffer_[0] = 0x7e;
   display.Print(1, line_buffer_);
-  if (mode_ == EDITOR_MODE_EDIT) {
-    display.set_cursor_position(kLcdWidth + 7);
-  } else {
+  if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     display.set_cursor_position(0xff);
+  } else {
+    display.set_cursor_position(kLcdWidth + 7);
   }
 }
 
@@ -984,7 +1008,7 @@ void Editor::HandleTrackerInput(
 
 /* static */
 void Editor::HandleTrackerIncrement(int8_t direction) {
-  if (mode_ == EDITOR_MODE_OVERVIEW) {
+  if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(direction);
   } else {
     int8_t note = engine.mutable_sequencer_settings()->steps[cursor_].note();
@@ -1035,7 +1059,7 @@ void Editor::HandlePageRInput(
 
 /* static */
 void Editor::HandlePageRIncrement(int8_t direction) {
-  if (mode_ == EDITOR_MODE_OVERVIEW) {
+  if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(direction);
   } else {
     int8_t flags = engine.mutable_sequencer_settings()->steps[cursor_].flags();
@@ -1155,9 +1179,9 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
   if (assign_in_progress_) {
     assigned_parameters_[knob_index] = parameter_to_assign_;
     assign_in_progress_ = 0;
-    ToggleGroup(GROUP_PERFORMANCE);
+    JumpToPageGroup(GROUP_PERFORMANCE);
   } else {
-    mode_ = EDITOR_MODE_EDIT;
+    display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
     uint8_t new_value;
     uint8_t index = KnobIndexToParameterId(knob_index);
     const ParameterDefinition& parameter = parameter_definition(index);
@@ -1176,7 +1200,7 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
 
 /* static */
 void Editor::HandleEditIncrement(int8_t direction) {
-  if (mode_ == EDITOR_MODE_OVERVIEW) {
+  if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
     if (current_page_ == PAGE_MOD_MATRIX) {
       last_visited_subpage_ = subpage_;
@@ -1197,6 +1221,7 @@ void Editor::HandleEditIncrement(int8_t direction) {
       last_visited_subpage_ = subpage_;
     }
     last_visited_page_[page_definition_[current_page_].group] = current_page_;
+    last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
   } else {
     uint8_t index = KnobIndexToParameterId(cursor_);
     const ParameterDefinition& parameter = parameter_definition(index);

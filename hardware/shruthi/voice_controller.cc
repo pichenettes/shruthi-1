@@ -35,7 +35,8 @@ const SequencerSettings* VoiceController::sequencer_settings_;
 
 int16_t VoiceController::internal_clock_counter_;
 uint8_t VoiceController::midi_clock_counter_;
-int16_t VoiceController::step_duration_[2];
+int16_t VoiceController::step_duration_[kNumSteps];
+int16_t VoiceController::average_step_duration_;
 
 uint16_t VoiceController::pattern_;
 uint16_t VoiceController::pattern_mask_;
@@ -98,7 +99,7 @@ void VoiceController::Reset() {
   if (!active_) {
     midi_clock_counter_ = kMidiClockPrescaler;
     if (sequencer_settings_->seq_tempo) {
-      estimated_beat_duration_ = step_duration_[0] / (kControlRate / 4);
+      estimated_beat_duration_ = average_step_duration_ / (kControlRate / 4);
     }
     pattern_mask_ = 0xffff;
     internal_clock_counter_ = 0;
@@ -129,7 +130,7 @@ void VoiceController::AllNotesOff() {
 
 /* static */
 void VoiceController::ComputeExpandedPatternSize() {
-  uint8_t flow = sequencer_settings_->seq_flow;
+  uint8_t flow = sequencer_settings_->arp_flow;
   uint8_t pattern_size = sequencer_settings_->pattern_size;
   if (flow >= FLOW_KRAMA_2) {
     pattern_size >>= 1;
@@ -185,17 +186,20 @@ void VoiceController::TouchSequence() {
       sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_DOWN ? -1 : 1);
   ComputeExpandedPatternSize();
   
-  step_duration_[0] = (kSampleRate * 60L / 4) / static_cast<int32_t>(
+  average_step_duration_ = (kSampleRate * 60L / 4) / static_cast<int32_t>(
       sequencer_settings_->seq_tempo <= 240
           ? sequencer_settings_->seq_tempo
           : ResourcesManager::Lookup<uint16_t, uint8_t>(
               lut_res_turbo_tempi, sequencer_settings_->seq_tempo - 240 - 1));
-  step_duration_[1] = step_duration_[0];
-  estimated_beat_duration_ = step_duration_[0] / (kControlRate / 4);
-  int16_t swing = (step_duration_[0] * static_cast<int32_t>(
-      sequencer_settings_->seq_swing)) >> 9;
-  step_duration_[0] += swing;
-  step_duration_[1] -= swing;
+  for (uint8_t i = 0; i < kNumSteps; ++i) {
+    int32_t swing_direction = ResourcesManager::Lookup<int16_t, uint8_t>(
+        LUT_RES_GROOVE_SWING + sequencer_settings_->seq_groove_template, i);
+    swing_direction *= average_step_duration_;
+    swing_direction *= sequencer_settings_->seq_groove_amount;
+    int16_t swing = swing_direction >> 16;
+    step_duration_[i] = average_step_duration_ + swing;
+  }
+  estimated_beat_duration_ = average_step_duration_ / (kControlRate / 4);
 }
 
 /* static */
@@ -287,7 +291,7 @@ void VoiceController::NoteOff(uint8_t note) {
 int8_t VoiceController::FoldPattern() {
   int8_t before = pattern_step_;
   uint8_t step = expanded_pattern_step_;
-  uint8_t flow = sequencer_settings_->seq_flow;
+  uint8_t flow = sequencer_settings_->arp_flow;
   uint8_t pattern_size = sequencer_settings_->pattern_size;
   if (flow >= FLOW_KRAMA_2) {
     step >>= 1;
@@ -364,11 +368,7 @@ uint8_t VoiceController::Control() {
   // Update the value of the counter depending on which steps we are on.
   // Steps 1, 2 are longer than steps 3, 4 if swing is enabled.
   if (sequencer_settings_->seq_tempo) {
-    if (expanded_pattern_step_ & 2) {
-      internal_clock_counter_ += step_duration_[1];
-    } else {
-      internal_clock_counter_ += step_duration_[0];
-    }
+    internal_clock_counter_ += step_duration_[expanded_pattern_step_ & 0x0f];
   } else {
     midi_clock_counter_ += kMidiClockPrescaler;
   }
@@ -472,10 +472,8 @@ void VoiceController::Step(int8_t delta) {
           while (note > 127) {
             note -= 12;
           }
-          uint8_t velocity = (sequencer_settings_->arp_velocity_source == \
-                              ARPEGGIO_VELOCITY_SOURCE_KEYBOARD)
-              ? notes_.sorted_note(arp_step_).velocity
-              : sequencer_settings_->steps[pattern_step_].velocity();
+          uint8_t velocity = (notes_.sorted_note(arp_step_).velocity + \
+              sequencer_settings_->steps[pattern_step_].velocity()) >> 1;
           voices_[0].Trigger(note, velocity, false);
         }
       } else {

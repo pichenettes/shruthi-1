@@ -160,13 +160,13 @@ struct SequencerSettings {
  public:
   uint8_t seq_mode;
   uint8_t seq_tempo;
-  uint8_t seq_swing;
-  uint8_t seq_flow;
+  uint8_t seq_groove_template;
+  uint8_t seq_groove_amount;
   
   uint8_t arp_direction;
   uint8_t arp_range;
   uint8_t arp_pattern;
-  uint8_t arp_velocity_source;
+  uint8_t arp_flow;
   
   uint8_t pattern_size;
   SequenceStep steps[kNumSteps];
@@ -190,13 +190,13 @@ struct SequencerSettings {
 enum SequencerParameter {
   PRM_SEQ_MODE = sizeof(Patch),
   PRM_SEQ_TEMPO,
-  PRM_SEQ_SWING,
-  PRM_SEQ_FLOW,
+  PRM_SEQ_GROOVE_TEMPLATE,
+  PRM_SEQ_GROOVE_AMOUNT,
 
   PRM_ARP_DIRECTION,
   PRM_ARP_RANGE,
   PRM_ARP_PATTERN,
-  PRM_ARP_VELOCITY_SOURCE,
+  PRM_ARP_FLOW,
   
   PRM_SEQ_PATTERN_SIZE,
 };

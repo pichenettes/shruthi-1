@@ -41,7 +41,6 @@ static const prog_char str_res_osc_bal[] PROGMEM = "osc bal";
 static const prog_char str_res_sub_osc_[] PROGMEM = "sub osc.";
 static const prog_char str_res_direction[] PROGMEM = "direction";
 static const prog_char str_res_pattern[] PROGMEM = "pattern";
-static const prog_char str_res_swing[] PROGMEM = "swing";
 static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
 static const prog_char str_res_oscillator_2[] PROGMEM = "oscillator 2";
 static const prog_char str_res_arpeggio[] PROGMEM = "arpeggio";
@@ -220,9 +219,6 @@ static const prog_char str_res_4krama[] PROGMEM = "4krama";
 static const prog_char str_res_4jata[] PROGMEM = "4jata";
 static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
 static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
-static const prog_char str_res_kbd[] PROGMEM = "kbd";
-static const prog_char str_res____seq[] PROGMEM = "seq";
-static const prog_char str_res____[] PROGMEM = "";
 static const prog_char str_res_270[] PROGMEM = "270";
 static const prog_char str_res_300[] PROGMEM = "300";
 static const prog_char str_res_330[] PROGMEM = "330";
@@ -232,10 +228,14 @@ static const prog_char str_res_480[] PROGMEM = "480";
 static const prog_char str_res_600[] PROGMEM = "600";
 static const prog_char str_res_720[] PROGMEM = "720";
 static const prog_char str_res_960[] PROGMEM = "960";
+static const prog_char str_res_groove[] PROGMEM = "groove";
+static const prog_char str_res_swing[] PROGMEM = "swing";
+static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
+static const prog_char str_res_push[] PROGMEM = "push";
+static const prog_char str_res_lag[] PROGMEM = "lag";
+static const prog_char str_res_human[] PROGMEM = "human";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
-static const prog_char str_res_ready[] PROGMEM = "ready";
-static const prog_char str_res_for_os_update[] PROGMEM = "for os update";
 static const prog_char str_res_patches[] PROGMEM = "patches";
 static const prog_char str_res_sequences[] PROGMEM = "sequences";
 static const prog_char str_res_system_settings[] PROGMEM = "system settings";
@@ -299,7 +299,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_sub_osc_,
   str_res_direction,
   str_res_pattern,
-  str_res_swing,
   str_res_oscillator_1,
   str_res_oscillator_2,
   str_res_arpeggio,
@@ -478,9 +477,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_4jata,
   str_res_4sikha,
   str_res_4ghana,
-  str_res_kbd,
-  str_res____seq,
-  str_res____,
   str_res_270,
   str_res_300,
   str_res_330,
@@ -490,10 +486,14 @@ PROGMEM const prog_char* string_table[] = {
   str_res_600,
   str_res_720,
   str_res_960,
+  str_res_groove,
+  str_res_swing,
+  str_res_shuffle,
+  str_res_push,
+  str_res_lag,
+  str_res_human,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,
-  str_res_ready,
-  str_res_for_os_update,
   str_res_patches,
   str_res_sequences,
   str_res_system_settings,
@@ -808,6 +808,26 @@ const prog_uint16_t lut_res_turbo_tempi[] PROGMEM = {
      270,    300,    330,    360,    420,    480,    600,    720, 
      960, 
 };
+const prog_uint16_t lut_res_groove_swing[] PROGMEM = {
+     127,    127,   -127,   -127,    127,    127,   -127,   -127, 
+     127,    127,   -127,   -127,    127,    127,   -127,   -127, 
+};
+const prog_uint16_t lut_res_groove_shuffle[] PROGMEM = {
+     127,   -127,    127,   -127,    127,   -127,    127,   -127, 
+     127,   -127,    127,   -127,    127,   -127,    127,   -127, 
+};
+const prog_uint16_t lut_res_groove_push[] PROGMEM = {
+     -63,    -63,    127,      0,   -127,      0,      0,     88, 
+       0,      0,     88,    -50,    -88,      0,     88,      0, 
+};
+const prog_uint16_t lut_res_groove_lag[] PROGMEM = {
+      19,     44,     93,     -4,     32,    -53,    -90,   -127, 
+     117,     32,   -102,    -53,    105,    -53,     93,    -53, 
+};
+const prog_uint16_t lut_res_groove_human[] PROGMEM = {
+      88,   -101,    107,    -95,     88,    -88,     50,    -38, 
+      65,    -88,    101,    -95,    101,   -127,     63,    -31, 
+};
 
 
 PROGMEM const prog_uint16_t* lookup_table_table[] = {
@@ -849,6 +869,11 @@ PROGMEM const prog_uint16_t* lookup_table_table[] = {
   lut_res_scale_yaman,
   lut_res_arpeggiator_patterns,
   lut_res_turbo_tempi,
+  lut_res_groove_swing,
+  lut_res_groove_shuffle,
+  lut_res_groove_push,
+  lut_res_groove_lag,
+  lut_res_groove_human,
 };
 
 const prog_uint8_t wav_res_formant_sine[] PROGMEM = {

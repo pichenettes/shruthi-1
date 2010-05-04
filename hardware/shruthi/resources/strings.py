@@ -37,7 +37,6 @@ osc bal
 sub osc.
 direction
 pattern
-swing
 oscillator 1
 oscillator 2
 arpeggio
@@ -231,9 +230,6 @@ ghana
 4sikha
 4ghana
 
-kbd
-   seq
-   
 270
 300
 330
@@ -243,6 +239,13 @@ kbd
 600
 720
 960
+
+groove
+swing
+shuffle
+push
+lag
+human
 
 touch a knob to
 assign parameter

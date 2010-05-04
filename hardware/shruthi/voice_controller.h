@@ -33,6 +33,7 @@
 #include "hardware/shruthi/shruthi.h"
 
 #include "hardware/shruthi/note_stack.h"
+#include "hardware/shruthi/sequencer_settings.h"
 
 namespace hardware_shruthi {
 
@@ -82,7 +83,8 @@ class VoiceController {
 
   static int16_t internal_clock_counter_;
   static uint8_t midi_clock_counter_;
-  static int16_t step_duration_[2];
+  static int16_t average_step_duration_;
+  static int16_t step_duration_[kNumSteps];
 
   // 16 steps x-o-x pattern storing the steps at which a new note is triggered.
   static uint16_t pattern_;

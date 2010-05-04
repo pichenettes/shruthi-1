@@ -26,22 +26,31 @@
 
 namespace hardware_shruthi {
 
+enum KEYS {
+  KEY_LOAD_SAVE,
+  KEY_MODE,
+  KEY_4,
+  KEY_3,
+  KEY_2,
+  KEY_1,
+};
+
 enum LEDS {
-  LED_OSC_1,
-  LED_OSC_2,
-  LED_FILTER,
-  LED_MOD_1,
-  LED_MOD_2,
-  LED_SEQUENCER,
-  LED_SYS,
+  LED_1,
+  LED_2,
+  LED_3,
+  LED_4,
+  LED_5,
+  LED_6,
+  LED_MODE,
   LED_WRITE,
-  LED_OSC_1_MASK = 1 << LED_OSC_1,
-  LED_OSC_2_MASK = 1 << LED_OSC_2,
-  LED_FILTER_MASK = 1 << LED_FILTER,
-  LED_MOD_1_MASK = 1 << LED_MOD_1,
-  LED_MOD_2_MASK = 1 << LED_MOD_2,
-  LED_SEQUENCER_MASK = 1 << LED_SEQUENCER,
-  LED_SYS_MASK = 1 << LED_SYS,
+  LED_1_MASK = 1 << LED_1,
+  LED_2_MASK = 1 << LED_2,
+  LED_3_MASK = 1 << LED_3,
+  LED_4_MASK = 1 << LED_4,
+  LED_5_MASK = 1 << LED_5,
+  LED_6_MASK = 1 << LED_6,
+  LED_MODE_MASK = 1 << LED_MODE,
   LED_WRITE_MASK = 1 << LED_WRITE,
 };
 

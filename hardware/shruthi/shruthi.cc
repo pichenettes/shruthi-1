@@ -63,7 +63,7 @@ SwitchArray<
   Gpio<kPinClk>,
   Gpio<kPinDigitalInput>,
   kNumSwitches,
-  GROUP_LOAD_SAVE> switches;
+  KEY_LOAD_SAVE> switches;
 
 RotaryEncoderBuffer<RotaryEncoder<
     Gpio<kPinEncoderA>,
@@ -91,19 +91,27 @@ void UpdateLedsTask() {
   // the LCD is not currently writing some data before doing some stuff with
   // the shift register.
   leds.Clear();
-  if (editor.current_page() == PAGE_MOD_MATRIX) {
-    uint8_t current_modulation_source_value = engine.modulation_source(0,
-        engine.patch().modulation_matrix.modulation[
-            editor.subpage()].source);
-    uint8_t current_modulation_destination_value = (
-        engine.voice(0).modulation_destination(
-            engine.patch().modulation_matrix.modulation[
-                editor.subpage()].destination));
-    leds.set_value(LED_MOD_1, current_modulation_source_value >> 4);
-    leds.set_value(LED_MOD_2, current_modulation_destination_value >> 4);
-  } else if (editor.current_page() >= PAGE_PERFORMANCE) {
+  if (editor.current_page() == PAGE_PERFORMANCE) {
+    // x0x-style chasing lights.
     leds.set_value(engine.voice_controller().step() & 0x07, 15);
   } else {
+    // Sequencer blinky on MODE LED.
+    if (editor.current_mode() == EDITOR_MODE_SEQUENCE) {
+      if (engine.voice_controller().active()) {
+        if (!(engine.voice_controller().step() & 3)) {
+          leds.set_value(LED_MODE, engine.voice_controller().step() ? 1 : 15);
+        }
+      }
+    } else {
+      // MODE LED is on, but the modulation matrix LED can go blink...
+      leds.set_value(LED_MODE, 15);
+      if (editor.current_page() == PAGE_MOD_MATRIX) {
+        uint8_t current_modulation_source_value = engine.modulation_source(0,
+            engine.patch().modulation_matrix.modulation[
+                editor.subpage()].source);
+        leds.set_value(LED_6, current_modulation_source_value >> 4);
+      }
+    }
     uint8_t pattern = editor.leds_pattern();
     uint8_t mask = 1;
     for (uint8_t i = 0; i < 8; ++i) {
@@ -111,14 +119,6 @@ void UpdateLedsTask() {
         leds.set_value(i, 15);
       }
       mask <<= 1;
-    }
-  }
-  // The led of the arpeggiator page flashes strongly on the 0-th step and
-  // weakly on the other steps which are a multiple of 4.
-  if (engine.voice_controller().active() &&
-      editor.current_page() != PAGE_PERFORMANCE) {
-    if (!(engine.voice_controller().step() & 3)) {
-      leds.set_value(LED_SEQUENCER, engine.voice_controller().step() ? 1 : 15);
     }
   }
   leds.Output();
