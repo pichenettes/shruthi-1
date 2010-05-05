@@ -315,12 +315,13 @@ void SynthesisEngine::SetParameter(
   } else if ((parameter_index <= PRM_OSC_SHAPE_2) ||
              (parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
     UpdateOscillatorAlgorithms();
-  } else if (parameter_index >= PRM_SEQ_MODE) {
+  } else if (parameter_index >= PRM_SEQ_MODE &&
+             parameter_index < PRM_SYS_OCTAVE) {
       // A copy of those parameters is stored by the note dispatcher/arpeggiator,
       // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
   } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL && 
-      parameter_index <= PRM_SYS_MIDI_OUT_CHAIN) {
+             parameter_index <= PRM_SYS_MIDI_OUT_CHAIN) {
     // A copy of those parameters are used by the MIDI out dispatcher.
     midi_out_filter.UpdateSystemSettings(system_settings_);
   } 
@@ -509,7 +510,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     modulation_sources_[MOD_SRC_RANDOM - kNumGlobalModulationSources] =
         Random::state_msb();
   }
-  // At boot up, or when the note is note played legato and the portamento
+  // At boot up, or when the note is not played legato and the portamento
   // is in auto mode, do not ramp up the pitch but jump straight to the target
   // pitch.
   if (pitch_value_ == 0 || (!legato && engine.system_settings_.legato)) {
@@ -529,10 +530,12 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
   }
   // If this note is triggered by the sequencer/arpeggiator, we might have to
   // forward it to the MIDI out too.
-  if (last_note_ != 0) {
-    midi_out_filter.NoteKilled(last_note_);
+  if (last_note_ != note || !legato) {
+    if (last_note_ != 0) {
+      midi_out_filter.NoteKilled(last_note_);
+    }
+    midi_out_filter.NoteTriggered(note, velocity);
   }
-  midi_out_filter.NoteTriggered(note, velocity);
   last_note_ = note;
 }
 

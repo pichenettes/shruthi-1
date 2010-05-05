@@ -203,7 +203,8 @@ void CvTask() {
 }
 
 void MidiTask() {
-  if (midi_io.readable()) {
+  // Try to pull as much data as possible from the MIDI buffer.
+  while (midi_io.readable()) {
     uint8_t value = midi_io.ImmediateRead();
 
     // Copy the byte to the MIDI output (thru). We could use Overwrite here
