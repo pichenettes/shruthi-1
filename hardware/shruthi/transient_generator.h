@@ -79,7 +79,6 @@ class TransientGenerator {
       if (decimate_ == 0) {
         --counter_;
         gain_ = (counter_ & 0x80) ? ~counter_ : counter_;
-        gain_ <<= 1;
       }
     }
     return rng_state_;

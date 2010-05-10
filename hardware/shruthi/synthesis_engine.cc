@@ -793,7 +793,7 @@ void Voice::Audio() {
     } else {
       uint8_t amplitude = MulScale8(
           transient_generator.gain(),
-          modulation_destinations_[MOD_DST_MIX_SUB_OSC]);
+          modulation_destinations_[MOD_DST_MIX_SUB_OSC] << 1);
       mix = Mix(
           mix,
           transient_generator.Render(),
