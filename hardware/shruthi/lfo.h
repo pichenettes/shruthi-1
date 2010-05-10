@@ -64,7 +64,7 @@ class Lfo {
         break;
 
       case LFO_WAVEFORM_TRIANGLE:
-        value = (phase_ & 0X8000) ?
+        value = (phase_ & 0x8000) ?
             phase_ >> 7 :
             ~static_cast<uint8_t>(phase_ >> 7);
         break;

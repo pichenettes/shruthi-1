@@ -93,7 +93,6 @@ static inline uint8_t InterpolateTwoTables(
 }
 
 
-
 static const uint8_t kVowelControlRateDecimation = 4;
 static const uint8_t kNumZonesFullSampleRate = 6;
 static const uint8_t kNumZonesHalfSampleRate = 5;
@@ -628,7 +627,7 @@ class SubOscillator {
   // Called whenever the parameters of the oscillator change. Can be used
   // to pre-compute parameters, set tables, etc.
   static inline void SetupAlgorithm(uint8_t shape) {
-    base_resource_id_ = shape == WAVEFORM_SQUARE ?
+    base_resource_id_ = shape == WAVEFORM_SUB_OSC_SQUARE ?
         WAV_RES_BANDLIMITED_SQUARE_1 :
         WAV_RES_BANDLIMITED_TRIANGLE_1;
   }

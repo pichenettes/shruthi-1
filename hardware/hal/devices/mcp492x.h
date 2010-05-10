@@ -23,7 +23,7 @@
 #include "hardware/hal/spi.h"
 #include "hardware/utils/op.h"
 
-using hardware_utils::Op;
+using namespace hardware_utils_op;
 
 namespace hardware_hal {
 

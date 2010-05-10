@@ -24,6 +24,7 @@
 #include "hardware/resources/resources_manager.h"
 #include "hardware/shruthi/oscillator.h"
 #include "hardware/shruthi/storage.h"
+#include "hardware/shruthi/transient_generator.h"
 #include "hardware/utils/random.h"
 #include "hardware/utils/op.h"
 
@@ -37,6 +38,7 @@ SynthesisEngine engine;
 Oscillator<1> osc_1;
 Oscillator<2> osc_2;
 SubOscillator<1> sub_osc;
+TransientGenerator<1> transient_generator;
 
 /* <static> */
 uint8_t SynthesisEngine::modulation_sources_[kNumGlobalModulationSources];
@@ -76,10 +78,10 @@ void SynthesisEngine::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_QUAD_SAW_PAD, 0, 0, 0,
+    WAVEFORM_FM, 0, 0, 0,
     WAVEFORM_SAW, 8, -12, 12,
     // Mixer
-    16, 0, 0, WAVEFORM_SQUARE,
+    0, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
     // Filter
     80, 0, 20, 0,
     // ADSR
@@ -332,6 +334,7 @@ void SynthesisEngine::UpdateOscillatorAlgorithms() {
   osc_1.SetupAlgorithm(patch_.osc[0].shape);
   osc_2.SetupAlgorithm(patch_.osc[1].shape);
   sub_osc.SetupAlgorithm(patch_.mix_sub_osc_shape);
+  transient_generator.SetupAlgorithm(patch_.mix_sub_osc_shape);
 }
 
 /* static */
@@ -505,6 +508,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     // doing monophonic things anyway (and some pseudo-polysynths/organs are
     // doing the same things).
     engine.TriggerLfos();
+    transient_generator.Trigger();
     modulation_sources_[MOD_SRC_VELOCITY - kNumGlobalModulationSources] =
         velocity << 1;
     modulation_sources_[MOD_SRC_RANDOM - kNumGlobalModulationSources] =
@@ -781,10 +785,20 @@ void Voice::Audio() {
   // Disable sub oscillator and noise when the "vowel" waveform is used - it is
   // just too costly.
   if (engine.patch_.osc[0].shape != WAVEFORM_VOWEL) {
-    mix = Mix(
-        mix,
-        sub_osc.Render(),
-        modulation_destinations_[MOD_DST_MIX_SUB_OSC]);
+    if (engine.patch_.mix_sub_osc_shape <= WAVEFORM_SUB_OSC_TRIANGLE) {
+      mix = Mix(
+          mix,
+          sub_osc.Render(),
+          modulation_destinations_[MOD_DST_MIX_SUB_OSC]);
+    } else {
+      uint8_t amplitude = MulScale8(
+          transient_generator.gain(),
+          modulation_destinations_[MOD_DST_MIX_SUB_OSC]);
+      mix = Mix(
+          mix,
+          transient_generator.Render(),
+          amplitude);
+    }
     mix = Mix(
         mix,
         Random::state_msb(),

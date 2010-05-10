@@ -46,6 +46,7 @@ static const prog_char units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
   0,
   STR_RES_OFF,
   STR_RES_NONE,
+  STR_RES__SQUARE,
   STR_RES_1S2,
   STR_RES_TRI,
   0,
@@ -128,8 +129,8 @@ static const prog_char raw_parameter_definition[
   STR_RES_NOI, STR_RES_NOISE,
 
   PRM_MIX_SUB_OSC_SHAPE,
-  WAVEFORM_SQUARE, WAVEFORM_TRIANGLE,
-  UNIT_WAVEFORM, 
+  WAVEFORM_SUB_OSC_SQUARE, WAVEFORM_SUB_OSC_POP,
+  UNIT_SUB_OSC_WAVEFORM, 
   STR_RES_SHAPE, STR_RES_SHAPE,
 
   // Filter.

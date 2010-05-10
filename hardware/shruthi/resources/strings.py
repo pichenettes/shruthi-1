@@ -63,6 +63,13 @@ waves
 pwm
 noise
 vowel
+ square
+ triang
+click
+glitch
+blow
+metal
+pop
 
 1+2
 1>2

@@ -66,6 +66,13 @@ static const prog_char str_res_8bits[] PROGMEM = "8bits";
 static const prog_char str_res_pwm[] PROGMEM = "pwm";
 static const prog_char str_res_noise[] PROGMEM = "noise";
 static const prog_char str_res_vowel[] PROGMEM = "vowel";
+static const prog_char str_res__square[] PROGMEM = "square";
+static const prog_char str_res__triang[] PROGMEM = "triang";
+static const prog_char str_res_click[] PROGMEM = "click";
+static const prog_char str_res_glitch[] PROGMEM = "glitch";
+static const prog_char str_res_blow[] PROGMEM = "blow";
+static const prog_char str_res_metal[] PROGMEM = "metal";
+static const prog_char str_res_pop[] PROGMEM = "pop";
 static const prog_char str_res_1S2[] PROGMEM = "1+2";
 static const prog_char str_res_1_2[] PROGMEM = "1>2";
 static const prog_char str_res_1P2[] PROGMEM = "1*2";
@@ -324,6 +331,13 @@ PROGMEM const prog_char* string_table[] = {
   str_res_pwm,
   str_res_noise,
   str_res_vowel,
+  str_res__square,
+  str_res__triang,
+  str_res_click,
+  str_res_glitch,
+  str_res_blow,
+  str_res_metal,
+  str_res_pop,
   str_res_1S2,
   str_res_1_2,
   str_res_1P2,
