@@ -73,10 +73,11 @@ static const prog_char str_res_glitch[] PROGMEM = "glitch";
 static const prog_char str_res_blow[] PROGMEM = "blow";
 static const prog_char str_res_metal[] PROGMEM = "metal";
 static const prog_char str_res_pop[] PROGMEM = "pop";
-static const prog_char str_res_1S2[] PROGMEM = "1+2";
-static const prog_char str_res_1_2[] PROGMEM = "1>2";
-static const prog_char str_res_1P2[] PROGMEM = "1*2";
-static const prog_char str_res_1x2[] PROGMEM = "1^2";
+static const prog_char str_res_sum[] PROGMEM = "sum";
+static const prog_char str_res_sync[] PROGMEM = "sync";
+static const prog_char str_res_ring[] PROGMEM = "ring";
+static const prog_char str_res_xor[] PROGMEM = "xor";
+static const prog_char str_res_fuzz[] PROGMEM = "fuzz";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
 static const prog_char str_res_pw1[] PROGMEM = "pw1";
@@ -338,10 +339,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_blow,
   str_res_metal,
   str_res_pop,
-  str_res_1S2,
-  str_res_1_2,
-  str_res_1P2,
-  str_res_1x2,
+  str_res_sum,
+  str_res_sync,
+  str_res_ring,
+  str_res_xor,
+  str_res_fuzz,
   str_res_cut,
   str_res_vca,
   str_res_pw1,
@@ -4790,6 +4792,40 @@ const prog_uint8_t wav_res_expansion_ghana[] PROGMEM = {
       14,     13,     14,     14,     13,     13,     14,     15, 
       15,     14,     13,     13,     14,     15, 
 };
+const prog_uint8_t wav_res_distortion[] PROGMEM = {
+       1,      1,      1,      1,      1,      1,      1,      1, 
+       1,      1,      1,      1,      1,      1,      1,      1, 
+       1,      1,      1,      1,      1,      1,      1,      1, 
+       1,      1,      1,      1,      1,      1,      1,      1, 
+       1,      1,      1,      1,      1,      1,      1,      1, 
+       1,      1,      1,      1,      1,      1,      1,      1, 
+       1,      2,      2,      2,      2,      2,      2,      2, 
+       2,      2,      2,      2,      2,      2,      2,      3, 
+       3,      3,      3,      3,      3,      3,      4,      4, 
+       4,      4,      5,      5,      5,      6,      6,      6, 
+       7,      7,      8,      8,      9,     10,     10,     11, 
+      12,     13,     13,     14,     15,     16,     18,     19, 
+      20,     22,     23,     25,     27,     28,     30,     33, 
+      35,     37,     40,     42,     45,     48,     51,     54, 
+      58,     61,     65,     69,     72,     77,     81,     85, 
+      90,     94,     99,    103,    108,    113,    118,    123, 
+     128,    133,    138,    143,    148,    152,    157,    162, 
+     166,    171,    175,    179,    184,    187,    191,    195, 
+     198,    202,    205,    208,    211,    214,    216,    219, 
+     221,    223,    226,    228,    229,    231,    233,    234, 
+     236,    237,    238,    240,    241,    242,    243,    243, 
+     244,    245,    246,    246,    247,    248,    248,    249, 
+     249,    250,    250,    250,    251,    251,    251,    252, 
+     252,    252,    252,    253,    253,    253,    253,    253, 
+     253,    253,    254,    254,    254,    254,    254,    254, 
+     254,    254,    254,    254,    254,    254,    254,    254, 
+     255,    255,    255,    255,    255,    255,    255,    255, 
+     255,    255,    255,    255,    255,    255,    255,    255, 
+     255,    255,    255,    255,    255,    255,    255,    255, 
+     255,    255,    255,    255,    255,    255,    255,    255, 
+     255,    255,    255,    255,    255,    255,    255,    255, 
+     255,    255,    255,    255,    255,    255,    255,    255, 
+};
 
 
 const prog_uint8_t* waveform_table[] = {
@@ -4827,6 +4863,7 @@ const prog_uint8_t* waveform_table[] = {
   wav_res_expansion_jata,
   wav_res_expansion_sikha,
   wav_res_expansion_ghana,
+  wav_res_distortion,
 };
 
 const prog_uint8_t chr_res_special_characters[] PROGMEM = {

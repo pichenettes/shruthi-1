@@ -783,6 +783,16 @@ inline void Voice::Audio() {
       mix ^= osc_2_signal;
       mix ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
       break;
+    case OP_WAVESHAPPER:
+      {
+        mix >>= 1;
+        mix += osc_2_signal >> 1;
+        mix = Mix(
+            mix,
+            ResourcesManager::Lookup<uint8_t, uint8_t>(
+                wav_res_distortion, mix),
+            modulation_destinations_[MOD_DST_MIX_BALANCE]);
+      }
   }
 
   // Disable sub oscillator and noise when the "vowel" waveform is used - it is

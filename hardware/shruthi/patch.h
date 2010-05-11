@@ -272,7 +272,8 @@ enum OPERATOR {
   OP_SUM = 0,
   OP_SYNC = 1,
   OP_RING_MOD = 2,
-  OP_XOR = 3
+  OP_XOR = 3,
+  OP_WAVESHAPPER = 4,
 };
 
 }  // namespace hardware_shruthi

@@ -71,10 +71,11 @@ blow
 metal
 pop
 
-1+2
-1>2
-1*2
-1^2
+sum
+sync
+ring
+xor
+fuzz
 
 cut
 vca

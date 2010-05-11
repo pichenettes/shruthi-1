@@ -252,3 +252,13 @@ waveforms.extend([
     ('expansion_sikha', ExpandSikha(16)),
     ('expansion_ghana', ExpandGhana(16))
 ])
+
+
+"""----------------------------------------------------------------------------
+Waveshapper/distorsion
+-----------------------------------------------------------------------------"""
+
+x = ((numpy.arange(0, 256) / 128.0 - 1.0))
+x = numpy.tanh(5.0 * x) * 128.0 + 128.0
+
+waveforms.append(('distortion', Scale(x)))

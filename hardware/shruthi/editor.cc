@@ -47,7 +47,7 @@ static const prog_char units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
   STR_RES_OFF,
   STR_RES_NONE,
   STR_RES__SQUARE,
-  STR_RES_1S2,
+  STR_RES_SUM,
   STR_RES_TRI,
   0,
   0,
@@ -87,7 +87,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_RNG, STR_RES_RANGE,
 
   PRM_OSC_OPTION_1,
-  OP_SUM, OP_XOR,
+  OP_SUM, OP_WAVESHAPPER,
   UNIT_OPERATOR,
   STR_RES_OP_, STR_RES_OPERATOR,
 
