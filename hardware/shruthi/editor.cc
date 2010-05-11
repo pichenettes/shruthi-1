@@ -87,7 +87,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_RNG, STR_RES_RANGE,
 
   PRM_OSC_OPTION_1,
-  SUM, XOR,
+  OP_SUM, OP_XOR,
   UNIT_OPERATOR,
   STR_RES_OP_, STR_RES_OPERATOR,
 

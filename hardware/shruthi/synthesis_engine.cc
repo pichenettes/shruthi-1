@@ -202,7 +202,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
       patch_.env[1].attack = value;
       break;
     case hardware_midi::kHarmonicIntensity:
-      patch_.filter_resonance = value;
+      patch_.filter_resonance = value >> 1;
       break;
     case hardware_midi::kBrightness:
       patch_.filter_cutoff = value;
@@ -544,7 +544,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
 }
 
 /* static */
-void Voice::Control() {
+inline void Voice::Control() {
   // Update the envelopes.
   dead_ = 1;
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
@@ -748,7 +748,7 @@ void Voice::Control() {
 }
 
 /* static */
-void Voice::Audio() {
+inline void Voice::Audio() {
   if (dead_) {
     signal_ = 128;
     return;
@@ -756,30 +756,33 @@ void Voice::Audio() {
 
   uint8_t osc_2_signal = osc_2.Render();
   uint8_t mix = osc_1.Render();
-  uint8_t op = engine.patch_.osc[0].option;
-  if (op == RING_MOD) {
-    mix = SignedSignedMulScale8(mix + 128, osc_2_signal + 128) + 128;
-  } else if (op == XOR) {
-    mix ^= osc_2_signal;
-    mix ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
-  } else {
-    mix = Mix(
-        mix,
-        osc_2_signal,
-        modulation_destinations_[MOD_DST_MIX_BALANCE]);
-    // If the phase of oscillator 1 has wrapped and if sync is enabled, reset
-    // the phase of the second oscillator.
-    if (op == SYNC) {
-      uint8_t phase_msb = osc_1.phase() >> 8;
-      if (phase_msb < osc1_phase_msb_) {
-        osc_2.ResetPhase();
+  switch (engine.patch_.osc[0].option) {
+    case OP_SYNC:
+      {
+        uint8_t phase_msb = osc_1.phase() >> 8;
+        if (phase_msb < osc1_phase_msb_) {
+          osc_2.ResetPhase();
+        }
+        // Store the phase of the oscillator to check later whether the phase has
+        // been wrapped. Because the phase increment is likely to be below
+        // 65536 - 256, we can use the most significant byte only to detect
+        // wrapping.
+        osc1_phase_msb_ = phase_msb;
       }
-      // Store the phase of the oscillator to check later whether the phase has
-      // been wrapped. Because the phase increment is likely to be below
-      // 65536 - 256, we can use the most significant byte only to detect
-      // wrapping.
-      osc1_phase_msb_ = phase_msb;
-    }
+      // Fall through!
+    case OP_SUM:
+      mix = Mix(
+          mix,
+          osc_2_signal,
+          modulation_destinations_[MOD_DST_MIX_BALANCE]);
+      break;
+    case OP_RING_MOD:
+      mix = SignedSignedMulScale8(mix + 128, osc_2_signal + 128) + 128;
+      break;
+    case OP_XOR:
+      mix ^= osc_2_signal;
+      mix ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
+      break;
   }
 
   // Disable sub oscillator and noise when the "vowel" waveform is used - it is

@@ -68,9 +68,8 @@ class AudioOutput {
 
   // Called from data emission interrupt.
   static inline void EmitSample() {
-    int16_t v = OutputBuffer::NonBlockingRead();
-    if (v >= 0) {
-      OutputPort::Write(Value(v));
+    if (OutputBuffer::readable()) {
+      OutputPort::Write(Value(OutputBuffer::ImmediateRead()));
     } else {
       ++num_glitches_;
       if (underrun_policy == EMIT_CLICK) {

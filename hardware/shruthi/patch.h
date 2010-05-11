@@ -269,10 +269,10 @@ enum Status {
 };
 
 enum OPERATOR {
-  SUM = 0,
-  SYNC = 1,
-  RING_MOD = 2,
-  XOR = 3
+  OP_SUM = 0,
+  OP_SYNC = 1,
+  OP_RING_MOD = 2,
+  OP_XOR = 3
 };
 
 }  // namespace hardware_shruthi
