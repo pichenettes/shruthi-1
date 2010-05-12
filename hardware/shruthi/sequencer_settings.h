@@ -169,6 +169,7 @@ struct SequencerSettings {
   uint8_t arp_flow;
   
   uint8_t pattern_size;
+  uint8_t pattern_rotation;
   SequenceStep steps[kNumSteps];
   
   void PrintStep(uint8_t step, char* buffer) const;

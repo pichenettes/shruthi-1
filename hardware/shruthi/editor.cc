@@ -878,8 +878,9 @@ void Editor::DisplayStepSequencerPage() {
   // 0123456789abcdef
   // step sequencer
   // 0000ffff44449999
-  if (cursor_ > engine.sequencer_settings().pattern_size - 1) {
-    cursor_ = engine.sequencer_settings().pattern_size - 1;
+  const SequencerSettings& seq = engine.sequencer_settings();
+  if (cursor_ > seq.pattern_size - 1) {
+    cursor_ = seq.pattern_size - 1;
   }
   ResourcesManager::LoadStringResource(
       STR_RES_STEP_SEQUENCER,
@@ -888,12 +889,12 @@ void Editor::DisplayStepSequencerPage() {
   AlignLeft(line_buffer_, kLcdWidth);
   display.Print(0, line_buffer_);
   memset(line_buffer_, ' ', kLcdWidth);
-  for (uint8_t i = 0; i < engine.sequencer_settings().pattern_size; ++i) {
+  for (uint8_t i = 0; i < seq.pattern_size; ++i) {
     line_buffer_[i] = NibbleToAscii(
-        engine.sequencer_settings().steps[i].controller());
+        seq.steps[(i + seq.pattern_rotation) & 0x0f].controller());
   }
-  if (engine.sequencer_settings().pattern_size != kLcdWidth) {
-    line_buffer_[engine.sequencer_settings().pattern_size] = '|';
+  if (seq.pattern_size != kLcdWidth) {
+    line_buffer_[seq.pattern_size] = '|';
   }
   display.Print(1, line_buffer_);
   display.set_cursor_position(kLcdWidth + cursor_);
@@ -931,7 +932,11 @@ void Editor::HandleStepSequencerInput(
     uint16_t value) {
   HandleSequencerNavigation(knob_index, value);
   if (knob_index == 2) {
-    HandleTrackerInput(3, value);
+    SequencerSettings* seq = engine.mutable_sequencer_settings();
+    seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
+        value >> 6);
+  } else if (knob_index == 0) {
+    engine.mutable_sequencer_settings()->pattern_rotation = value >> 6;
   }
 }
 
@@ -940,10 +945,11 @@ void Editor::HandleStepSequencerIncrement(int8_t direction) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(direction);
   } else {
-    engine.mutable_sequencer_settings()->steps[cursor_].set_controller(
-        engine.mutable_sequencer_settings()->steps[cursor_].controller() + \
-        direction
-    );
+    SequencerSettings* seq = engine.mutable_sequencer_settings();
+    uint8_t position = (cursor_ + seq->pattern_rotation) & 0x0f;
+    seq->steps[position].set_controller(
+        seq->steps[position].controller() + \
+        direction);
   }
 }
 

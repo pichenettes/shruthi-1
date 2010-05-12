@@ -116,6 +116,7 @@ static const prog_char init_sequence[] PROGMEM = {
     
     // Pattern size and pattern
     16,
+    0,
     0x80 | 48, 0x00 | 0x70 | 0x0,
     0x80 | 48, 0x80 | 0x50 | 0x0,
     0x80 | 60, 0x00 | 0x50 | 0x0,
@@ -407,15 +408,17 @@ void SynthesisEngine::Control() {
   }
 
   // Read/shift the value of the step sequencer.
+  uint8_t step = (controller_.step() + \
+      sequencer_settings_.pattern_rotation) & 0x0f;
   modulation_sources_[MOD_SRC_SEQ] = (
-      sequencer_settings_.steps[controller_.step()].controller() << 4
+      sequencer_settings_.steps[step].controller() << 4
   );
-  uint8_t half_step = controller_.step() & 0x07;
+  step &= 0x7;
   modulation_sources_[MOD_SRC_SEQ_1] = (
-      sequencer_settings_.steps[half_step].controller() << 4
+      sequencer_settings_.steps[step].controller() << 4
   );
   modulation_sources_[MOD_SRC_SEQ_2] = (
-      sequencer_settings_.steps[half_step + 8].controller() << 4
+      sequencer_settings_.steps[step + 8].controller() << 4
   );
   modulation_sources_[MOD_SRC_STEP] = (
       controller_.has_arpeggiator_note() ? 255 : 0);
