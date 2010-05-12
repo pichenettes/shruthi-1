@@ -78,10 +78,10 @@ void SynthesisEngine::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_FM, 0, 0, 0,
-    WAVEFORM_SAW, 8, -12, 12,
+    WAVEFORM_TRIANGLE, 0, 0, 4,
+    WAVEFORM_TRIANGLE, 8, -12, 12,
     // Mixer
-    0, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
+    0, 63, 0, WAVEFORM_SUB_OSC_BLOW,
     // Filter
     80, 0, 20, 0,
     // ADSR
@@ -678,6 +678,7 @@ inline void Voice::Control() {
 
   modulation_destinations_[MOD_DST_MIX_BALANCE] = ShiftRight6(
       dst[MOD_DST_MIX_BALANCE]);
+  
   modulation_destinations_[MOD_DST_MIX_NOISE] = dst[MOD_DST_MIX_NOISE] >> 8;
   modulation_destinations_[MOD_DST_MIX_SUB_OSC] = dst[MOD_DST_MIX_SUB_OSC] >> 7;
 
@@ -749,11 +750,6 @@ inline void Voice::Control() {
 
 /* static */
 inline void Voice::Audio() {
-  if (dead_) {
-    signal_ = 128;
-    return;
-  }
-
   uint8_t osc_2_signal = osc_2.Render();
   uint8_t mix = osc_1.Render();
   switch (engine.patch_.osc[0].option) {
@@ -784,17 +780,14 @@ inline void Voice::Audio() {
       mix ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
       break;
     case OP_WAVESHAPPER:
-      {
-        mix >>= 1;
-        mix += osc_2_signal >> 1;
-        mix = Mix(
-            mix,
-            ResourcesManager::Lookup<uint8_t, uint8_t>(
-                wav_res_distortion, mix),
-            modulation_destinations_[MOD_DST_MIX_BALANCE]);
-      }
+      mix >>= 1;
+      mix += osc_2_signal >> 1;
+      mix = Mix(
+          mix,
+          ResourcesManager::Lookup<uint8_t, uint8_t>(
+              wav_res_distortion, mix),
+          modulation_destinations_[MOD_DST_MIX_BALANCE]);
   }
-
   // Disable sub oscillator and noise when the "vowel" waveform is used - it is
   // just too costly.
   if (engine.patch_.osc[0].shape != WAVEFORM_VOWEL) {

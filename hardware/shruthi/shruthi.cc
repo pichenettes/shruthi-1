@@ -263,11 +263,16 @@ void MidiTask() {
 void AudioRenderingTask() {
   if (audio_out.writable_block()) {
     engine.Control();
-    for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
-      engine.Audio();
-      audio_out.Overwrite(engine.voice(0).signal());
+    if (engine.voice(0).dead()) {
+      for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
+        audio_out.Overwrite(128);
+      }
+    } else {
+      for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
+        engine.Audio();
+        audio_out.Overwrite(engine.voice(0).signal());
+      }
     }
-
     vcf_cutoff_out.Write(engine.voice(0).cutoff());
     vcf_resonance_out.Write(engine.voice(0).resonance());
     vca_out.Write(engine.voice(0).vca());

@@ -22,6 +22,8 @@
 
 #include "hardware/base/base.h"
 
+#include <avr/pgmspace.h>
+
 #define USE_OPTIMIZED_OP
 
 namespace hardware_shruthi {
