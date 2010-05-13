@@ -197,10 +197,10 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
       system_settings_.portamento = value;
       break;
     case hardware_midi::kRelease:
-      patch_.env[1].release = value;
+      SetParameter(PRM_ENV_RELEASE_2, value);
       break;
     case hardware_midi::kAttack:
-      patch_.env[1].attack = value;
+      SetParameter(PRM_ENV_ATTACK_2, value);
       break;
     case hardware_midi::kHarmonicIntensity:
       patch_.filter_resonance = value >> 1;
