@@ -101,6 +101,7 @@ void VoiceController::Reset() {
     if (sequencer_settings_->seq_tempo) {
       estimated_beat_duration_ = average_step_duration_ / (kControlRate / 4);
     }
+    inactive_steps_ = 0;
     pattern_mask_ = 0xffff;
     internal_clock_counter_ = 0;
     step_duration_estimator_num_ = 0xffff;
@@ -385,7 +386,6 @@ uint8_t VoiceController::Control() {
 /* static */
 void VoiceController::StopAndKillNotes() {
   active_ = 0;
-  inactive_steps_ = 0;
   notes_.Clear();
   voices_[0].Release();
   adding_notes_to_latched_arpeggio_ = 0;

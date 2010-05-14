@@ -219,6 +219,9 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
     return system_settings_;
   }
   static inline Patch* mutable_patch() { return &patch_; }
+  static inline VoiceController* mutable_voice_controller() {
+    return &controller_;
+  }
   static inline SequencerSettings* mutable_sequencer_settings() {
     return &sequencer_settings_;
   }

@@ -264,8 +264,11 @@ void AudioRenderingTask() {
   if (audio_out.writable_block()) {
     engine.Control();
     if (engine.voice(0).dead()) {
+      // If the voice is dead, there's a block of 32 null samples. The only
+      // thing we have to do is advance the clock counter for the arpeggiator.
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
         audio_out.Overwrite(128);
+        engine.mutable_voice_controller()->Audio();
       }
     } else {
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
