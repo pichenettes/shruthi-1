@@ -78,14 +78,14 @@ void SynthesisEngine::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_TRIANGLE, 0, 0, 4,
-    WAVEFORM_TRIANGLE, 8, -12, 12,
+    WAVEFORM_SAW, 0, 0, 0,
+    WAVEFORM_SQUARE, 24, -12, 12,
     // Mixer
-    0, 63, 0, WAVEFORM_SUB_OSC_BLOW,
+    16, 0, 0, WAVEFORM_SQUARE,  
     // Filter
-    80, 0, 20, 0,
+    90, 0, 20, 0,
     // ADSR
-    0, 50, 20, 60,
+    0, 60, 20, 60,
     0, 40, 80, 40,
     // LFO
     LFO_WAVEFORM_TRIANGLE, 96, 0, 0,
