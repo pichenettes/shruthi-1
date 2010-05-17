@@ -172,6 +172,10 @@ cv1
 cv2
 cv3
 cv4
+ccA
+ccB
+ccC
+ccD
  noi
 en1
 en2
@@ -194,6 +198,10 @@ cv 1
 cv 2
 cv 3
 cv 4
+cc A
+cc B
+cc C
+cc D
   noise
 env 1
 env 2
@@ -220,6 +228,26 @@ free
 slave
 master
 
+270
+300
+330
+360
+420
+480
+600
+720
+960
+
+groove
+swing
+shuffle
+push
+lag
+human
+
+start
+length
+
 flow
 \x7e
  \x7f
@@ -237,23 +265,6 @@ ghana
 4jata
 4sikha
 4ghana
-
-270
-300
-330
-360
-420
-480
-600
-720
-960
-
-groove
-swing
-shuffle
-push
-lag
-human
 
 touch a knob to
 assign parameter

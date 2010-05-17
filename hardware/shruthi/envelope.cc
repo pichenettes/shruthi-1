@@ -19,8 +19,8 @@
 
 namespace hardware_shruthi {
 
-// A decay of 40 will be played as a fast segment with a decay of 44, then a
-// slow section with a decay of 36, to give a logarithmic feel.
+// A decay of 40 will be played as a fast segment with a decay of 48, then a
+// slow section with a decay of 32, to give a logarithmic feel.
 const uint8_t kEnvelopeKnee = 8;
 
 void Envelope::Init() {

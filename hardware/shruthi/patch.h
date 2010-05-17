@@ -115,11 +115,6 @@ class Patch {
   void Update() { }
 };
 
-static const uint8_t kNumModulationSources = 21;
-static const uint8_t kNumGlobalModulationSources = 15;
-static const uint8_t kNumVoiceModulationSources = kNumModulationSources -
-    kNumGlobalModulationSources;
-
 enum ModulationSource {
   /* First the modulation sources common to all notes. */
   MOD_SRC_LFO_1 = 0,
@@ -136,16 +131,25 @@ enum ModulationSource {
   MOD_SRC_CV_2,
   MOD_SRC_CV_3,
   MOD_SRC_CV_4,
+  MOD_SRC_CC_A,
+  MOD_SRC_CC_B,
+  MOD_SRC_CC_C,
+  MOD_SRC_CC_D,
   MOD_SRC_NOISE,
 
   /* Then those which are different for each note. */
-  MOD_SRC_ENV_1 = kNumGlobalModulationSources,
+  MOD_SRC_ENV_1,
   MOD_SRC_ENV_2,
   MOD_SRC_VELOCITY,
   MOD_SRC_RANDOM,
   MOD_SRC_NOTE,
   MOD_SRC_GATE,
 };
+
+static const uint8_t kNumModulationSources = MOD_SRC_GATE + 1;
+static const uint8_t kNumGlobalModulationSources = MOD_SRC_NOISE + 1;
+static const uint8_t kNumVoiceModulationSources = kNumModulationSources -
+    kNumGlobalModulationSources;
 
 enum ModulationDestination {
   MOD_DST_FILTER_CUTOFF = 0,

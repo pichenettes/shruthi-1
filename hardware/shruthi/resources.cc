@@ -167,6 +167,10 @@ static const prog_char str_res_cv1[] PROGMEM = "cv1";
 static const prog_char str_res_cv2[] PROGMEM = "cv2";
 static const prog_char str_res_cv3[] PROGMEM = "cv3";
 static const prog_char str_res_cv4[] PROGMEM = "cv4";
+static const prog_char str_res_cca[] PROGMEM = "ccA";
+static const prog_char str_res_ccb[] PROGMEM = "ccB";
+static const prog_char str_res_ccc[] PROGMEM = "ccC";
+static const prog_char str_res_ccd[] PROGMEM = "ccD";
 static const prog_char str_res__noi[] PROGMEM = "noi";
 static const prog_char str_res_en1[] PROGMEM = "en1";
 static const prog_char str_res_en2[] PROGMEM = "en2";
@@ -188,6 +192,10 @@ static const prog_char str_res_cv_1[] PROGMEM = "cv 1";
 static const prog_char str_res_cv_2[] PROGMEM = "cv 2";
 static const prog_char str_res_cv_3[] PROGMEM = "cv 3";
 static const prog_char str_res_cv_4[] PROGMEM = "cv 4";
+static const prog_char str_res_cc_a[] PROGMEM = "cc A";
+static const prog_char str_res_cc_b[] PROGMEM = "cc B";
+static const prog_char str_res_cc_c[] PROGMEM = "cc C";
+static const prog_char str_res_cc_d[] PROGMEM = "cc D";
 static const prog_char str_res___noise[] PROGMEM = "noise";
 static const prog_char str_res_env_1[] PROGMEM = "env 1";
 static const prog_char str_res_env_2[] PROGMEM = "env 2";
@@ -210,6 +218,23 @@ static const prog_char str_res_impro[] PROGMEM = "impro";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
+static const prog_char str_res_270[] PROGMEM = "270";
+static const prog_char str_res_300[] PROGMEM = "300";
+static const prog_char str_res_330[] PROGMEM = "330";
+static const prog_char str_res_360[] PROGMEM = "360";
+static const prog_char str_res_420[] PROGMEM = "420";
+static const prog_char str_res_480[] PROGMEM = "480";
+static const prog_char str_res_600[] PROGMEM = "600";
+static const prog_char str_res_720[] PROGMEM = "720";
+static const prog_char str_res_960[] PROGMEM = "960";
+static const prog_char str_res_groove[] PROGMEM = "groove";
+static const prog_char str_res_swing[] PROGMEM = "swing";
+static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
+static const prog_char str_res_push[] PROGMEM = "push";
+static const prog_char str_res_lag[] PROGMEM = "lag";
+static const prog_char str_res_human[] PROGMEM = "human";
+static const prog_char str_res_start[] PROGMEM = "start";
+static const prog_char str_res_length[] PROGMEM = "length";
 static const prog_char str_res_flow[] PROGMEM = "flow";
 static const prog_char str_res_T[] PROGMEM = "~";
 static const prog_char str_res___[] PROGMEM = "";
@@ -227,21 +252,6 @@ static const prog_char str_res_4krama[] PROGMEM = "4krama";
 static const prog_char str_res_4jata[] PROGMEM = "4jata";
 static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
 static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
-static const prog_char str_res_270[] PROGMEM = "270";
-static const prog_char str_res_300[] PROGMEM = "300";
-static const prog_char str_res_330[] PROGMEM = "330";
-static const prog_char str_res_360[] PROGMEM = "360";
-static const prog_char str_res_420[] PROGMEM = "420";
-static const prog_char str_res_480[] PROGMEM = "480";
-static const prog_char str_res_600[] PROGMEM = "600";
-static const prog_char str_res_720[] PROGMEM = "720";
-static const prog_char str_res_960[] PROGMEM = "960";
-static const prog_char str_res_groove[] PROGMEM = "groove";
-static const prog_char str_res_swing[] PROGMEM = "swing";
-static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
-static const prog_char str_res_push[] PROGMEM = "push";
-static const prog_char str_res_lag[] PROGMEM = "lag";
-static const prog_char str_res_human[] PROGMEM = "human";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_patches[] PROGMEM = "patches";
@@ -433,6 +443,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res_cv2,
   str_res_cv3,
   str_res_cv4,
+  str_res_cca,
+  str_res_ccb,
+  str_res_ccc,
+  str_res_ccd,
   str_res__noi,
   str_res_en1,
   str_res_en2,
@@ -454,6 +468,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res_cv_2,
   str_res_cv_3,
   str_res_cv_4,
+  str_res_cc_a,
+  str_res_cc_b,
+  str_res_cc_c,
+  str_res_cc_d,
   str_res___noise,
   str_res_env_1,
   str_res_env_2,
@@ -476,6 +494,23 @@ PROGMEM const prog_char* string_table[] = {
   str_res_free,
   str_res_slave,
   str_res_master,
+  str_res_270,
+  str_res_300,
+  str_res_330,
+  str_res_360,
+  str_res_420,
+  str_res_480,
+  str_res_600,
+  str_res_720,
+  str_res_960,
+  str_res_groove,
+  str_res_swing,
+  str_res_shuffle,
+  str_res_push,
+  str_res_lag,
+  str_res_human,
+  str_res_start,
+  str_res_length,
   str_res_flow,
   str_res_T,
   str_res___,
@@ -493,21 +528,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_4jata,
   str_res_4sikha,
   str_res_4ghana,
-  str_res_270,
-  str_res_300,
-  str_res_330,
-  str_res_360,
-  str_res_420,
-  str_res_480,
-  str_res_600,
-  str_res_720,
-  str_res_960,
-  str_res_groove,
-  str_res_swing,
-  str_res_shuffle,
-  str_res_push,
-  str_res_lag,
-  str_res_human,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,
   str_res_patches,

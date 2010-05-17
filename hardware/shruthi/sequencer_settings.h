@@ -200,6 +200,7 @@ enum SequencerParameter {
   PRM_ARP_FLOW,
   
   PRM_SEQ_PATTERN_SIZE,
+  PRM_SEQ_PATTERN_ROTATION,
 };
 
 static const uint8_t kNumArpeggiatorPatterns = 15;

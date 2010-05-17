@@ -30,6 +30,8 @@ namespace hardware_hal {
 
 namespace hardware_shruthi {
 
+class ParameterDefinition;
+
 enum EditorMode {
   EDITOR_MODE_PATCH,
   EDITOR_MODE_SEQUENCE,
@@ -90,30 +92,6 @@ enum LoadSavePage {
   LOAD_SAVE_SYSTEM_SETTINGS,
 };
 
-enum Unit {
-  UNIT_RAW_UINT8,
-  UNIT_UINT8,
-  UNIT_INT8,
-  UNIT_BOOLEAN,
-  UNIT_WAVEFORM,
-  UNIT_SUB_OSC_WAVEFORM,
-  UNIT_OPERATOR,
-  UNIT_LFO_WAVEFORM,
-  UNIT_LFO_RATE,
-  UNIT_INDEX,
-  UNIT_MODULATION_SOURCE,
-  UNIT_MODULATION_DESTINATION,
-  UNIT_ARPEGGIO_DIRECTION,
-  UNIT_RAGA,
-  UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
-  UNIT_MIDI_MODE,
-  UNIT_SEQUENCER_MODE,
-  UNIT_SEQUENCER_FLOW,
-  UNIT_GROOVE_TEMPLATE,
-  UNIT_ARPEGGIO_PATTERN,
-  UNIT_LFO_RETRIGGER_MODE,
-};
-
 enum Action {
   ACTION_LOAD,
   ACTION_EXIT,
@@ -123,7 +101,6 @@ enum Action {
 // We do not use enums here because they take 2 bytes, not 1.
 typedef uint8_t ParameterGroup;
 typedef uint8_t ParameterPage;
-typedef uint8_t ParameterUnit;
 
 static const uint8_t kNumPages = PAGE_PERFORMANCE + 1;
 static const uint8_t kNumGroups = GROUP_PERFORMANCE + 1;
@@ -132,15 +109,6 @@ static const uint8_t kNumGroups = GROUP_PERFORMANCE + 1;
 static const uint8_t kCaptionWidth = 10;
 static const uint8_t kValueWidth = 6;
 static const uint8_t kColumnWidth = 4;
-
-struct ParameterDefinition {
-  uint8_t id;
-  uint8_t min_value;
-  uint8_t max_value;
-  ParameterUnit unit;
-  uint8_t short_name;
-  uint8_t long_name;
-};
 
 enum PageUiType {
   PARAMETER_EDITOR,
@@ -263,16 +231,13 @@ class Editor {
   static void RandomizeParameter(uint8_t subpage, uint8_t parameter_index);
   static void RandomizePatch();
   static void RandomizeSequence();
-
-  static const ParameterDefinition& parameter_definition(uint8_t index);
+  
+  // Before processing a knob move, check that this move is not meant to
+  // complete a knob assignment action.
+  static uint8_t HandleKnobAssignment(uint8_t knob_index);
 
   static const PageDefinition page_definition_[];
   static const UiHandler ui_handler_[];
-
-  // Parameter definitions are stored in program memory and need to be copied
-  // in SRAM when read. This temporary storage space holds them.
-  static ParameterDefinition parameter_definition_;
-  static uint8_t parameter_definition_index_;
 
   static ParameterPage current_page_;
   static ParameterPage last_visited_page_[kNumGroups];
@@ -280,6 +245,7 @@ class Editor {
   static uint8_t display_mode_;
   static uint8_t editor_mode_;
   static uint8_t cursor_;
+  static uint8_t last_knob_;
   static uint8_t last_visited_subpage_;
 
   static char line_buffer_[kLcdWidth * kLcdHeight + 1];

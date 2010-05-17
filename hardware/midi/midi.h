@@ -32,6 +32,10 @@ const uint8_t kAttack = 0x49;
 const uint8_t kBrightness = 0x4a;
 const uint8_t kNrpnMsb = 0x63;
 const uint8_t kNrpnLsb = 0x62;
+const uint8_t kAssignableCcA = 0x10;
+const uint8_t kAssignableCcB = 0x11;
+const uint8_t kAssignableCcC = 0x12;
+const uint8_t kAssignableCcD = 0x13;
 
 // A device that responds to MIDI messages should implement this interface.
 // Everything is static - this is because the main synth class is a "static

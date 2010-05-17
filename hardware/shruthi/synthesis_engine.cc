@@ -23,6 +23,7 @@
 
 #include "hardware/resources/resources_manager.h"
 #include "hardware/shruthi/oscillator.h"
+#include "hardware/shruthi/parameter_definitions.h"
 #include "hardware/shruthi/storage.h"
 #include "hardware/shruthi/transient_generator.h"
 #include "hardware/utils/random.h"
@@ -81,7 +82,7 @@ static const prog_char init_patch[] PROGMEM = {
     WAVEFORM_SAW, 0, 0, 0,
     WAVEFORM_SQUARE, 24, -12, 12,
     // Mixer
-    16, 0, 0, WAVEFORM_SQUARE,  
+    16, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
     // Filter
     90, 0, 20, 0,
     // ADSR
@@ -180,38 +181,59 @@ void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
 /* static */
 void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
                                     uint8_t value) {
-  switch (controller) {
-    case hardware_midi::kModulationWheelMsb:
-      modulation_sources_[MOD_SRC_WHEEL] = (value << 1);
-      break;
-    case hardware_midi::kDataEntryMsb:
-      data_entry_msb_ = value << 7;
-      break;
-    case hardware_midi::kDataEntryLsb:
-      value = value | data_entry_msb_;
-      if (nrpn_parameter_number_ < sizeof(Patch) - 1) {
-        SetParameter(nrpn_parameter_number_, value);
-      }
-      break;
-    case hardware_midi::kPortamentoTimeMsb:
-      system_settings_.portamento = value;
-      break;
-    case hardware_midi::kRelease:
-      SetParameter(PRM_ENV_RELEASE_2, value);
-      break;
-    case hardware_midi::kAttack:
-      SetParameter(PRM_ENV_ATTACK_2, value);
-      break;
-    case hardware_midi::kHarmonicIntensity:
-      patch_.filter_resonance = value >> 1;
-      break;
-    case hardware_midi::kBrightness:
-      patch_.filter_cutoff = value;
-      break;
-    case hardware_midi::kNrpnLsb:
-      nrpn_parameter_number_ = value;
-      data_entry_msb_ = 0;
-      break;
+  uint8_t editing_controller = 0;
+  if (controller >= hardware_midi::kAssignableCcA &&
+      controller <= hardware_midi::kAssignableCcD) {
+    modulation_sources_[MOD_SRC_CC_A + controller -
+        hardware_midi::kAssignableCcA] = value << 1;
+  } else if (controller >= 20 && controller <= 31) {
+    controller -= 20;  // CCs for oscillators and mixer.
+    editing_controller = 1;
+  } else if (controller >= 14 && controller <= 15) {
+    controller -= 2; // CCs for Cutoff and resonance.
+    editing_controller = 1;
+  } else if (controller >= 102 && controller <= 119) {
+    controller -= (102 - 14); // CCs for filter mods, envelopes and LFOs.
+    editing_controller = 1;
+  } else {
+    switch (controller) {
+      case hardware_midi::kModulationWheelMsb:
+        modulation_sources_[MOD_SRC_WHEEL] = value << 1;
+        break;
+      case hardware_midi::kDataEntryMsb:
+        data_entry_msb_ = value << 7;
+        break;
+      case hardware_midi::kDataEntryLsb:
+        value = value | data_entry_msb_;
+        if (nrpn_parameter_number_ < sizeof(Patch) - 1) {
+          SetParameter(nrpn_parameter_number_, value);
+        }
+        break;
+      case hardware_midi::kPortamentoTimeMsb:
+        system_settings_.portamento = value;
+        break;
+      case hardware_midi::kRelease:
+        SetParameter(PRM_ENV_RELEASE_2, value);
+        break;
+      case hardware_midi::kAttack:
+        SetParameter(PRM_ENV_ATTACK_2, value);
+        break;
+      case hardware_midi::kHarmonicIntensity:
+        patch_.filter_resonance = value >> 1;
+        break;
+      case hardware_midi::kBrightness:
+        patch_.filter_cutoff = value;
+        break;
+      case hardware_midi::kNrpnLsb:
+        nrpn_parameter_number_ = value;
+        data_entry_msb_ = 0;
+        break;
+    }
+  }
+  if (editing_controller) {
+    const ParameterDefinition& parameter = (
+        ParameterDefinitions::parameter_definition(controller));
+    SetParameter(parameter.id, ParameterDefinitions::Scale(parameter, value));
   }
 }
 
