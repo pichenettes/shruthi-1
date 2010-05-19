@@ -181,9 +181,9 @@ waveforms.extend(bl_square_tables)
 waveforms.extend(bl_saw_tables)
 waveforms.extend(bl_tri_tables)
 waveforms.extend([
-    ('wavetable_1', LoadWavetable('hardware/shruthi/data/bell.bin')),
-    ('wavetable_2', LoadWavetable('hardware/shruthi/data/drone.bin')),
-    ('wavetable_3', LoadWavetable('hardware/shruthi/data/female.bin')),
+    ('wavetable_1', LoadWavetable('hardware/shruthi/data/slap.bin', sort=False)),
+    ('wavetable_2', LoadWavetable('hardware/shruthi/data/cello.bin', sort=False)),
+    ('wavetable_3', LoadWavetable('hardware/shruthi/data/vibes.bin', sort=False)),
     ('wavetable_4', LoadWavetable('hardware/shruthi/data/male.bin')),
     ('wavetable_5', LoadWavetable('hardware/shruthi/data/sines.bin')),
     ('wavetable_6', LoadWavetable('hardware/shruthi/data/waves.bin', sort=False)),

@@ -57,10 +57,11 @@ def CreateMidifile(
       'Page size: %(page_size)d' % locals(),
       'Delay: %(delay)d ms' % locals()]
   m = midifile.MidiFile()
-  m.AddTrack().AddEvent(0, midifile.TempoEvent(120.0))
-  for comment in comments:
-    m.AddTrack().AddEvent(0, midifile.TextEvent(comment))
+  if options.write_comments:
+    for comment in comments:
+      m.AddTrack().AddEvent(0, midifile.TextEvent(comment))
   t = m.AddTrack()
+  t.AddEvent(0, midifile.TempoEvent(120.0))
   page_size *= 2  # Converts from words to bytes
   # The first SysEx block must not start at 0! Sequencers like Logic play the
   # first SysEx block everytime stop/play is pressed.
@@ -131,6 +132,13 @@ if __name__ == '__main__':
       dest='reset_command',
       default='\x7f\x00',
       help='Post-OS update reset SysEx command')
+  parser.add_option(
+      '-c',
+      '--comments',
+      dest='write_comments',
+      action='store_true',
+      default=False,
+      help='Store additional technical gibberish')
 
   options, args = parser.parse_args()
   if len(args) != 1:
