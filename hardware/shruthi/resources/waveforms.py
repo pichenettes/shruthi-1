@@ -147,15 +147,7 @@ for zone in range(num_zones):
                        Scale(saw[quadrature])))
 
 
-def SpectralCentroid(x):
-  x = numpy.fft.fft(x)
-  x = x[:len(x) / 2]
-  spectrum = numpy.abs(x)
-  centroid = (spectrum * xrange(len(x))).sum() / spectrum.sum()
-  return centroid
-
-
-def LoadWavetable(x, sort=True):
+def LoadWavetable(x):
   # Load the data and split/pad single cycle waveforms.
   array = numpy.array(map(ord, list(file(x).read())))
   num_cycles = len(array) / 256
@@ -166,14 +158,7 @@ def LoadWavetable(x, sort=True):
       wavetable[i, j] = array[i * 256 + j]
     wavetable[i, 256] = wavetable[i, 0]
   
-  if not sort:
-    return wavetable.ravel()
-  else:
-    sorted_wavetable = numpy.zeros((num_cycles, 257))
-    arg_sort = sorted([(SpectralCentroid(x), i) for (i, x) in enumerate(wavetable)])
-    for target_index, (_, index) in enumerate(arg_sort):
-      sorted_wavetable[target_index, :] = wavetable[index, :]
-    return sorted_wavetable.ravel()
+  return wavetable.ravel()
 
 
 waveforms.extend(bl_pulse_tables)
@@ -181,12 +166,16 @@ waveforms.extend(bl_square_tables)
 waveforms.extend(bl_saw_tables)
 waveforms.extend(bl_tri_tables)
 waveforms.extend([
-    ('wavetable_1', LoadWavetable('hardware/shruthi/data/slap.bin', sort=False)),
-    ('wavetable_2', LoadWavetable('hardware/shruthi/data/cello.bin', sort=False)),
-    ('wavetable_3', LoadWavetable('hardware/shruthi/data/vibes.bin', sort=False)),
-    ('wavetable_4', LoadWavetable('hardware/shruthi/data/male.bin')),
-    ('wavetable_5', LoadWavetable('hardware/shruthi/data/sines.bin')),
-    ('wavetable_6', LoadWavetable('hardware/shruthi/data/waves.bin', sort=False)),
+    ('wavetable_1', LoadWavetable('hardware/shruthi/data/waves.bin')),
+#    ('wavetable_2', LoadWavetable('hardware/shruthi/data/digital.bin')),
+    ('wavetable_3', LoadWavetable('hardware/shruthi/data/metallic.bin')),
+#    ('wavetable_4', LoadWavetable('hardware/shruthi/data/vibes.bin')),
+    ('wavetable_5', LoadWavetable('hardware/shruthi/data/slap.bin')),
+#    ('wavetable_6', LoadWavetable('hardware/shruthi/data/cello.bin')),
+    ('wavetable_7', LoadWavetable('hardware/shruthi/data/bowed.bin')),
+    ('wavetable_8', LoadWavetable('hardware/shruthi/data/male.bin')),
+    ('wavetable_9', LoadWavetable('hardware/shruthi/data/female.bin')),
+#    ('wavetable_10', LoadWavetable('hardware/shruthi/data/sines.bin')),
 ])
 
 """----------------------------------------------------------------------------

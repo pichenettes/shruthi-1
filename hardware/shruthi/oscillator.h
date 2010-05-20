@@ -142,6 +142,10 @@ struct QuadSawPadData {
   uint16_t phase[3];
 };
 
+struct CrushedSineData {
+  uint8_t decimate;
+};
+
 union OscillatorData {
   BandlimitedPwmOscillatorData pw;
   SawTriangleOscillatorData st;
@@ -151,6 +155,7 @@ union OscillatorData {
   Wavetable64OscillatorData wt;
   FilteredNoiseData no;
   QuadSawPadData qs;
+  CrushedSineData cr;
 };
 
 struct AlgorithmFn {
@@ -453,6 +458,25 @@ class Oscillator {
     uint8_t x = parameter_;
     held_sample_ = (((phase_ >> 8) ^ (x << 1)) & (~x)) + (x >> 1);
   }
+
+  // ------- 8-bit land --------------------------------------------------------
+  static void RenderCrushedSine() {
+    phase_ += phase_increment_;
+    ++data_.cr.decimate;
+    if (parameter_ <= 63) {
+      if (data_.cr.decimate >= parameter_ + 1) {
+        data_.cr.decimate = 0;
+        held_sample_ = InterpolateSample(waveform_table[WAV_RES_SINE], phase_);
+      }
+    } else {
+      if (data_.cr.decimate >= 128 - parameter_) {
+        data_.cr.decimate = 0;
+        held_sample_ = InterpolateSample(
+            waveform_table[WAV_RES_BANDLIMITED_TRIANGLE_0],
+            phase_);
+      }
+    }
+  }
   
   // ------- Vowel ------------------------------------------------------------
   //
@@ -613,6 +637,7 @@ template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   
   { &Osc::UpdateSilence, &Osc::Render8BitLand },
+  { &Osc::UpdateSilence, &Osc::RenderCrushedSine },
   { &Osc::UpdateSilence, &Osc::RenderDirtyPwm },
   { &Osc::UpdateSilence, &Osc::RenderFilteredNoise },
   

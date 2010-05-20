@@ -60,6 +60,7 @@ male
 sines
 waves
 8bits
+crush
 pwm
 noise
 vowel
