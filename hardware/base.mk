@@ -19,8 +19,8 @@ AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
 AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
 BUILD_DIR      = build/$(TARGET)
 
-MCU            = atmega644p
-DMCU           = m644p
+MCU            = atmega1284p
+DMCU           = m1284p
 F_CPU          = 20000000
 # SERIAL_PORT  = /dev/cu.usbserial-A6008iA6
 SERIAL_PORT    = /dev/cu.usbserial-A6008hLO

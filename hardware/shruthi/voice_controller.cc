@@ -140,7 +140,7 @@ void VoiceController::ComputeExpandedPatternSize() {
     pattern_size >>= 1;
   }
   switch (flow & 0x3) {
-    case FLOW_NORMAL:  // and 
+    case FLOW_NORMAL:
       expanded_pattern_size_ = flow < 4
           ? pattern_size
           : 2 * (pattern_size - 1);
@@ -301,7 +301,7 @@ int8_t VoiceController::FoldPattern() {
     step >>= 1;
   }
   switch (flow) {
-    case FLOW_NORMAL:  // and 
+    case FLOW_NORMAL:
       pattern_step_ = step;
       break;
 
@@ -316,7 +316,7 @@ int8_t VoiceController::FoldPattern() {
     case FLOW_BACK_FORTH_2:
       pattern_step_ = step < pattern_size ? step : 2 * pattern_size - step - 2;
       break;
-      
+
     default:
       pattern_step_ = ResourcesManager::Lookup<uint8_t, uint8_t>(
           waveform_table[WAV_RES_EXPANSION_KRAMA + (flow & 0x3)],
@@ -342,6 +342,7 @@ int8_t VoiceController::FoldPattern() {
 
 /* static */
 uint8_t VoiceController::Control() {
+  internal_clock_counter_ -= kControlRate;
   ++step_duration_estimator_num_;
   if ((sequencer_settings_->seq_tempo && internal_clock_counter_ > 0) ||
       (!sequencer_settings_->seq_tempo && midi_clock_counter_ > 0)) {
@@ -356,7 +357,7 @@ uint8_t VoiceController::Control() {
   }
 
   // Start counting inactive steps when no key is currently pressed.
-  if (notes_.size() == 0 && sequencer_settings_->seq_tempo && 
+  if (notes_.size() == 0 && sequencer_settings_->seq_tempo &&
       sequencer_settings_->seq_mode != SEQUENCER_MODE_RPS_LATCH &&
       sequencer_settings_->seq_mode != SEQUENCER_MODE_ARP_LATCH &&
       active_) {
@@ -378,7 +379,7 @@ uint8_t VoiceController::Control() {
     step_duration_estimator_den_ = 0;
     step_duration_estimator_num_ = 0;
   }
-  
+
   Step(FoldPattern());
   return 1;
 }
@@ -396,7 +397,7 @@ void VoiceController::ArpeggioStart(int8_t delta) {
   int8_t sign = delta > 0 ? arp_current_direction_ : -arp_current_direction_;
   if (sign == 1) {
     arp_octave_step_ = 0;
-    arp_step_ = 0; 
+    arp_step_ = 0;
   } else {
     arp_octave_step_ = sequencer_settings_->arp_range - 1;
     arp_step_ = notes_.size() - 1;
@@ -442,7 +443,7 @@ void VoiceController::ArpeggioStep(int8_t delta) {
         } else {
           if (arp_current_direction_ * delta == 1) {
             arp_octave_step_ = 0;
-            arp_step_ = 0; 
+            arp_step_ = 0;
           } else {
             arp_octave_step_ = sequencer_settings_->arp_range - 1;
             arp_step_ = notes_.size() - 1;
@@ -480,7 +481,7 @@ void VoiceController::Step(int8_t delta) {
         voices_[0].Release();
       }
       break;
-      
+
     case SEQUENCER_MODE_RPS:
     case SEQUENCER_MODE_RPS_LATCH:
       if (notes_.size()) {

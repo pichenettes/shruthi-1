@@ -156,9 +156,9 @@ def GenerateCc(base_name, res):
           n_elements = len(data)
           for i in xrange(0, n_elements, 8):
             f.write('  ');
-            for j in xrange(i, min(n_elements, i + 8)):
-              f.write('%6d, ' % data[j]);
-            f.write('\n');
+            f.write(', '.join(
+                '%6d' % data[j] for j in xrange(i, min(n_elements, i + 8))))
+            f.write(',\n');
           f.write('};\n')
           canonical[tuple(data)] = name
       if ram:

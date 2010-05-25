@@ -18,9 +18,10 @@
 // Fast serial (for the onboard UART), using compile time optimizations.
 
 #include "hardware/hal/serial.h"
-#include "hardware/hal/gpio.h"
 
 #include <avr/interrupt.h>
+
+#include "hardware/hal/gpio.h"
 
 using namespace hardware_hal;
 

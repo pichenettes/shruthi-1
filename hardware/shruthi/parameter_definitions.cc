@@ -62,7 +62,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_PRM, STR_RES_PARAMETER,
 
   PRM_OSC_RANGE_2,
-  -24, 24, 
+  -24, 24,
   UNIT_INT8,
   STR_RES_RNG, STR_RES_RANGE,
 
@@ -89,7 +89,7 @@ static const prog_char raw_parameter_definition[
 
   PRM_MIX_SUB_OSC_SHAPE,
   WAVEFORM_SUB_OSC_SQUARE, WAVEFORM_SUB_OSC_POP,
-  UNIT_SUB_OSC_WAVEFORM, 
+  UNIT_SUB_OSC_WAVEFORM,
   STR_RES_SHAPE, STR_RES_SHAPE,
 
   // Filter.
@@ -235,7 +235,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_GROOVE, STR_RES_GROOVE,
 
   PRM_SEQ_GROOVE_AMOUNT,
-  0, 127, 
+  0, 127,
   UNIT_RAW_UINT8,
   STR_RES_AMOUNT, STR_RES_AMOUNT,
 
@@ -287,7 +287,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_TUNING, STR_RES_TUNING,
 
   PRM_SYS_MIDI_CHANNEL,
-  0, 16, 
+  0, 16,
   UNIT_UINT8,
   STR_RES_CHN, STR_RES_MIDI_CHAN,
 
@@ -300,7 +300,7 @@ static const prog_char raw_parameter_definition[
   1, 8,
   UNIT_UINT8,
   STR_RES_POLY, STR_RES_POLY,
-  
+
   PRM_SEQ_PATTERN_ROTATION,
   0, 15,
   UNIT_UINT8,

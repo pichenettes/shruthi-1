@@ -169,7 +169,7 @@ ParameterPage Editor::last_visited_page_[kNumGroups] = {
     PAGE_SEQ_TRACKER,
     PAGE_SEQ_RHYTHM,
     PAGE_SYS_KBD,
-    
+
     PAGE_LOAD_SAVE,
     PAGE_PERFORMANCE
 };
@@ -407,7 +407,7 @@ void Editor::EnterLoadSaveMode() {
   assign_in_progress_ = 0;
   display.set_cursor_position(kLcdNoCursor);
   display_mode_ = DISPLAY_MODE_OVERVIEW;
-  
+
   if (current_page_ == PAGE_LOAD_SAVE) {
     if (action_ == ACTION_SAVE) {
       display.set_status('w');
@@ -415,12 +415,12 @@ void Editor::EnterLoadSaveMode() {
         case LOAD_SAVE_PATCH:
           Storage::Write(engine.mutable_patch(), current_patch_number_);
           break;
-      
+
         case LOAD_SAVE_SEQUENCE:
           Storage::Write(engine.mutable_sequencer_settings(),
                          current_sequence_number_);
           break;
-        
+
         case LOAD_SAVE_SYSTEM_SETTINGS:
           engine.mutable_system_settings()->EepromSave();
           break;
@@ -438,7 +438,7 @@ void Editor::EnterLoadSaveMode() {
     } else {
       subpage_ = LOAD_SAVE_SEQUENCE;
       previous_sequence_number_ = current_sequence_number_;
-      Storage::Backup(engine.mutable_sequencer_settings());      
+      Storage::Backup(engine.mutable_sequencer_settings());
     }
   }
   current_page_ = PAGE_LOAD_SAVE;
@@ -526,13 +526,15 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
     }
   } else {
     if (subpage_ == LOAD_SAVE_PATCH) {
-      int8_t patch_number = static_cast<int8_t>(current_patch_number_) + direction;
+      int8_t patch_number = static_cast<int8_t>(
+          current_patch_number_) + direction;
       if (patch_number >= 0 &&
           patch_number < Storage::size<Patch>()) {
         LoadPatch(patch_number);
       }
     } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
-      int8_t sequence_number = static_cast<int8_t>(current_sequence_number_) + direction;
+      int8_t sequence_number = static_cast<int8_t>(
+          current_sequence_number_) + direction;
       if (sequence_number >= 0 &&
           sequence_number < Storage::size<SequencerSettings>()) {
         LoadSequence(sequence_number);
@@ -1026,7 +1028,7 @@ uint8_t Editor::GetParameterValue(uint8_t id) {
 /* static */
 void Editor::DisplaySplashScreen(ResourceId first_line) {
   // 0123456789abcdef
-  // mutable 
+  // mutable
   // instruments sh-1
   for (uint8_t i = 0; i < 2; ++i) {
     ResourcesManager::LoadStringResource(

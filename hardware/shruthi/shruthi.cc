@@ -53,13 +53,13 @@ Pots pots;
 
 // LED array.
 OutputArray<
-    Gpio<kPinLatch>, 
+    Gpio<kPinLatch>,
     Gpio<kPinClk>,
     Gpio<kPinData>, kNumLeds, 4, MSB_FIRST, false> leds;
 
 // Switches array
 SwitchArray<
-  Gpio<kPinLatch>, 
+  Gpio<kPinLatch>,
   Gpio<kPinClk>,
   Gpio<kPinDigitalInput>,
   kNumSwitches,
@@ -153,7 +153,7 @@ TASK_BEGIN_NEAR
         editor.HandleKeyEvent(switches.key_event());
       }
     }
-    
+
     // Read the ADC.
     pot_event = pots.Read();
     PotsMux::set_pin(pots.active_input());
@@ -251,7 +251,7 @@ void MidiTask() {
         break;
     }
   }
-  
+
   // Flush to the output the buffered MIDI data.
   if (midi_out_filter.readable()) {
     if (midi_io.writable()) {
@@ -268,7 +268,6 @@ void AudioRenderingTask() {
       // thing we have to do is advance the clock counter for the arpeggiator.
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
         audio_out.Overwrite(128);
-        engine.mutable_voice_controller()->Audio();
       }
     } else {
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {

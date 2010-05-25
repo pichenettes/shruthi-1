@@ -23,8 +23,8 @@ TARGET         = muboot
 PACKAGES       = hardware/bootloader
 BUILD_DIR      = build/$(TARGET)
 
-MCU            = atmega644p
-DMCU           = m644p
+MCU            = atmega1284p
+DMCU           = m1284p
 F_CPU          = 20000000
 
 LFUSE          = FF

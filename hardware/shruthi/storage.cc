@@ -97,7 +97,8 @@ void Storage::SysExReceive(uint8_t sysex_rx_byte) {
   }
   switch (sysex_rx_state_) {
     case RECEIVING_HEADER:
-      if (pgm_read_byte(sysex_rx_header + sysex_rx_bytes_received_) == sysex_rx_byte) {
+      if (pgm_read_byte(sysex_rx_header + sysex_rx_bytes_received_) == \
+          sysex_rx_byte) {
         sysex_rx_bytes_received_++;
         if (sysex_rx_bytes_received_ >= sizeof(sysex_rx_header)) {
           sysex_rx_state_ = RECEIVING_COMMAND;
@@ -107,7 +108,7 @@ void Storage::SysExReceive(uint8_t sysex_rx_byte) {
         sysex_rx_state_ = RECEIVING_FOOTER;
       }
       break;
-      
+
     case RECEIVING_COMMAND:
       sysex_rx_command_[sysex_rx_bytes_received_++] = sysex_rx_byte;
       if (sysex_rx_bytes_received_ == 2) {

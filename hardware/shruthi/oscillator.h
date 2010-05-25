@@ -110,11 +110,6 @@ struct SawTriangleOscillatorData {
   uint8_t balance;
 };
 
-// Interpolates between two different points in a 64-samples wavetable.
-struct Wavetable64OscillatorData {
-  int16_t smooth_parameter;
-};
-
 struct CzOscillatorData {
   uint16_t formant_phase;
   uint16_t formant_phase_increment;
@@ -152,7 +147,6 @@ union OscillatorData {
   CzOscillatorData cz;
   FmOscillatorData fm;
   VowelSynthesizerData vw;
-  Wavetable64OscillatorData wt;
   FilteredNoiseData no;
   QuadSawPadData qs;
   CrushedSineData cr;
@@ -291,31 +285,47 @@ class Oscillator {
     wave_index = AddClip(wave_index, 1, kNumZonesFullSampleRate);
     data_.st.wave[1] = waveform_table[base_resource_id + wave_index];
   }
-  static void RenderSimpleWavetable() {
+  static void RenderSimpleWavetableClip() {
     phase_ += phase_increment_;
     uint8_t sample = InterpolateTwoTables(
         data_.st.wave[0], data_.st.wave[1],
         phase_, data_.st.balance);
 
-    // To produce pulse width-modulated variants, we shift (saw) or set to
-    // a constant (triangle) a portion of the waveform within an increasingly
-    // large fraction of the period. Note that this is pure waveshapping - the
-    // phase information is not used to determine when/where to shift.
+    // To produce pulse width-modulated variants, we clip a portion of the
+    // waveform within an increasingly large fraction of the period.
+    // Note that this is pure waveshapping - the phase information is not used
+    // to determine when/where to shift.
     //
-    //     /|            /|          /\             /\
-    //    / |           / |         /  \           /  \
-    //   /  |    =>  /|/  |        /    \  =>  ___/    \
-    //  /   |       /     |/      /      \
-    // /    |/                   /        \
+    //      /\             /\
+    //     /  \           /  \
+    //    /    \  =>  ___/    \
+    //   /      \
+    //  /        \
     //
     if (sample < parameter_) {
-      if (shape_ == WAVEFORM_SAW) {
-        // Add a discontinuity.
-        sample += parameter_ >> 1;
-      } else {
-        // Clip.
-        sample = parameter_;
-      }
+      sample = parameter_;
+    }
+    held_sample_ = sample;
+  }
+  static void RenderSimpleWavetableShift() {
+    phase_ += phase_increment_;
+    uint8_t sample = InterpolateTwoTables(
+        data_.st.wave[0], data_.st.wave[1],
+        phase_, data_.st.balance);
+
+    // To produce pulse width-modulated variants, we shift a portion of the
+    // waveform within an increasingly large fraction of the period. Note that
+    // this is pure waveshapping - the phase information is not used to
+    // determine when/where to shift.
+    //
+    //     /|            /|
+    //    / |           / |
+    //   /  |    =>  /|/  |
+    //  /   |       /     |/
+    // /    |/
+    //
+    if (sample < parameter_) {
+      sample += parameter_;
     }
     held_sample_ = sample;
   }
@@ -615,9 +625,9 @@ template<int id> AlgorithmFn Oscillator<id>::fn_;
 template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   { &Osc::UpdateSilence, &Osc::RenderSilence },
 
-  { &Osc::UpdateSimpleWavetable, &Osc::RenderSimpleWavetable },
+  { &Osc::UpdateSimpleWavetable, &Osc::RenderSimpleWavetableShift },
   { &Osc::UpdateBandlimitedPwm, &Osc::RenderBandlimitedPwm },
-  { &Osc::UpdateSimpleWavetable, &Osc::RenderSimpleWavetable },
+  { &Osc::UpdateSimpleWavetable, &Osc::RenderSimpleWavetableClip },
 
   { &Osc::UpdateSilence, &Osc::RenderCzSaw },  
   { &Osc::UpdateCz, &Osc::RenderCzSawReso },
@@ -629,6 +639,8 @@ template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   
   { &Osc::UpdateFm, &Osc::RenderFm },
   
+  { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
+  { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },

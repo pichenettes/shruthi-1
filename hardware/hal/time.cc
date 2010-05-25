@@ -72,4 +72,4 @@ void InitClock() {
   MutableTimer0::Start();
 }
 
-}  //namespace hardware_hal
+}  // namespace hardware_hal

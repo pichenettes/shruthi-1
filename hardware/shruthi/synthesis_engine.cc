@@ -79,8 +79,8 @@ void SynthesisEngine::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_SAW, 0, -12, 0,
-    WAVEFORM_SQUARE, 24, -12, 12,
+    WAVEFORM_FM, 0, -12, 0,
+    WAVEFORM_SAW, 24, -12, 12,
     // Mixer
     0, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
     // Filter
@@ -93,8 +93,8 @@ static const prog_char init_patch[] PROGMEM = {
     LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
     // Routing
     MOD_SRC_LFO_1, MOD_DST_VCO_1, 0,
-    MOD_SRC_LFO_1, MOD_DST_VCO_2, 0,
-    MOD_SRC_LFO_1, MOD_DST_PWM_1, 0,
+    MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,
+    MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
     MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
     MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
     MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
@@ -345,7 +345,7 @@ void SynthesisEngine::SetParameter(
       // A copy of those parameters is stored by the note dispatcher/arpeggiator,
       // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
-  } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL && 
+  } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL &&
              parameter_index <= PRM_SYS_MIDI_OUT_CHAIN) {
     // A copy of those parameters are used by the MIDI out dispatcher.
     midi_out_filter.UpdateSystemSettings(system_settings_);
@@ -433,15 +433,12 @@ void SynthesisEngine::Control() {
   uint8_t step = (controller_.step() + \
       sequencer_settings_.pattern_rotation) & 0x0f;
   modulation_sources_[MOD_SRC_SEQ] = (
-      sequencer_settings_.steps[step].controller() << 4
-  );
+      sequencer_settings_.steps[step].controller() << 4);
   step &= 0x7;
   modulation_sources_[MOD_SRC_SEQ_1] = (
-      sequencer_settings_.steps[step].controller() << 4
-  );
+      sequencer_settings_.steps[step].controller() << 4);
   modulation_sources_[MOD_SRC_SEQ_2] = (
-      sequencer_settings_.steps[step + 8].controller() << 4
-  );
+      sequencer_settings_.steps[step + 8].controller() << 4);
   modulation_sources_[MOD_SRC_STEP] = (
       controller_.has_arpeggiator_note() ? 255 : 0);
 
@@ -466,8 +463,6 @@ void SynthesisEngine::Audio() {
   if (!oscillator_decimation_) {
     Random::Update();
   }
-
-  controller_.Audio();
   for (uint8_t i = 0; i < kNumVoices; ++i) {
     voice_[i].Audio();
   }

@@ -41,7 +41,9 @@ ShiftRegisterInput<Gpio<22>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> switches;
 Serial<SerialPort0, 57600, POLLED, POLLED> serial_programmer;
 Serial<SerialPort1, 31250, POLLED, DISABLED> midi;
 
-const uint8_t kProgrammerId[] = { 0x14, 'A', 'V', 'R', ' ', 'I', 'S', 'P', 0x10 };
+const uint8_t kProgrammerId[] = {
+    0x14, 'A', 'V', 'R', ' ', 'I', 'S', 'P', 0x10
+};
 const uint8_t kSignature[] = { 0x14, 0x1e, 0x096, 0x0a, 0x10 };
 const uint8_t kVersion[] = { 0x02, 0x01, 0x10 };
 
@@ -384,7 +386,7 @@ inline void StkLoop() {
     }
     status_leds.WaitForData();
   }
-fail:
+ fail:
   status_leds.ReportError();
 }
 

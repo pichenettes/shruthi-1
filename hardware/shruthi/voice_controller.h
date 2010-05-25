@@ -54,7 +54,6 @@ class VoiceController {
   static void NoteOn(uint8_t note, uint8_t velocity);
   static void NoteOff(uint8_t note);
   static void TouchSequence();
-  static inline void Audio() { --internal_clock_counter_; }
   static inline void ExternalSync() { --midi_clock_counter_; }
   static inline uint8_t step() { return pattern_step_; }
   static inline uint8_t active() { return active_; }

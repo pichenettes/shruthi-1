@@ -17,10 +17,11 @@
 //
 // Interrupt handler for I2C.
 
-#include "hardware/hal/gpio.h"
 #include "hardware/hal/i2c/i2c.h"
 
 #include <avr/interrupt.h>
+
+#include "hardware/hal/gpio.h"
 
 using namespace hardware_hal;
 
