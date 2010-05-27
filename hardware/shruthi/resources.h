@@ -106,13 +106,6 @@ extern const prog_uint8_t wav_res_bandlimited_triangle_3[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_4[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_5[] PROGMEM;
 extern const prog_uint8_t wav_res_wavetable_1[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable_2[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable_3[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable_4[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable_5[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable_6[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable_7[] PROGMEM;
-extern const prog_uint8_t wav_res_wavetable_8[] PROGMEM;
 extern const prog_uint8_t wav_res_vowel_data[] PROGMEM;
 extern const prog_uint8_t wav_res_expansion_krama[] PROGMEM;
 extern const prog_uint8_t wav_res_expansion_jata[] PROGMEM;
@@ -530,31 +523,17 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES_BANDLIMITED_TRIANGLE_6_SIZE 257
 #define WAV_RES_WAVETABLE_1 23
 #define WAV_RES_WAVETABLE_1_SIZE 4112
-#define WAV_RES_WAVETABLE_2 24
-#define WAV_RES_WAVETABLE_2_SIZE 4112
-#define WAV_RES_WAVETABLE_3 25
-#define WAV_RES_WAVETABLE_3_SIZE 4112
-#define WAV_RES_WAVETABLE_4 26
-#define WAV_RES_WAVETABLE_4_SIZE 4112
-#define WAV_RES_WAVETABLE_5 27
-#define WAV_RES_WAVETABLE_5_SIZE 4112
-#define WAV_RES_WAVETABLE_6 28
-#define WAV_RES_WAVETABLE_6_SIZE 4112
-#define WAV_RES_WAVETABLE_7 29
-#define WAV_RES_WAVETABLE_7_SIZE 4112
-#define WAV_RES_WAVETABLE_8 30
-#define WAV_RES_WAVETABLE_8_SIZE 4112
-#define WAV_RES_VOWEL_DATA 31
+#define WAV_RES_VOWEL_DATA 24
 #define WAV_RES_VOWEL_DATA_SIZE 45
-#define WAV_RES_EXPANSION_KRAMA 32
+#define WAV_RES_EXPANSION_KRAMA 25
 #define WAV_RES_EXPANSION_KRAMA_SIZE 30
-#define WAV_RES_EXPANSION_JATA 33
+#define WAV_RES_EXPANSION_JATA 26
 #define WAV_RES_EXPANSION_JATA_SIZE 90
-#define WAV_RES_EXPANSION_SIKHA 34
+#define WAV_RES_EXPANSION_SIKHA 27
 #define WAV_RES_EXPANSION_SIKHA_SIZE 126
-#define WAV_RES_EXPANSION_GHANA 35
+#define WAV_RES_EXPANSION_GHANA 28
 #define WAV_RES_EXPANSION_GHANA_SIZE 182
-#define WAV_RES_DISTORTION 36
+#define WAV_RES_DISTORTION 29
 #define WAV_RES_DISTORTION_SIZE 256
 #define CHR_RES_SPECIAL_CHARACTERS 0
 #define CHR_RES_SPECIAL_CHARACTERS_SIZE 64

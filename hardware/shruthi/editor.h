@@ -21,6 +21,7 @@
 #define HARDWARE_SHRUTHI_EDITOR_H_
 
 #include "hardware/base/base.h"
+#include "hardware/shruthi/patch.h"
 #include "hardware/shruthi/resources.h"
 #include "hardware/shruthi/shruthi.h"
 
@@ -132,11 +133,6 @@ struct PageDefinition {
   UiType ui_type;
   uint8_t first_parameter_index;
   uint8_t leds_pattern;
-};
-
-struct ParameterAssignment {
-  uint8_t id;
-  uint8_t subpage;
 };
 
 // For each type of page (basic parameter editor, step sequencer, load/save
@@ -259,7 +255,6 @@ class Editor {
 
   static uint8_t assign_in_progress_; 
   static uint8_t test_note_playing_;
-  static ParameterAssignment assigned_parameters_[kNumEditingPots];
   static ParameterAssignment parameter_to_assign_;
 
   DISALLOW_COPY_AND_ASSIGN(Editor);

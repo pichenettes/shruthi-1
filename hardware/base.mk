@@ -19,11 +19,11 @@ AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
 AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
 BUILD_DIR      = build/$(TARGET)
 
-MCU            = atmega1284p
-DMCU           = m1284p
+MCU_NAME       = 1284
+MCU            = atmega$(MCU_NAME)p
+DMCU           = m$(MCU_NAME)p
+MCU_DEFINE     = ATMEGA$(MCU_NAME)P
 F_CPU          = 20000000
-# SERIAL_PORT  = /dev/cu.usbserial-A6008iA6
-SERIAL_PORT    = /dev/cu.usbserial-A6008hLO
 
 VPATH          = $(PACKAGES)
 CC_FILES       = $(notdir $(wildcard $(patsubst %,%/*.cc,$(PACKAGES))))
@@ -50,7 +50,7 @@ CAT            = cat
 
 CPPFLAGS      = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I. \
 			-g -Os -w -Wall \
-			-ffunction-sections -fdata-sections
+			-ffunction-sections -fdata-sections -D$(MCU_DEFINE)
 CXXFLAGS      = -fno-exceptions
 ASFLAGS       = -mmcu=$(MCU) -I. -x assembler-with-cpp
 LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections -Os
@@ -96,7 +96,6 @@ $(BUILD_DIR)/%.sym: $(BUILD_DIR)/%.elf
 AVRDUDE_CONF     = $(AVR_ETC_PATH)/avrdude.conf
 AVRDUDE_COM_OPTS = -V -p $(DMCU)
 AVRDUDE_COM_OPTS += -C $(AVRDUDE_CONF)
-AVRDUDE_SER_OPTS = -c stk500v1 -b 57600 -P $(SERIAL_PORT)
 AVRDUDE_ISP_OPTS = -c avrispmkII -P usb
 
 # ------------------------------------------------------------------------------

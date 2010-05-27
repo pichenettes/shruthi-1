@@ -45,8 +45,8 @@ class StorageConfiguration { };
 template<> class StorageConfiguration<Patch> {
  public:
   enum {
-    num_internal = 20,
-    num_external = /*60*/ 0,
+    num_internal = 16,
+    num_external = /* 64 */ 0,
     offset_internal = 16,
     offset_external = 0,
     size = sizeof(Patch),

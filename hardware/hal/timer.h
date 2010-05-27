@@ -49,6 +49,15 @@ SpecialFunctionRegister(OCR1B);
 SpecialFunctionRegister(OCR2A);
 SpecialFunctionRegister(OCR2B);
 
+#ifdef ATMEGA1284P
+SpecialFunctionRegister(TCCR3A);
+SpecialFunctionRegister(TCCR3B);
+SpecialFunctionRegister(TIMSK3);
+SpecialFunctionRegister(TCNT3);
+SpecialFunctionRegister(OCR3A);
+SpecialFunctionRegister(OCR3B);
+#endif  // ATMEGA1284P
+
 enum TimerMode {
   TIMER_NORMAL = 0,
   TIMER_PWM_PHASE_CORRECT = 1,
@@ -139,6 +148,17 @@ template<> struct NumberedTimer<2> {
       true> Impl;
 };
 
+#ifdef ATMEGA1284P
+template<> struct NumberedTimer<3> {
+  typedef TimerImpl<
+      TCCR3ARegister,
+      TCCR3BRegister,
+      TIMSK3Register,
+      TCNT3Register,
+      true> Impl;
+};
+#endif  // ATMEGA1284P
+
 template<int n>
 struct Timer {
   typedef typename NumberedTimer<n>::Impl Impl;
@@ -197,6 +217,10 @@ typedef TimerImpl<
 #define TIMER_0_TICK ISR(TIMER0_OVF_vect)
 #define TIMER_1_TICK ISR(TIMER1_OVF_vect)
 #define TIMER_2_TICK ISR(TIMER2_OVF_vect)
+
+#ifdef ATMEGA1284P
+#define TIMER_3_TICK ISR(TIMER3_OVF_vect)
+#endif  // ATMEGA1284P
 
 }  // namespace hardware_hal
 

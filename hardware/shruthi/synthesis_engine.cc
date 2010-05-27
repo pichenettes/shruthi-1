@@ -107,7 +107,14 @@ static const prog_char init_patch[] PROGMEM = {
     MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_FINE, 32,
     MOD_SRC_LFO_1, MOD_DST_VCO_1_2_FINE, 16,
     // Name
-    'i', 'n', 'i', 't', ' ', ' ', ' ', ' '
+    'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
+    // Performance page assignments.
+    1, 0,
+    PRM_FILTER_CUTOFF, 0,
+    PRM_FILTER_ENV, 0,
+    25, 0,
+    // Extra padding for future improvements.
+    'p', 'a', 'd', 'd', 'i', 'n', 'g', '!'
 };
 
 static const prog_char init_sequence[] PROGMEM = {
@@ -342,8 +349,8 @@ void SynthesisEngine::SetParameter(
     UpdateOscillatorAlgorithms();
   } else if (parameter_index >= PRM_SEQ_MODE &&
              parameter_index < PRM_SYS_OCTAVE) {
-      // A copy of those parameters is stored by the note dispatcher/arpeggiator,
-      // so any parameter change must be forwarded to it.
+    // A copy of those parameters is stored by the note dispatcher/arpeggiator,
+    // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
   } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL &&
              parameter_index <= PRM_SYS_MIDI_OUT_CHAIN) {
@@ -600,13 +607,13 @@ inline void Voice::Control() {
 
   // Load and scale to 0-16383 the initial value of each modulated parameter.
   dst[MOD_DST_FILTER_CUTOFF] = engine.patch_.filter_cutoff << 7;
+  dst[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
   dst[MOD_DST_PWM_1] = engine.patch_.osc[0].parameter << 7;
   dst[MOD_DST_PWM_2] = engine.patch_.osc[1].parameter << 7;
   dst[MOD_DST_VCO_1_2_FINE] = dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
   dst[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
   dst[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
   dst[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
-  dst[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
   dst[MOD_DST_CV_1] = 0;
   dst[MOD_DST_CV_2] = 0;
   dst[MOD_DST_2_BITS] = 0;
@@ -675,7 +682,7 @@ inline void Voice::Control() {
       (engine.patch_.filter_lfo << 7),
       0,
       16383);
-
+  
   // Store in memory all the updated parameters.
   modulation_destinations_[MOD_DST_FILTER_CUTOFF] = ShiftRight6(
       dst[MOD_DST_FILTER_CUTOFF]);
@@ -701,7 +708,7 @@ inline void Voice::Control() {
   
   modulation_destinations_[MOD_DST_MIX_NOISE] = dst[MOD_DST_MIX_NOISE] >> 8;
   modulation_destinations_[MOD_DST_MIX_SUB_OSC] = dst[MOD_DST_MIX_SUB_OSC] >> 7;
-
+  
   // Update the oscillator parameters.
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
     int16_t pitch = pitch_value_;

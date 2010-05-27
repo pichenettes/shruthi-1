@@ -195,12 +195,6 @@ uint8_t Editor::previous_sequence_number_ = 0;
 
 uint8_t Editor::test_note_playing_ = 0;
 uint8_t Editor::assign_in_progress_ = 0;
-ParameterAssignment Editor::assigned_parameters_[kNumEditingPots] = {
-  { 1, 0 },
-  { PRM_FILTER_CUTOFF, 0 },
-  { PRM_FILTER_ENV, 0 },
-  { 25, 0 },
-};
 ParameterAssignment Editor::parameter_to_assign_;
 /* </static> */
 
@@ -634,7 +628,8 @@ void Editor::DisplayStepSequencerPage() {
 /* static */
 uint8_t Editor::HandleKnobAssignment(uint8_t knob_index) {
   if (assign_in_progress_) {
-    assigned_parameters_[knob_index] = parameter_to_assign_;
+    engine.mutable_patch()->assigned_parameters[knob_index] = \
+        parameter_to_assign_;
     assign_in_progress_ = 0;
     editor_mode_ = EDITOR_MODE_PERFORMANCE;
     JumpToPageGroup(GROUP_PERFORMANCE);
@@ -924,8 +919,8 @@ void Editor::DisplayEditDetailsPage() {
 /* static */
 uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
   if (current_page_ == PAGE_PERFORMANCE) {
-    subpage_ = assigned_parameters_[knob_index].subpage;
-    return assigned_parameters_[knob_index].id;
+    subpage_ = engine.mutable_patch()->assigned_parameters[knob_index].subpage;
+    return engine.mutable_patch()->assigned_parameters[knob_index].id;
   } else {
     return page_definition_[current_page_].first_parameter_index + \
         knob_index;

@@ -73,6 +73,11 @@ struct LfoSettings {
   uint8_t retrigger_mode;
 };
 
+struct ParameterAssignment {
+  uint8_t id;
+  uint8_t subpage;
+};
+
 class Patch {
  public:
   // Offset: 0-8
@@ -101,6 +106,12 @@ class Patch {
   // Offset: 68-76
   uint8_t name[kPatchNameSize];
   
+  // Offset: 76-84
+  ParameterAssignment assigned_parameters[4];
+  
+  // Offset: 84-92
+  uint8_t padding[8];
+  
   uint8_t* saved_data() { return (uint8_t*)(this); }
   void PrepareForWrite() { return; }
   uint8_t CheckBuffer(uint8_t* buffer) {
@@ -109,6 +120,10 @@ class Patch {
         name[0] = '?';
         return 0;
       }
+    }
+    if (buffer[91] != '!') {
+      name[0] = '?';
+      return 0;
     }
     return 1;
   }
