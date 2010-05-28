@@ -54,12 +54,9 @@ zsync
 pad
 fm
 waves
-digitl
 metalc
-slap
 bowed
 tampura
-male
 organ
 8bits
 crush

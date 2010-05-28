@@ -1,8 +1,6 @@
 # Copyright 2009 Olivier Gillet.
 #
 # Author: Olivier Gillet (ol.gillet@gmail.com)
-# Parts of this file adapted from the Arduino command line tools Makefile
-# M J Oldfield ; mellis, eighthave, oli.keller.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +17,7 @@ AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
 AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
 BUILD_DIR      = build/$(TARGET)
 
-MCU_NAME       = 1284
+MCU_NAME       = 644
 MCU            = atmega$(MCU_NAME)p
 DMCU           = m$(MCU_NAME)p
 MCU_DEFINE     = ATMEGA$(MCU_NAME)P

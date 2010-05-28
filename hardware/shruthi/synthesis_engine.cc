@@ -79,10 +79,10 @@ void SynthesisEngine::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_FM, 0, -12, 0,
-    WAVEFORM_SAW, 24, -12, 12,
+    WAVEFORM_SAW, 0, -12, 0,
+    WAVEFORM_SAW, 0, -24, 12,
     // Mixer
-    0, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
+    63, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
     // Filter
     127, 0, 20, 0,
     // ADSR
@@ -148,7 +148,7 @@ static const prog_char init_sequence[] PROGMEM = {
 
 static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
-    0, 0, 10, 1,
+    -2, 0, 0, 0,
     0, 1, 1, 1
 };
 
@@ -735,10 +735,6 @@ inline void Voice::Control() {
     // -1 / +1 semitones by master tuning.
     pitch += engine.system_settings_.master_tuning;
 
-    // Wrap pitch to a reasonable range.
-    while (pitch < kLowestNote) {
-      pitch += kOctave;
-    }
     while (pitch >= kHighestNote) {
       pitch -= kOctave;
     }
@@ -756,7 +752,10 @@ inline void Voice::Control() {
     increment >>= num_shifts;
 
     // Now the oscillators can recompute all their internal variables!
-    uint8_t midi_note = pitch >>= 7;
+    int8_t midi_note = pitch >> 7;
+    if (midi_note < 12) {
+      midi_note = 12;
+    }
     if (i == 0) {
       osc_1.Update(
           modulation_destinations_[MOD_DST_PWM_1],

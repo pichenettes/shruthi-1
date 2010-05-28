@@ -183,13 +183,13 @@ waveforms.extend(bl_tri_tables)
 
 waveforms.extend([
   ('wavetable_1', LoadWavetable('hardware/shruthi/data/waves.bin')),
-#  ('wavetable_2', LoadWavetable('hardware/shruthi/data/digital.bin')),
-#  ('wavetable_3', LoadWavetable('hardware/shruthi/data/metallic.bin')),
-#  ('wavetable_4', LoadWavetable('hardware/shruthi/data/slap.bin')),
-#  ('wavetable_5', LoadWavetable('hardware/shruthi/data/bowed.bin')),
-#  ('wavetable_6', LoadWavetable('hardware/shruthi/data/tampura.bin')),
-#  ('wavetable_7', LoadWavetable('hardware/shruthi/data/male.bin')),
-#  ('wavetable_8', LoadWavetable('hardware/shruthi/data/organ.bin')),
+  # ('wavetable_2', LoadWavetable('hardware/shruthi/data/digital.bin')),
+  ('wavetable_3', LoadWavetable('hardware/shruthi/data/metallic.bin')),
+  # ('wavetable_4', LoadWavetable('hardware/shruthi/data/slap.bin')),
+  ('wavetable_5', LoadWavetable('hardware/shruthi/data/bowed.bin')),
+  ('wavetable_6', LoadWavetable('hardware/shruthi/data/tampura.bin')),
+  # ('wavetable_7', LoadWavetable('hardware/shruthi/data/male.bin')),
+  ('wavetable_8', LoadWavetable('hardware/shruthi/data/organ.bin')),
 ])
 
 """----------------------------------------------------------------------------
