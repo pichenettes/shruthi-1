@@ -29,12 +29,12 @@
 namespace hardware_shruthi {
 
 enum KEYS {
-  KEY_LOAD_SAVE,
-  KEY_MODE,
-  KEY_4,
-  KEY_3,
-  KEY_2,
   KEY_1,
+  KEY_2,
+  KEY_3,
+  KEY_4,
+  KEY_MODE,
+  KEY_LOAD_SAVE,
 };
 
 enum LEDS {

@@ -349,7 +349,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
   } else if (event.id == KEY_LOAD_SAVE) {
     EnterLoadSaveMode();
   } else {
-    uint8_t id = KEY_1 - event.id;
+    uint8_t id = event.id;
     if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
       JumpToPageGroup(id + GROUP_SEQUENCER_ARPEGGIATOR);
     } else {
