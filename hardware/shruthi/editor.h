@@ -62,6 +62,8 @@ enum Group {
 
   GROUP_LOAD_SAVE,
   GROUP_PERFORMANCE,
+  
+  GROUP_CONFIRM
 };
 
 enum Page {
@@ -85,18 +87,13 @@ enum Page {
   PAGE_SYS_MIDI,
   PAGE_LOAD_SAVE,
   PAGE_PERFORMANCE,
-};
-
-enum LoadSavePage {
-  LOAD_SAVE_PATCH,
-  LOAD_SAVE_SEQUENCE,
-  LOAD_SAVE_SYSTEM_SETTINGS,
+  PAGE_CONFIRM,
 };
 
 enum Action {
   ACTION_LOAD,
-  ACTION_EXIT,
-  ACTION_SAVE
+  ACTION_SAVE,
+  ACTION_COMPARE,
 };
 
 // We do not use enums here because they take 2 bytes, not 1.
@@ -117,6 +114,7 @@ enum PageUiType {
   PAGE_R_EDITOR,
   STEP_SEQUENCER,
   LOAD_SAVE,
+  CONFIRM,
 };
 
 typedef uint8_t UiType;
@@ -146,6 +144,13 @@ struct UiHandler {
   void (*edit_page)();
   void (*input_handler)(uint8_t knob_index, uint16_t value);
   void (*increment_handler)(int8_t direction);
+  void (*click_handler)();
+};
+
+struct ConfirmPageSettings {
+  ResourceId text;
+  ParameterPage return_group;
+  void (*callback)();
 };
 
 class Editor {
@@ -181,6 +186,8 @@ class Editor {
   }
   static inline uint8_t cursor() { return cursor_; }
   static inline uint8_t subpage() { return subpage_; }
+  
+  static void Confirm(ConfirmPageSettings confirm_page_settings);
 
  private:
   static void PrettyPrintParameterValue(const ParameterDefinition& parameter,
@@ -216,11 +223,22 @@ class Editor {
   static void DisplayStepSequencerPage();
   static void HandleStepSequencerInput(uint8_t knob_index, uint16_t value);
   static void HandleStepSequencerIncrement(int8_t direction);
+  
+  static void DisplayConfirmPage();
+  static void HandleConfirmInput(uint8_t knob_index, uint16_t value);
+  static void HandleConfirmIncrement(int8_t direction);
+  static void HandleConfirmClick();
+  static void SaveSystemSettings();
 
   static void DisplayLoadSavePage();
   static void HandleLoadSaveInput(uint8_t knob_index, uint16_t value);
-  static void EnterLoadSaveMode();
+  static void ToggleLoadSaveAction();
   static void HandleLoadSaveIncrement(int8_t direction);
+  static void HandleLoadSaveClick();
+  static void RestoreEditBuffer();
+  static int8_t edited_item_number();
+  static void set_edited_item_number(int8_t value);
+  static uint8_t is_cursor_at_valid_position();
   
   static void LoadPatch(uint8_t index);
   static void LoadSequence(uint8_t index);
@@ -249,9 +267,8 @@ class Editor {
   static uint8_t subpage_;
   static uint8_t action_;
   static uint8_t current_patch_number_;
-  static uint8_t previous_patch_number_;
   static uint8_t current_sequence_number_;
-  static uint8_t previous_sequence_number_;
+  static ConfirmPageSettings confirm_page_settings_;
 
   static uint8_t assign_in_progress_; 
   static uint8_t test_note_playing_;

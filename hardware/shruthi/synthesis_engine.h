@@ -190,6 +190,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static uint8_t oscillator_decimation() { return oscillator_decimation_; }
   static void ResetPatch();
   static void ResetSequencerSettings();
+  static void ResetSequence();
   static void ResetSystemSettings();
   // Variables dependent on parameters (increments) are recomputed in
   // SetParameter when the related parameter is modified. Sometimes, the patch

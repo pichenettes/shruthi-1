@@ -22,6 +22,7 @@
 #include <avr/pgmspace.h>
 
 #include "hardware/hal/serial.h"
+#include "hardware/hal/devices/external_eeprom.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/op.h"
@@ -153,6 +154,32 @@ void Storage::SysExReceive(uint8_t sysex_rx_byte) {
     }
     break;
   }
+}
+
+/* static */
+void Storage::WriteExternal(
+    const uint8_t* data,
+    uint16_t address,
+    uint8_t size) {
+  ExternalEeprom<> e;
+  lcd.DisableRefresh();
+  e.Init();
+  uint16_t written = e.Write(address, data, size);
+  e.Done();
+  lcd.EnableRefresh();  
+}
+
+/* static */
+void Storage::ReadExternal(
+    uint8_t* data,
+    uint16_t address,
+    uint8_t size) {
+  ExternalEeprom<> e;
+  lcd.DisableRefresh();
+  e.Init();
+  e.Read(address, size, data);
+  e.Done();
+  lcd.EnableRefresh();  
 }
 
 }  // hardware_shruthi

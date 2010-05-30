@@ -72,15 +72,20 @@ static const prog_char arp_pattern_prefix[4] PROGMEM = {
 /* static */
 const UiHandler Editor::ui_handler_[] = {
   { &Editor::DisplayEditOverviewPage, &Editor::DisplayEditDetailsPage,
-    &Editor::HandleEditInput, &Editor::HandleEditIncrement },
+    &Editor::HandleEditInput, &Editor::HandleEditIncrement, NULL },
   { &Editor::DisplayTrackerPage, &Editor::DisplayTrackerPage,
-    &Editor::HandleTrackerInput, &Editor::HandleTrackerIncrement },
+    &Editor::HandleTrackerInput, &Editor::HandleTrackerIncrement, NULL },
   { &Editor::DisplayPageRPage, &Editor::DisplayPageRPage,
-    &Editor::HandlePageRInput, &Editor::HandlePageRIncrement },
+    &Editor::HandlePageRInput, &Editor::HandlePageRIncrement, NULL },
   { &Editor::DisplayStepSequencerPage, &Editor::DisplayStepSequencerPage,
-    &Editor::HandleStepSequencerInput, &Editor::HandleStepSequencerIncrement },
+    &Editor::HandleStepSequencerInput, &Editor::HandleStepSequencerIncrement,
+    NULL },
   { &Editor::DisplayLoadSavePage, &Editor::DisplayLoadSavePage,
-    &Editor::HandleLoadSaveInput, &Editor::HandleLoadSaveIncrement },
+    &Editor::HandleLoadSaveInput, &Editor::HandleLoadSaveIncrement,
+    &Editor::HandleLoadSaveClick },
+  { &Editor::DisplayConfirmPage, &Editor::DisplayConfirmPage,
+    &Editor::HandleConfirmInput, &Editor::HandleConfirmIncrement,
+    &Editor::HandleConfirmClick },
 };
 
 const PageDefinition Editor::page_definition_[] = {
@@ -150,11 +155,15 @@ const PageDefinition Editor::page_definition_[] = {
 
   /* PAGE_LOAD_SAVE */ { PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
-    STR_RES_PATCHES, LOAD_SAVE, 0, LED_WRITE_MASK },
+    STR_RES_PATCH, LOAD_SAVE, 0, LED_WRITE_MASK },
 
   /* PAGE_PERFORMANCE */ { PAGE_PERFORMANCE, GROUP_PERFORMANCE,
     PAGE_PERFORMANCE, PAGE_PERFORMANCE,
-    STR_RES_PERFORMANCE, PARAMETER_EDITOR, 0, 0 }
+    STR_RES_PERFORMANCE, PARAMETER_EDITOR, 0, 0 },
+    
+  /* PAGE_CONFIRM */ { PAGE_CONFIRM, GROUP_CONFIRM,
+    PAGE_CONFIRM, PAGE_CONFIRM,
+    STR_RES_PATCH, CONFIRM, 0, 0x55 },
 };
 
 /* <static> */
@@ -189,13 +198,12 @@ uint8_t Editor::last_knob_;
 uint8_t Editor::subpage_;
 uint8_t Editor::action_;
 uint8_t Editor::current_patch_number_ = 0;
-uint8_t Editor::previous_patch_number_ = 0;
 uint8_t Editor::current_sequence_number_ = 0;
-uint8_t Editor::previous_sequence_number_ = 0;
 
 uint8_t Editor::test_note_playing_ = 0;
 uint8_t Editor::assign_in_progress_ = 0;
 ParameterAssignment Editor::parameter_to_assign_;
+ConfirmPageSettings Editor::confirm_page_settings_;
 /* </static> */
 
 /* static */
@@ -210,9 +218,6 @@ void Editor::JumpToPageGroup(uint8_t group) {
   display.set_cursor_position(kLcdNoCursor);
   display_mode_ = DISPLAY_MODE_OVERVIEW;
   subpage_ = 0;
-  // Make sure that we won't confirm a save when moving back to the
-  // Load/save page.
-  action_ = ACTION_EXIT;
   // If we move to another group, go to the last visited page in this group.
   if (group != page_definition_[current_page_].group) {
     current_page_ = last_visited_page_[group];
@@ -278,34 +283,48 @@ void Editor::RandomizeSequence() {
 }
 
 /* static */
+void Editor::SaveSystemSettings() {
+  engine.mutable_system_settings()->EepromSave();
+}
+
+/* static */
+void Editor::Confirm(ConfirmPageSettings confirm_page_settings) {
+  confirm_page_settings_ = confirm_page_settings;
+  current_page_ = PAGE_CONFIRM;
+  display_mode_ = DISPLAY_MODE_OVERVIEW;
+  Refresh();
+}
+
+/* static */
 void Editor::HandleKeyEvent(const KeyEvent& event) {
   if (event.shifted) {
+    if (current_page_ != LOAD_SAVE) {
+      return;
+    }
     switch (event.id) {
       case KEY_1:
         display.set_status('x');
-        if (subpage_ == LOAD_SAVE_PATCH) {
+        if (editor_mode_ == EDITOR_MODE_PATCH) {
           engine.ResetPatch();
-        } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
-          engine.ResetSequencerSettings();
-        } else if (subpage_ == LOAD_SAVE_SYSTEM_SETTINGS) {
-          engine.ResetSystemSettings();
+        } else {
+          engine.ResetSequence();
         }
         break;
 
       case KEY_2:
         display.set_status('?');
-        if (subpage_ == LOAD_SAVE_PATCH) {
+        if (editor_mode_ == EDITOR_MODE_PATCH) {
           RandomizePatch();
-        } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+        } else {
           RandomizeSequence();
         }
         break;
 
       case KEY_3:
         display.set_status('>');
-        if (subpage_ == LOAD_SAVE_PATCH) {
+        if (editor_mode_ == EDITOR_MODE_PATCH) {
           Storage::SysExDump(engine.mutable_patch());
-        } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
+        } else {
           Storage::SysExDump(engine.mutable_sequencer_settings());
         }
         break;
@@ -314,7 +333,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         // TODO(pichenettes): BIG DUMP
         break;
     }
-  } else if (event.hold_time >= 3) {
+  } else if (event.hold_time >= 6) {
     switch (event.id) {
       case KEY_1:
         engine.NoteOn(0, 48, test_note_playing_ ? 0 : 100);
@@ -347,7 +366,15 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       : EDITOR_MODE_SEQUENCE;
     JumpToPageGroup(last_visited_group_[editor_mode_]);
   } else if (event.id == KEY_LOAD_SAVE) {
-    EnterLoadSaveMode();
+    if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_MIDI) {
+      ConfirmPageSettings confirm_save_system_settings;
+      confirm_save_system_settings.text = STR_RES_SAVE_MIDI_KBD;
+      confirm_save_system_settings.return_group = GROUP_SYS;
+      confirm_save_system_settings.callback = &SaveSystemSettings;
+      Confirm(confirm_save_system_settings);
+    } else {
+      ToggleLoadSaveAction();
+    }
   } else {
     uint8_t id = event.id;
     if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
@@ -382,6 +409,9 @@ void Editor::HandleClick() {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
     display.set_cursor_character(kLcdNoCursor);
   }
+  if (ui_handler_[page_definition_[current_page_].ui_type].click_handler) {
+    (*ui_handler_[page_definition_[current_page_].ui_type].click_handler)();
+  }
   Refresh();
 }
 
@@ -395,187 +425,170 @@ void Editor::Refresh() {
 }
 
 /* static */
-void Editor::EnterLoadSaveMode() {
-  // We've just confirmed a save.
+void Editor::RestoreEditBuffer() {
+  if (editor_mode_ == EDITOR_MODE_PATCH) {
+    Storage::Restore(engine.mutable_patch());
+    engine.TouchPatch();
+  } else {
+    Storage::Restore(engine.mutable_sequencer_settings());
+    engine.TouchSequence();
+  }
+}
+
+/* static */
+void Editor::ToggleLoadSaveAction() {
+  if (current_page_ != PAGE_LOAD_SAVE) {
+    if (editor_mode_ == EDITOR_MODE_PATCH) {
+      Storage::Backup(engine.mutable_patch());
+    } else {
+      Storage::Backup(engine.mutable_sequencer_settings());
+    }
+    action_ = ACTION_LOAD;
+  } else {
+    if (action_ != ACTION_SAVE) {
+      RestoreEditBuffer();
+      action_ = ACTION_SAVE;
+    } else {
+      action_ = ACTION_COMPARE;
+    }
+  }
   cursor_ = 0;
   assign_in_progress_ = 0;
   display.set_cursor_position(kLcdNoCursor);
   display_mode_ = DISPLAY_MODE_OVERVIEW;
+  current_page_ = PAGE_LOAD_SAVE;
+}
 
-  if (current_page_ == PAGE_LOAD_SAVE) {
-    if (action_ == ACTION_SAVE) {
-      display.set_status('w');
-      switch (subpage_) {
-        case LOAD_SAVE_PATCH:
-          Storage::Write(engine.mutable_patch(), current_patch_number_);
-          break;
+/* static */
+int8_t Editor::edited_item_number() {
+  if (editor_mode_ == EDITOR_MODE_PATCH) {
+    return current_patch_number_;
+  } else {
+    return current_sequence_number_;
+  }
+}
 
-        case LOAD_SAVE_SEQUENCE:
-          Storage::Write(engine.mutable_sequencer_settings(),
-                         current_sequence_number_);
-          break;
-
-        case LOAD_SAVE_SYSTEM_SETTINGS:
-          engine.mutable_system_settings()->EepromSave();
-          break;
-      }
+/* static */
+void Editor::set_edited_item_number(int8_t value) {
+  if (editor_mode_ == EDITOR_MODE_PATCH) {
+    if (value >= 0 && value < Storage::size<Patch>()) {
+      current_patch_number_ = value;
     }
   } else {
-    // From which page are we coming from? Depending on the answer, show the
-    // patch library, sequence library, or system settings write pages.
-    if (current_page_ <= PAGE_MOD_MATRIX) {
-      subpage_ = LOAD_SAVE_PATCH;
-      previous_patch_number_ = current_patch_number_;
-      Storage::Backup(engine.mutable_patch());
-    } else if (current_page_ >= PAGE_SYS_KBD) {
-      subpage_ = LOAD_SAVE_SYSTEM_SETTINGS;
-    } else {
-      subpage_ = LOAD_SAVE_SEQUENCE;
-      previous_sequence_number_ = current_sequence_number_;
-      Storage::Backup(engine.mutable_sequencer_settings());
+    if (value >= 0 && value < Storage::size<SequencerSettings>()) {
+      current_sequence_number_ = value;
     }
   }
-  current_page_ = PAGE_LOAD_SAVE;
-  action_ = ACTION_EXIT;
 }
 
 /* static */
-void Editor::LoadPatch(uint8_t index) {
-  if (index != current_patch_number_ && action_ == ACTION_LOAD) {
-    Storage::Load(engine.mutable_patch(), index);
-    engine.TouchPatch();
-  }
-  if (action_ != ACTION_EXIT) {
-    current_patch_number_ = index;
-  }
+uint8_t Editor::is_cursor_at_valid_position() {
+  uint16_t allowed_cursor_positions = editor_mode_ == EDITOR_MODE_PATCH
+      ? 0xf7fb : 0xf003;
+  return ((1 << cursor_) & allowed_cursor_positions) != 0;
 }
 
 /* static */
-void Editor::LoadSequence(uint8_t index) {
-  if (index != current_sequence_number_ && action_ == ACTION_LOAD) {
-    Storage::Load(engine.mutable_sequencer_settings(), index);
-    engine.TouchSequence();
-  }
-  if (action_ != ACTION_EXIT) {
-    current_sequence_number_ = index;
-  }
-}
-
-/* static */
-void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) {
-  switch (knob_index) {
-    case 0:
-      if (subpage_ == LOAD_SAVE_PATCH) {
-        LoadPatch(value * Storage::size<Patch>() / 1024);
-      } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
-        LoadSequence(value * Storage::size<SequencerSettings>() / 1024);
-      }
-      break;
-    case 1:
-      if (action_ == ACTION_SAVE && subpage_ == LOAD_SAVE_PATCH) {
-        cursor_ = value * kPatchNameSize / 1024;
-      }
-      break;
-    case 2:
-      if (action_ == ACTION_SAVE && subpage_ == LOAD_SAVE_PATCH) {
-        value += (value << 1);
-        engine.mutable_patch()->name[cursor_] = 32 + (value >> 5);
-      }
-      break;
-    case 3:
-      if (value < 64 && subpage_ != LOAD_SAVE_SYSTEM_SETTINGS) {
-        action_ = ACTION_LOAD;
+void Editor::HandleLoadSaveClick() {
+  if (action_ == ACTION_LOAD) {
+    action_ = ACTION_COMPARE;
+    RestoreEditBuffer();
+  } else if (action_ == ACTION_COMPARE) {
+    action_ = ACTION_LOAD;
+    HandleLoadSaveIncrement(0);
+  } else {
+    if (!is_cursor_at_valid_position()) {
+      display_mode_ = DISPLAY_MODE_OVERVIEW;
+    }
+    if (cursor_ == kLcdWidth - 3) {
+      if (editor_mode_ == EDITOR_MODE_PATCH) {
+        Storage::Write(engine.mutable_patch(), current_patch_number_);
       } else {
-        if (action_ == ACTION_LOAD) {
-          if (subpage_ == LOAD_SAVE_PATCH) {
-            current_patch_number_ = previous_patch_number_;
-            Storage::Restore(engine.mutable_patch());
-            engine.TouchPatch();
-          } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
-            current_sequence_number_ = previous_sequence_number_;
-            Storage::Restore(engine.mutable_sequencer_settings());
-            engine.TouchSequence();
-          }
-        }
-        action_ = value >= 960 ? ACTION_SAVE : ACTION_EXIT;
+        Storage::Write(engine.mutable_sequencer_settings(),
+                       current_sequence_number_);
       }
-      break;
+      action_ = ACTION_LOAD;
+    }
   }
 }
 
 /* static */
 void Editor::HandleLoadSaveIncrement(int8_t direction) {
-  if (action_ == ACTION_SAVE && subpage_ == LOAD_SAVE_PATCH) {
+  if (action_ == ACTION_SAVE) {
     if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
       int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
-      if (new_cursor >= 0 & new_cursor < kPatchNameSize) {
-        cursor_ = static_cast<uint8_t>(new_cursor);
+      if (new_cursor >= 0 && new_cursor < kLcdWidth) {
+        cursor_ = new_cursor;
       }
     } else {
-      uint8_t value = engine.patch().name[cursor_];
-      value += direction;
-      if (value >= 32 && value <= 128) {
-        engine.mutable_patch()->name[cursor_] = value;
+      if (cursor_ <= 1) {
+        set_edited_item_number(edited_item_number() + direction);      
+      } else if (cursor_ >= 3 && cursor_ < 3 + kPatchNameSize &&
+                 editor_mode_ == EDITOR_MODE_PATCH) {
+        uint8_t value = engine.patch().name[cursor_ - 3];
+        value += direction;
+        if (value >= 32 && value <= 128) {
+          engine.mutable_patch()->name[cursor_ - 3] = value;
+        }
       }
     }
   } else {
-    if (subpage_ == LOAD_SAVE_PATCH) {
-      int8_t patch_number = static_cast<int8_t>(
-          current_patch_number_) + direction;
-      if (patch_number >= 0 &&
-          patch_number < Storage::size<Patch>()) {
-        LoadPatch(patch_number);
-      }
-    } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
-      int8_t sequence_number = static_cast<int8_t>(
-          current_sequence_number_) + direction;
-      if (sequence_number >= 0 &&
-          sequence_number < Storage::size<SequencerSettings>()) {
-        LoadSequence(sequence_number);
+    set_edited_item_number(edited_item_number() + direction);
+    if (action_ == ACTION_LOAD) {
+      if (editor_mode_ == EDITOR_MODE_PATCH) {
+        Storage::Load(engine.mutable_patch(), edited_item_number());
+        engine.TouchPatch();
+      } else {
+        Storage::Load(engine.mutable_sequencer_settings(),
+                      edited_item_number());
+        engine.TouchSequence();
       }
     }
   }
 }
 
 /* static */
+void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) { }
+
+/* static */
 void Editor::DisplayLoadSavePage() {
-  // 0123456789abcdef
-  // load/save patch
-  // 32 barbpapa save
-  if (cursor_ >= 7) {
-    cursor_ = 7;
-  }
   ResourcesManager::LoadStringResource(
-      STR_RES_PATCHES + subpage_,
+      STR_RES_LOAD + action_,
       line_buffer_,
-      kLcdWidth);
-  AlignLeft(line_buffer_, kLcdWidth);
+      8);
+  ResourcesManager::LoadStringResource(
+      STR_RES_PATCH + editor_mode_,
+      line_buffer_ + 8,
+      kLcdWidth - 8);
+  AlignLeft(line_buffer_, 8);
+  AlignLeft(line_buffer_ + 8, kLcdWidth - 8);
+  line_buffer_[7] = ':';
   display.Print(0, line_buffer_);
 
-  if (subpage_ == LOAD_SAVE_PATCH) {
-    UnsafeItoa<int16_t>(current_patch_number_ + 1, 2, line_buffer_);
+  if (editor_mode_ == EDITOR_MODE_PATCH) {
+    UnsafeItoa<int16_t>(edited_item_number() + 1, 2, line_buffer_);
     AlignRight(line_buffer_, 2);
     memcpy(line_buffer_ + 3, engine.patch().name, kPatchNameSize);
-    if (action_ == ACTION_SAVE) {
-      display.set_cursor_position(kLcdWidth + 3 + cursor_);
-    } else {
-      display.set_cursor_position(kLcdNoCursor);
-    }
-  } else if (subpage_ == LOAD_SAVE_SEQUENCE) {
-    UnsafeItoa<int16_t>(current_sequence_number_ + 1, 2, line_buffer_);
+  } else {
+    UnsafeItoa<int16_t>(edited_item_number() + 1, 2, line_buffer_);
     AlignRight(line_buffer_, 2);
     for (uint8_t i = 0; i < 8; ++i) {
       line_buffer_[i + 3] = engine.sequencer_settings().steps[i].character();
     }
-  } else {
-    memset(line_buffer_, ' ', 12);
   }
   line_buffer_[2] = ' ';
-  line_buffer_[11] = ' ';
-  ResourcesManager::LoadStringResource(
-      action_ + STR_RES_LOAD,
-      line_buffer_ + 12,
-      kColumnWidth);
+  memset(line_buffer_ + 11, ' ', kLcdWidth - 5);
+  if (action_ == ACTION_SAVE) {
+    ResourcesManager::LoadStringResource(
+        STR_RES__OK_,
+        line_buffer_ + kLcdWidth - 4,
+        4);
+  }
+  if (action_ == ACTION_SAVE && is_cursor_at_valid_position()) {
+    display.set_cursor_position(kLcdWidth + cursor_);
+  } else {
+    display.set_cursor_position(kLcdNoCursor);
+  }
   display.Print(1, line_buffer_);
 }
 
@@ -1092,6 +1105,45 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
     ResourcesManager::LoadStringResource(text + value, buffer, width);
   } else {
     UnsafeItoa<int16_t>(value, width, buffer);
+  }
+}
+
+/* static */
+void Editor::HandleConfirmClick() {
+  if (cursor_) {
+    (*confirm_page_settings_.callback)();
+  }
+  JumpToPageGroup(confirm_page_settings_.return_group);
+  Refresh();
+}
+
+/* static */
+void Editor::HandleConfirmIncrement(int8_t direction) {
+  cursor_ = !cursor_;
+}
+
+/* static */
+void Editor::HandleConfirmInput(uint8_t knob_index, uint16_t value) {
+}
+
+/* static */
+void Editor::DisplayConfirmPage() {
+  for (uint8_t i = 0; i < 2; ++i) {
+    ResourcesManager::LoadStringResource(
+        confirm_page_settings_.text + i,
+        line_buffer_,
+        kLcdWidth);
+    AlignLeft(line_buffer_, kLcdWidth);
+    if (i == 1) {
+      if (cursor_) {
+        line_buffer_[kLcdWidth - 2] = 'o';
+        line_buffer_[kLcdWidth - 1] = 'k';
+      } else {
+        line_buffer_[kLcdWidth - 2] = 'n';
+        line_buffer_[kLcdWidth - 1] = 'o';
+      }
+    }
+    display.Print(i, line_buffer_);
   }
 }
 

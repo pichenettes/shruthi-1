@@ -254,13 +254,15 @@ static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
 static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
-static const prog_char str_res_patches[] PROGMEM = "patches";
-static const prog_char str_res_sequences[] PROGMEM = "sequences";
-static const prog_char str_res_system_settings[] PROGMEM = "system settings";
+static const prog_char str_res_patch[] PROGMEM = "patch";
+static const prog_char str_res_sequence[] PROGMEM = "sequence";
+static const prog_char str_res_save_midi_kbd[] PROGMEM = "save midi/kbd";
+static const prog_char str_res_settings_[] PROGMEM = "settings?";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_load[] PROGMEM = "load";
-static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_save[] PROGMEM = "save";
+static const prog_char str_res_compare[] PROGMEM = "compare";
+static const prog_char str_res__ok_[] PROGMEM = "<ok>";
 static const prog_char str_res_v[] PROGMEM = "v";
 static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
@@ -530,13 +532,15 @@ PROGMEM const prog_char* string_table[] = {
   str_res_4ghana,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,
-  str_res_patches,
-  str_res_sequences,
-  str_res_system_settings,
+  str_res_patch,
+  str_res_sequence,
+  str_res_save_midi_kbd,
+  str_res_settings_,
   str_res_step_sequencer,
   str_res_load,
-  str_res_,
   str_res_save,
+  str_res_compare,
+  str_res__ok_,
   str_res_v,
   str_res_mutable____v1_00,
   str_res_instruments_671,

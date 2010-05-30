@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "hardware/base/base.h"
+#include "hardware/shruthi/display.h"
 #include "hardware/shruthi/patch.h"
 #include "hardware/shruthi/sequencer_settings.h"
 #include "hardware/shruthi/system_settings.h"
@@ -46,7 +47,7 @@ template<> class StorageConfiguration<Patch> {
  public:
   enum {
     num_internal = 16,
-    num_external = /* 64 */ 0,
+    num_external = 64,
     offset_internal = 16,
     offset_external = 0,
     size = sizeof(Patch),
@@ -58,7 +59,7 @@ template<> class StorageConfiguration<SequencerSettings> {
  public:
   enum {
     num_internal = 16,
-    num_external = /* 64 */ 0,
+    num_external = 64,
     offset_internal = StorageConfiguration<Patch>::offset_internal + \
         StorageConfiguration<Patch>::num_internal * sizeof(Patch),
     offset_external = StorageConfiguration<Patch>::offset_external + \
@@ -109,7 +110,10 @@ class Storage {
           StorageConfiguration<T>::size);
       
     } else {
-      // TODO: external eeprom write
+      WriteExternal(
+          (uint8_t *)(ptr->saved_data()),
+          (uint16_t)(address<T>(slot)),
+          StorageConfiguration<T>::size);
     }
   }
   template<typename T>
@@ -120,7 +124,10 @@ class Storage {
           address<T>(slot),
           StorageConfiguration<T>::size);
     } else {
-      // TODO: external eeprom read
+      ReadExternal(
+          load_buffer_,
+          (uint16_t)(address<T>(slot)),
+          StorageConfiguration<T>::size);
     }
     AcceptData(ptr, load_buffer_);
   }
@@ -151,6 +158,8 @@ class Storage {
   }
 
  private:
+  static void WriteExternal(const uint8_t* data, uint16_t address, uint8_t size);
+  static void ReadExternal(uint8_t* data, uint16_t address, uint8_t size);
   static void SysExDumpBuffer(uint8_t* data, uint8_t code, uint8_t size);
   static uint8_t undo_buffer_[sizeof(Patch)];
   static uint8_t load_buffer_[sizeof(Patch)];

@@ -79,15 +79,15 @@ void SynthesisEngine::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_SAW, 0, -12, 0,
-    WAVEFORM_SAW, 0, -24, 12,
+    WAVEFORM_SAW, 0, 0, 0,
+    WAVEFORM_SQUARE, 16, -12, 12,
     // Mixer
-    63, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
+    32, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
     // Filter
-    127, 0, 20, 0,
+    96, 0, 32, 0,
     // ADSR
-    0, 60, 20, 60,
-    0, 40, 80, 40,
+    0, 50, 20, 60,
+    0, 40, 90, 30,
     // LFO
     LFO_WAVEFORM_TRIANGLE, 96, 0, 0,
     LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
@@ -148,7 +148,7 @@ static const prog_char init_sequence[] PROGMEM = {
 
 static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
-    -2, 0, 0, 0,
+    0, 0, 0, 0,
     0, 1, 1, 1
 };
 
@@ -161,6 +161,13 @@ void SynthesisEngine::ResetPatch() {
 /* static */
 void SynthesisEngine::ResetSequencerSettings() {
   ResourcesManager::Load(init_sequence, 0, &sequencer_settings_);
+  controller_.TouchSequence();
+}
+
+/* static */
+void SynthesisEngine::ResetSequence() {
+  ResourcesManager::Load(init_sequence + 10, 0, &sequencer_settings_.steps);
+  sequencer_settings_.pattern_size = 16;
   controller_.TouchSequence();
 }
 

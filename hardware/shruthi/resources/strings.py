@@ -268,13 +268,15 @@ ghana
 
 touch a knob to
 assign parameter
-patches
-sequences
-system settings
+patch
+sequence
+save midi/kbd
+settings?
 step sequencer
 load
-----
 save
+compare
+<ok>
 
 v
 mutable    v1.00

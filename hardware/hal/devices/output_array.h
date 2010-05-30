@@ -59,6 +59,9 @@ class OutputArray {
   static inline Value value(Index output_index) {
     return values_[output_index];
   }
+  static inline void DebugOutput(uint8_t v) {
+    Register::Write(v);
+  }
   static inline void Output() {
     Index c = 0;
     Index bit = 1;
@@ -125,6 +128,9 @@ class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
     } else {
       return values_[output_index >> 1] & 0x0f;
     }
+  }
+  static inline void DebugOutput(uint8_t v) {
+    Register::Write(v);
   }
   static inline void Output() {
     Index c = 0;
@@ -197,6 +203,9 @@ class OutputArray<Latch, Clock, Data, size, 1, order, safe> {
   static inline uint8_t value(uint8_t output_index) {
     T mask = T(1) << output_index;
     return T(bits_ & mask) ? 1 : 0;
+  }
+  static inline void DebugOutput(uint8_t v) {
+    Register::Write(v);
   }
   static inline void Output() {
     if (bits_ == last_bits_) {

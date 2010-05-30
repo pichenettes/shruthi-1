@@ -13,7 +13,7 @@
 
 VERSION        = 0.1
 TARGET         = shruthi1
-PACKAGES       = hardware/base hardware/hal hardware/hal/devices hardware/midi hardware/utils hardware/shruthi
+PACKAGES       = hardware/base hardware/hal hardware/hal/i2c hardware/hal/devices hardware/midi hardware/utils hardware/shruthi
 RESOURCES      = hardware/shruthi/resources
 
 include hardware/base.mk

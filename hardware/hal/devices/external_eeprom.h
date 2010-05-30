@@ -26,6 +26,7 @@
 #define HARDWARE_HAL_DEVICES_EXTERNAL_EEPROM_H_
 
 #include "hardware/hal/i2c/i2c.h"
+#include "hardware/hal/time.h"
 
 namespace hardware_hal {
 
@@ -54,16 +55,19 @@ class ExternalEeprom {
     uint16_t read = 0;
     while (size > 0) {
       // Try to read as much as possible from the buffer from the previous op.
-      while (Bus::readable()) {
+      while (Bus::readable() && size) {
         --size;
+        ++read;
         *data++ = Bus::ImmediateRead();
       }
-      // We need to request more data!
-      Bus::Wait();
-      uint8_t requested = size > block_size ? block_size : size;
-      Bus::Request((base_address + bank_) | 0x50, requested);
-      if (Bus::Wait() != I2C_ERROR_NONE) {
-        return size - read;
+      // We need to request more data, but no more than the size of a block.
+      if (size) {
+        Bus::Wait();
+        uint8_t requested = size > block_size ? block_size : size;
+        Bus::Request((base_address + bank_) | 0x50, requested);
+        if (Bus::Wait() != I2C_ERROR_NONE) {
+          return size - read;
+        }
       }
     }
     return size;
