@@ -372,7 +372,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       confirm_save_system_settings.return_group = GROUP_SYS;
       confirm_save_system_settings.callback = &SaveSystemSettings;
       Confirm(confirm_save_system_settings);
-    } else {
+    } else if (current_page_ != PAGE_PERFORMANCE) {
       ToggleLoadSaveAction();
     }
   } else {

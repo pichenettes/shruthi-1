@@ -117,6 +117,7 @@ class Hd44780Lcd {
   }
 
   static inline void Tick() {
+    ++blink_counter_;
     if (!enabled_) {
       return;
     }
@@ -188,6 +189,7 @@ class Hd44780Lcd {
   static inline uint8_t writable() { return OutputBuffer::writable(); }
   static inline uint8_t busy() { return transmitting_; }
   static inline uint8_t enabled() { return enabled_; }
+  static inline uint8_t blink_counter() { return blink_counter_; }
 
  private:
   static inline void StartWrite(uint8_t nibble) {
@@ -222,6 +224,7 @@ class Hd44780Lcd {
 
   static uint8_t transmitting_;
   static volatile uint8_t enabled_;
+  static volatile uint8_t blink_counter_;
 
   DISALLOW_COPY_AND_ASSIGN(Hd44780Lcd);
 };
@@ -229,7 +232,14 @@ class Hd44780Lcd {
 /* static */
 template<typename RsPin, typename EnablePin, typename ParallelPort,
          uint8_t width, uint8_t height>
-uint8_t Hd44780Lcd<RsPin, EnablePin, ParallelPort, width, height>::transmitting_;
+uint8_t Hd44780Lcd<RsPin, EnablePin, ParallelPort, width,
+                   height>::transmitting_;
+
+/* static */
+template<typename RsPin, typename EnablePin, typename ParallelPort,
+         uint8_t width, uint8_t height>
+volatile uint8_t Hd44780Lcd<RsPin, EnablePin, ParallelPort, width,
+                            height>::blink_counter_;
 
 /* static */
 template<typename RsPin, typename EnablePin, typename ParallelPort,

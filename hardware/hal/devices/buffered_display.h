@@ -88,9 +88,6 @@ class BufferedDisplay {
   }
 
   static inline void set_status(uint8_t status) __attribute__((noinline)) {
-    // TODO(pichenettes): we're using the same clock for blinking the cursor
-    // and clearing the status indicator. ewwww...
-    blink_clock_ = 0;
     status_ = status + 1;
   }
 
@@ -103,13 +100,12 @@ class BufferedDisplay {
     }
     // It is now safe to assume that all writes of 4 bytes to the display buffer
     // will not block.
-
-    // Blink the cursor and clears the status character.
-    blink_clock_ = (blink_clock_ + 1) & kLcdCursorBlinkRate;
-    if (blink_clock_ == 0) {
+    
+    if (previous_blink_counter_ > Lcd::blink_counter()) {
       blink_ = ~blink_;
       status_ = 0;
     }
+    previous_blink_counter_ = Lcd::blink_counter();
 
     uint8_t character = 0;
     // Determine which character to show at the current position.
@@ -164,7 +160,7 @@ class BufferedDisplay {
   static uint8_t scan_position_;
   static uint8_t scan_position_last_write_;
   static uint8_t blink_;
-  static uint16_t blink_clock_;
+  static uint8_t previous_blink_counter_;
   static uint8_t cursor_position_;
   static uint8_t cursor_character_;
   static uint8_t status_;
@@ -194,7 +190,7 @@ uint8_t BufferedDisplay<Lcd>::blink_;
 
 /* static */
 template<typename Lcd>
-uint16_t BufferedDisplay<Lcd>::blink_clock_;
+uint8_t BufferedDisplay<Lcd>::previous_blink_counter_;
 
 /* static */
 template<typename Lcd>
