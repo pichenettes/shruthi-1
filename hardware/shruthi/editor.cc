@@ -288,6 +288,11 @@ void Editor::SaveSystemSettings() {
 }
 
 /* static */
+void Editor::StartMidiBackup() {
+  Storage::SysExBulkDump();
+}
+
+/* static */
 void Editor::Confirm(ConfirmPageSettings confirm_page_settings) {
   confirm_page_settings_ = confirm_page_settings;
   current_page_ = PAGE_CONFIRM;
@@ -298,7 +303,7 @@ void Editor::Confirm(ConfirmPageSettings confirm_page_settings) {
 /* static */
 void Editor::HandleKeyEvent(const KeyEvent& event) {
   if (event.shifted) {
-    if (current_page_ != LOAD_SAVE) {
+    if (current_page_ != PAGE_LOAD_SAVE) {
       return;
     }
     switch (event.id) {
@@ -330,7 +335,13 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         break;
 
       case KEY_4:
-        // TODO(pichenettes): BIG DUMP
+        {
+          ConfirmPageSettings confirm_midi_backup;
+          confirm_midi_backup.text = STR_RES_START_FULL_MIDI;
+          confirm_midi_backup.return_group = GROUP_OSC;
+          confirm_midi_backup.callback = &StartMidiBackup;
+          Confirm(confirm_midi_backup);
+        }
         break;
     }
   } else if (event.hold_time >= 6) {
@@ -484,7 +495,7 @@ void Editor::set_edited_item_number(int8_t value) {
 /* static */
 uint8_t Editor::is_cursor_at_valid_position() {
   uint16_t allowed_cursor_positions = editor_mode_ == EDITOR_MODE_PATCH
-      ? 0xf7fb : 0xf003;
+      ? 0x07fb : 0x0003;
   return ((1 << cursor_) & allowed_cursor_positions) != 0;
 }
 
@@ -500,7 +511,7 @@ void Editor::HandleLoadSaveClick() {
     if (!is_cursor_at_valid_position()) {
       display_mode_ = DISPLAY_MODE_OVERVIEW;
     }
-    if (cursor_ == kLcdWidth - 3) {
+    if (cursor_ >= kLcdWidth - 4) {
       if (editor_mode_ == EDITOR_MODE_PATCH) {
         Storage::Write(engine.mutable_patch(), current_patch_number_);
       } else {
@@ -577,12 +588,14 @@ void Editor::DisplayLoadSavePage() {
     }
   }
   line_buffer_[2] = ' ';
-  memset(line_buffer_ + 11, ' ', kLcdWidth - 5);
+  memset(line_buffer_ + 11, ' ', kLcdWidth - 11);
   if (action_ == ACTION_SAVE) {
-    ResourcesManager::LoadStringResource(
-        STR_RES__OK_,
-        line_buffer_ + kLcdWidth - 4,
-        4);
+    line_buffer_[kLcdWidth - 2] = 'k';
+    line_buffer_[kLcdWidth - 3] = 'o';
+    if (cursor_ >= kLcdWidth - 4) {
+      line_buffer_[kLcdWidth - 4] = '[';
+      line_buffer_[kLcdWidth - 1] = ']';
+    }
   }
   if (action_ == ACTION_SAVE && is_cursor_at_valid_position()) {
     display.set_cursor_position(kLcdWidth + cursor_);

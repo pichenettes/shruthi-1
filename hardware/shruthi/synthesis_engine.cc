@@ -104,8 +104,8 @@ static const prog_char init_patch[] PROGMEM = {
     MOD_SRC_NOTE, MOD_DST_FILTER_CUTOFF, 63,
     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
     MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
-    MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_FINE, 32,
-    MOD_SRC_LFO_1, MOD_DST_VCO_1_2_FINE, 16,
+    MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_COARSE, 32,
+    MOD_SRC_LFO_1, MOD_DST_VCO_1_2_COARSE, 16,
     // Name
     'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
     // Performance page assignments.
@@ -611,13 +611,16 @@ inline void Voice::Control() {
       envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
 
   modulation_destinations_[MOD_DST_VCA] = 255;
+  modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = signal_;
 
   // Load and scale to 0-16383 the initial value of each modulated parameter.
   dst[MOD_DST_FILTER_CUTOFF] = engine.patch_.filter_cutoff << 7;
   dst[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
   dst[MOD_DST_PWM_1] = engine.patch_.osc[0].parameter << 7;
   dst[MOD_DST_PWM_2] = engine.patch_.osc[1].parameter << 7;
-  dst[MOD_DST_VCO_1_2_FINE] = dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
+  dst[MOD_DST_VCO_1_2_COARSE] = dst[MOD_DST_VCO_1_2_FINE] =
+      dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
+  dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
   dst[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
   dst[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
   dst[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
@@ -659,7 +662,8 @@ inline void Voice::Control() {
       // For those sources, use relative modulation.
       if (source <= MOD_SRC_LFO_2 ||
           source == MOD_SRC_PITCH_BEND ||
-          source == MOD_SRC_NOTE) {
+          source == MOD_SRC_NOTE ||
+          source == MOD_SRC_AUDIO) {
         modulation -= amount << 7;
       }
       dst[destination] = Clip(modulation, 0, 16383);
@@ -738,7 +742,9 @@ inline void Voice::Control() {
     // -16 / +16 semitones by the routed modulations.
     pitch += (dst[MOD_DST_VCO_1 + i] - 8192) >> 2;
     // -4 / +4 semitones by the vibrato and pitch bend.
-    pitch += (dst[MOD_DST_VCO_1_2_FINE] - 8192) >> 4;
+    pitch += (dst[MOD_DST_VCO_1_2_COARSE] - 8192) >> 4;
+    // -1 / +1 semitones by the vibrato and pitch bend.
+    pitch += (dst[MOD_DST_VCO_1_2_FINE] - 8192) >> 7;
     // -1 / +1 semitones by master tuning.
     pitch += engine.system_settings_.master_tuning;
 

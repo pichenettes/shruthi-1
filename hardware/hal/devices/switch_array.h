@@ -66,7 +66,8 @@ class SwitchArray {
   static const SwitchState& switch_state(uint8_t i) { return switch_state_[i]; }
   static uint8_t released() {
     for (uint8_t i = 0; i < num_inputs; ++i) {
-      if (switch_state_[i].state == 0x7f) {
+      if (switch_state_[i].state == 0x7f &&
+          (i != shift || !inhibit_shift_release_)) {
         return 1;
       }
     }
@@ -81,10 +82,17 @@ class SwitchArray {
     KeyEvent e;
     for (uint8_t i = 0; i < num_inputs; ++i) {
       if (switch_state_[i].state == 0x7f) {
-        e.id = i;
-        e.shifted = (switch_state_[shift].state == 0x00) ? 1 : 0;
-        e.hold_time = static_cast<uint16_t>(
-            last_event_time_ - switch_state_[i].time) >> 8;
+        if (i == shift && inhibit_shift_release_) {
+          inhibit_shift_release_ = 0;
+        } else {
+          e.id = i;
+          e.shifted = (switch_state_[shift].state == 0x00) ? 1 : 0;
+          e.hold_time = static_cast<uint16_t>(
+              last_event_time_ - switch_state_[i].time) >> 8;
+          if (e.shifted) {
+            inhibit_shift_release_ = 1;
+          }
+        }
       }
     }
     return e;
@@ -103,6 +111,7 @@ class SwitchArray {
         last_event_time_ = now;
         switch_state_[i].debounced_state = LOW;
         switch_state_[i].time = now;
+        inhibit_shift_release_ = 0;
       } else if (switch_state_[i].state == 0x7f) {
         last_event_time_ = now;
         switch_state_[i].debounced_state = HIGH;
@@ -114,15 +123,24 @@ class SwitchArray {
  private:
   static uint32_t last_event_time_;
   static SwitchState switch_state_[num_inputs];
+  static uint8_t inhibit_shift_release_;
 
   DISALLOW_COPY_AND_ASSIGN(SwitchArray);
 };
 
-template<typename Load, typename Clock, typename Data, uint8_t num_inputs, uint8_t shift>
-SwitchState SwitchArray<Load, Clock, Data, num_inputs, shift>::switch_state_[num_inputs];
+template<typename Load, typename Clock, typename Data, uint8_t num_inputs,
+         uint8_t shift>
+SwitchState SwitchArray<Load, Clock, Data, num_inputs,
+                        shift>::switch_state_[num_inputs];
 
-template<typename Load, typename Clock, typename Data, uint8_t num_inputs, uint8_t shift>
+template<typename Load, typename Clock, typename Data, uint8_t num_inputs,
+         uint8_t shift>
 uint32_t SwitchArray<Load, Clock, Data, num_inputs, shift>::last_event_time_;
+
+template<typename Load, typename Clock, typename Data, uint8_t num_inputs,
+         uint8_t shift>
+uint8_t SwitchArray<Load, Clock, Data, num_inputs,
+                    shift>::inhibit_shift_release_;
 
 
 }  // namespace hardware_hal

@@ -228,7 +228,6 @@ class Editor {
   static void HandleConfirmInput(uint8_t knob_index, uint16_t value);
   static void HandleConfirmIncrement(int8_t direction);
   static void HandleConfirmClick();
-  static void SaveSystemSettings();
 
   static void DisplayLoadSavePage();
   static void HandleLoadSaveInput(uint8_t knob_index, uint16_t value);
@@ -245,6 +244,9 @@ class Editor {
   static void RandomizeParameter(uint8_t subpage, uint8_t parameter_index);
   static void RandomizePatch();
   static void RandomizeSequence();
+  
+  static void SaveSystemSettings();
+  static void StartMidiBackup();
   
   // Before processing a knob move, check that this move is not meant to
   // complete a knob assignment action.

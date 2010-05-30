@@ -39,6 +39,7 @@ enum DigitalValue {
 };
 
 static const uint16_t kInternalEepromSize = 2048;
+static const uint16_t kDefaultExternalEepromSize = 8192;
 
 // <avr/io.h> is full of useful defines, but they cannot be used as template
 // arguments because they are of the form: (*(volatile uint8_t *)(0x80))

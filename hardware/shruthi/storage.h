@@ -86,8 +86,11 @@ class Storage {
     SysExDumpBuffer(
         ptr->saved_data(),
         StorageConfiguration<T>::sysex_object_id,
+        0,
         StorageConfiguration<T>::size);
   }
+  
+  static void SysExBulkDump();
   
   static void SysExReceive(uint8_t sysex_rx_byte);
 
@@ -160,12 +163,18 @@ class Storage {
  private:
   static void WriteExternal(const uint8_t* data, uint16_t address, uint8_t size);
   static void ReadExternal(uint8_t* data, uint16_t address, uint8_t size);
-  static void SysExDumpBuffer(uint8_t* data, uint8_t code, uint8_t size);
+  static void SysExParseCommand();
+  static void SysExAcceptBuffer();
+  static void SysExDumpBuffer(
+      uint8_t* data,
+      uint8_t command,
+      uint8_t argument,
+      uint8_t size);
   static uint8_t undo_buffer_[sizeof(Patch)];
   static uint8_t load_buffer_[sizeof(Patch)];
-  static uint8_t sysex_rx_buffer_[sizeof(Patch) + 1];
-  static uint8_t sysex_rx_bytes_received_;
-  static uint8_t sysex_rx_expected_size_;
+  static uint8_t sysex_rx_buffer_[129];
+  static uint16_t sysex_rx_bytes_received_;
+  static uint16_t sysex_rx_expected_size_;
   static uint8_t sysex_rx_state_;
   static uint8_t sysex_rx_checksum_;
   static uint8_t sysex_rx_command_[2];

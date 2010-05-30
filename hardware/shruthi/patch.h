@@ -159,9 +159,10 @@ enum ModulationSource {
   MOD_SRC_RANDOM,
   MOD_SRC_NOTE,
   MOD_SRC_GATE,
+  MOD_SRC_AUDIO,
 };
 
-static const uint8_t kNumModulationSources = MOD_SRC_GATE + 1;
+static const uint8_t kNumModulationSources = MOD_SRC_AUDIO + 1;
 static const uint8_t kNumGlobalModulationSources = MOD_SRC_NOISE + 1;
 static const uint8_t kNumVoiceModulationSources = kNumModulationSources -
     kNumGlobalModulationSources;
@@ -173,6 +174,7 @@ enum ModulationDestination {
   MOD_DST_PWM_2,
   MOD_DST_VCO_1,
   MOD_DST_VCO_2,
+  MOD_DST_VCO_1_2_COARSE,
   MOD_DST_VCO_1_2_FINE,
   MOD_DST_MIX_BALANCE,
   MOD_DST_MIX_NOISE,

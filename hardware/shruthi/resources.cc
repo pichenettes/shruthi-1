@@ -85,6 +85,7 @@ static const prog_char str_res_pw2[] PROGMEM = "pw2";
 static const prog_char str_res_51[] PROGMEM = "1";
 static const prog_char str_res_52[] PROGMEM = "2";
 static const prog_char str_res_5[] PROGMEM = "";
+static const prog_char str_res_5f[] PROGMEM = "f";
 static const prog_char str_res_mix[] PROGMEM = "mix";
 static const prog_char str_res_noi[] PROGMEM = "noi";
 static const prog_char str_res_sub[] PROGMEM = "sub";
@@ -99,6 +100,7 @@ static const prog_char str_res_pwm2[] PROGMEM = "pwm2";
 static const prog_char str_res_osc1[] PROGMEM = "osc1";
 static const prog_char str_res_osc2[] PROGMEM = "osc2";
 static const prog_char str_res_osc1S2[] PROGMEM = "osc1+2";
+static const prog_char str_res_fine[] PROGMEM = "fine";
 static const prog_char str_res__mix[] PROGMEM = "mix";
 static const prog_char str_res__noise[] PROGMEM = "noise";
 static const prog_char str_res_subosc[] PROGMEM = "subosc";
@@ -178,6 +180,7 @@ static const prog_char str_res_vel[] PROGMEM = "vel";
 static const prog_char str_res_rnd[] PROGMEM = "rnd";
 static const prog_char str_res_not[] PROGMEM = "not";
 static const prog_char str_res_gat[] PROGMEM = "gat";
+static const prog_char str_res_aud[] PROGMEM = "aud";
 static const prog_char str_res_lfo_1[] PROGMEM = "lfo 1";
 static const prog_char str_res_lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_stpseq[] PROGMEM = "stpseq";
@@ -203,6 +206,7 @@ static const prog_char str_res_velo[] PROGMEM = "velo";
 static const prog_char str_res_random[] PROGMEM = "random";
 static const prog_char str_res_note[] PROGMEM = "note";
 static const prog_char str_res_gate[] PROGMEM = "gate";
+static const prog_char str_res_audio[] PROGMEM = "audio";
 static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
@@ -258,6 +262,8 @@ static const prog_char str_res_patch[] PROGMEM = "patch";
 static const prog_char str_res_sequence[] PROGMEM = "sequence";
 static const prog_char str_res_save_midi_kbd[] PROGMEM = "save midi/kbd";
 static const prog_char str_res_settings_[] PROGMEM = "settings?";
+static const prog_char str_res_start_full_midi[] PROGMEM = "start full MIDI";
+static const prog_char str_res_backup_[] PROGMEM = "backup?";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_load[] PROGMEM = "load";
 static const prog_char str_res_save[] PROGMEM = "save";
@@ -363,6 +369,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_51,
   str_res_52,
   str_res_5,
+  str_res_5f,
   str_res_mix,
   str_res_noi,
   str_res_sub,
@@ -377,6 +384,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_osc1,
   str_res_osc2,
   str_res_osc1S2,
+  str_res_fine,
   str_res__mix,
   str_res__noise,
   str_res_subosc,
@@ -456,6 +464,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_rnd,
   str_res_not,
   str_res_gat,
+  str_res_aud,
   str_res_lfo_1,
   str_res_lfo_2,
   str_res_stpseq,
@@ -481,6 +490,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_random,
   str_res_note,
   str_res_gate,
+  str_res_audio,
   str_res__off,
   str_res_thru,
   str_res_ctrl,
@@ -536,6 +546,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_sequence,
   str_res_save_midi_kbd,
   str_res_settings_,
+  str_res_start_full_midi,
+  str_res_backup_,
   str_res_step_sequencer,
   str_res_load,
   str_res_save,

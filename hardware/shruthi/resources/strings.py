@@ -84,6 +84,7 @@ pw2
 \x051
 \x052
 \x05
+\x05f
 mix
 noi
 sub
@@ -99,6 +100,7 @@ pwm2
 osc1
 osc2
 osc1+2
+fine
  mix
  noise
 subosc
@@ -183,6 +185,7 @@ vel
 rnd
 not
 gat
+aud
 
 lfo 1
 lfo 2
@@ -209,6 +212,7 @@ velo
 random
 note
 gate
+audio
 
  off
 thru
@@ -272,6 +276,8 @@ patch
 sequence
 save midi/kbd
 settings?
+start full MIDI
+backup?
 step sequencer
 load
 save
