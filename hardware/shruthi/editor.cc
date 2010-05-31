@@ -268,6 +268,7 @@ void Editor::RandomizePatch() {
       RandomizeParameter(slot, parameter);
     }
   }
+  engine.TouchPatch(1);
 }
 
 /* static */
@@ -439,7 +440,7 @@ void Editor::Refresh() {
 void Editor::RestoreEditBuffer() {
   if (editor_mode_ == EDITOR_MODE_PATCH) {
     Storage::Restore(engine.mutable_patch());
-    engine.TouchPatch();
+    engine.TouchPatch(1);
   } else {
     Storage::Restore(engine.mutable_sequencer_settings());
     engine.TouchSequence();
@@ -548,7 +549,7 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
     if (action_ == ACTION_LOAD) {
       if (editor_mode_ == EDITOR_MODE_PATCH) {
         Storage::Load(engine.mutable_patch(), edited_item_number());
-        engine.TouchPatch();
+        engine.TouchPatch(1);
       } else {
         Storage::Load(engine.mutable_sequencer_settings(),
                       edited_item_number());

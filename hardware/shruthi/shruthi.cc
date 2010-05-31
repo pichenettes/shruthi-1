@@ -239,7 +239,7 @@ void MidiTask() {
               break;
             case RECEPTION_OK:
               display.set_status('+');
-              engine.TouchPatch();
+              engine.TouchPatch(0);
               break;
             case RECEPTION_ERROR:
               display.set_status('#');

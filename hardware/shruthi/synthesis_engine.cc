@@ -157,7 +157,18 @@ static const prog_char init_system_settings[] PROGMEM = {
 /* static */
 void SynthesisEngine::ResetPatch() {
   ResourcesManager::Load(init_patch, 0, &patch_);
-  TouchPatch();
+  TouchPatch(1);
+}
+
+/* static */
+void SynthesisEngine::TouchPatch(uint8_t cascade) {
+  UpdateModulationIncrements();
+  UpdateOscillatorAlgorithms();
+  if (cascade) {
+    if (system_settings_.midi_out_mode >= MIDI_OUT_2_1) {
+      Storage::SysExDump(&patch_);
+    }
+  }
 }
 
 /* static */
@@ -188,7 +199,7 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     // is not the current unit, forward to the next unit in the chain.
     if (polychaining_allocator_.NoteOn(note) == 0) {
       voice_[0].Trigger(note, velocity, 0);
-    } else { 
+    } else {
       midi_out_filter.Send3(0x90 | channel, note, velocity);
     }
   } else {
@@ -245,9 +256,8 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         break;
       case hardware_midi::kDataEntryLsb:
         value = value | data_entry_msb_;
-        if (nrpn_parameter_number_ < sizeof(Patch) - 1) {
-          SetParameter(nrpn_parameter_number_, value);
-        }
+        SetParameter(nrpn_parameter_number_, value);
+        data_entry_msb_ = 0;
         break;
       case hardware_midi::kPortamentoTimeMsb:
         system_settings_.portamento = value;

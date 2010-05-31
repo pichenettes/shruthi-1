@@ -198,11 +198,9 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   // SetParameter when the related parameter is modified. Sometimes, the patch
   // is modified all at once without any call to SetParameter (for example when
   // loading a patch from the EEPROM)... so in this case we need to recompute
-  // all the related variables.
-  static inline void TouchPatch() {
-    UpdateModulationIncrements();
-    UpdateOscillatorAlgorithms();
-  }
+  // all the related variables. This is also a good occasion to dump by SysEx
+  // the patch to polychained units.
+  static void TouchPatch(uint8_t cascade);
   static inline void TouchSequence() {
     controller_.TouchSequence();
   }

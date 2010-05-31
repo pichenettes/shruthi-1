@@ -82,6 +82,9 @@ class MidiOutFilter {
   }
   
   static void SendParameter(uint8_t index, uint8_t value) {
+    if (index >= sizeof(Patch)) {
+      return;
+    }
     if (mode_ >= MIDI_OUT_FULL) {
       if (current_parameter_index_ != index) {
         OutputBuffer::Overwrite(0xb0 | channel_);
