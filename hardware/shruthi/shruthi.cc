@@ -166,8 +166,6 @@ TASK_BEGIN_NEAR
       }
     } else {
       editor.HandleInput(pot_event.id, pot_event.value);
-      // We might have to transmit the event by MIDI too
-      midi_out_filter.KnobTweaked(pot_event.id, pot_event.value);
     }
     TASK_SWITCH;
 

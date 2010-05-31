@@ -209,8 +209,8 @@ static const prog_char str_res_gate[] PROGMEM = "gate";
 static const prog_char str_res_audio[] PROGMEM = "audio";
 static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
-static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
 static const prog_char str_res___seq[] PROGMEM = "seq";
+static const prog_char str_res_full[] PROGMEM = "full";
 static const prog_char str_res_1__[] PROGMEM = "1>|";
 static const prog_char str_res_2_1[] PROGMEM = "2>1";
 static const prog_char str_res_3_2[] PROGMEM = "3>2";
@@ -500,8 +500,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_audio,
   str_res__off,
   str_res_thru,
-  str_res_ctrl,
   str_res___seq,
+  str_res_full,
   str_res_1__,
   str_res_2_1,
   str_res_3_2,

@@ -301,8 +301,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_AUDIO 181  // audio
 #define STR_RES__OFF 182  //  off
 #define STR_RES_THRU 183  // thru
-#define STR_RES_CTRL 184  // ctrl
-#define STR_RES___SEQ 185  //   seq
+#define STR_RES___SEQ 184  //   seq
+#define STR_RES_FULL 185  // full
 #define STR_RES_1__ 186  // 1>|
 #define STR_RES_2_1 187  // 2>1
 #define STR_RES_3_2 188  // 3>2

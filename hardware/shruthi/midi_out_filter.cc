@@ -27,6 +27,9 @@ uint8_t MidiOutFilter::mode_;
 /* static */
 uint8_t MidiOutFilter::channel_;
 
+/* static */
+uint8_t MidiOutFilter::current_parameter_index_;
+
 MidiOutFilter midi_out_filter;
 
 }  // namespace hardware_shruthi

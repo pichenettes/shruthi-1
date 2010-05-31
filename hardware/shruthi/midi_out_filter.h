@@ -23,6 +23,7 @@
 
 #include "hardware/base/base.h"
 #include "hardware/hal/ring_buffer.h"
+#include "hardware/midi/midi.h"
 #include "hardware/shruthi/shruthi.h"
 #include "hardware/shruthi/system_settings.h"
 
@@ -46,14 +47,6 @@ class MidiOutFilter {
     mode_ = system_settings.midi_out_mode;
   }
   
-  static void KnobTweaked(uint8_t id, uint16_t value) {
-    if (mode_ == MIDI_OUT_CONTROLLER) {
-      OutputBuffer::Overwrite(0xb0 | channel_);
-      OutputBuffer::Overwrite(16 + id);
-      OutputBuffer::Overwrite(value >> 3);
-    }
-  }
-  
   static void NoteKilled(uint8_t note) {
     if (mode_ == MIDI_OUT_SEQUENCER) {
       OutputBuffer::Overwrite(0x90 | channel_);
@@ -70,10 +63,41 @@ class MidiOutFilter {
     }
   }
   
-  static void Send(uint8_t a, uint8_t b, uint8_t c) {
+  static void Send(uint8_t status, uint8_t* data, uint8_t size) {
+    OutputBuffer::Overwrite(status);
+    if (size) {
+      OutputBuffer::Overwrite(*data++);
+      --size;
+    }
+    if (size) {
+      OutputBuffer::Overwrite(*data++);
+      --size;
+    }
+  }
+  
+  static void Send3(uint8_t status, uint8_t a, uint8_t b) {
+    OutputBuffer::Overwrite(status);
     OutputBuffer::Overwrite(a);
     OutputBuffer::Overwrite(b);
-    OutputBuffer::Overwrite(c);
+  }
+  
+  static void SendParameter(uint8_t index, uint8_t value) {
+    if (mode_ >= MIDI_OUT_FULL) {
+      if (current_parameter_index_ != index) {
+        OutputBuffer::Overwrite(0xb0 | channel_);
+        OutputBuffer::Overwrite(hardware_midi::kNrpnLsb);
+        OutputBuffer::Overwrite(index);
+        current_parameter_index_ = index;
+      }
+      if (value & 0x80) {
+        OutputBuffer::Overwrite(0xb0 | channel_);
+        OutputBuffer::Overwrite(hardware_midi::kDataEntryMsb);
+        OutputBuffer::Overwrite(1);
+      }
+      OutputBuffer::Overwrite(0xb0 | channel_);
+      OutputBuffer::Overwrite(hardware_midi::kDataEntryLsb);
+      OutputBuffer::Overwrite(value & 0x7f);
+    }
   }
   
   static uint8_t readable() {
@@ -92,6 +116,7 @@ class MidiOutFilter {
     
   static uint8_t mode_;
   static uint8_t channel_;
+  static uint8_t current_parameter_index_;
 
   DISALLOW_COPY_AND_ASSIGN(MidiOutFilter);
 };

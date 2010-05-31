@@ -53,6 +53,7 @@ SystemSettings SynthesisEngine::system_settings_;
 
 Voice SynthesisEngine::voice_[kNumVoices];
 VoiceController SynthesisEngine::controller_;
+VoiceAllocator SynthesisEngine::polychaining_allocator_;
 Lfo SynthesisEngine::lfo_[kNumLfos] = { };
 uint8_t SynthesisEngine::nrpn_parameter_number_;
 uint8_t SynthesisEngine::data_entry_msb_;
@@ -65,6 +66,7 @@ uint8_t SynthesisEngine::lfo_to_reset_;
 /* static */
 void SynthesisEngine::Init() {
   controller_.Init(&sequencer_settings_, voice_, kNumVoices);
+  polychaining_allocator_.Init();
   ResetPatch();
   ResetSequencerSettings();
   if (!system_settings_.EepromLoad()) {
@@ -180,10 +182,14 @@ void SynthesisEngine::ResetSystemSettings() {
 /* static */
 void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
   if (system_settings_.midi_out_mode >= MIDI_OUT_1_0) {
-    if (1 /* check from voice list if I am responsible for this note. */) {
+    polychaining_allocator_.set_size(
+        system_settings_.midi_out_mode - MIDI_OUT_1_0 + 1);
+    // Check which unit in the chain is responsible for this note/voice. If this
+    // is not the current unit, forward to the next unit in the chain.
+    if (polychaining_allocator_.NoteOn(note) == 0) {
       voice_[0].Trigger(note, velocity, 0);
     } else { 
-      midi_out_filter.Send(0x90 | channel, note, velocity);
+      midi_out_filter.Send3(0x90 | channel, note, velocity);
     }
   } else {
     // If the note controller is not active, we are not currently playing a
@@ -198,10 +204,14 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
 /* static */
 void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
   if (system_settings_.midi_out_mode >= MIDI_OUT_1_0) {
-    if (1 /* check from voice list if I am responsible for this note. */) {
+    polychaining_allocator_.set_size(
+        system_settings_.midi_out_mode - MIDI_OUT_1_0 + 1);
+    // Check which unit in the chain is responsible for this note/voice. If this
+    // is not the current unit, forward to the next unit in the chain.
+    if (polychaining_allocator_.NoteOff(note) == 0) {
       voice_[0].Release();
     } else { 
-      midi_out_filter.Send(0x80 | channel, note, velocity);
+      midi_out_filter.Send3(0x80 | channel, note, 0);
     }
   } else {
     controller_.NoteOff(note);
@@ -274,6 +284,23 @@ uint8_t SynthesisEngine::CheckChannel(uint8_t channel) {
 }
 
 /* static */
+void SynthesisEngine::RawMidiData(
+    uint8_t status,
+    uint8_t* data,
+    uint8_t data_size) {
+  uint8_t hi = status & 0xf0;
+  // In polychaining mode we have to forward everything except note messages.
+  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
+    if (status != 0xf0 && status != 0xf7) {
+      if ((hi != 0x80 && hi != 0x90) ||
+          system_settings_.midi_out_mode == MIDI_OUT_FULL) {
+        midi_out_filter.Send(status, data, data_size);
+      }
+    }
+  }
+}
+
+/* static */
 void SynthesisEngine::PitchBend(uint8_t channel, uint16_t pitch_bend) {
   modulation_sources_[MOD_SRC_PITCH_BEND] = ShiftRight6(pitch_bend);
 }
@@ -281,6 +308,7 @@ void SynthesisEngine::PitchBend(uint8_t channel, uint16_t pitch_bend) {
 /* static */
 void SynthesisEngine::Aftertouch(uint8_t channel, uint8_t note,
                                  uint8_t velocity) {
+                                   
   modulation_sources_[MOD_SRC_AFTERTOUCH] = velocity << 1;
 }
 
@@ -320,16 +348,25 @@ void SynthesisEngine::OmniModeOn(uint8_t channel) {
 
 /* static */
 void SynthesisEngine::SysExStart() {
+  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
+    midi_out_filter.Send(0xf0, NULL, 0);
+  }
   Storage::SysExReceive(0xf0);
 }
 
 /* static */
 void SynthesisEngine::SysExByte(uint8_t sysex_byte) {
+  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
+    midi_out_filter.Send(sysex_byte, NULL, 0);
+  }
   Storage::SysExReceive(sysex_byte);
 }
 
 /* static */
 void SynthesisEngine::SysExEnd() {
+  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
+    midi_out_filter.Send(0xf7, NULL, 0);
+  }
   Storage::SysExReceive(0xf7);
 }
 
@@ -379,7 +416,8 @@ void SynthesisEngine::SetParameter(
              parameter_index <= PRM_SYS_BLANK) {
     // A copy of those parameters are used by the MIDI out dispatcher.
     midi_out_filter.UpdateSystemSettings(system_settings_);
-  } 
+  }
+  midi_out_filter.SendParameter(parameter_index, parameter_value);
 }
 
 /* static */

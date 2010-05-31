@@ -71,6 +71,7 @@ struct MidiDevice {
   static void Reset() { }
 
   static uint8_t CheckChannel(uint8_t channel) { return 1; }
+  static void RawMidiData(uint8_t status, uint8_t* data, uint8_t data_size) { }
 };
 
 template<typename Device>
@@ -169,7 +170,7 @@ void MidiStreamParser<Device>::MessageReceived(uint8_t status) {
   if (hi != 0xf0 && !Device::CheckChannel(lo)) {
     return;
   }
-
+  Device::RawMidiData(status, data_, data_size_);
   switch (hi) {
     case 0x80:
       Device::NoteOff(lo, data_[0], data_[1]);

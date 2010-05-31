@@ -46,6 +46,7 @@
 #include "hardware/shruthi/patch.h"
 #include "hardware/shruthi/sequencer_settings.h"
 #include "hardware/shruthi/system_settings.h"
+#include "hardware/shruthi/voice_allocator.h"
 #include "hardware/shruthi/voice_controller.h"
 
 namespace hardware_shruthi {
@@ -175,6 +176,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static void SysExByte(uint8_t sysex_byte);
   static void SysExEnd();
   static uint8_t CheckChannel(uint8_t channel);
+  static void RawMidiData(uint8_t status, uint8_t* data, uint8_t data_size);
 
   static void Audio();
   static void Control();
@@ -254,6 +256,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static uint8_t lfo_to_reset_;
   static Voice voice_[kNumVoices];
   static VoiceController controller_;
+  static VoiceAllocator polychaining_allocator_;
   static uint8_t oscillator_decimation_;
   static uint8_t nrpn_parameter_number_;
   static uint8_t data_entry_msb_;
