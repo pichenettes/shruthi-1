@@ -34,7 +34,7 @@ class SystemSettings {
   int8_t master_tuning;
   uint8_t midi_channel;
   uint8_t midi_out_mode;
-  uint8_t midi_out_chain;
+  uint8_t for_future_use;
 
   void EepromSave() const;
   uint8_t EepromLoad();
@@ -49,7 +49,7 @@ enum SystemParameter {
   PRM_SYS_MASTER_TUNING,
   PRM_SYS_MIDI_CHANNEL,
   PRM_SYS_MIDI_OUT_MODE,
-  PRM_SYS_MIDI_OUT_CHAIN
+  PRM_SYS_BLANK
 };
 
 }  // namespace hardware_shruthi

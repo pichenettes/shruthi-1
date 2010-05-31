@@ -52,6 +52,7 @@ class VoiceController {
   static void Reset();
   static void Step(int8_t delta);
   static void NoteOn(uint8_t note, uint8_t velocity);
+  static void ForceNoteOn(uint8_t note, uint8_t velocity);
   static void NoteOff(uint8_t note);
   static void TouchSequence();
   static inline void ExternalSync() { --midi_clock_counter_; }

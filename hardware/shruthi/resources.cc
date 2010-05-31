@@ -211,7 +211,14 @@ static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
 static const prog_char str_res___seq[] PROGMEM = "seq";
-static const prog_char str_res_poly[] PROGMEM = "poly";
+static const prog_char str_res_1__[] PROGMEM = "1>|";
+static const prog_char str_res_2_1[] PROGMEM = "2>1";
+static const prog_char str_res_3_2[] PROGMEM = "3>2";
+static const prog_char str_res_4_3[] PROGMEM = "4>3";
+static const prog_char str_res_5_4[] PROGMEM = "5>4";
+static const prog_char str_res_6_5[] PROGMEM = "6>5";
+static const prog_char str_res_7_6[] PROGMEM = "7>6";
+static const prog_char str_res_8_7[] PROGMEM = "8>7";
 static const prog_char str_res_mode[] PROGMEM = "mode";
 static const prog_char str_res_stp[] PROGMEM = "stp";
 static const prog_char str_res_arp[] PROGMEM = "arp";
@@ -268,7 +275,7 @@ static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_load[] PROGMEM = "load";
 static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
-static const prog_char str_res__ok_[] PROGMEM = "<ok>";
+static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
 static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
@@ -495,7 +502,14 @@ PROGMEM const prog_char* string_table[] = {
   str_res_thru,
   str_res_ctrl,
   str_res___seq,
-  str_res_poly,
+  str_res_1__,
+  str_res_2_1,
+  str_res_3_2,
+  str_res_4_3,
+  str_res_5_4,
+  str_res_6_5,
+  str_res_7_6,
+  str_res_8_7,
   str_res_mode,
   str_res_stp,
   str_res_arp,
@@ -552,7 +566,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_load,
   str_res_save,
   str_res_compare,
-  str_res__ok_,
+  str_res_,
   str_res_v,
   str_res_mutable____v1_00,
   str_res_instruments_671,

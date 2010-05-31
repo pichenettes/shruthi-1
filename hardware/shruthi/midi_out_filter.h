@@ -70,6 +70,12 @@ class MidiOutFilter {
     }
   }
   
+  static void Send(uint8_t a, uint8_t b, uint8_t c) {
+    OutputBuffer::Overwrite(a);
+    OutputBuffer::Overwrite(b);
+    OutputBuffer::Overwrite(c);
+  }
+  
   static uint8_t readable() {
     return OutputBuffer::readable();
   }

@@ -179,17 +179,33 @@ void SynthesisEngine::ResetSystemSettings() {
 
 /* static */
 void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
-  // If the note controller is not active, we are not currently playing a
-  // sequence, so we retrigger the LFOs.
-  if (!controller_.active()) {
-    lfo_reset_counter_ = num_lfo_reset_steps_ - 1;
+  if (system_settings_.midi_out_mode >= MIDI_OUT_1_0) {
+    if (1 /* check from voice list if I am responsible for this note. */) {
+      voice_[0].Trigger(note, velocity, 0);
+    } else { 
+      midi_out_filter.Send(0x90 | channel, note, velocity);
+    }
+  } else {
+    // If the note controller is not active, we are not currently playing a
+    // sequence, so we retrigger the LFOs.
+    if (!controller_.active()) {
+      lfo_reset_counter_ = num_lfo_reset_steps_ - 1;
+    }
+    controller_.NoteOn(note, velocity);
   }
-  controller_.NoteOn(note, velocity);
 }
 
 /* static */
 void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
-  controller_.NoteOff(note);
+  if (system_settings_.midi_out_mode >= MIDI_OUT_1_0) {
+    if (1 /* check from voice list if I am responsible for this note. */) {
+      voice_[0].Release();
+    } else { 
+      midi_out_filter.Send(0x80 | channel, note, velocity);
+    }
+  } else {
+    controller_.NoteOff(note);
+  }
 }
 
 /* static */
@@ -360,7 +376,7 @@ void SynthesisEngine::SetParameter(
     // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
   } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL &&
-             parameter_index <= PRM_SYS_MIDI_OUT_CHAIN) {
+             parameter_index <= PRM_SYS_BLANK) {
     // A copy of those parameters are used by the MIDI out dispatcher.
     midi_out_filter.UpdateSystemSettings(system_settings_);
   } 
