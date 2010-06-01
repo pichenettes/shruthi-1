@@ -239,6 +239,13 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
     }
   }
   static const Voice& voice(uint8_t i) { return voice_[i]; }
+  
+  static uint8_t dirty() {
+    uint8_t value = dirty_;
+    dirty_ = 0;
+    return value;
+  }
+  
  private:
   // Value of global modulation parameters, scaled to 0-255;
   static uint8_t modulation_sources_[kNumGlobalModulationSources];
@@ -257,7 +264,9 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static VoiceAllocator polychaining_allocator_;
   static uint8_t oscillator_decimation_;
   static uint8_t nrpn_parameter_number_;
+  static uint8_t nrpn_parameter_number_msb_;
   static uint8_t data_entry_msb_;
+  static uint8_t dirty_;
 
   // Called whenever a parameter related to LFOs/envelopes is modified (for now
   // everytime a parameter is modified by the user).

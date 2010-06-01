@@ -40,66 +40,15 @@ class MidiOutFilter {
 
   MidiOutFilter() { }
   
-  static void UpdateSystemSettings(const SystemSettings& system_settings) {
-    channel_ = system_settings.midi_channel == 0
-        ? 0
-        : system_settings.midi_channel - 1;
-    mode_ = system_settings.midi_out_mode;
-  }
-  
-  static void NoteKilled(uint8_t note) {
-    if (mode_ == MIDI_OUT_SEQUENCER) {
-      OutputBuffer::Overwrite(0x90 | channel_);
-      OutputBuffer::Overwrite(note);
-      OutputBuffer::Overwrite(0);
-    }
-  }
-
-  static void NoteTriggered(uint8_t note, uint8_t velocity) {
-    if (mode_ == MIDI_OUT_SEQUENCER) {
-      OutputBuffer::Overwrite(0x90 | channel_);
-      OutputBuffer::Overwrite(note);
-      OutputBuffer::Overwrite(velocity);
-    }
-  }
-  
-  static void Send(uint8_t status, uint8_t* data, uint8_t size) {
-    OutputBuffer::Overwrite(status);
-    if (size) {
-      OutputBuffer::Overwrite(*data++);
-      --size;
-    }
-    if (size) {
-      OutputBuffer::Overwrite(*data++);
-      --size;
-    }
-  }
-  
-  static void Send3(uint8_t status, uint8_t a, uint8_t b) {
-    OutputBuffer::Overwrite(status);
-    OutputBuffer::Overwrite(a);
-    OutputBuffer::Overwrite(b);
-  }
-  
-  static void SendParameter(uint8_t index, uint8_t value) {
-    if (index >= sizeof(Patch)) {
-      return;
-    }
-    if (mode_ >= MIDI_OUT_FULL) {
-      if (current_parameter_index_ != index) {
-        OutputBuffer::Overwrite(0xb0 | channel_);
-        OutputBuffer::Overwrite(hardware_midi::kNrpnLsb);
-        OutputBuffer::Overwrite(index);
-        current_parameter_index_ = index;
-      }
-      if (value & 0x80) {
-        OutputBuffer::Overwrite(0xb0 | channel_);
-        OutputBuffer::Overwrite(hardware_midi::kDataEntryMsb);
-        OutputBuffer::Overwrite(1);
-      }
-      OutputBuffer::Overwrite(0xb0 | channel_);
-      OutputBuffer::Overwrite(hardware_midi::kDataEntryLsb);
-      OutputBuffer::Overwrite(value & 0x7f);
+  static void UpdateSystemSettings(const SystemSettings& system_settings);
+  static void NoteKilled(uint8_t note);
+  static void NoteTriggered(uint8_t note, uint8_t velocity);
+  static void Send(uint8_t status, uint8_t* data, uint8_t size);
+  static void Send3(uint8_t status, uint8_t a, uint8_t b);
+  static void SendParameter(uint8_t index, uint8_t value);
+  static void RawDataReceived(uint8_t data) {
+    if (mode_ == MIDI_OUT_SOFT_THRU) {
+      OutputBuffer::Overwrite(data);
     }
   }
   
@@ -111,14 +60,10 @@ class MidiOutFilter {
     return OutputBuffer::ImmediateRead();
   }
   
-  static void RawDataReceived(uint8_t data) {
-    if (mode_ == MIDI_OUT_SOFT_THRU) {
-      OutputBuffer::Overwrite(data);
-    }
-  }
-    
+ private:
   static uint8_t mode_;
   static uint8_t channel_;
+  static uint8_t data_entry_counter_;
   static uint8_t current_parameter_index_;
 
   DISALLOW_COPY_AND_ASSIGN(MidiOutFilter);

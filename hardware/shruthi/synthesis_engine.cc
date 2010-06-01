@@ -55,11 +55,13 @@ Voice SynthesisEngine::voice_[kNumVoices];
 VoiceController SynthesisEngine::controller_;
 VoiceAllocator SynthesisEngine::polychaining_allocator_;
 Lfo SynthesisEngine::lfo_[kNumLfos] = { };
+uint8_t SynthesisEngine::nrpn_parameter_number_msb_;
 uint8_t SynthesisEngine::nrpn_parameter_number_;
 uint8_t SynthesisEngine::data_entry_msb_;
 uint8_t SynthesisEngine::num_lfo_reset_steps_;
 uint8_t SynthesisEngine::lfo_reset_counter_;
 uint8_t SynthesisEngine::lfo_to_reset_;
+uint8_t SynthesisEngine::dirty_;
 
 /* </static> */
 
@@ -77,6 +79,7 @@ void SynthesisEngine::Init() {
   for (uint8_t i = 0; i < kNumVoices; ++i) {
     voice_[i].Init();
   }
+  nrpn_parameter_number_ = 255;
 }
 
 static const prog_char init_patch[] PROGMEM = {
@@ -164,6 +167,7 @@ void SynthesisEngine::ResetPatch() {
 void SynthesisEngine::TouchPatch(uint8_t cascade) {
   UpdateModulationIncrements();
   UpdateOscillatorAlgorithms();
+  dirty_ = 1;
   if (cascade) {
     if (system_settings_.midi_out_mode >= MIDI_OUT_2_1) {
       Storage::SysExDump(&patch_);
@@ -255,8 +259,11 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         data_entry_msb_ = value << 7;
         break;
       case hardware_midi::kDataEntryLsb:
-        value = value | data_entry_msb_;
-        SetParameter(nrpn_parameter_number_, value);
+        value |= data_entry_msb_;
+        if (nrpn_parameter_number_ != 255) {
+          dirty_ = 1;
+          SetParameter(nrpn_parameter_number_, value);
+        }
         data_entry_msb_ = 0;
         break;
       case hardware_midi::kPortamentoTimeMsb:
@@ -275,7 +282,12 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         patch_.filter_cutoff = value;
         break;
       case hardware_midi::kNrpnLsb:
-        nrpn_parameter_number_ = value;
+        nrpn_parameter_number_ = value | nrpn_parameter_number_msb_;
+        nrpn_parameter_number_msb_ = 0;
+        data_entry_msb_ = 0;
+        break;
+      case hardware_midi::kNrpnMsb:
+        nrpn_parameter_number_msb_ = value << 7;
         data_entry_msb_ = 0;
         break;
     }

@@ -30,7 +30,6 @@
 #include "hardware/shruthi/midi_out_filter.h"
 #include "hardware/shruthi/storage.h"
 #include "hardware/shruthi/synthesis_engine.h"
-#include "hardware/utils/output_stream.h"
 #include "hardware/utils/task.h"
 
 using namespace hardware_hal;
@@ -39,8 +38,6 @@ using namespace hardware_shruthi;
 
 using hardware_utils::NaiveScheduler;
 using hardware_utils::Task;
-using hardware_utils::OutputStream;
-using hardware_utils::endl;
 
 // Midi input.
 Serial<SerialPort1, 31250, BUFFERED, POLLED> midi_io;
@@ -78,9 +75,6 @@ PwmOutput<kPinCv1Out> cv_1_out;
 PwmOutput<kPinCv2Out> cv_2_out;
 
 MidiStreamParser<SynthesisEngine> midi_parser;
-
-typedef Serial<SerialPort0, 9600, DISABLED, POLLED> Debug;
-OutputStream<Debug> debug_output;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -125,10 +119,11 @@ void UpdateLedsTask() {
 }
 
 void UpdateDisplayTask() {
+  if (engine.dirty()) {
+    editor.Refresh();
+  }
   display.Tick();
 }
-
-int8_t last_increment = 0;
 
 void InputTask() {
   KeyEvent switch_event;
@@ -204,10 +199,9 @@ void MidiTask() {
   // Try to pull as much data as possible from the MIDI buffer.
   while (midi_io.readable()) {
     uint8_t value = midi_io.ImmediateRead();
-
-    // Copy the byte to the MIDI output (thru). We could use Overwrite here
-    // since the output rate is the same as the input rate, which ensures that
-    // 0.32ms have elapsed between the writes.
+    
+    // Report that some data has been received. The MIDI Out filter might
+    // propagate it directly to the output if "Soft Thru" is enabled.
     midi_out_filter.RawDataReceived(value);
 
     // Also, parse the message.
@@ -262,8 +256,6 @@ void AudioRenderingTask() {
   if (audio_out.writable_block()) {
     engine.Control();
     if (engine.voice(0).dead()) {
-      // If the voice is dead, there's a block of 32 null samples. The only
-      // thing we have to do is advance the clock counter for the arpeggiator.
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
         audio_out.Overwrite(128);
       }
@@ -324,8 +316,6 @@ TIMER_2_TICK {
 }
 
 void Init() {
-  Debug::Init();
-
   scheduler.Init();
 
   lcd.Init();
