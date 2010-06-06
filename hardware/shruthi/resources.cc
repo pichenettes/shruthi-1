@@ -97,6 +97,8 @@ static const prog_char str_res_res[] PROGMEM = "res";
 static const prog_char str_res__cv1[] PROGMEM = "cv1";
 static const prog_char str_res__cv2[] PROGMEM = "cv2";
 static const prog_char str_res_2bt[] PROGMEM = "2bt";
+static const prog_char str_res__lf1[] PROGMEM = "lf1";
+static const prog_char str_res__lf2[] PROGMEM = "lf2";
 static const prog_char str_res_cutoff[] PROGMEM = "cutoff";
 static const prog_char str_res__vca[] PROGMEM = "vca";
 static const prog_char str_res_pwm1[] PROGMEM = "pwm1";
@@ -112,6 +114,8 @@ static const prog_char str_res_reso[] PROGMEM = "reso";
 static const prog_char str_res__cv_1[] PROGMEM = "cv 1";
 static const prog_char str_res__cv_2[] PROGMEM = "cv 2";
 static const prog_char str_res_2_bits[] PROGMEM = "2 bits";
+static const prog_char str_res__lfo_1[] PROGMEM = "lfo 1";
+static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_lf1[] PROGMEM = "lf1";
 static const prog_char str_res_lf2[] PROGMEM = "lf2";
 static const prog_char str_res_seq[] PROGMEM = "seq";
@@ -377,6 +381,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res__cv1,
   str_res__cv2,
   str_res_2bt,
+  str_res__lf1,
+  str_res__lf2,
   str_res_cutoff,
   str_res__vca,
   str_res_pwm1,
@@ -392,6 +398,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res__cv_1,
   str_res__cv_2,
   str_res_2_bits,
+  str_res__lfo_1,
+  str_res__lfo_2,
   str_res_lf1,
   str_res_lf2,
   str_res_seq,

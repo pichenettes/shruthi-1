@@ -261,6 +261,8 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static SystemSettings system_settings_;
   
   static Lfo lfo_[kNumLfos];
+  static uint8_t previous_lfo_fm_[kNumLfos];
+
   static uint8_t num_lfo_reset_steps_;  // resync the LFO every n-th step.
   static uint8_t lfo_reset_counter_;
   static uint8_t lfo_to_reset_;
@@ -275,7 +277,8 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
 
   // Called whenever a parameter related to LFOs/envelopes is modified (for now
   // everytime a parameter is modified by the user).
-  static void UpdateModulationIncrements();
+  static void UpdateModulationRates();
+  static void UpdateLfoRate(uint8_t i);
 
   // Called whenever a parameter related to oscillators is called.
   static void UpdateOscillatorAlgorithms();

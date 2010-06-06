@@ -190,9 +190,11 @@ enum ModulationDestination {
   MOD_DST_CV_1,
   MOD_DST_CV_2,
   MOD_DST_2_BITS,
+  MOD_DST_LFO_1,
+  MOD_DST_LFO_2
 };
 
-static const uint8_t kNumModulationDestinations = MOD_DST_2_BITS + 1;
+static const uint8_t kNumModulationDestinations = MOD_DST_LFO_2 + 1;
 
 enum PatchParameter {
   PRM_OSC_SHAPE_1,

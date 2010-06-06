@@ -94,6 +94,8 @@ res
  cv1
  cv2
 2bt
+ lf1
+ lf2
 
 cutoff
  vca
@@ -110,7 +112,8 @@ reso
  cv 1
  cv 2
 2 bits
-
+ lfo 1
+ lfo 2
 
 lf1
 lf2

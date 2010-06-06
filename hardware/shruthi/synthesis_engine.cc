@@ -55,6 +55,7 @@ Voice SynthesisEngine::voice_[kNumVoices];
 VoiceController SynthesisEngine::controller_;
 VoiceAllocator SynthesisEngine::polychaining_allocator_;
 Lfo SynthesisEngine::lfo_[kNumLfos] = { };
+uint8_t SynthesisEngine::previous_lfo_fm_[kNumLfos];
 uint8_t SynthesisEngine::nrpn_parameter_number_msb_;
 uint8_t SynthesisEngine::nrpn_parameter_number_;
 uint8_t SynthesisEngine::data_entry_msb_;
@@ -165,7 +166,7 @@ void SynthesisEngine::ResetPatch() {
 
 /* static */
 void SynthesisEngine::TouchPatch(uint8_t cascade) {
-  UpdateModulationIncrements();
+  UpdateModulationRates();
   UpdateOscillatorAlgorithms();
   dirty_ = 1;
   if (cascade) {
@@ -441,7 +442,7 @@ void SynthesisEngine::SetParameter(
   data_access_byte_[parameter_index + 1] = parameter_value;
   if (parameter_index >= PRM_ENV_ATTACK_1 &&
       parameter_index <= PRM_LFO_RETRIGGER_2) {
-    UpdateModulationIncrements();
+    UpdateModulationRates();
   } else if ((parameter_index <= PRM_OSC_SHAPE_2) ||
              (parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
     UpdateOscillatorAlgorithms();
@@ -467,33 +468,20 @@ void SynthesisEngine::UpdateOscillatorAlgorithms() {
 }
 
 /* static */
-void SynthesisEngine::UpdateModulationIncrements() {
+void SynthesisEngine::UpdateModulationRates() {
   // Update the LFO increments.
   num_lfo_reset_steps_ = 0;
   lfo_to_reset_ = 0;
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    uint16_t phase_increment;
-    // The LFO rates 0 to 15 are translated into a multiple of the step
-    // sequencer/arpeggiator step size.
     if (patch_.lfo[i].rate < 16) {
-      phase_increment = 65536 / (controller_.estimated_beat_duration() *
-                           (1 + patch_.lfo[i].rate) / 4);
       num_lfo_reset_steps_ = UnsignedUnsignedMul(
           num_lfo_reset_steps_ ? num_lfo_reset_steps_ : 1,
           1 + patch_.lfo[i].rate);
       lfo_to_reset_ |= _BV(i);
-    } else {
-      phase_increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
-          lut_res_lfo_increments, patch_.lfo[i].rate - 16);
     }
-    uint16_t envelope_increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
-        lut_res_lfo_increments, patch_.lfo[i].rate - 16);
-    lfo_[i].Update(
-        patch_.lfo[i].waveform,
-        phase_increment,
-        patch_.lfo[i].attack,
-        patch_.lfo[i].retrigger_mode);
-
+    UpdateLfoRate(i);
+  }
+  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
     for (uint8_t j = 0; j < kNumVoices; ++j) {
       voice_[j].mutable_envelope(i)->Update(
           patch_.env[i].attack,
@@ -502,6 +490,33 @@ void SynthesisEngine::UpdateModulationIncrements() {
           patch_.env[i].release);
     }
   }
+}
+
+/* static */
+void SynthesisEngine::UpdateLfoRate(uint8_t i) {
+  uint16_t phase_increment;
+  // The LFO rates 0 to 15 are translated into a multiple of the step
+  // sequencer/arpeggiator step size.
+  if (patch_.lfo[i].rate < 16) {
+    phase_increment = 65536 / (controller_.estimated_beat_duration() *
+                         (1 + patch_.lfo[i].rate) / 4);
+  } else {
+    uint16_t rate = patch_.lfo[i].rate;
+    rate += voice_[0].modulation_destination(MOD_DST_LFO_1 + i);
+    rate -= 32;
+    if (rate < 0) {
+      rate = 0;
+    } else if (rate >= 128) {
+      rate = 127;
+    }
+    phase_increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
+        lut_res_lfo_increments, rate);
+  }
+  lfo_[i].Update(
+      patch_.lfo[i].waveform,
+      phase_increment,
+      patch_.lfo[i].attack,
+      patch_.lfo[i].retrigger_mode);
 }
 
 /* static */
@@ -525,7 +540,7 @@ void SynthesisEngine::Control() {
     // "synchronization drift" because of rounding errors.
     ++lfo_reset_counter_;
     if (lfo_reset_counter_ == num_lfo_reset_steps_) {
-      UpdateModulationIncrements();
+      UpdateModulationRates();
       for (uint8_t i = 0; i < kNumLfos; ++i) {
         if (lfo_to_reset_ & _BV(i)) {
           lfo_[i].ResetPhase();
@@ -547,6 +562,15 @@ void SynthesisEngine::Control() {
       sequencer_settings_.steps[step + 8].controller() << 4);
   modulation_sources_[MOD_SRC_STEP] = (
       controller_.has_arpeggiator_note() ? 255 : 0);
+      
+  // Update the modulation speed if some of the LFO FM parameters have changed.
+  for (uint8_t i = 0; i < kNumLfos; ++i) {
+    if (previous_lfo_fm_[i] !=
+       voice_[0].modulation_destination(MOD_DST_LFO_1 + i)) {
+      previous_lfo_fm_[i] = voice_[0].modulation_destination(MOD_DST_LFO_1 + i);
+      UpdateLfoRate(i);
+    }
+  }
 
   for (uint8_t i = 0; i < kNumVoices; ++i) {
     // Looping envelopes. Note that the second envelope stops looping after the
@@ -719,6 +743,8 @@ inline void Voice::Control() {
   dst[MOD_DST_CV_1] = 0;
   dst[MOD_DST_CV_2] = 0;
   dst[MOD_DST_2_BITS] = 0;
+  dst[MOD_DST_LFO_1] = 8192;
+  dst[MOD_DST_LFO_2] = 8192;
   
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
@@ -805,7 +831,9 @@ inline void Voice::Control() {
   }
   modulation_destinations_[MOD_DST_PWM_1] = dst[MOD_DST_PWM_1] >> 7;
   modulation_destinations_[MOD_DST_PWM_2] = dst[MOD_DST_PWM_2] >> 7;
-
+  modulation_destinations_[MOD_DST_LFO_1] = dst[MOD_DST_LFO_1] >> 8;
+  modulation_destinations_[MOD_DST_LFO_2] = dst[MOD_DST_LFO_2] >> 8;
+  
   modulation_destinations_[MOD_DST_MIX_BALANCE] = ShiftRight6(
       dst[MOD_DST_MIX_BALANCE]);
   
