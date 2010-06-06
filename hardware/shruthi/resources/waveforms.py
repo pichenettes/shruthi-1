@@ -147,9 +147,10 @@ for zone in range(num_zones):
                        Scale(saw[quadrature])))
 
 
-def LoadWavetable(x, cycle=256):
+def LoadWavetable(x):
   # Load the data and split/pad single cycle waveforms.
   array = numpy.array(map(ord, list(file(x).read())))
+  cycle = 256 if len(array) == 4096 else 128
   num_cycles = len(array) / cycle
   assert num_cycles == 16
   wavetable = numpy.zeros((num_cycles, cycle + 1))
@@ -182,14 +183,22 @@ waveforms.extend(bl_tri_tables)
 """
 
 waveforms.extend([
-  ('wavetable_1', LoadWavetable('hardware/shruthi/data/waves.bin', 256)),
-  ('wavetable_2', LoadWavetable('hardware/shruthi/data/tampura.bin', 256)),
-  ('low_res_wavetable_1', LoadWavetable('hardware/shruthi/data/digital_2048.bin', 128)),
-  ('low_res_wavetable_2', LoadWavetable('hardware/shruthi/data/metallic_2048.bin', 128)),
-  ('low_res_wavetable_3', LoadWavetable('hardware/shruthi/data/bowed_2048.bin', 128)),
-  ('low_res_wavetable_4', LoadWavetable('hardware/shruthi/data/slap_2048.bin', 128)),
-  ('low_res_wavetable_5', LoadWavetable('hardware/shruthi/data/organ_2048.bin', 128)),
-  ('low_res_wavetable_6', LoadWavetable('hardware/shruthi/data/male_2048.bin', 128)),
+  ('wavetable_1',
+   LoadWavetable('hardware/shruthi/data/wavetables/4096/waves.bin')),
+  ('wavetable_2',
+   LoadWavetable('hardware/shruthi/data/wavetables/4096/tampura.bin')),
+  ('low_res_wavetable_1',
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/digital.bin')),
+  ('low_res_wavetable_2',
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/metallic.bin')),
+  ('low_res_wavetable_3',
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/bowed.bin')),
+  ('low_res_wavetable_4',
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/slap.bin')),
+  ('low_res_wavetable_5',
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/organ.bin')),
+  ('low_res_wavetable_6',
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/male.bin')),
 ])
 
 """----------------------------------------------------------------------------
