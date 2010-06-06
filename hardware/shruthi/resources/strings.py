@@ -20,65 +20,64 @@
 # Resource strings for shruthi-1.
 
 strings = """
+shape
+parameter
 prm
+range
 rng
 op.
-tuning
-prt
-porta
-legato
-midi out
-
-parameter
-range
 operator
 detune
 osc bal
 sub osc.
+resonance
+env1~vcf
+lfo2~vcf
+attack
+atk
+decay
+sustain
+release
+rate
+modulation
+mod.
+source
+src
+dest.
+dst
+amount
+amt
+mode
+tempo
+bpm
+groove
 direction
 pattern
+flow
+start
+length
+octave
+raga
+porta
+prt
+legato
+tuning
+midi chan
+chn
+midi out
+
 oscillator 1
 oscillator 2
+mixer
+filter
+envelope 1
+envelope 2
+sequencer
 arpeggio
+step sequencer
+keyboard
+midi
 performance
-
-none
-saw
-square
-triang
-zsaw
-zreso
-ztri
-zpulse
-zsync
-pad
-fm
-waves
-tampur
-digitl
-metall
-bowed
-slap
-organ
-male
-8bits
-crush
-pwm
-noise
-vowel
- square
- triang
-click
-glitch
-blow
-metal
-pop
-
-sum
-sync
-ring
-xor
-fuzz
 
 cut
 vca
@@ -105,63 +104,13 @@ osc2
 osc1+2
 fine
  mix
- noise
+noise
 subosc
 reso
  cv 1
  cv 2
 2 bits
 
-atk
-wv1
-rt1
-wv2
-rt2
-src
-dst
-amt
-chn
-bpm
-swg
-
-shape
-env1~vcf
-lfo2~vcf
-resonance
-envelope 1
-envelope 2
-sequencer
-attack
-decay
-sustain
-release
-rate
-mod.
-source
-dest.
-amount
-octave
-raga
-midi chan
-tempo
-
-mixer
-filter
-modulation
-keyboard
-midi
-off
-on
-
-tri
-sqr
-s&h
-ramp
-step
-\x03
-\x04
-\x03\x04
-?
 
 lf1
 lf2
@@ -217,20 +166,30 @@ note
 gate
 audio
 
- off
-thru
-  seq
-full
-1>|
-2>1
-3>2
-4>3
-5>4
-6>5
-7>6
-8>7
+touch a knob to
+assign parameter
+patch
+sequence
+save midi/kbd
+settings?
+start full MIDI
+backup?
+load
+save
+compare
+----
 
-mode
+v
+mutable    v1.00
+instruments \x06\x07-1
+extern
+
+sum
+sync
+ring
+xor
+fuzz
+
 stp
 arp
 arp+lt
@@ -242,17 +201,6 @@ free
 slave
 master
 
-groove
-swing
-shuffle
-push
-lag
-human
-
-start
-length
-
-flow
 \x7e
  \x7f
 \x7e-\x7f
@@ -270,23 +218,69 @@ ghana
 4sikha
 4ghana
 
-touch a knob to
-assign parameter
-patch
-sequence
-save midi/kbd
-settings?
-start full MIDI
-backup?
-step sequencer
-load
-save
-compare
-----
+swing
+shuffle
+push
+lag
+human
 
-v
-mutable    v1.00
-instruments \x06\x07-1
-extern
+ off
+thru
+  seq
+full
+1>|
+2>1
+3>2
+4>3
+5>4
+6>5
+7>6
+8>7
+
+tri
+sqr
+s&h
+ramp
+step
+\x03
+\x04
+\x03\x04
+?
+
+off
+on
+
+none
+saw
+square
+triang
+zsaw
+zreso
+ztri
+zpulse
+zsync
+pad
+fm
+waves
+tampur
+digitl
+metall
+bowed
+slap
+organ
+male
+8bits
+crush
+pwm
+ noise
+vowel
+ square
+ triang
+click
+glitch
+blow
+metal
+pop
+
 equal
 """

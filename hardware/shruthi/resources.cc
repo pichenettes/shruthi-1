@@ -25,62 +25,63 @@
 
 namespace hardware_shruthi {
 
+static const prog_char str_res_shape[] PROGMEM = "shape";
+static const prog_char str_res_parameter[] PROGMEM = "parameter";
 static const prog_char str_res_prm[] PROGMEM = "prm";
+static const prog_char str_res_range[] PROGMEM = "range";
 static const prog_char str_res_rng[] PROGMEM = "rng";
 static const prog_char str_res_op_[] PROGMEM = "op.";
-static const prog_char str_res_tuning[] PROGMEM = "tuning";
-static const prog_char str_res_prt[] PROGMEM = "prt";
-static const prog_char str_res_porta[] PROGMEM = "porta";
-static const prog_char str_res_legato[] PROGMEM = "legato";
-static const prog_char str_res_midi_out[] PROGMEM = "midi out";
-static const prog_char str_res_parameter[] PROGMEM = "parameter";
-static const prog_char str_res_range[] PROGMEM = "range";
 static const prog_char str_res_operator[] PROGMEM = "operator";
 static const prog_char str_res_detune[] PROGMEM = "detune";
 static const prog_char str_res_osc_bal[] PROGMEM = "osc bal";
 static const prog_char str_res_sub_osc_[] PROGMEM = "sub osc.";
+static const prog_char str_res_resonance[] PROGMEM = "resonance";
+static const prog_char str_res_env1Tvcf[] PROGMEM = "env1~vcf";
+static const prog_char str_res_lfo2Tvcf[] PROGMEM = "lfo2~vcf";
+static const prog_char str_res_attack[] PROGMEM = "attack";
+static const prog_char str_res_atk[] PROGMEM = "atk";
+static const prog_char str_res_decay[] PROGMEM = "decay";
+static const prog_char str_res_sustain[] PROGMEM = "sustain";
+static const prog_char str_res_release[] PROGMEM = "release";
+static const prog_char str_res_rate[] PROGMEM = "rate";
+static const prog_char str_res_modulation[] PROGMEM = "modulation";
+static const prog_char str_res_mod_[] PROGMEM = "mod.";
+static const prog_char str_res_source[] PROGMEM = "source";
+static const prog_char str_res_src[] PROGMEM = "src";
+static const prog_char str_res_dest_[] PROGMEM = "dest.";
+static const prog_char str_res_dst[] PROGMEM = "dst";
+static const prog_char str_res_amount[] PROGMEM = "amount";
+static const prog_char str_res_amt[] PROGMEM = "amt";
+static const prog_char str_res_mode[] PROGMEM = "mode";
+static const prog_char str_res_tempo[] PROGMEM = "tempo";
+static const prog_char str_res_bpm[] PROGMEM = "bpm";
+static const prog_char str_res_groove[] PROGMEM = "groove";
 static const prog_char str_res_direction[] PROGMEM = "direction";
 static const prog_char str_res_pattern[] PROGMEM = "pattern";
+static const prog_char str_res_flow[] PROGMEM = "flow";
+static const prog_char str_res_start[] PROGMEM = "start";
+static const prog_char str_res_length[] PROGMEM = "length";
+static const prog_char str_res_octave[] PROGMEM = "octave";
+static const prog_char str_res_raga[] PROGMEM = "raga";
+static const prog_char str_res_porta[] PROGMEM = "porta";
+static const prog_char str_res_prt[] PROGMEM = "prt";
+static const prog_char str_res_legato[] PROGMEM = "legato";
+static const prog_char str_res_tuning[] PROGMEM = "tuning";
+static const prog_char str_res_midi_chan[] PROGMEM = "midi chan";
+static const prog_char str_res_chn[] PROGMEM = "chn";
+static const prog_char str_res_midi_out[] PROGMEM = "midi out";
 static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
 static const prog_char str_res_oscillator_2[] PROGMEM = "oscillator 2";
+static const prog_char str_res_mixer[] PROGMEM = "mixer";
+static const prog_char str_res_filter[] PROGMEM = "filter";
+static const prog_char str_res_envelope_1[] PROGMEM = "envelope 1";
+static const prog_char str_res_envelope_2[] PROGMEM = "envelope 2";
+static const prog_char str_res_sequencer[] PROGMEM = "sequencer";
 static const prog_char str_res_arpeggio[] PROGMEM = "arpeggio";
+static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
+static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
+static const prog_char str_res_midi[] PROGMEM = "midi";
 static const prog_char str_res_performance[] PROGMEM = "performance";
-static const prog_char str_res_none[] PROGMEM = "none";
-static const prog_char str_res_saw[] PROGMEM = "saw";
-static const prog_char str_res_square[] PROGMEM = "square";
-static const prog_char str_res_triang[] PROGMEM = "triang";
-static const prog_char str_res_zsaw[] PROGMEM = "zsaw";
-static const prog_char str_res_zreso[] PROGMEM = "zreso";
-static const prog_char str_res_ztri[] PROGMEM = "ztri";
-static const prog_char str_res_zpulse[] PROGMEM = "zpulse";
-static const prog_char str_res_zsync[] PROGMEM = "zsync";
-static const prog_char str_res_pad[] PROGMEM = "pad";
-static const prog_char str_res_fm[] PROGMEM = "fm";
-static const prog_char str_res_waves[] PROGMEM = "waves";
-static const prog_char str_res_tampur[] PROGMEM = "tampur";
-static const prog_char str_res_digitl[] PROGMEM = "digitl";
-static const prog_char str_res_metall[] PROGMEM = "metall";
-static const prog_char str_res_bowed[] PROGMEM = "bowed";
-static const prog_char str_res_slap[] PROGMEM = "slap";
-static const prog_char str_res_organ[] PROGMEM = "organ";
-static const prog_char str_res_male[] PROGMEM = "male";
-static const prog_char str_res_8bits[] PROGMEM = "8bits";
-static const prog_char str_res_crush[] PROGMEM = "crush";
-static const prog_char str_res_pwm[] PROGMEM = "pwm";
-static const prog_char str_res_noise[] PROGMEM = "noise";
-static const prog_char str_res_vowel[] PROGMEM = "vowel";
-static const prog_char str_res__square[] PROGMEM = "square";
-static const prog_char str_res__triang[] PROGMEM = "triang";
-static const prog_char str_res_click[] PROGMEM = "click";
-static const prog_char str_res_glitch[] PROGMEM = "glitch";
-static const prog_char str_res_blow[] PROGMEM = "blow";
-static const prog_char str_res_metal[] PROGMEM = "metal";
-static const prog_char str_res_pop[] PROGMEM = "pop";
-static const prog_char str_res_sum[] PROGMEM = "sum";
-static const prog_char str_res_sync[] PROGMEM = "sync";
-static const prog_char str_res_ring[] PROGMEM = "ring";
-static const prog_char str_res_xor[] PROGMEM = "xor";
-static const prog_char str_res_fuzz[] PROGMEM = "fuzz";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
 static const prog_char str_res_pw1[] PROGMEM = "pw1";
@@ -105,59 +106,12 @@ static const prog_char str_res_osc2[] PROGMEM = "osc2";
 static const prog_char str_res_osc1S2[] PROGMEM = "osc1+2";
 static const prog_char str_res_fine[] PROGMEM = "fine";
 static const prog_char str_res__mix[] PROGMEM = "mix";
-static const prog_char str_res__noise[] PROGMEM = "noise";
+static const prog_char str_res_noise[] PROGMEM = "noise";
 static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_reso[] PROGMEM = "reso";
 static const prog_char str_res__cv_1[] PROGMEM = "cv 1";
 static const prog_char str_res__cv_2[] PROGMEM = "cv 2";
 static const prog_char str_res_2_bits[] PROGMEM = "2 bits";
-static const prog_char str_res_atk[] PROGMEM = "atk";
-static const prog_char str_res_wv1[] PROGMEM = "wv1";
-static const prog_char str_res_rt1[] PROGMEM = "rt1";
-static const prog_char str_res_wv2[] PROGMEM = "wv2";
-static const prog_char str_res_rt2[] PROGMEM = "rt2";
-static const prog_char str_res_src[] PROGMEM = "src";
-static const prog_char str_res_dst[] PROGMEM = "dst";
-static const prog_char str_res_amt[] PROGMEM = "amt";
-static const prog_char str_res_chn[] PROGMEM = "chn";
-static const prog_char str_res_bpm[] PROGMEM = "bpm";
-static const prog_char str_res_swg[] PROGMEM = "swg";
-static const prog_char str_res_shape[] PROGMEM = "shape";
-static const prog_char str_res_env1Tvcf[] PROGMEM = "env1~vcf";
-static const prog_char str_res_lfo2Tvcf[] PROGMEM = "lfo2~vcf";
-static const prog_char str_res_resonance[] PROGMEM = "resonance";
-static const prog_char str_res_envelope_1[] PROGMEM = "envelope 1";
-static const prog_char str_res_envelope_2[] PROGMEM = "envelope 2";
-static const prog_char str_res_sequencer[] PROGMEM = "sequencer";
-static const prog_char str_res_attack[] PROGMEM = "attack";
-static const prog_char str_res_decay[] PROGMEM = "decay";
-static const prog_char str_res_sustain[] PROGMEM = "sustain";
-static const prog_char str_res_release[] PROGMEM = "release";
-static const prog_char str_res_rate[] PROGMEM = "rate";
-static const prog_char str_res_mod_[] PROGMEM = "mod.";
-static const prog_char str_res_source[] PROGMEM = "source";
-static const prog_char str_res_dest_[] PROGMEM = "dest.";
-static const prog_char str_res_amount[] PROGMEM = "amount";
-static const prog_char str_res_octave[] PROGMEM = "octave";
-static const prog_char str_res_raga[] PROGMEM = "raga";
-static const prog_char str_res_midi_chan[] PROGMEM = "midi chan";
-static const prog_char str_res_tempo[] PROGMEM = "tempo";
-static const prog_char str_res_mixer[] PROGMEM = "mixer";
-static const prog_char str_res_filter[] PROGMEM = "filter";
-static const prog_char str_res_modulation[] PROGMEM = "modulation";
-static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
-static const prog_char str_res_midi[] PROGMEM = "midi";
-static const prog_char str_res_off[] PROGMEM = "off";
-static const prog_char str_res_on[] PROGMEM = "on";
-static const prog_char str_res_tri[] PROGMEM = "tri";
-static const prog_char str_res_sqr[] PROGMEM = "sqr";
-static const prog_char str_res_s_h[] PROGMEM = "s&h";
-static const prog_char str_res_ramp[] PROGMEM = "ramp";
-static const prog_char str_res_step[] PROGMEM = "step";
-static const prog_char str_res_3[] PROGMEM = "";
-static const prog_char str_res_4[] PROGMEM = "";
-static const prog_char str_res_34[] PROGMEM = "";
-static const prog_char str_res__[] PROGMEM = "?";
 static const prog_char str_res_lf1[] PROGMEM = "lf1";
 static const prog_char str_res_lf2[] PROGMEM = "lf2";
 static const prog_char str_res_seq[] PROGMEM = "seq";
@@ -210,19 +164,27 @@ static const prog_char str_res_random[] PROGMEM = "random";
 static const prog_char str_res_note[] PROGMEM = "note";
 static const prog_char str_res_gate[] PROGMEM = "gate";
 static const prog_char str_res_audio[] PROGMEM = "audio";
-static const prog_char str_res__off[] PROGMEM = "off";
-static const prog_char str_res_thru[] PROGMEM = "thru";
-static const prog_char str_res___seq[] PROGMEM = "seq";
-static const prog_char str_res_full[] PROGMEM = "full";
-static const prog_char str_res_1__[] PROGMEM = "1>|";
-static const prog_char str_res_2_1[] PROGMEM = "2>1";
-static const prog_char str_res_3_2[] PROGMEM = "3>2";
-static const prog_char str_res_4_3[] PROGMEM = "4>3";
-static const prog_char str_res_5_4[] PROGMEM = "5>4";
-static const prog_char str_res_6_5[] PROGMEM = "6>5";
-static const prog_char str_res_7_6[] PROGMEM = "7>6";
-static const prog_char str_res_8_7[] PROGMEM = "8>7";
-static const prog_char str_res_mode[] PROGMEM = "mode";
+static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
+static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
+static const prog_char str_res_patch[] PROGMEM = "patch";
+static const prog_char str_res_sequence[] PROGMEM = "sequence";
+static const prog_char str_res_save_midi_kbd[] PROGMEM = "save midi/kbd";
+static const prog_char str_res_settings_[] PROGMEM = "settings?";
+static const prog_char str_res_start_full_midi[] PROGMEM = "start full MIDI";
+static const prog_char str_res_backup_[] PROGMEM = "backup?";
+static const prog_char str_res_load[] PROGMEM = "load";
+static const prog_char str_res_save[] PROGMEM = "save";
+static const prog_char str_res_compare[] PROGMEM = "compare";
+static const prog_char str_res_[] PROGMEM = "----";
+static const prog_char str_res_v[] PROGMEM = "v";
+static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
+static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
+static const prog_char str_res_extern[] PROGMEM = "extern";
+static const prog_char str_res_sum[] PROGMEM = "sum";
+static const prog_char str_res_sync[] PROGMEM = "sync";
+static const prog_char str_res_ring[] PROGMEM = "ring";
+static const prog_char str_res_xor[] PROGMEM = "xor";
+static const prog_char str_res_fuzz[] PROGMEM = "fuzz";
 static const prog_char str_res_stp[] PROGMEM = "stp";
 static const prog_char str_res_arp[] PROGMEM = "arp";
 static const prog_char str_res_arpSlt[] PROGMEM = "arp+lt";
@@ -232,15 +194,6 @@ static const prog_char str_res_impro[] PROGMEM = "impro";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
-static const prog_char str_res_groove[] PROGMEM = "groove";
-static const prog_char str_res_swing[] PROGMEM = "swing";
-static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
-static const prog_char str_res_push[] PROGMEM = "push";
-static const prog_char str_res_lag[] PROGMEM = "lag";
-static const prog_char str_res_human[] PROGMEM = "human";
-static const prog_char str_res_start[] PROGMEM = "start";
-static const prog_char str_res_length[] PROGMEM = "length";
-static const prog_char str_res_flow[] PROGMEM = "flow";
 static const prog_char str_res_T[] PROGMEM = "~";
 static const prog_char str_res___[] PROGMEM = "";
 static const prog_char str_res_T_[] PROGMEM = "~-";
@@ -257,23 +210,65 @@ static const prog_char str_res_4krama[] PROGMEM = "4krama";
 static const prog_char str_res_4jata[] PROGMEM = "4jata";
 static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
 static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
-static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
-static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
-static const prog_char str_res_patch[] PROGMEM = "patch";
-static const prog_char str_res_sequence[] PROGMEM = "sequence";
-static const prog_char str_res_save_midi_kbd[] PROGMEM = "save midi/kbd";
-static const prog_char str_res_settings_[] PROGMEM = "settings?";
-static const prog_char str_res_start_full_midi[] PROGMEM = "start full MIDI";
-static const prog_char str_res_backup_[] PROGMEM = "backup?";
-static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
-static const prog_char str_res_load[] PROGMEM = "load";
-static const prog_char str_res_save[] PROGMEM = "save";
-static const prog_char str_res_compare[] PROGMEM = "compare";
-static const prog_char str_res_[] PROGMEM = "----";
-static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
-static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
-static const prog_char str_res_extern[] PROGMEM = "extern";
+static const prog_char str_res_swing[] PROGMEM = "swing";
+static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
+static const prog_char str_res_push[] PROGMEM = "push";
+static const prog_char str_res_lag[] PROGMEM = "lag";
+static const prog_char str_res_human[] PROGMEM = "human";
+static const prog_char str_res__off[] PROGMEM = "off";
+static const prog_char str_res_thru[] PROGMEM = "thru";
+static const prog_char str_res___seq[] PROGMEM = "seq";
+static const prog_char str_res_full[] PROGMEM = "full";
+static const prog_char str_res_1__[] PROGMEM = "1>|";
+static const prog_char str_res_2_1[] PROGMEM = "2>1";
+static const prog_char str_res_3_2[] PROGMEM = "3>2";
+static const prog_char str_res_4_3[] PROGMEM = "4>3";
+static const prog_char str_res_5_4[] PROGMEM = "5>4";
+static const prog_char str_res_6_5[] PROGMEM = "6>5";
+static const prog_char str_res_7_6[] PROGMEM = "7>6";
+static const prog_char str_res_8_7[] PROGMEM = "8>7";
+static const prog_char str_res_tri[] PROGMEM = "tri";
+static const prog_char str_res_sqr[] PROGMEM = "sqr";
+static const prog_char str_res_s_h[] PROGMEM = "s&h";
+static const prog_char str_res_ramp[] PROGMEM = "ramp";
+static const prog_char str_res_step[] PROGMEM = "step";
+static const prog_char str_res_3[] PROGMEM = "";
+static const prog_char str_res_4[] PROGMEM = "";
+static const prog_char str_res_34[] PROGMEM = "";
+static const prog_char str_res__[] PROGMEM = "?";
+static const prog_char str_res_off[] PROGMEM = "off";
+static const prog_char str_res_on[] PROGMEM = "on";
+static const prog_char str_res_none[] PROGMEM = "none";
+static const prog_char str_res_saw[] PROGMEM = "saw";
+static const prog_char str_res_square[] PROGMEM = "square";
+static const prog_char str_res_triang[] PROGMEM = "triang";
+static const prog_char str_res_zsaw[] PROGMEM = "zsaw";
+static const prog_char str_res_zreso[] PROGMEM = "zreso";
+static const prog_char str_res_ztri[] PROGMEM = "ztri";
+static const prog_char str_res_zpulse[] PROGMEM = "zpulse";
+static const prog_char str_res_zsync[] PROGMEM = "zsync";
+static const prog_char str_res_pad[] PROGMEM = "pad";
+static const prog_char str_res_fm[] PROGMEM = "fm";
+static const prog_char str_res_waves[] PROGMEM = "waves";
+static const prog_char str_res_tampur[] PROGMEM = "tampur";
+static const prog_char str_res_digitl[] PROGMEM = "digitl";
+static const prog_char str_res_metall[] PROGMEM = "metall";
+static const prog_char str_res_bowed[] PROGMEM = "bowed";
+static const prog_char str_res_slap[] PROGMEM = "slap";
+static const prog_char str_res_organ[] PROGMEM = "organ";
+static const prog_char str_res_male[] PROGMEM = "male";
+static const prog_char str_res_8bits[] PROGMEM = "8bits";
+static const prog_char str_res_crush[] PROGMEM = "crush";
+static const prog_char str_res_pwm[] PROGMEM = "pwm";
+static const prog_char str_res__noise[] PROGMEM = "noise";
+static const prog_char str_res_vowel[] PROGMEM = "vowel";
+static const prog_char str_res__square[] PROGMEM = "square";
+static const prog_char str_res__triang[] PROGMEM = "triang";
+static const prog_char str_res_click[] PROGMEM = "click";
+static const prog_char str_res_glitch[] PROGMEM = "glitch";
+static const prog_char str_res_blow[] PROGMEM = "blow";
+static const prog_char str_res_metal[] PROGMEM = "metal";
+static const prog_char str_res_pop[] PROGMEM = "pop";
 static const prog_char str_res_equal[] PROGMEM = "equal";
 static const prog_char str_res_just[] PROGMEM = "just";
 static const prog_char str_res_pythag[] PROGMEM = "pythag";
@@ -310,62 +305,63 @@ static const prog_char str_res_rasia[] PROGMEM = "rasia";
 
 
 PROGMEM const prog_char* string_table[] = {
+  str_res_shape,
+  str_res_parameter,
   str_res_prm,
+  str_res_range,
   str_res_rng,
   str_res_op_,
-  str_res_tuning,
-  str_res_prt,
-  str_res_porta,
-  str_res_legato,
-  str_res_midi_out,
-  str_res_parameter,
-  str_res_range,
   str_res_operator,
   str_res_detune,
   str_res_osc_bal,
   str_res_sub_osc_,
+  str_res_resonance,
+  str_res_env1Tvcf,
+  str_res_lfo2Tvcf,
+  str_res_attack,
+  str_res_atk,
+  str_res_decay,
+  str_res_sustain,
+  str_res_release,
+  str_res_rate,
+  str_res_modulation,
+  str_res_mod_,
+  str_res_source,
+  str_res_src,
+  str_res_dest_,
+  str_res_dst,
+  str_res_amount,
+  str_res_amt,
+  str_res_mode,
+  str_res_tempo,
+  str_res_bpm,
+  str_res_groove,
   str_res_direction,
   str_res_pattern,
+  str_res_flow,
+  str_res_start,
+  str_res_length,
+  str_res_octave,
+  str_res_raga,
+  str_res_porta,
+  str_res_prt,
+  str_res_legato,
+  str_res_tuning,
+  str_res_midi_chan,
+  str_res_chn,
+  str_res_midi_out,
   str_res_oscillator_1,
   str_res_oscillator_2,
+  str_res_mixer,
+  str_res_filter,
+  str_res_envelope_1,
+  str_res_envelope_2,
+  str_res_sequencer,
   str_res_arpeggio,
+  str_res_step_sequencer,
+  str_res_keyboard,
+  str_res_midi,
   str_res_performance,
-  str_res_none,
-  str_res_saw,
-  str_res_square,
-  str_res_triang,
-  str_res_zsaw,
-  str_res_zreso,
-  str_res_ztri,
-  str_res_zpulse,
-  str_res_zsync,
-  str_res_pad,
-  str_res_fm,
-  str_res_waves,
-  str_res_tampur,
-  str_res_digitl,
-  str_res_metall,
-  str_res_bowed,
-  str_res_slap,
-  str_res_organ,
-  str_res_male,
-  str_res_8bits,
-  str_res_crush,
-  str_res_pwm,
-  str_res_noise,
-  str_res_vowel,
-  str_res__square,
-  str_res__triang,
-  str_res_click,
-  str_res_glitch,
-  str_res_blow,
-  str_res_metal,
-  str_res_pop,
-  str_res_sum,
-  str_res_sync,
-  str_res_ring,
-  str_res_xor,
-  str_res_fuzz,
   str_res_cut,
   str_res_vca,
   str_res_pw1,
@@ -390,59 +386,12 @@ PROGMEM const prog_char* string_table[] = {
   str_res_osc1S2,
   str_res_fine,
   str_res__mix,
-  str_res__noise,
+  str_res_noise,
   str_res_subosc,
   str_res_reso,
   str_res__cv_1,
   str_res__cv_2,
   str_res_2_bits,
-  str_res_atk,
-  str_res_wv1,
-  str_res_rt1,
-  str_res_wv2,
-  str_res_rt2,
-  str_res_src,
-  str_res_dst,
-  str_res_amt,
-  str_res_chn,
-  str_res_bpm,
-  str_res_swg,
-  str_res_shape,
-  str_res_env1Tvcf,
-  str_res_lfo2Tvcf,
-  str_res_resonance,
-  str_res_envelope_1,
-  str_res_envelope_2,
-  str_res_sequencer,
-  str_res_attack,
-  str_res_decay,
-  str_res_sustain,
-  str_res_release,
-  str_res_rate,
-  str_res_mod_,
-  str_res_source,
-  str_res_dest_,
-  str_res_amount,
-  str_res_octave,
-  str_res_raga,
-  str_res_midi_chan,
-  str_res_tempo,
-  str_res_mixer,
-  str_res_filter,
-  str_res_modulation,
-  str_res_keyboard,
-  str_res_midi,
-  str_res_off,
-  str_res_on,
-  str_res_tri,
-  str_res_sqr,
-  str_res_s_h,
-  str_res_ramp,
-  str_res_step,
-  str_res_3,
-  str_res_4,
-  str_res_34,
-  str_res__,
   str_res_lf1,
   str_res_lf2,
   str_res_seq,
@@ -495,19 +444,27 @@ PROGMEM const prog_char* string_table[] = {
   str_res_note,
   str_res_gate,
   str_res_audio,
-  str_res__off,
-  str_res_thru,
-  str_res___seq,
-  str_res_full,
-  str_res_1__,
-  str_res_2_1,
-  str_res_3_2,
-  str_res_4_3,
-  str_res_5_4,
-  str_res_6_5,
-  str_res_7_6,
-  str_res_8_7,
-  str_res_mode,
+  str_res_touch_a_knob_to,
+  str_res_assign_parameter,
+  str_res_patch,
+  str_res_sequence,
+  str_res_save_midi_kbd,
+  str_res_settings_,
+  str_res_start_full_midi,
+  str_res_backup_,
+  str_res_load,
+  str_res_save,
+  str_res_compare,
+  str_res_,
+  str_res_v,
+  str_res_mutable____v1_00,
+  str_res_instruments_671,
+  str_res_extern,
+  str_res_sum,
+  str_res_sync,
+  str_res_ring,
+  str_res_xor,
+  str_res_fuzz,
   str_res_stp,
   str_res_arp,
   str_res_arpSlt,
@@ -517,15 +474,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_free,
   str_res_slave,
   str_res_master,
-  str_res_groove,
-  str_res_swing,
-  str_res_shuffle,
-  str_res_push,
-  str_res_lag,
-  str_res_human,
-  str_res_start,
-  str_res_length,
-  str_res_flow,
   str_res_T,
   str_res___,
   str_res_T_,
@@ -542,23 +490,65 @@ PROGMEM const prog_char* string_table[] = {
   str_res_4jata,
   str_res_4sikha,
   str_res_4ghana,
-  str_res_touch_a_knob_to,
-  str_res_assign_parameter,
-  str_res_patch,
-  str_res_sequence,
-  str_res_save_midi_kbd,
-  str_res_settings_,
-  str_res_start_full_midi,
-  str_res_backup_,
-  str_res_step_sequencer,
-  str_res_load,
-  str_res_save,
-  str_res_compare,
-  str_res_,
-  str_res_v,
-  str_res_mutable____v1_00,
-  str_res_instruments_671,
-  str_res_extern,
+  str_res_swing,
+  str_res_shuffle,
+  str_res_push,
+  str_res_lag,
+  str_res_human,
+  str_res__off,
+  str_res_thru,
+  str_res___seq,
+  str_res_full,
+  str_res_1__,
+  str_res_2_1,
+  str_res_3_2,
+  str_res_4_3,
+  str_res_5_4,
+  str_res_6_5,
+  str_res_7_6,
+  str_res_8_7,
+  str_res_tri,
+  str_res_sqr,
+  str_res_s_h,
+  str_res_ramp,
+  str_res_step,
+  str_res_3,
+  str_res_4,
+  str_res_34,
+  str_res__,
+  str_res_off,
+  str_res_on,
+  str_res_none,
+  str_res_saw,
+  str_res_square,
+  str_res_triang,
+  str_res_zsaw,
+  str_res_zreso,
+  str_res_ztri,
+  str_res_zpulse,
+  str_res_zsync,
+  str_res_pad,
+  str_res_fm,
+  str_res_waves,
+  str_res_tampur,
+  str_res_digitl,
+  str_res_metall,
+  str_res_bowed,
+  str_res_slap,
+  str_res_organ,
+  str_res_male,
+  str_res_8bits,
+  str_res_crush,
+  str_res_pwm,
+  str_res__noise,
+  str_res_vowel,
+  str_res__square,
+  str_res__triang,
+  str_res_click,
+  str_res_glitch,
+  str_res_blow,
+  str_res_metal,
+  str_res_pop,
   str_res_equal,
   str_res_just,
   str_res_pythag,

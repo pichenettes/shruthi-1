@@ -201,7 +201,7 @@ static const prog_char raw_parameter_definition[
   PRM_MOD_ROW,
   0, kModulationMatrixSize - 1,
   UNIT_INDEX,
-  STR_RES_MOD_, STR_RES_MOD_,
+  STR_RES_MOD_, STR_RES_MODULATION,
 
   PRM_MOD_SOURCE,
   0, kNumModulationSources - 1,
@@ -225,7 +225,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_MODE, STR_RES_MODE,
 
   PRM_SEQ_TEMPO,
-  24, 249,
+  24, 248,
   UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
   STR_RES_BPM, STR_RES_TEMPO,
 

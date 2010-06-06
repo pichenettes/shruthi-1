@@ -40,7 +40,7 @@ namespace hardware_shruthi {
 /* extern */
 Editor editor;
 
-static const prog_char units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
+static const prog_uint16_t units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
     PROGMEM = {
   0,
   0,
@@ -123,7 +123,7 @@ const PageDefinition Editor::page_definition_[] = {
 
   /* PAGE_MOD_MATRIX */ { PAGE_MOD_MATRIX, GROUP_MOD_MATRIX,
     PAGE_MOD_LFO_2, PAGE_OSC_OSC_1,
-    STR_RES_MODULATION, PARAMETER_EDITOR, 32, 0 },
+    STR_RES_MOD_, PARAMETER_EDITOR, 32, 0 },
 
   /* PAGE_SEQ_SEQUENCER */ { PAGE_SEQ_ARPEGGIATOR, GROUP_SEQUENCER_ARPEGGIATOR,
     PAGE_SEQ_CONTROLLER, PAGE_SEQ_ARPEGGIATOR,
