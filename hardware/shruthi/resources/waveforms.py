@@ -147,16 +147,16 @@ for zone in range(num_zones):
                        Scale(saw[quadrature])))
 
 
-def LoadWavetable(x):
+def LoadWavetable(x, cycle=256):
   # Load the data and split/pad single cycle waveforms.
   array = numpy.array(map(ord, list(file(x).read())))
-  num_cycles = len(array) / 256
+  num_cycles = len(array) / cycle
   assert num_cycles == 16
-  wavetable = numpy.zeros((num_cycles, 257))
+  wavetable = numpy.zeros((num_cycles, cycle + 1))
   for i in xrange(num_cycles):
-    for j in xrange(256):
-      wavetable[i, j] = array[i * 256 + j]
-    wavetable[i, 256] = wavetable[i, 0]
+    for j in xrange(cycle):
+      wavetable[i, j] = array[i * cycle + j]
+    wavetable[i, cycle] = wavetable[i, 0]
   
   return wavetable.ravel()
 
@@ -182,14 +182,14 @@ waveforms.extend(bl_tri_tables)
 """
 
 waveforms.extend([
-  ('wavetable_1', LoadWavetable('hardware/shruthi/data/waves.bin')),
-  # ('wavetable_2', LoadWavetable('hardware/shruthi/data/digital.bin')),
-  ('wavetable_3', LoadWavetable('hardware/shruthi/data/metallic.bin')),
-  # ('wavetable_4', LoadWavetable('hardware/shruthi/data/slap.bin')),
-  ('wavetable_5', LoadWavetable('hardware/shruthi/data/bowed.bin')),
-  ('wavetable_6', LoadWavetable('hardware/shruthi/data/tampura.bin')),
-  # ('wavetable_7', LoadWavetable('hardware/shruthi/data/male.bin')),
-  ('wavetable_8', LoadWavetable('hardware/shruthi/data/organ.bin')),
+  ('wavetable_1', LoadWavetable('hardware/shruthi/data/waves.bin', 256)),
+  ('wavetable_2', LoadWavetable('hardware/shruthi/data/tampura.bin', 256)),
+  ('low_res_wavetable_1', LoadWavetable('hardware/shruthi/data/digital_2048.bin', 128)),
+  ('low_res_wavetable_2', LoadWavetable('hardware/shruthi/data/metallic_2048.bin', 128)),
+  ('low_res_wavetable_3', LoadWavetable('hardware/shruthi/data/bowed_2048.bin', 128)),
+  ('low_res_wavetable_4', LoadWavetable('hardware/shruthi/data/slap_2048.bin', 128)),
+  ('low_res_wavetable_5', LoadWavetable('hardware/shruthi/data/organ_2048.bin', 128)),
+  ('low_res_wavetable_6', LoadWavetable('hardware/shruthi/data/male_2048.bin', 128)),
 ])
 
 """----------------------------------------------------------------------------

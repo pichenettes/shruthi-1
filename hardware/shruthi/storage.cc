@@ -73,7 +73,7 @@ static const prog_char sysex_rx_header[] PROGMEM = {
   0xf0,  // <SysEx>
   0x00, 0x20, 0x77,  // TODO(pichenettes): register manufacturer ID.
   0x00, 0x02,  // Product ID for Shruthi-1.
-  // 0x01: patch transfer, 0x02: sequence transfer, 0x7f: big dump
+  // 0x01: patch transfer, 0x02: sequence transfer, 0x40: big dump
   // 0x00: extra argument byte not used for patch/sequence transfer, used
   // to number blocks during big dump.
 };
@@ -135,7 +135,7 @@ void Storage::SysExBulkDump() {
     }
     SysExDumpBuffer(
         sysex_rx_buffer_,
-        0x7f,
+        0x40,
         block_id++,
         kSysExBulkDumpBlockSize);
     ProgressBar::Write(progress_leds);
@@ -158,7 +158,7 @@ void Storage::SysExParseCommand() {
           StorageConfiguration<SequencerSettings>::size;
       break;
         
-    case 0x7f:  // Raw data dump
+    case 0x40:  // Raw data dump
       sysex_rx_expected_size_ = kSysExBulkDumpBlockSize;
       break;
     
@@ -181,7 +181,7 @@ void Storage::SysExAcceptBuffer() {
                            sysex_rx_buffer_);
       break;
       
-    case 0x7f:  // Raw data dump
+    case 0x40:  // Raw data dump
       {
         ProgressBar::Write((1 << (sysex_rx_command_[1] & 7)) * 2 - 1);
         uint16_t address = sysex_rx_command_[1] * kSysExBulkDumpBlockSize;

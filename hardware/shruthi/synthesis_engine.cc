@@ -309,13 +309,18 @@ uint8_t SynthesisEngine::CheckChannel(uint8_t channel) {
 void SynthesisEngine::RawMidiData(
     uint8_t status,
     uint8_t* data,
-    uint8_t data_size) {
+    uint8_t data_size,
+    uint8_t accepted_channel) {
   uint8_t hi = status & 0xf0;
-  // In polychaining mode we have to forward everything except note messages.
+  // When is parsed midi data forwarded to the MIDI out?
+  // - When the data is a channel different from the RX channel.
+  // - When we are in "Full mode".
+  // - When the midi message is not a note on/note off.
   if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
     if (status != 0xf0 && status != 0xf7) {
       if ((hi != 0x80 && hi != 0x90) ||
-          system_settings_.midi_out_mode == MIDI_OUT_FULL) {
+          system_settings_.midi_out_mode == MIDI_OUT_FULL ||
+          !accepted_channel) {
         midi_out_filter.Send(status, data, data_size);
       }
     }
@@ -366,6 +371,17 @@ void SynthesisEngine::OmniModeOff(uint8_t channel) {
 /* static */
 void SynthesisEngine::OmniModeOn(uint8_t channel) {
   system_settings_.midi_channel = 0;
+}
+
+
+/* static */
+void SynthesisEngine::ProgramChange(uint8_t channel, uint8_t program) {
+  if (program < Storage::size<Patch>()) {
+    Storage::Load(&patch_, program);
+    // Do not force a SysEx sync because the slave in the polychain will also
+    // receive the program change anyway!
+    TouchPatch(0);
+  }
 }
 
 /* static */

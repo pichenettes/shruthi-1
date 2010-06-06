@@ -348,7 +348,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
   } else if (event.hold_time >= 6) {
     switch (event.id) {
       case KEY_1:
-        engine.NoteOn(0, 48, test_note_playing_ ? 0 : 100);
+        engine.NoteOn(0, 60, test_note_playing_ ? 0 : 100);
         test_note_playing_ ^= 1;
         break;
 
@@ -1100,8 +1100,8 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
         value = 0;
         text = STR_RES_EXTERN;
       } else if (value > 240) {
-        text = STR_RES_270 + value - 240 - 1;
-        value = 0;
+        value = ResourcesManager::Lookup<uint16_t, uint8_t>(
+            lut_res_turbo_tempi, value - 240 - 1);
       }
       break;
     case UNIT_ARPEGGIO_PATTERN:

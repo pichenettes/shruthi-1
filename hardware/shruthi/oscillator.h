@@ -37,6 +37,7 @@ using namespace hardware_utils_op;
 using hardware_utils::Random;
 
 static const uint16_t kWavetableSize = 16 * 257;
+static const uint16_t kLowResWavetableSize = 16 * 129;
 
 namespace hardware_shruthi {
 
@@ -110,6 +111,12 @@ struct SawTriangleOscillatorData {
   uint8_t balance;
 };
 
+struct SweepingWavetableOscillatorData {
+  const prog_uint8_t* wave[2];
+  uint8_t balance;
+  uint8_t high_resolution;
+};
+
 struct CzOscillatorData {
   uint16_t formant_phase;
   uint16_t formant_phase_increment;
@@ -150,6 +157,7 @@ union OscillatorData {
   FilteredNoiseData no;
   QuadSawPadData qs;
   CrushedSineData cr;
+  SweepingWavetableOscillatorData sw;
 };
 
 struct AlgorithmFn {
@@ -318,26 +326,44 @@ class Oscillator {
   // The position is freely determined by the parameter
   static void UpdateSweepingWavetable() {
     uint8_t balance_index = Swap4(parameter_ << 1);
-    data_.st.balance = balance_index & 0xf0;
+    data_.sw.balance = balance_index & 0xf0;
     uint8_t wave_index = balance_index & 0xf;
     
     uint16_t offset = wave_index << 8;
+    uint8_t high_resolution = (shape_ - WAVEFORM_WAVETABLE_1) < kNumHiResWavetables;
+    if (!high_resolution) {
+      offset >>= 1;
+    }
     offset += wave_index;
     const prog_uint8_t* base_address = waveform_table[
         WAV_RES_WAVETABLE_1 + shape_ - WAVEFORM_WAVETABLE_1];
-    data_.st.wave[0] = base_address + offset;
-    if (offset < kWavetableSize - 257) {
-      data_.st.wave[1] = base_address + (offset + 257);
+    data_.sw.wave[0] = base_address + offset;
+    
+    if (high_resolution) {
+      if (offset < kWavetableSize - 257) {
+        data_.sw.wave[1] = base_address + (offset + 257);
+      } else {
+        data_.sw.wave[1] = base_address + offset;
+      }
     } else {
-      data_.st.wave[1] = base_address + offset;
+      if (offset < kWavetableSize / 2 - 129) {
+        data_.sw.wave[1] = base_address + (offset + 129);
+      } else {
+        data_.sw.wave[1] = base_address + offset;
+      }
     }
+    data_.sw.high_resolution = high_resolution;
   }
+  
   static void RenderSweepingWavetable() {
     phase_ += phase_increment_;
-    uint8_t sample = InterpolateTwoTables(
+    uint16_t phase = phase_;
+    if (!data_.sw.high_resolution) {
+      phase >>= 1;
+    }
+    held_sample_ = InterpolateTwoTables(
         data_.st.wave[0], data_.st.wave[1],
-        phase_, data_.st.balance);
-    held_sample_ = sample;
+        phase, data_.st.balance);
   }
 
   // ------- Casio CZ-like synthesis -------------------------------------------
@@ -628,9 +654,9 @@ template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
-  /*{ &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
-  { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },*/
+  { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
+  { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   
   { &Osc::UpdateSilence, &Osc::Render8BitLand },
   { &Osc::UpdateSilence, &Osc::RenderCrushedSine },

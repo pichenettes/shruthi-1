@@ -23,8 +23,8 @@
 
 usage:
   python hex2sysex.py \
-    [--page_size 64] \
-    [--delay 200] \
+    [--page_size 128] \
+    [--delay 250] \
     [--output_file path_to/firmware.mid] \
     path_to/firmware.hex
 """
@@ -92,14 +92,14 @@ if __name__ == '__main__':
       '--page_size',
       dest='page_size',
       type='int',
-      default=64,
+      default=128,
       help='Flash page size in words')
   parser.add_option(
       '-d',
       '--delay',
       dest='delay',
       type='int',
-      default=200,
+      default=250,
       help='Delay between pages in milliseconds')
   parser.add_option(
       '-o',
@@ -118,7 +118,7 @@ if __name__ == '__main__':
       '-v',
       '--device_id',
       dest='device_id',
-      default='\x00\x01',
+      default='\x00\x02',
       help='Device ID to use in SysEx message')
   parser.add_option(
       '-u',

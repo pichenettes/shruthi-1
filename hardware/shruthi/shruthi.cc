@@ -243,13 +243,9 @@ void MidiTask() {
         break;
     }
   }
-
-  // Flush to the output the buffered MIDI data.
-  if (midi_out_filter.readable()) {
-    if (midi_io.writable()) {
-      midi_io.Overwrite(midi_out_filter.ImmediateRead());
-    }
-  }
+  // This is also a good place to do some MIDI output. But because the MIDI
+  // output data rate can get intense when tweaking knobs, it's easier to
+  // flush the data at a faster rate in the audio sample interrupt.
 }
 
 void AudioRenderingTask() {
@@ -304,6 +300,14 @@ Task Scheduler::tasks_[] = {
     { &CvTask, 1 },
 };
 
+inline void FlushMidiOut() {
+  if (midi_out_filter.readable()) {
+    if (midi_io.writable()) {
+      midi_io.Overwrite(midi_out_filter.ImmediateRead());
+    }
+  }
+}
+
 uint8_t lcd_write_cycle = 0;
 
 TIMER_2_TICK {
@@ -312,6 +316,8 @@ TIMER_2_TICK {
   if (lcd_write_cycle == 0) {
     lcd.Tick();
     encoder.Read();
+    // Flush to the output the buffered MIDI data.
+    FlushMidiOut();
   }
 }
 

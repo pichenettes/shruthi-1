@@ -50,6 +50,8 @@ uint8_t VoiceAllocator::NoteOn(uint8_t note) {
   uint8_t voice = 0xff;
   // First, check if there is a voice currently playing this note. In this case
   // This voice will be responsible for retriggering this note.
+  // Hint: if you're more into string instruments than keyboard instruments,
+  // you can safely comment those lines.
   for (uint8_t i = 0; i < size_; ++i) {
     if (pool_[i].note == note) {
       voice = i;

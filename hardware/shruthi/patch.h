@@ -192,7 +192,7 @@ enum ModulationDestination {
   MOD_DST_2_BITS,
 };
 
-static const uint8_t kNumModulationDestinations = 14;
+static const uint8_t kNumModulationDestinations = MOD_DST_2_BITS + 1;
 
 enum PatchParameter {
   PRM_OSC_SHAPE_1,
@@ -258,15 +258,17 @@ enum OscillatorAlgorithm {
   WAVEFORM_WAVETABLE_3,
   WAVEFORM_WAVETABLE_4,
   WAVEFORM_WAVETABLE_5,
-  /*WAVEFORM_WAVETABLE_6,
+  WAVEFORM_WAVETABLE_6,
   WAVEFORM_WAVETABLE_7,
-  WAVEFORM_WAVETABLE_8,*/
+  WAVEFORM_WAVETABLE_8,
   WAVEFORM_8BITLAND,
   WAVEFORM_CRUSHED_SINE,
   WAVEFORM_DIRTY_PWM,
   WAVEFORM_FILTERED_NOISE,
   WAVEFORM_VOWEL,
 };
+
+static const uint8_t kNumHiResWavetables = 2;
 
 enum SubOscillatorAlgorithm {
   WAVEFORM_SUB_OSC_SQUARE,

@@ -29,7 +29,7 @@ F_CPU          = 20000000
 
 LFUSE          = FF
 # Set to DC to enable bootloader
-HFUSE          = D4
+HFUSE          = D6
 EFUSE          = FD
 
 # ------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ CPPFLAGS      = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I. \
 			-fno-inline-small-functions -mcall-prologues
 CXXFLAGS      = -fno-exceptions
 ASFLAGS       = -mmcu=$(MCU) -I. -x assembler-with-cpp
-LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections,--section-start=.text=0xf800,--relax
+LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections,--section-start=.text=0xfc00,--relax
 
 # ------------------------------------------------------------------------------
 # Source compiling

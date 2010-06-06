@@ -225,7 +225,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_MODE, STR_RES_MODE,
 
   PRM_SEQ_TEMPO,
-  24, 240 + STR_RES_960 - STR_RES_270 + 1,
+  24, 249,
   UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
   STR_RES_BPM, STR_RES_TEMPO,
 

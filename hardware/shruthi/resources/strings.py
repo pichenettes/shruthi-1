@@ -54,10 +54,13 @@ zsync
 pad
 fm
 waves
-metalc
+tampur
+digitl
+metall
 bowed
-tampura
+slap
 organ
+male
 8bits
 crush
 pwm
@@ -238,16 +241,6 @@ impro
 free
 slave
 master
-
-270
-300
-330
-360
-420
-480
-600
-720
-960
 
 groove
 swing

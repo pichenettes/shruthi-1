@@ -1,2 +1,2 @@
    text	   data	    bss	    dec	    hex	filename
-   1654	     20	    270	   1944	    798	build/muboot/muboot.elf
+    930	      6	    518	   1454	    5ae	build/muboot/muboot.elf
