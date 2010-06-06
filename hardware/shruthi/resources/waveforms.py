@@ -167,37 +167,22 @@ waveforms.extend(bl_square_tables)
 waveforms.extend(bl_saw_tables)
 waveforms.extend(bl_tri_tables)
 
-"""
-('wavetable_1', LoadWavetable('hardware/shruthi/data/waves.bin')),
-('wavetable_2', LoadWavetable('hardware/shruthi/data/digital.bin')),
-('wavetable_3', LoadWavetable('hardware/shruthi/data/metallic.bin')),
-('wavetable_4', LoadWavetable('hardware/shruthi/data/vibes.bin')),
-('wavetable_5', LoadWavetable('hardware/shruthi/data/slap.bin')),
-('wavetable_6', LoadWavetable('hardware/shruthi/data/cello.bin')),
-('wavetable_7', LoadWavetable('hardware/shruthi/data/bowed.bin')),
-('wavetable_8', LoadWavetable('hardware/shruthi/data/tampura.bin')),
-('wavetable_9', LoadWavetable('hardware/shruthi/data/flute.bin')),
-('wavetable_10', LoadWavetable('hardware/shruthi/data/sines.bin')),
-('wavetable_11', LoadWavetable('hardware/shruthi/data/male.bin')),
-('wavetable_12', LoadWavetable('hardware/shruthi/data/female.bin')),
-"""
-
 waveforms.extend([
   ('wavetable_1',
    LoadWavetable('hardware/shruthi/data/wavetables/4096/waves.bin')),
-  ('wavetable_2',
-   LoadWavetable('hardware/shruthi/data/wavetables/4096/tampura.bin')),
   ('low_res_wavetable_1',
-   LoadWavetable('hardware/shruthi/data/wavetables/2048/digital.bin')),
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/tampura.bin')),
   ('low_res_wavetable_2',
-   LoadWavetable('hardware/shruthi/data/wavetables/2048/metallic.bin')),
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/digital.bin')),
   ('low_res_wavetable_3',
-   LoadWavetable('hardware/shruthi/data/wavetables/2048/bowed.bin')),
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/metallic.bin')),
   ('low_res_wavetable_4',
-   LoadWavetable('hardware/shruthi/data/wavetables/2048/slap.bin')),
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/bowed.bin')),
   ('low_res_wavetable_5',
-   LoadWavetable('hardware/shruthi/data/wavetables/2048/organ.bin')),
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/slap.bin')),
   ('low_res_wavetable_6',
+   LoadWavetable('hardware/shruthi/data/wavetables/2048/organ.bin')),
+  ('low_res_wavetable_7',
    LoadWavetable('hardware/shruthi/data/wavetables/2048/male.bin')),
 ])
 

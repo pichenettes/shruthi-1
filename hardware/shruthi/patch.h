@@ -270,7 +270,7 @@ enum OscillatorAlgorithm {
   WAVEFORM_VOWEL,
 };
 
-static const uint8_t kNumHiResWavetables = 2;
+static const uint8_t kNumHiResWavetables = 1;
 
 enum SubOscillatorAlgorithm {
   WAVEFORM_SUB_OSC_SQUARE,
