@@ -86,6 +86,7 @@ class ExternalEeprom {
       Bus::FlushInputBuffer(); 
       return 1;
     } else {
+      Bus::FlushOutputBuffer();
       return 0;
     }
   }
@@ -123,6 +124,7 @@ class ExternalEeprom {
     if (Write(header, 2, data, size) == size + 2) {
       return size;
     } else {
+      Bus::FlushOutputBuffer();
       return 0;
     }
   }

@@ -174,6 +174,7 @@ class I2cMaster {
   static inline Value ImmediateRead() { return Input::ImmediateRead(); }
 
   static inline void FlushInputBuffer() { Input::Flush(); }
+  static inline void FlushOutputBuffer() { Output::Flush(); }
 
  private:
   static inline void Continue(uint8_t ack) {
