@@ -81,6 +81,7 @@ void SynthesisEngine::Init() {
     voice_[i].Init();
   }
   nrpn_parameter_number_ = 255;
+  dirty_ = 0;
 }
 
 static const prog_char init_patch[] PROGMEM = {

@@ -55,7 +55,6 @@ struct ShiftRegisterOutput<Latch, Clock, Data, size, LSB_FIRST>
       Data::set_value(data & 1);
       data >>= 1;
       Clock::High();
-      Data::Low();
     }
     Clock::Low();
     Latch::High();
@@ -80,7 +79,6 @@ struct ShiftRegisterOutput<Latch, Clock, Data, size, MSB_FIRST>
       }
       mask >>= 1;
       Clock::High();
-      Data::Low();
     }
     Clock::Low();
     Latch::High();
