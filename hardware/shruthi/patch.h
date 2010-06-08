@@ -122,7 +122,7 @@ class Patch {
   uint8_t* saved_data() { return (uint8_t*)(this); }
   void PrepareForWrite() { return; }
   uint8_t CheckBuffer(uint8_t* buffer) {
-    for (uint8_t i = 8; i < 32; ++i) {
+    for (uint8_t i = 8; i < 24; ++i) {
       if (buffer[i] >= 128) {
         name[0] = '?';
         return 0;
