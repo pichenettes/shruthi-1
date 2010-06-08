@@ -33,8 +33,8 @@
 namespace hardware_hal {
 
 static const uint8_t kLcdNoCursor = 0xff;
-static const uint8_t kLcdCursorBlinkRate = 0x0fff;
 static const uint8_t kLcdCursor = 0xff;
+static const uint8_t kLcdEditCursor = '_';
 
 template<typename Lcd>
 class BufferedDisplay {
@@ -102,7 +102,7 @@ class BufferedDisplay {
     // will not block.
     
     if (previous_blink_counter_ > Lcd::blink_counter()) {
-      blink_ = ~blink_;
+      ++blink_;
       status_ = 0;
     }
     previous_blink_counter_ = Lcd::blink_counter();
@@ -111,7 +111,7 @@ class BufferedDisplay {
     // Determine which character to show at the current position.
     // If the scan position is the cursor and it is shown (blinking), draw the
     // cursor.
-    if (scan_position_ == cursor_position_ && blink_) {
+    if (scan_position_ == cursor_position_ && (blink_ & 2)) {
       character = cursor_character_;
     } else {
       // Otherwise, check if there's a status indicator to display. It is

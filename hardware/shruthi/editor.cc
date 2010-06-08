@@ -416,10 +416,8 @@ void Editor::HandleIncrement(int8_t direction) {
 void Editor::HandleClick() {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     display_mode_ = DISPLAY_MODE_EDIT;
-    display.set_cursor_character(' ');
   } else {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
-    display.set_cursor_character(kLcdNoCursor);
   }
   if (ui_handler_[page_definition_[current_page_].ui_type].click_handler) {
     (*ui_handler_[page_definition_[current_page_].ui_type].click_handler)();
@@ -600,6 +598,8 @@ void Editor::DisplayLoadSavePage() {
   }
   if (action_ == ACTION_SAVE && is_cursor_at_valid_position()) {
     display.set_cursor_position(kLcdWidth + cursor_);
+    display.set_cursor_character(
+        display_mode_ == DISPLAY_MODE_EDIT ? kLcdEditCursor : kLcdCursor);
   } else {
     display.set_cursor_position(kLcdNoCursor);
   }
@@ -650,6 +650,8 @@ void Editor::DisplayStepSequencerPage() {
   }
   display.Print(1, line_buffer_);
   display.set_cursor_position(kLcdWidth + cursor_);
+  display.set_cursor_character(
+      display_mode_ == DISPLAY_MODE_EDIT ? kLcdEditCursor : kLcdCursor);
 }
 
 /* static */
@@ -738,6 +740,7 @@ void Editor::DisplayTrackerPage() {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     display.set_cursor_position(0xff);
   } else {
+    display.set_cursor_character(kLcdEditCursor);
     display.set_cursor_position(kLcdWidth + 7);
   }
 }
@@ -821,6 +824,8 @@ void Editor::DisplayPageRPage() {
   }
   display.Print(1, line_buffer_);
   display.set_cursor_position(kLcdWidth + cursor_);
+  display.set_cursor_character(
+      display_mode_ == DISPLAY_MODE_EDIT ? kLcdEditCursor : kLcdCursor);
 }
 
 /* static */
