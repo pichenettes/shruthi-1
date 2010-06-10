@@ -149,9 +149,13 @@ const PageDefinition Editor::page_definition_[] = {
     PAGE_SYS_MIDI, PAGE_SYS_MIDI,
     STR_RES_KEYBOARD, PARAMETER_EDITOR, 44, LED_6_MASK },
 
-  /* PAGE_SYS_MIDI */ { PAGE_SYS_KBD, GROUP_SYS,
-    PAGE_SYS_KBD, PAGE_SYS_KBD,
+  /* PAGE_SYS_MIDI */ { PAGE_SYS_DISPLAY, GROUP_SYS,
+    PAGE_SYS_DISPLAY, PAGE_SYS_DISPLAY,
     STR_RES_MIDI, PARAMETER_EDITOR, 48, LED_6_MASK },
+
+  /* PAGE_SYS_DISPLAY */ { PAGE_SYS_KBD, GROUP_SYS,
+    PAGE_SYS_KBD, PAGE_SYS_KBD,
+    STR_RES_DISPLAY, PARAMETER_EDITOR, 52, LED_6_MASK },
 
   /* PAGE_LOAD_SAVE */ { PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
@@ -378,7 +382,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       : EDITOR_MODE_SEQUENCE;
     JumpToPageGroup(last_visited_group_[editor_mode_]);
   } else if (event.id == KEY_LOAD_SAVE) {
-    if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_MIDI) {
+    if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_DISPLAY) {
       ConfirmPageSettings confirm_save_system_settings;
       confirm_save_system_settings.text = STR_RES_SAVE_MIDI_KBD;
       confirm_save_system_settings.return_group = GROUP_SYS;
@@ -876,6 +880,12 @@ void Editor::DisplayEditOverviewPage() {
     line_buffer_[i * kColumnWidth + kColumnWidth + kLcdWidth] = '\0';
     AlignRight(line_buffer_ + i * kColumnWidth + kLcdWidth + 1, kColumnWidth);
   }
+  if (engine.system_settings().display_delimiter) {
+    for (uint8_t i = 0; i < kLcdWidth; i += kColumnWidth) {
+      line_buffer_[i] = '|';
+      line_buffer_[i + kLcdWidth + 1] = '|';
+    }
+  }
 
   // Change the case of the current parameter accessible by the rotary encoder.
   uint8_t pos = cursor_ * kColumnWidth + 1;
@@ -889,6 +899,10 @@ void Editor::DisplayEditOverviewPage() {
 
 /* static */
 void Editor::DisplayEditDetailsPage() {
+  if (engine.system_settings().display_delay == 0) {
+    DisplayEditOverviewPage();
+    return;
+  }
   // 0123456789abcdef
   // filter
   // cutoff       127

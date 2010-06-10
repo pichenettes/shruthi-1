@@ -138,10 +138,10 @@ TASK_BEGIN_NEAR
 
     // Read the switches.
     switches.Read();
-
+    
     // If a button was pressed, perform the action. Otherwise, if nothing
     // happened for 1.5s, update the idle flag.
-    if (switches.idle_time() > 2000) {
+    if (switches.idle_time() > (engine.system_settings().display_delay << 7)) {
       idle = 1;
     } else {
       if (switches.released()) {
@@ -156,7 +156,8 @@ TASK_BEGIN_NEAR
     // Update the editor if something happened.
     // Revert back to the main page when nothing happened for 1.5s.
     if (pot_event.event == EVENT_NONE) {
-      if (idle && pot_event.time > 2000) {
+      if (idle &&
+          pot_event.time > (engine.system_settings().display_delay << 7)) {
         editor.Relax();
       }
     } else {
@@ -353,8 +354,11 @@ void Init() {
   leds.Init();
   
   engine.Init();
-  
-  editor.DisplaySplashScreen(STR_RES_V + 1);
+  if (engine.system_settings().display_splash_screen) {
+    editor.DisplaySplashScreen(STR_RES_V + 1);
+  } else {
+    editor.Refresh();
+  }
 }
 
 int main(void) {

@@ -156,7 +156,8 @@ static const prog_char init_sequence[] PROGMEM = {
 static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
     0, 0, 0, 0,
-    0, 1, 1, 1
+    0, 1, 1, 1,
+    20, 0, 1, 0,
 };
 
 /* static */
@@ -453,7 +454,7 @@ void SynthesisEngine::SetParameter(
     // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
   } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL &&
-             parameter_index <= PRM_SYS_BLANK) {
+             parameter_index <= PRM_SYS_DISPLAY_BLANK) {
     // A copy of those parameters are used by the MIDI out dispatcher.
     midi_out_filter.UpdateSystemSettings(system_settings_);
   }

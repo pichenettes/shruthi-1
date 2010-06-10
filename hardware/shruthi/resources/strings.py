@@ -65,7 +65,9 @@ tuning
 midi chan
 chn
 midi out
-
+pause
+delimiter
+splash
 oscillator 1
 oscillator 2
 mixer
@@ -77,6 +79,7 @@ arpeggio
 step sequencer
 keyboard
 midi
+display
 performance
 
 cut

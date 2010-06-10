@@ -28,7 +28,7 @@
 namespace hardware_shruthi {
 
 static const prog_char raw_parameter_definition[
-    54 * sizeof(ParameterDefinition)] PROGMEM = {
+    58 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_VOWEL,
@@ -296,7 +296,28 @@ static const prog_char raw_parameter_definition[
   UNIT_MIDI_MODE,
   STR_RES_MIDI_OUT, STR_RES_MIDI_OUT,
 
-  PRM_SYS_BLANK,
+  PRM_SYS_MIDI_BLANK,
+  0, 0,
+  UNIT_UINT8,
+  STR_RES_, STR_RES_,
+
+  // More system settings
+  PRM_SYS_DISPLAY_DELAY,
+  0, 24,
+  UNIT_UINT8,
+  STR_RES_PAUSE, STR_RES_PAUSE,
+  
+  PRM_SYS_DISPLAY_DELIMITER,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES_DELIMITER, STR_RES_DELIMITER,
+  
+  PRM_SYS_DISPLAY_SHOW_SPLASH_SCREEN,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES_SPLASH, STR_RES_SPLASH,
+  
+  PRM_SYS_DISPLAY_BLANK,
   0, 0,
   UNIT_UINT8,
   STR_RES_, STR_RES_,

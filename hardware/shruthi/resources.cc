@@ -70,6 +70,9 @@ static const prog_char str_res_tuning[] PROGMEM = "tuning";
 static const prog_char str_res_midi_chan[] PROGMEM = "midi chan";
 static const prog_char str_res_chn[] PROGMEM = "chn";
 static const prog_char str_res_midi_out[] PROGMEM = "midi out";
+static const prog_char str_res_pause[] PROGMEM = "pause";
+static const prog_char str_res_delimiter[] PROGMEM = "delimiter";
+static const prog_char str_res_splash[] PROGMEM = "splash";
 static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
 static const prog_char str_res_oscillator_2[] PROGMEM = "oscillator 2";
 static const prog_char str_res_mixer[] PROGMEM = "mixer";
@@ -81,6 +84,7 @@ static const prog_char str_res_arpeggio[] PROGMEM = "arpeggio";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
 static const prog_char str_res_midi[] PROGMEM = "midi";
+static const prog_char str_res_display[] PROGMEM = "display";
 static const prog_char str_res_performance[] PROGMEM = "performance";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
@@ -354,6 +358,9 @@ PROGMEM const prog_char* string_table[] = {
   str_res_midi_chan,
   str_res_chn,
   str_res_midi_out,
+  str_res_pause,
+  str_res_delimiter,
+  str_res_splash,
   str_res_oscillator_1,
   str_res_oscillator_2,
   str_res_mixer,
@@ -365,6 +372,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_step_sequencer,
   str_res_keyboard,
   str_res_midi,
+  str_res_display,
   str_res_performance,
   str_res_cut,
   str_res_vca,
