@@ -37,8 +37,6 @@
 
 namespace hardware_shruthi {
 
-static const uint8_t kMidiClockPrescaler = 24 / 4;  // MIDI ppqn / xox ppqn.
-
 class SequencerSettings;
 class Voice;
 
@@ -82,7 +80,8 @@ class VoiceController {
   static void ComputeExpandedPatternSize();
 
   static int16_t internal_clock_counter_;
-  static uint8_t midi_clock_counter_;
+  static int8_t midi_clock_counter_;
+  static uint8_t midi_clock_prescaler_;
   static int16_t average_step_duration_;
   static int16_t step_duration_[kNumSteps];
 

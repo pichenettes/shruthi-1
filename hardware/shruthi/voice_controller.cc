@@ -30,11 +30,16 @@ namespace hardware_shruthi {
 
 static const uint8_t kNumNotesForExitingLatchMode = 8;
 
+static const prog_uint8_t midi_clock_scale[5] PROGMEM = {
+  6 /* normal */, 3 /* x2 */, 12, 24, 48 /* x2, x4, x8 */
+};
+
 /* <static> */
 const SequencerSettings* VoiceController::sequencer_settings_;
 
 int16_t VoiceController::internal_clock_counter_;
-uint8_t VoiceController::midi_clock_counter_;
+uint8_t VoiceController::midi_clock_prescaler_;
+int8_t VoiceController::midi_clock_counter_;
 int16_t VoiceController::step_duration_[kNumSteps];
 int16_t VoiceController::average_step_duration_;
 
@@ -97,8 +102,8 @@ void VoiceController::Reset() {
   // if not receiving a clock event at t means "we're slowing down" or "we have
   // stopped".
   if (!active_) {
-    midi_clock_counter_ = kMidiClockPrescaler;
-    if (sequencer_settings_->seq_tempo) {
+    midi_clock_counter_ = midi_clock_prescaler_;
+    if (midi_clock_prescaler_ == 0) {
       estimated_beat_duration_ = average_step_duration_ / (kControlRate / 4);
     }
     inactive_steps_ = 0;
@@ -192,6 +197,12 @@ void VoiceController::TouchSequence() {
           ? sequencer_settings_->seq_tempo
           : ResourcesManager::Lookup<uint16_t, uint8_t>(
               lut_res_turbo_tempi, sequencer_settings_->seq_tempo - 240 - 1));
+  if (sequencer_settings_->seq_tempo < 40) {
+    midi_clock_prescaler_ = ResourcesManager::Lookup<uint16_t, uint8_t>(
+        midi_clock_scale, sequencer_settings_->seq_tempo - 35);
+  } else {
+    midi_clock_prescaler_ = 0;
+  }
   for (uint8_t i = 0; i < kNumSteps; ++i) {
     int32_t swing_direction = ResourcesManager::Lookup<int16_t, uint8_t>(
         LUT_RES_GROOVE_SWING + sequencer_settings_->seq_groove_template, i);
@@ -344,8 +355,8 @@ int8_t VoiceController::FoldPattern() {
 uint8_t VoiceController::Control() {
   internal_clock_counter_ -= kControlRate;
   ++step_duration_estimator_num_;
-  if ((sequencer_settings_->seq_tempo && internal_clock_counter_ > 0) ||
-      (!sequencer_settings_->seq_tempo && midi_clock_counter_ > 0)) {
+  if ((!midi_clock_prescaler_ && internal_clock_counter_ > 0) ||
+      (midi_clock_prescaler_ && midi_clock_counter_ > 0)) {
     return 0;
   }
   ++step_duration_estimator_den_;
@@ -357,7 +368,7 @@ uint8_t VoiceController::Control() {
   }
 
   // Start counting inactive steps when no key is currently pressed.
-  if (notes_.size() == 0 && sequencer_settings_->seq_tempo &&
+  if (notes_.size() == 0 && !midi_clock_prescaler_ &&
       sequencer_settings_->seq_mode != SEQUENCER_MODE_RPS_LATCH &&
       sequencer_settings_->seq_mode != SEQUENCER_MODE_ARP_LATCH &&
       active_) {
@@ -369,10 +380,10 @@ uint8_t VoiceController::Control() {
 
   // Update the value of the counter depending on which steps we are on.
   // Steps 1, 2 are longer than steps 3, 4 if swing is enabled.
-  if (sequencer_settings_->seq_tempo) {
+  if (!midi_clock_prescaler_) {
     internal_clock_counter_ += step_duration_[expanded_pattern_step_ & 0x0f];
   } else {
-    midi_clock_counter_ += kMidiClockPrescaler;
+    midi_clock_counter_ += midi_clock_prescaler_;
   }
   if (step_duration_estimator_den_ == 4) {
     estimated_beat_duration_ = step_duration_estimator_num_;

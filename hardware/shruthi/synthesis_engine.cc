@@ -157,7 +157,7 @@ static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
     0, 0, 0, 0,
     0, 1, 1, 1,
-    20, 0, 1, 0,
+    12, 0, 1, 0,
 };
 
 /* static */

@@ -188,7 +188,12 @@ compare
 v
 mutable    v1.00
 instruments \x06\x07-1
+
 extern
+x2 ext
+/2 ext
+/4 ext
+/8 ext
 
 sum
 sync
