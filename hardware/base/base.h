@@ -31,6 +31,11 @@ typedef union {
   uint8_t bytes[2];
 } Word;
 
+typedef union {
+  uint32_t value;
+  uint16_t words[2];
+} LongWord;
+
 #define abs(x) ((x) > 0 ? (x) : -(x))
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \

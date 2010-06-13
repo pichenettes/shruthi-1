@@ -39,7 +39,10 @@ const uint32_t fractional_increment = (
 
 const uint8_t fractional_max = 1000 >> 3;
 
-extern volatile uint32_t timer0_milliseconds;
+// The timer count is stored as an union instead of a mere uint32_t because we
+// need access to the individual 16-bit parts of the value.
+extern volatile LongWord timer0_milliseconds;
+
 extern uint8_t timer0_fractional;
 
 inline void TickSystemClock() {
@@ -47,12 +50,30 @@ inline void TickSystemClock() {
   // is always null, so we have to increment it only when there's a
   // fractional overflow!
   if (milliseconds_increment) {
-    timer0_milliseconds += milliseconds_increment;
+    timer0_milliseconds.value += milliseconds_increment;
   }
   timer0_fractional += fractional_increment;
   if (timer0_fractional >= fractional_max) {
     timer0_fractional -= fractional_max;
-    ++timer0_milliseconds;
+    // The next lines are equivalent to: ++timer0_fractional. Why am I not
+    // using ++timer0_fractional? The reason is in the way gcc compiles this.
+    // 32-bits values are always loaded into contiguous registers. This code is
+    // called from an ISR, so this means 4 contiguous registers are going to
+    // be pushed/popped in the ISR. This costs 4 pairs of push/pops (16 cycles).
+    // On the other hand, this weir dimplementation only requires 2 adjacent
+    // registers, and they are probably already used for something else in the
+    // ISR. There's no free lunch, though: this code is less efficient than
+    // a ++. However, when it is called every 16th or 32th entry in an ISR, the
+    // time saved by avoiding the extra push/pops makes it a better choice.
+    //
+    // Rule: when you *occasionnally* do something complicated from within an
+    // ISR, the code doing the complicated thing should really try to minimize
+    // the number of registers it uses, even if it takes more cycles to do
+    // the work.
+    ++timer0_milliseconds.words[0];
+    if (timer0_milliseconds.words[0] == 0) {
+      ++timer0_milliseconds.words[1];
+    }
   }
 }
 

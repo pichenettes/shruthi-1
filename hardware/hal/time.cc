@@ -24,7 +24,7 @@
 
 namespace hardware_hal {
 
-volatile uint32_t timer0_milliseconds = 0;
+volatile LongWord timer0_milliseconds = { 0 };
 uint8_t timer0_fractional = 0;
 
 uint32_t Delay(uint32_t delay) {
@@ -36,7 +36,7 @@ uint32_t milliseconds() {
   uint32_t m;
   uint8_t oldSREG = SREG;
   cli();
-  m = timer0_milliseconds;
+  m = timer0_milliseconds.value;
   SREG = oldSREG;
   return m;
 }

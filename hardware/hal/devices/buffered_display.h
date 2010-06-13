@@ -87,7 +87,7 @@ class BufferedDisplay {
     return cursor_position_;
   }
 
-  static inline void set_status(uint8_t status) __attribute__((noinline)) {
+  static void set_status(uint8_t status) __attribute__((noinline)) {
     status_ = status + 1;
   }
 
