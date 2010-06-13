@@ -309,42 +309,28 @@ inline void FlushMidiOut() {
   }
 }
 
-uint8_t lcd_write_cycle = 0;
+uint8_t sub_clock = 0;
+uint8_t sub_clock_2 = 0;
 
 TIMER_2_TICK {
   audio_out.EmitSample();
-  lcd_write_cycle = (lcd_write_cycle + 1) & 0x0f;
-  if (lcd_write_cycle == 0) {
+  sub_clock = (sub_clock + 1) & 0x0f;
+  if (sub_clock == 0) {
     lcd.Tick();
     encoder.Read();
     // Flush to the output the buffered MIDI data.
     FlushMidiOut();
+    sub_clock_2 = ~sub_clock_2;
+    if (sub_clock_2) {
+      TickSystemClock();
+    }
   }
 }
 
 void Init() {
   scheduler.Init();
-
-  lcd.Init();
-  display.Init();
-  lcd.SetCustomCharMapRes(character_table[0], 8, 0);
-
-  editor.Init();
   audio_out.Init();
-
-  // Initialize all the PWM outputs, in 31.25kHz, phase correct mode.
-  Timer<1>::set_prescaler(1);
-  Timer<1>::set_mode(TIMER_PWM_PHASE_CORRECT);
-  Timer<2>::set_prescaler(1);
-  Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
-  Timer<2>::Start();
-
-  vcf_cutoff_out.Init();
-  vcf_resonance_out.Init();
-  vca_out.Init();
-  cv_1_out.Init();
-  cv_2_out.Init();
-
+  
   // In case the bootloader has not done it, enable the pull-up on the MIDI in.
   DigitalInput<10>::EnablePullUpResistor();
   midi_io.Init();
@@ -353,6 +339,27 @@ void Init() {
   encoder.Init();
   leds.Init();
   
+  // Initialize all the PWM outputs, in 31.25kHz, phase correct mode.
+  Timer<0>::set_prescaler(1);
+  Timer<0>::set_mode(TIMER_PWM_PHASE_CORRECT);
+  Timer<1>::set_prescaler(1);
+  Timer<1>::set_mode(TIMER_PWM_PHASE_CORRECT);
+  Timer<2>::set_prescaler(1);
+  Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
+  Timer<2>::Start();
+  
+  vcf_cutoff_out.Init();
+  vcf_resonance_out.Init();
+  vca_out.Init();
+  cv_1_out.Init();
+  cv_2_out.Init();
+
+  lcd.Init();
+  display.Init();
+  lcd.SetCustomCharMapRes(character_table[0], 8, 0);
+
+  editor.Init();
+
   engine.Init();
   if (engine.system_settings().display_splash_screen) {
     editor.DisplaySplashScreen(STR_RES_V + 1);
@@ -362,7 +369,7 @@ void Init() {
 }
 
 int main(void) {
-  InitAtmega(false);  // Do not initialize timers 1 & 2.
+  InitAtmega(false);  // Do not initialize timers.
   Init();
   scheduler.Run();
 }

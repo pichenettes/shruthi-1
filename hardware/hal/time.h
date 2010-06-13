@@ -25,10 +25,36 @@
 namespace hardware_hal {
 
 uint32_t milliseconds();
-
 uint32_t Delay(uint32_t delay);
 
 void InitClock();
+
+const uint32_t microseconds_per_timer0_overflow =
+    (64 * 256) / (F_CPU / 1000000L);
+const uint32_t milliseconds_increment =
+    microseconds_per_timer0_overflow / 1000;
+
+const uint32_t fractional_increment = (
+    microseconds_per_timer0_overflow % 1000) >> 3;
+
+const uint8_t fractional_max = 1000 >> 3;
+
+extern volatile uint32_t timer0_milliseconds;
+extern uint8_t timer0_fractional;
+
+inline void TickSystemClock() {
+  // Compile-time optimization: with a 20Mhz clock rate, milliseconds_increment
+  // is always null, so we have to increment it only when there's a
+  // fractional overflow!
+  if (milliseconds_increment) {
+    timer0_milliseconds += milliseconds_increment;
+  }
+  timer0_fractional += fractional_increment;
+  if (timer0_fractional >= fractional_max) {
+    timer0_fractional -= fractional_max;
+    ++timer0_milliseconds;
+  }
+}
 
 }  // namespace hardware_hal
 

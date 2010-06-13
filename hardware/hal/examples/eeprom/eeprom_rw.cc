@@ -28,6 +28,10 @@ OutputStream<Debug> debug_output;
 
 ExternalEeprom<> eeprom;
 
+TIMER_0_TICK {
+  TickSystemClock();
+}
+
 int main(void) {
   InitAtmega(true);
   Debug::Init();

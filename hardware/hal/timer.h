@@ -68,8 +68,7 @@ enum TimerMode {
 template<typename StatusRegisterA,
          typename StatusRegisterB,
          typename ModeRegister,
-         typename ValueRegister,
-         bool tweakable>
+         typename ValueRegister>
 struct TimerImpl {
   typedef StatusRegisterA A;
   typedef StatusRegisterB B;
@@ -79,15 +78,12 @@ struct TimerImpl {
   }
 
   static inline void Start() {
-    if (!tweakable) return;
     *ModeRegister::ptr() |= 1;
   }
   static inline void Stop() {
-    if (!tweakable) return;
     *ModeRegister::ptr() &= ~1;
   }
   static inline void set_mode(TimerMode mode) {
-    if (!tweakable) return;
     // Sets the mode registers.
     *StatusRegisterA::ptr() = (*StatusRegisterA::ptr() & 0xfc) | mode;
   }
@@ -111,7 +107,6 @@ struct TimerImpl {
   // 6     | 122 Hz    | 244 Hz
   // 7     | 30 Hz     | 60 Hz
   static inline void set_prescaler(uint8_t prescaler) {
-    if (!tweakable) return;
     *StatusRegisterB::ptr() = (*StatusRegisterB::ptr() & 0xf8) | prescaler;
   }
 };
@@ -119,15 +114,12 @@ struct TimerImpl {
 template<int n>
 struct NumberedTimer { };
 
-// Timer<0> cannot be modified / stopped / started by default, because the real
-// time clock (Delay(), milliseconds()) uses it.
 template<> struct NumberedTimer<0> {
   typedef TimerImpl<
       TCCR0ARegister,
       TCCR0BRegister,
       TIMSK0Register,
-      TCNT0Register,
-      false> Impl;
+      TCNT0Register> Impl;
 };
 
 template<> struct NumberedTimer<1> {
@@ -135,8 +127,7 @@ template<> struct NumberedTimer<1> {
       TCCR1ARegister,
       TCCR1BRegister,
       TIMSK1Register,
-      TCNT1Register,
-      true> Impl;
+      TCNT1Register> Impl;
 };
 
 template<> struct NumberedTimer<2> {
@@ -144,8 +135,7 @@ template<> struct NumberedTimer<2> {
       TCCR2ARegister,
       TCCR2BRegister,
       TIMSK2Register,
-      TCNT2Register,
-      true> Impl;
+      TCNT2Register> Impl;
 };
 
 #ifdef ATMEGA1284P
@@ -154,8 +144,7 @@ template<> struct NumberedTimer<3> {
       TCCR3ARegister,
       TCCR3BRegister,
       TIMSK3Register,
-      TCNT3Register,
-      true> Impl;
+      TCNT3Register> Impl;
 };
 #endif  // ATMEGA1284P
 
@@ -203,15 +192,6 @@ typedef PwmChannel<Timer<1>, COM1A1, OCR1ARegister> PwmChannel1A;
 typedef PwmChannel<Timer<1>, COM1B1, OCR1BRegister> PwmChannel1B;
 typedef PwmChannel<Timer<2>, COM2A1, OCR2ARegister> PwmChannel2A;
 typedef PwmChannel<Timer<2>, COM2B1, OCR2BRegister> PwmChannel2B;
-
-// A definition of Timer<0> that can be adjusted / started / stopped, used for
-// example in initialization code.
-typedef TimerImpl<
-    TCCR0ARegister,
-    TCCR0BRegister,
-    TIMSK0Register,
-    TCNT0Register,
-    true> MutableTimer0;
 
 // Readable aliases for timer interrupts.
 #define TIMER_0_TICK ISR(TIMER0_OVF_vect)

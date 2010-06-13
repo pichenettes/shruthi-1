@@ -18,6 +18,7 @@
 #include "hardware/hal/gpio.h"
 #include "hardware/hal/parallel_io.h"
 #include "hardware/hal/init_atmega.h"
+#include "hardware/hal/time.h"
 #include "hardware/utils/string.h"
 
 using namespace hardware_hal;
@@ -49,6 +50,10 @@ TIMER_2_TICK {
   if (cpt == 0) {
     lcd.Tick();
   }
+}
+
+TIMER_0_TICK {
+  TickSystemClock();
 }
 
 int main(void) {

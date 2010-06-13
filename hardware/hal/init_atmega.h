@@ -38,9 +38,8 @@ inline void InitAtmega(bool init_timers) {
 
     Timer<2>::set_prescaler(3);
     Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
+    InitClock();
   }
-
-  InitClock();
 
   // ADC setup.
   Adc::set_prescaler(7);  // 128 -> 125kHz sampling rate.

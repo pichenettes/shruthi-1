@@ -19,6 +19,10 @@
 
 using namespace hardware_hal;
 
+TIMER_0_TICK {
+  TickSystemClock();
+}
+
 int main(void) {
   InitAtmega(true);
 

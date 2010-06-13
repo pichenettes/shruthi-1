@@ -21,8 +21,12 @@ using namespace hardware_hal;
 
 Gpio<21> led;
 
+TIMER_0_TICK {
+  TickSystemClock();
+}
+
 int main(void) {
-  InitAtmega(false);
+  InitAtmega(true);
   led.set_mode(DIGITAL_OUTPUT);
   while (1) {
     led.High();

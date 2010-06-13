@@ -16,6 +16,7 @@
 #include "hardware/hal/init_atmega.h"
 #include "hardware/hal/input_array.h"
 #include "hardware/hal/serial.h"
+#include "hardware/hal/time.h"
 #include "hardware/utils/output_stream.h"
 
 using namespace hardware_hal;
@@ -31,6 +32,10 @@ PwmOutput<3> c;
 PwmOutput<4> d;
 
 using namespace hardware_hal;
+
+TIMER_0_TICK {
+  TickSystemClock();
+}
 
 int main(void) {
   uint8_t idle;
