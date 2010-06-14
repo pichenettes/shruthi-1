@@ -5,8 +5,6 @@ This project is a redesign of the original Shruti-1, with a focus on manufactura
 Copyright 2010 Olivier Gillet (ol.gillet@gmail.com)
 
 # The firmware is released under a GPL3.0 license. It includes external code from the following sources:
-- Parts of the Arduino library (real time clock).
-- Parts of M J Oldfield's makefile for Arduino project.
 - A reimplementation of the formant synthesis algorithm used in Peter Knight's Cantarino speech synthesizer.
 
 # The PCB layouts and schematics (in /hardware/shruthi/hardware_design) are released under a Creative Commons cc-by-nc-sa 3.0 license.
