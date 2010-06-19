@@ -317,7 +317,9 @@ void VoiceController::NoteOnHandlerRpsRecording(
     recording_ = 0;
   } else {
     if (will_stop_at_step_ == 0xff) {
-      will_stop_at_step_ = pattern_step_;
+      will_stop_at_step_ = 0;
+      pattern_step_ = 0;
+      expanded_pattern_step_ = 0;
     }
     sequencer_settings_->steps[pattern_step_].set_note(note);
     sequencer_settings_->steps[pattern_step_].set_legato(0);
