@@ -40,7 +40,7 @@ namespace hardware_shruthi {
 /* extern */
 Editor editor;
 
-static const prog_uint16_t units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
+static const prog_uint16_t units_definitions[UNIT_SPLIT_POINT + 1]
     PROGMEM = {
   0,
   0,
@@ -62,7 +62,8 @@ static const prog_uint16_t units_definitions[UNIT_LFO_RETRIGGER_MODE + 1]
   STR_RES_T,
   STR_RES_SWING,
   0,
-  STR_RES_FREE
+  STR_RES_FREE,
+  0
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -208,11 +209,47 @@ uint8_t Editor::test_note_playing_ = 0;
 uint8_t Editor::assign_in_progress_ = 0;
 ParameterAssignment Editor::parameter_to_assign_;
 ConfirmPageSettings Editor::confirm_page_settings_;
+uint8_t Editor::locked_value_[kNumEditingPots];
+uint8_t Editor::locked_[kNumEditingPots];
 /* </static> */
 
 /* static */
 void Editor::Init() {
   line_buffer_[kLcdWidth] = '\0';
+}
+
+/* static */
+void Editor::PageChange() {
+  if (current_page_ == PAGE_MOD_MATRIX) {
+    subpage_ = last_visited_subpage_;
+  }
+  last_visited_page_[page_definition_[current_page_].group] = current_page_;
+  last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
+  
+  if (page_definition_[current_page_].ui_type == PARAMETER_EDITOR) {
+    if (engine.system_settings().display_snap) {
+      for (uint8_t i = 0; i < kNumEditingPots; ++i) {
+        locked_[i] = 1;
+        uint8_t index = KnobIndexToParameterId(i);
+        const ParameterDefinition& parameter = (
+            ParameterDefinitions::parameter_definition(index));
+        int16_t value = GetParameterValue(parameter.id);
+        if (parameter.unit == UNIT_INT8) {
+          value -= static_cast<int8_t>(parameter.min_value);
+          value <<= 8;
+          value /= (static_cast<int8_t>(parameter.max_value) - 
+                    static_cast<int8_t>(parameter.min_value));
+        } else {
+          value -= parameter.min_value;
+          value <<= 8;
+          value /= (parameter.max_value - parameter.min_value);
+        }
+        locked_value_[i] = value >> 1;
+      }
+    } else {
+      memset(locked_, 0, kNumEditingPots);
+    }
+  }
 }
 
 /* static */
@@ -230,11 +267,7 @@ void Editor::JumpToPageGroup(uint8_t group) {
   }
   // When switching to the modulation matrix page, go back to the previously
   // edited modulation.
-  if (current_page_ == PAGE_MOD_MATRIX) {
-    subpage_ = last_visited_subpage_;
-  }
-  last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
-  last_visited_page_[group] = current_page_;
+  PageChange();
 }
 
 /* static */
@@ -625,8 +658,7 @@ void Editor::MoveSequencerCursor(int8_t direction) {
   } else {
     cursor_ = new_cursor;
   }
-  last_visited_page_[page_definition_[current_page_].group] = current_page_;
-  last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
+  PageChange();
 }
 
 /* static */
@@ -976,8 +1008,19 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
 /* static */
 void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
   if (!HandleKnobAssignment(knob_index)) {
-    display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
     uint8_t value_7bits = value >> 3;
+    
+    // In "snap" mode, the knob is locked until we reached the value the
+    // parameter is supposed to have.
+    if (locked_[knob_index]) {
+      int8_t delta = value_7bits - locked_value_[knob_index];
+      if (delta < -4 || delta > 4) {
+        return;
+      }
+      locked_[knob_index] = 0;
+    }
+
+    display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
     uint8_t index = KnobIndexToParameterId(knob_index);
     const ParameterDefinition& parameter = (
         ParameterDefinitions::parameter_definition(index));
@@ -1006,14 +1049,10 @@ void Editor::HandleEditIncrement(int8_t direction) {
     } else {
       cursor_ = new_cursor;
     }
-    if (current_page_ == PAGE_MOD_MATRIX) {
-      subpage_ = last_visited_subpage_;
-      last_visited_subpage_ = subpage_;
-    }
-    last_visited_page_[page_definition_[current_page_].group] = current_page_;
-    last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
+    PageChange();
   } else {
     uint8_t index = KnobIndexToParameterId(cursor_);
+    locked_[cursor_] = 0;
     const ParameterDefinition& parameter = (
         ParameterDefinitions::parameter_definition(index));
 
@@ -1118,6 +1157,10 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
         value = 0;
         text = STR_RES_SEQUENCER;
       }
+      break;
+    case UNIT_SPLIT_POINT:
+      --value;
+      prefix = 'C';
       break;
   }
   if (prefix) {

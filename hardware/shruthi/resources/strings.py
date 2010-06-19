@@ -68,6 +68,7 @@ midi out
 pause
 delimiter
 splash
+snap
 oscillator 1
 oscillator 2
 mixer
@@ -238,6 +239,7 @@ human
  off
 thru
   seq
+split
 full
 1>|
 2>1

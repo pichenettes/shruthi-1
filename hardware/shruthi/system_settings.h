@@ -34,12 +34,12 @@ class SystemSettings {
   int8_t master_tuning;
   uint8_t midi_channel;
   uint8_t midi_out_mode;
-  uint8_t midi_blank;
+  uint8_t midi_split_point;
   
   uint8_t display_delay;
   uint8_t display_delimiter;
   uint8_t display_splash_screen;
-  uint8_t display_blank_2;
+  uint8_t display_snap;
 
   void EepromSave() const;
   uint8_t EepromLoad();
@@ -54,12 +54,12 @@ enum SystemParameter {
   PRM_SYS_MASTER_TUNING,
   PRM_SYS_MIDI_CHANNEL,
   PRM_SYS_MIDI_OUT_MODE,
-  PRM_SYS_MIDI_BLANK,
+  PRM_SYS_MIDI_SPLIT_POINT,
   
   PRM_SYS_DISPLAY_DELAY,
   PRM_SYS_DISPLAY_DELIMITER,
   PRM_SYS_DISPLAY_SHOW_SPLASH_SCREEN,
-  PRM_SYS_DISPLAY_BLANK
+  PRM_SYS_DISPLAY_SNAP
 };
 
 }  // namespace hardware_shruthi

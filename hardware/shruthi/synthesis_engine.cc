@@ -156,7 +156,7 @@ static const prog_char init_sequence[] PROGMEM = {
 static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
     0, 0, 0, 0,
-    0, 1, 1, 1,
+    0, 1, 1, 5,
     12, 0, 1, 0,
 };
 
@@ -210,6 +210,12 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
       midi_out_filter.Send3(0x90 | channel, note, velocity);
     }
   } else {
+    // If the note is above the split point, just forward it.
+    if (system_settings_.midi_out_mode == MIDI_OUT_SPLIT &&
+        note >= system_settings_.midi_split_point * 12) {
+      midi_out_filter.Send3(0x90 | channel, note, velocity);
+      return;
+    }
     // If the note controller is not active, we are not currently playing a
     // sequence, so we retrigger the LFOs.
     if (!controller_.active()) {
@@ -232,6 +238,12 @@ void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
       midi_out_filter.Send3(0x80 | channel, note, 0);
     }
   } else {
+    // If the note is above the split point, just forward it.
+    if (system_settings_.midi_out_mode == MIDI_OUT_SPLIT &&
+        note >= system_settings_.midi_split_point * 12) {
+      midi_out_filter.Send3(0x80 | channel, note, 0);
+      return;
+    }
     controller_.NoteOff(note);
   }
 }
@@ -265,7 +277,12 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         value |= data_entry_msb_;
         if (nrpn_parameter_number_ != 255) {
           dirty_ = 1;
-          SetParameter(nrpn_parameter_number_, value);
+          const ParameterDefinition& p = (
+              ParameterDefinitions::parameter_definition(
+                  nrpn_parameter_number_));
+          if (value >= p.min_value && value <= p.max_value) {
+            SetParameter(nrpn_parameter_number_, value);
+          }
         }
         data_entry_msb_ = 0;
         break;
@@ -454,7 +471,7 @@ void SynthesisEngine::SetParameter(
     // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
   } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL &&
-             parameter_index <= PRM_SYS_DISPLAY_BLANK) {
+             parameter_index <= PRM_SYS_DISPLAY_SNAP) {
     // A copy of those parameters are used by the MIDI out dispatcher.
     midi_out_filter.UpdateSystemSettings(system_settings_);
   }

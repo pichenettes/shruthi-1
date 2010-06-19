@@ -48,6 +48,7 @@ enum Unit {
   UNIT_GROOVE_TEMPLATE,
   UNIT_ARPEGGIO_PATTERN,
   UNIT_LFO_RETRIGGER_MODE,
+  UNIT_SPLIT_POINT
 };
 
 typedef uint8_t ParameterUnit;

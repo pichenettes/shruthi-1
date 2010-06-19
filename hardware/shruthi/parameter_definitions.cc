@@ -296,10 +296,10 @@ static const prog_char raw_parameter_definition[
   UNIT_MIDI_MODE,
   STR_RES_MIDI_OUT, STR_RES_MIDI_OUT,
 
-  PRM_SYS_MIDI_BLANK,
-  0, 0,
-  UNIT_UINT8,
-  STR_RES_, STR_RES_,
+  PRM_SYS_MIDI_SPLIT_POINT,
+  0, 7,
+  UNIT_SPLIT_POINT,
+  STR_RES_SPLIT, STR_RES_SPLIT,
 
   // More system settings
   PRM_SYS_DISPLAY_DELAY,
@@ -317,10 +317,10 @@ static const prog_char raw_parameter_definition[
   UNIT_BOOLEAN,
   STR_RES_SPLASH, STR_RES_SPLASH,
   
-  PRM_SYS_DISPLAY_BLANK,
-  0, 0,
-  UNIT_UINT8,
-  STR_RES_, STR_RES_,
+  PRM_SYS_DISPLAY_SNAP,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES_SNAP, STR_RES_SNAP,
 
   PRM_SEQ_PATTERN_ROTATION,
   0, 15,

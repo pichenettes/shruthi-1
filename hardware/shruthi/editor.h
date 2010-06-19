@@ -33,6 +33,7 @@ namespace hardware_shruthi {
 
 class ParameterDefinition;
 
+// These 3 modes determine within which group of pages the switches navigate.
 enum EditorMode {
   EDITOR_MODE_PATCH,
   EDITOR_MODE_SEQUENCE,
@@ -119,8 +120,6 @@ enum PageUiType {
   CONFIRM,
 };
 
-typedef uint8_t UiType;
-
 struct PageDefinition {
   ParameterPage next;
   ParameterGroup group;
@@ -130,7 +129,7 @@ struct PageDefinition {
   ParameterPage overall_next;
 
   ResourceId name;
-  UiType ui_type;
+  uint8_t ui_type;
   uint8_t first_parameter_index;
   uint8_t leds_pattern;
 };
@@ -192,6 +191,8 @@ class Editor {
   static void Confirm(ConfirmPageSettings confirm_page_settings);
 
  private:
+  // This is called whenever we move to another page.
+  static void PageChange();
   static void PrettyPrintParameterValue(const ParameterDefinition& parameter,
                                         char* buffer, uint8_t width);
 
@@ -277,6 +278,11 @@ class Editor {
   static uint8_t assign_in_progress_; 
   static uint8_t test_note_playing_;
   static ParameterAssignment parameter_to_assign_;
+  
+  // Snap mode logic. Stores for each pot the 10-bit ADC readout that
+  // corresponds to the position the knob needs to reach to unlock the pot.
+  static uint8_t locked_value_[kNumEditingPots];
+  static uint8_t locked_[kNumEditingPots];
 
   DISALLOW_COPY_AND_ASSIGN(Editor);
 };

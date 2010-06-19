@@ -102,13 +102,13 @@ void VoiceController::Reset() {
   // if not receiving a clock event at t means "we're slowing down" or "we have
   // stopped".
   if (!active_) {
-    midi_clock_counter_ = midi_clock_prescaler_;
     if (midi_clock_prescaler_ == 0) {
       estimated_beat_duration_ = average_step_duration_ / (kControlRate / 4);
     }
     inactive_steps_ = 0;
     pattern_mask_ = 0xffff;
     internal_clock_counter_ = 0;
+    midi_clock_counter_ = 0;
     step_duration_estimator_num_ = 0xffff;
     step_duration_estimator_den_ = 0xff;
     expanded_pattern_step_ = expanded_pattern_size_ - 1;
@@ -198,7 +198,7 @@ void VoiceController::TouchSequence() {
           : ResourcesManager::Lookup<uint16_t, uint8_t>(
               lut_res_turbo_tempi, sequencer_settings_->seq_tempo - 240 - 1));
   if (sequencer_settings_->seq_tempo < 40) {
-    midi_clock_prescaler_ = ResourcesManager::Lookup<uint16_t, uint8_t>(
+    midi_clock_prescaler_ = ResourcesManager::Lookup<uint8_t, uint8_t>(
         midi_clock_scale, sequencer_settings_->seq_tempo - 35);
   } else {
     midi_clock_prescaler_ = 0;

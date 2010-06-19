@@ -31,7 +31,7 @@ using namespace hardware_resources;
 namespace hardware_shruthi {
 
 static const prog_char note_names[] PROGMEM = " CC# DD# E FF# GG# AA# B";
-static const prog_char octaves[] PROGMEM = "_-01234567";
+static const prog_char octaves[] PROGMEM = "-012345678";
 
 void SequencerSettings::PrepareForWrite() {
   // Clear all the notes after the cycle mark.
