@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "hardware/resources/resources_manager.h"
+#include "hardware/shruthi/midi_dispatcher.h"
 #include "hardware/shruthi/oscillator.h"
 #include "hardware/shruthi/parameter_definitions.h"
 #include "hardware/shruthi/storage.h"
@@ -194,7 +195,6 @@ void SynthesisEngine::ResetSequence() {
 /* static */
 void SynthesisEngine::ResetSystemSettings() {
   ResourcesManager::Load(init_system_settings, 0, &system_settings_);
-  midi_out_filter.UpdateSystemSettings(system_settings_);
 }
 
 /* static */
@@ -207,13 +207,13 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     if (polychaining_allocator_.NoteOn(note) == 0) {
       voice_[0].Trigger(note, velocity, 0);
     } else {
-      midi_out_filter.Send3(0x90 | channel, note, velocity);
+      midi_dispatcher.Send3(0x90 | channel, note, velocity);
     }
   } else {
     // If the note is above the split point, just forward it.
     if (system_settings_.midi_out_mode == MIDI_OUT_SPLIT &&
         note >= system_settings_.midi_split_point * 12) {
-      midi_out_filter.Send3(0x90 | channel, note, velocity);
+      midi_dispatcher.Send3(0x90 | channel, note, velocity);
       return;
     }
     // If the note controller is not active, we are not currently playing a
@@ -235,13 +235,13 @@ void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
     if (polychaining_allocator_.NoteOff(note) == 0) {
       voice_[0].Release();
     } else { 
-      midi_out_filter.Send3(0x80 | channel, note, 0);
+      midi_dispatcher.Send3(0x80 | channel, note, 0);
     }
   } else {
     // If the note is above the split point, just forward it.
     if (system_settings_.midi_out_mode == MIDI_OUT_SPLIT &&
         note >= system_settings_.midi_split_point * 12) {
-      midi_out_filter.Send3(0x80 | channel, note, 0);
+      midi_dispatcher.Send3(0x80 | channel, note, 0);
       return;
     }
     controller_.NoteOff(note);
@@ -408,12 +408,8 @@ void SynthesisEngine::SetParameter(
     // A copy of those parameters is stored by the note dispatcher/arpeggiator,
     // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
-  } else if (parameter_index >= PRM_SYS_MIDI_CHANNEL &&
-             parameter_index <= PRM_SYS_DISPLAY_SNAP) {
-    // A copy of those parameters are used by the MIDI out dispatcher.
-    midi_out_filter.UpdateSystemSettings(system_settings_);
   }
-  midi_out_filter.SendParameter(parameter_index, parameter_value);
+  midi_dispatcher.SendParameter(parameter_index, parameter_value);
 }
 
 /* static */
@@ -643,11 +639,20 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
   // forward it to the MIDI out too.
   if (last_note_ != note || !legato) {
     if (last_note_ != 0) {
-      midi_out_filter.NoteKilled(last_note_);
+      midi_dispatcher.NoteKilled(last_note_);
     }
-    midi_out_filter.NoteTriggered(note, velocity);
+    midi_dispatcher.NoteTriggered(note, velocity);
   }
   last_note_ = note;
+}
+
+/* static */
+void Voice::Release() {
+  TriggerEnvelope(RELEASE_1);
+  if (last_note_ != 0) {
+    midi_dispatcher.NoteKilled(last_note_);
+    last_note_ = 0;
+  }
 }
 
 /* static */

@@ -27,8 +27,7 @@
 #include "hardware/midi/midi.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/editor.h"
-#include "hardware/shruthi/midi_in_dispatcher.h"
-#include "hardware/shruthi/midi_out_filter.h"
+#include "hardware/shruthi/midi_dispatcher.h"
 #include "hardware/shruthi/storage.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/task.h"
@@ -75,7 +74,7 @@ PwmOutput<kPinVcaOut> vca_out;
 PwmOutput<kPinCv1Out> cv_1_out;
 PwmOutput<kPinCv2Out> cv_2_out;
 
-MidiStreamParser<MidiInDispatcher> midi_parser;
+MidiStreamParser<MidiDispatcher> midi_parser;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -260,9 +259,9 @@ Task Scheduler::tasks_[] = {
 };
 
 inline void FlushMidiOut() {
-  if (midi_out_filter.readable()) {
+  if (midi_dispatcher.readable()) {
     if (midi_io.writable()) {
-      midi_io.Overwrite(midi_out_filter.ImmediateRead());
+      midi_io.Overwrite(midi_dispatcher.ImmediateRead());
     }
   }
 }

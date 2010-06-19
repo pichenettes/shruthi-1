@@ -42,7 +42,6 @@
 #include "hardware/midi/midi.h"
 #include "hardware/shruthi/envelope.h"
 #include "hardware/shruthi/lfo.h"
-#include "hardware/shruthi/midi_out_filter.h"
 #include "hardware/shruthi/patch.h"
 #include "hardware/shruthi/sequencer_settings.h"
 #include "hardware/shruthi/system_settings.h"
@@ -70,13 +69,7 @@ class Voice {
   static void Trigger(uint8_t note, uint8_t velocity, uint8_t legato);
 
   // Move this voice to the release stage.
-  static void Release() {
-    TriggerEnvelope(RELEASE_1);
-    if (last_note_ != 0) {
-      midi_out_filter.NoteKilled(last_note_);
-      last_note_ = 0;
-    }
-  }
+  static void Release();
 
   // Move this voice to the release stage.
   static void Kill() { TriggerEnvelope(DEAD); }
