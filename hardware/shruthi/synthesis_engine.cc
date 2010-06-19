@@ -320,36 +320,9 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
 }
 
 /* static */
-uint8_t SynthesisEngine::CheckChannel(uint8_t channel) {
-  return system_settings_.midi_channel == 0 ||
-         system_settings_.midi_channel == (channel + 1);
-}
-
-/* static */
-void SynthesisEngine::RawMidiData(
-    uint8_t status,
-    uint8_t* data,
-    uint8_t data_size,
-    uint8_t accepted_channel) {
-  uint8_t hi = status & 0xf0;
-  // When is parsed midi data forwarded to the MIDI out?
-  // - When the data is a channel different from the RX channel.
-  // - When we are in "Full mode".
-  // - When the midi message is not a note on/note off.
-  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
-    if (status != 0xf0 && status != 0xf7) {
-      if ((hi != 0x80 && hi != 0x90) ||
-          system_settings_.midi_out_mode == MIDI_OUT_FULL ||
-          !accepted_channel) {
-        midi_out_filter.Send(status, data, data_size);
-      }
-    }
-  }
-}
-
-/* static */
 void SynthesisEngine::PitchBend(uint8_t channel, uint16_t pitch_bend) {
-  modulation_sources_[MOD_SRC_PITCH_BEND] = ShiftRight6(pitch_bend);
+  uint8_t value = ShiftRight6(pitch_bend);
+  modulation_sources_[MOD_SRC_PITCH_BEND] = value;
 }
 
 /* static */
@@ -391,41 +364,6 @@ void SynthesisEngine::OmniModeOff(uint8_t channel) {
 /* static */
 void SynthesisEngine::OmniModeOn(uint8_t channel) {
   system_settings_.midi_channel = 0;
-}
-
-
-/* static */
-void SynthesisEngine::ProgramChange(uint8_t channel, uint8_t program) {
-  if (program < Storage::size<Patch>()) {
-    Storage::Load(&patch_, program);
-    // Do not force a SysEx sync because the slave in the polychain will also
-    // receive the program change anyway!
-    TouchPatch(0);
-  }
-}
-
-/* static */
-void SynthesisEngine::SysExStart() {
-  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
-    midi_out_filter.Send(0xf0, NULL, 0);
-  }
-  Storage::SysExReceive(0xf0);
-}
-
-/* static */
-void SynthesisEngine::SysExByte(uint8_t sysex_byte) {
-  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
-    midi_out_filter.Send(sysex_byte, NULL, 0);
-  }
-  Storage::SysExReceive(sysex_byte);
-}
-
-/* static */
-void SynthesisEngine::SysExEnd() {
-  if (system_settings_.midi_out_mode >= MIDI_OUT_FULL) {
-    midi_out_filter.Send(0xf7, NULL, 0);
-  }
-  Storage::SysExReceive(0xf7);
 }
 
 /* static */

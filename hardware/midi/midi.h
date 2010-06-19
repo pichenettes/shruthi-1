@@ -71,6 +71,7 @@ struct MidiDevice {
   static void Reset() { }
 
   static uint8_t CheckChannel(uint8_t channel) { return 1; }
+  static void RawByte(uint8_t byte) { }
   static void RawMidiData(
       uint8_t status,
       uint8_t* data,
@@ -82,7 +83,7 @@ template<typename Device>
 class MidiStreamParser {
  public:
   MidiStreamParser();
-  uint8_t PushByte(uint8_t byte);
+  void PushByte(uint8_t byte);
 
  private:
   void MessageReceived(uint8_t status);
@@ -103,13 +104,12 @@ MidiStreamParser<Device>::MidiStreamParser() {
 }
 
 template<typename Device>
-uint8_t MidiStreamParser<Device>::PushByte(uint8_t byte) {
+void MidiStreamParser<Device>::PushByte(uint8_t byte) {
   // Realtime messages are immediately passed-through, and do not modify the
   // state of the parser.
-  uint8_t value = 0;
+  Device::RawByte(byte);
   if (byte >= 0xf8) {
     MessageReceived(byte);
-    value = byte;
   } else {
     if (byte >= 0x80) {
       uint8_t hi = byte & 0xf0;
@@ -148,7 +148,6 @@ uint8_t MidiStreamParser<Device>::PushByte(uint8_t byte) {
       data_[data_size_++] = byte;
     }
     if (data_size_ >= expected_data_size_) {
-      value = running_status_;
       MessageReceived(running_status_);
       data_size_ = 0;
       if (running_status_ > 0xf0) {
@@ -157,7 +156,6 @@ uint8_t MidiStreamParser<Device>::PushByte(uint8_t byte) {
       }
     }
   }
-  return value;  // Returns the first byte of the fully received message.
 }
 
 template<typename Device>

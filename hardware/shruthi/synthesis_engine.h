@@ -168,20 +168,10 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static void AllNotesOff(uint8_t channel);
   static void OmniModeOff(uint8_t channel);
   static void OmniModeOn(uint8_t channel);
-  static void ProgramChange(uint8_t channel, uint8_t program);
   static void Reset();
   static void Clock();
   static void Start();
   static void Stop();
-  static void SysExStart();
-  static void SysExByte(uint8_t sysex_byte);
-  static void SysExEnd();
-  static uint8_t CheckChannel(uint8_t channel);
-  static void RawMidiData(
-      uint8_t status,
-      uint8_t* data,
-      uint8_t data_size,
-      uint8_t accepted_channel);
 
   static void Audio();
   static void Control();

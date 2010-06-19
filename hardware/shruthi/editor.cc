@@ -1114,7 +1114,7 @@ void Editor::DisplaySplashScreen(ResourceId first_line) {
 void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
                                        char* buffer, uint8_t width) {
   int16_t value = GetParameterValue(parameter.id);
-  ResourceId text = ResourcesManager::Lookup<uint8_t, uint8_t>(
+  ResourceId text = ResourcesManager::Lookup<uint16_t, uint8_t>(
       units_definitions,
       parameter.unit);
   char prefix = '\0';

@@ -204,6 +204,8 @@ static const prog_char str_res_arpSlt[] PROGMEM = "arp+lt";
 static const prog_char str_res__seq[] PROGMEM = "seq";
 static const prog_char str_res_seqSlt[] PROGMEM = "seq+lt";
 static const prog_char str_res_impro[] PROGMEM = "impro";
+static const prog_char str_res_rec[] PROGMEM = "rec";
+static const prog_char str_res_looper[] PROGMEM = "looper";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
@@ -498,6 +500,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res__seq,
   str_res_seqSlt,
   str_res_impro,
+  str_res_rec,
+  str_res_looper,
   str_res_free,
   str_res_slave,
   str_res_master,

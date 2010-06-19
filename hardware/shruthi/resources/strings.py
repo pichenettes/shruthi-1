@@ -208,6 +208,8 @@ arp+lt
  seq
 seq+lt
 impro
+looper
+
 
 free
 slave

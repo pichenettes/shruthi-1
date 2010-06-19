@@ -27,6 +27,7 @@
 #include "hardware/midi/midi.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/editor.h"
+#include "hardware/shruthi/midi_in_dispatcher.h"
 #include "hardware/shruthi/midi_out_filter.h"
 #include "hardware/shruthi/storage.h"
 #include "hardware/shruthi/synthesis_engine.h"
@@ -74,7 +75,7 @@ PwmOutput<kPinVcaOut> vca_out;
 PwmOutput<kPinCv1Out> cv_1_out;
 PwmOutput<kPinCv2Out> cv_2_out;
 
-MidiStreamParser<SynthesisEngine> midi_parser;
+MidiStreamParser<MidiInDispatcher> midi_parser;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -197,52 +198,9 @@ void CvTask() {
 }
 
 void MidiTask() {
-  // Try to pull as much data as possible from the MIDI buffer.
+  // Try to process as much data as possible from the MIDI buffer.
   while (midi_io.readable()) {
-    uint8_t value = midi_io.ImmediateRead();
-    
-    // Report that some data has been received. The MIDI Out filter might
-    // propagate it directly to the output if "Soft Thru" is enabled.
-    midi_out_filter.RawDataReceived(value);
-
-    // Also, parse the message.
-    uint8_t status = midi_parser.PushByte(value);
-
-    // Display a status indicator on the LCD to indicate that a message has
-    // been received. This could be done as well in the synthesis engine code
-    // or in the MIDI parser, but I'd rather keep the UI code separate.
-    switch (status & 0xf0) {
-      // Note on/off.
-      case 0x90:
-        display.set_status('\x01');
-        break;
-      // Controller.
-      case 0xb0:
-        display.set_status('\x05');
-        break;
-      // Bender.
-      case 0xe0:
-        display.set_status('\x02');
-        break;
-      // Special messages.
-      case 0xf0:
-        // Display a status indicator to monitor SysEx patch reception.
-        if (status == 0xf0 || status == 0xf7) {
-          switch (Storage::sysex_rx_state()) {
-            case RECEIVING_DATA:
-              display.set_status('~');
-              break;
-            case RECEPTION_OK:
-              display.set_status('+');
-              engine.TouchPatch(0);
-              break;
-            case RECEPTION_ERROR:
-              display.set_status('#');
-              break;
-          }
-        }
-        break;
-    }
+    midi_parser.PushByte(midi_io.ImmediateRead());
   }
   // This is also a good place to do some MIDI output. But because the MIDI
   // output data rate can get intense when tweaking knobs, it's easier to

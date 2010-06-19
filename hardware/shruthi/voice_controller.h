@@ -40,10 +40,16 @@ namespace hardware_shruthi {
 class SequencerSettings;
 class Voice;
 
+struct EventHandler {
+  void (*handle_note_on)(uint8_t note, uint8_t velocity);
+  void (*handle_note_off)(uint8_t note);
+  void (*handle_step)(int8_t delta);
+};
+
 class VoiceController {
  public:
   VoiceController() { }
-  static void Init(const SequencerSettings* sequencer_settings,
+  static void Init(SequencerSettings* sequencer_settings,
                    Voice* voices, uint8_t num_voices_);
   static void AllNotesOff();
   static void AllSoundOff();
@@ -62,6 +68,7 @@ class VoiceController {
   static uint16_t estimated_beat_duration() {
     return estimated_beat_duration_;
   }
+  static uint8_t recording() { return recording_; }
   
   // (for external sync).
   static void Stop() {
@@ -78,6 +85,21 @@ class VoiceController {
   static void ArpeggioStart(int8_t delta);
   static int8_t FoldPattern();
   static void ComputeExpandedPatternSize();
+  
+  // The following functions handle note on/off/step updates messages for each
+  // different sequencer mode.
+  static void NoteOnHandlerArpStep(uint8_t note, uint8_t velocity);
+  static void NoteOnHandlerArpLatch(uint8_t note, uint8_t velocity);
+  static void NoteOnHandlerRps(uint8_t note, uint8_t velocity);
+  static void NoteOnHandlerRpsLatch(uint8_t note, uint8_t velocity);
+  static void NoteOnHandlerRpsRecording(uint8_t note, uint8_t velocity);
+
+  static void NoteOffHandlerLatch(uint8_t note);
+  static void NoteOffHandlerDefault(uint8_t note);
+  
+  static void StepHandlerArp(int8_t delta);
+  static void StepHandlerSequencer(int8_t delta);
+  static void StepHandlerImprovisation(int8_t delta);
 
   static int16_t internal_clock_counter_;
   static int8_t midi_clock_counter_;
@@ -107,9 +129,14 @@ class VoiceController {
   // After 4 beats without event, the sequencer is not active. The LED stops
   // blinking and the sequencer will restart from the first note in the pattern. 
   static uint8_t active_;
-  static uint8_t adding_notes_to_latched_arpeggio_;
   static uint8_t inactive_steps_;
   static uint8_t previous_mode_;
+  
+  // We are in "recording mode" when:
+  // - The arpeggiator is set to "latch" and a first key has been pressed.
+  // - We are in one of the two "latch and record" modes and the first key
+  // is being pressed.
+  static uint8_t recording_;
 
   // In order to sync the LFOs to an external MIDI clock, we need to estimate at
   // which BPM the master MIDI clock is running. This attemps to track this by
@@ -117,8 +144,11 @@ class VoiceController {
   static uint16_t step_duration_estimator_num_;
   static uint8_t step_duration_estimator_den_;
   static uint16_t estimated_beat_duration_;
+
+  static EventHandler handler_;
+  static EventHandler handler_table_[];
   
-  static const SequencerSettings* sequencer_settings_;
+  static SequencerSettings* sequencer_settings_;
 
   DISALLOW_COPY_AND_ASSIGN(VoiceController);
 };
