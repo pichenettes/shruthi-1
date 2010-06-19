@@ -604,7 +604,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
   } else {
     pitch_target_ = (static_cast<uint16_t>(note) << 7);
   }
-  if (!legato || (!engine.system_settings_.legato & legato != 255)) {
+  if (!legato || (!engine.system_settings_.legato && legato != 255)) {
     TriggerEnvelope(ATTACK);
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're

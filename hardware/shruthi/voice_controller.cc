@@ -61,6 +61,9 @@ uint8_t VoiceController::active_;
 uint8_t VoiceController::inactive_steps_;
 uint8_t VoiceController::previous_mode_;
 uint8_t VoiceController::recording_;
+uint8_t VoiceController::recording_note_;
+uint8_t VoiceController::recording_gate_;
+uint8_t VoiceController::will_stop_at_step_;
 
 uint16_t VoiceController::step_duration_estimator_num_;
 uint8_t VoiceController::step_duration_estimator_den_;
@@ -68,19 +71,20 @@ uint16_t VoiceController::estimated_beat_duration_;
 EventHandler VoiceController::handler_;
 EventHandler VoiceController::handler_table_[] = {
   /* SEQUENCER_MODE_STEP */
-  { NoteOnHandlerArpStep, NoteOffHandlerDefault, NULL },
+  { NoteOnHandlerArpStep, NoteOffHandlerDefault, NULL, 0 },
   /* SEQUENCER_MODE_ARP */
-  { NoteOnHandlerArpStep, NoteOffHandlerDefault, StepHandlerArp },
+  { NoteOnHandlerArpStep, NoteOffHandlerDefault, StepHandlerArp, 1 },
   /* SEQUENCER_MODE_ARP_LATCH */
-  { NoteOnHandlerArpLatch, NoteOffHandlerLatch, StepHandlerArp },
+  { NoteOnHandlerArpLatch, NoteOffHandlerLatch, StepHandlerArp, 2 },
   /* SEQUENCER_MODE_RPS */
-  { NoteOnHandlerRps, NoteOffHandlerDefault, StepHandlerSequencer },
+  { NoteOnHandlerRps, NoteOffHandlerDefault, StepHandlerSequencer, 3 },
   /* SEQUENCER_MODE_RPS_LATCH */
-  { NoteOnHandlerRpsLatch, NoteOffHandlerLatch, StepHandlerSequencer },
+  { NoteOnHandlerRpsLatch, NoteOffHandlerLatch, StepHandlerSequencer, 3 },
+  /* SEQUENCER_MODE_REC */
+  { NoteOnHandlerRpsRecording, NoteOffHandlerRpsRecording,
+    StepHandlerSequencer, 3 },
   /* SEQUENCER_MODE_IMPROVISATION */
-  { NoteOnHandlerRps, NoteOffHandlerDefault, StepHandlerImprovisation },
-  /* SEQUENCER_MODE_REC_LOOPER */
-  { NoteOnHandlerRpsLatch, NULL, StepHandlerSequencer }
+  { NoteOnHandlerRps, NoteOffHandlerDefault, StepHandlerImprovisation, 3 }
 };
 /* </static> */
 
@@ -194,14 +198,29 @@ void VoiceController::ComputeExpandedPatternSize() {
 
 /* static */
 void VoiceController::TouchSequence() {
-  // When switching from one mode to another, it is safe to stop the sequencer
-  // Otherwise we might end up with stuck notes, for example (switching from
-  // sequencer to arpeggiator), or from the sequencer starting unexpectedly
-  // (switching from latched arpeggiator to sequencer).
   if (sequencer_settings_->seq_mode != previous_mode_) {
+    // When switching between the arpeggiator / sequencer / steps only mode,
+    // reset everything, otherwise we might end up with stuck notes!
+    if (handler_table_[sequencer_settings_->seq_mode].kind != \
+        handler_table_[previous_mode_].kind) {
+      StopAndKillNotes();
+    } else {
+      if (notes_.size()) {
+        if (previous_mode_ == SEQUENCER_MODE_REC) {
+          // When switching from the recording mode to the standard mode, we need
+          // to forget which key was used to start/stop... otherwise it will be
+          // interpreted as a transposition key.
+          notes_.Clear();
+          notes_.NoteOn(60, 80);
+        }
+        if (sequencer_settings_->seq_mode == SEQUENCER_MODE_REC) {
+          will_stop_at_step_ = 0xff;
+          recording_ = 1;
+        }
+      }
+    }
     previous_mode_ = sequencer_settings_->seq_mode;
-    StopAndKillNotes();
-  }
+  }   
   pattern_ = ResourcesManager::Lookup<uint16_t, uint8_t>(
       lut_res_arpeggiator_patterns,
       sequencer_settings_->arp_pattern);
@@ -290,13 +309,23 @@ void VoiceController::NoteOnHandlerRpsRecording(
   if (notes_.size() == 0) {
     Start();
     notes_.NoteOn(note, velocity);
+    will_stop_at_step_ = 0xff;
     recording_ = 1;
   } else if (notes_.most_recent_note().note == note) {
     StopAndKillNotes();
+    recording_note_ = 0;
     recording_ = 0;
   } else {
+    if (will_stop_at_step_ == 0xff) {
+      will_stop_at_step_ = pattern_step_;
+    }
     sequencer_settings_->steps[pattern_step_].set_note(note);
+    sequencer_settings_->steps[pattern_step_].set_legato(0);
+    sequencer_settings_->steps[pattern_step_].set_gate(1);
     sequencer_settings_->steps[pattern_step_].set_velocity(velocity);
+    recording_note_ = note;
+    recording_gate_ = 1;
+    voices_[0].Trigger(note, velocity, 0);
   }
 }
 
@@ -332,7 +361,13 @@ void VoiceController::NoteOffHandlerDefault(uint8_t note) {
     }
   } 
 }
-  
+
+/* static */
+void VoiceController::NoteOffHandlerRpsRecording(uint8_t note) {
+  recording_gate_ = 0;
+  voices_[0].Release();
+}
+
 /* static */
 void VoiceController::NoteOn(uint8_t note, uint8_t velocity) {
   if (velocity == 0) {
@@ -341,7 +376,6 @@ void VoiceController::NoteOn(uint8_t note, uint8_t velocity) {
     (*handler_.handle_note_on)(note, velocity);
   }
 }
-
 
 void VoiceController::NoteOff(uint8_t note) {
   if (handler_.handle_note_off) {
@@ -542,16 +576,33 @@ void VoiceController::StepHandlerArp(int8_t delta) {
 
 /* static */
 void VoiceController::StepHandlerSequencer(int8_t delta) {
-  int8_t transpose = recording_ ? 0 : notes_.most_recent_note().note - 60;
   if (notes_.size()) {
-    const SequenceStep& step = sequencer_settings_->steps[pattern_step_];
-    if (step.gate()) {
-      voices_[0].Trigger(
-          step.note() + transpose,
-          step.velocity(),
-          step.legato());
+    if (pattern_step_ == will_stop_at_step_) {
+      will_stop_at_step_ = 0xff;
+    }
+    if (will_stop_at_step_ != 0xff) {
+      if (recording_gate_) {
+        sequencer_settings_->steps[pattern_step_].set_note(recording_note_);
+        sequencer_settings_->steps[pattern_step_].set_velocity(4);
+        sequencer_settings_->steps[pattern_step_].set_legato(1);
+        sequencer_settings_->steps[pattern_step_].set_gate(1);
+      } else {
+        sequencer_settings_->steps[pattern_step_].set_note(recording_note_);
+        sequencer_settings_->steps[pattern_step_].set_velocity(4);
+        sequencer_settings_->steps[pattern_step_].set_legato(0);
+        sequencer_settings_->steps[pattern_step_].set_gate(0);
+      }
     } else {
-      voices_[0].Release();
+      int8_t transpose = recording_ ? 0 : notes_.most_recent_note().note - 60;
+      const SequenceStep& step = sequencer_settings_->steps[pattern_step_];
+      if (step.gate()) {
+        voices_[0].Trigger(
+            step.note() + transpose,
+            step.velocity(),
+            step.legato() ? 255 : 0);
+      } else {
+        voices_[0].Release();
+      }
     }
   }
 }
@@ -564,7 +615,7 @@ void VoiceController::StepHandlerImprovisation(int8_t delta) {
       voices_[0].Trigger(
           step.note() + notes_.most_recent_note().note - 60,
           step.velocity(),
-          step.legato());
+          step.legato() ? 255 : 0);
     }
   }
 }

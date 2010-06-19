@@ -298,8 +298,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_ARPSLT 175  // arp+lt
 #define STR_RES__SEQ 176  //  seq
 #define STR_RES_SEQSLT 177  // seq+lt
-#define STR_RES_IMPRO 178  // impro
-#define STR_RES_LOOPER 179  // looper
+#define STR_RES_REC 178  // rec
+#define STR_RES_IMPRO 179  // impro
 #define STR_RES_FREE 180  // free
 #define STR_RES_SLAVE 181  // slave
 #define STR_RES_MASTER 182  // master

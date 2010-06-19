@@ -41,12 +41,14 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
   typedef hardware_hal::DataTypeForSize<data_size>::Type Value;
   MidiDispatcher() { }
 
-  // ------ MIDI IN handling ---------------------------------------------------
+  // ------ MIDI in handling ---------------------------------------------------
 
   // Forwarded to the controller.
   static inline void NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     display.set_status('\x01');
-    engine.NoteOn(channel, note, velocity);
+    if (!editor.HandleNoteOn(note, velocity)) {
+      engine.NoteOn(channel, note, velocity);
+    }
   }
   static inline void NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
     engine.NoteOff(channel, note, velocity);
@@ -95,38 +97,19 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
     }
   }
   
-  static void Reset() {
-    engine.Reset();
-  }
-  
-  static void Clock() {
-    engine.Clock();
-  }
-  static void Start() {
-    engine.Start();
-  }
-  static void Stop() {
-    engine.Stop();
-  }
+  static void Reset() { engine.Reset(); }
+  static void Clock() { engine.Clock(); }
+  static void Start() { engine.Start(); }
+  static void Stop() { engine.Stop(); }
   
   static void SysExStart() {
-    if (mode() >= MIDI_OUT_FULL) {
-      Send(0xf0, NULL, 0);
-    }
-    Storage::SysExReceive(0xf0);
+    ProcessSysEx(0xf0);
   }
   static void SysExByte(uint8_t sysex_byte) {
-    display.set_status('~');
-    if (mode() >= MIDI_OUT_FULL) {
-      Send(sysex_byte, NULL, 0);
-    }
-    Storage::SysExReceive(sysex_byte);
+    ProcessSysEx(sysex_byte);
   }
   static void SysExEnd() {
-    if (mode() >= MIDI_OUT_FULL) {
-      Send(0xf7, NULL, 0);
-    }
-    Storage::SysExReceive(0xf7);
+    ProcessSysEx(0xf7);
     if (Storage::sysex_rx_state() == RECEPTION_OK) {
       display.set_status('+');
       engine.TouchPatch(0);
@@ -170,7 +153,7 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
     }
   }
   
-  // --------- MIDI OUT handling -----------------------------------------------
+  // ------ MIDI out handling --------------------------------------------------
   static void NoteKilled(uint8_t note);
   static void NoteTriggered(uint8_t note, uint8_t velocity);
   static void Send(uint8_t status, uint8_t* data, uint8_t size);
@@ -188,6 +171,14 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
  private:
   static uint8_t data_entry_counter_;
   static uint8_t current_parameter_index_;
+  
+  static void ProcessSysEx(uint8_t byte) {
+    if (mode() >= MIDI_OUT_FULL) {
+      Send(byte, NULL, 0);
+    }
+    Storage::SysExReceive(byte);
+  }
+  
   static uint8_t mode() { return engine.system_settings().midi_out_mode; }
   static uint8_t channel() {
     return engine.system_settings().midi_channel == 0

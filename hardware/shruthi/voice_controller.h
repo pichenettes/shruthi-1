@@ -44,6 +44,8 @@ struct EventHandler {
   void (*handle_note_on)(uint8_t note, uint8_t velocity);
   void (*handle_note_off)(uint8_t note);
   void (*handle_step)(int8_t delta);
+  uint8_t kind;
+  uint8_t padding;
 };
 
 class VoiceController {
@@ -96,6 +98,7 @@ class VoiceController {
 
   static void NoteOffHandlerLatch(uint8_t note);
   static void NoteOffHandlerDefault(uint8_t note);
+  static void NoteOffHandlerRpsRecording(uint8_t note);
   
   static void StepHandlerArp(int8_t delta);
   static void StepHandlerSequencer(int8_t delta);
@@ -134,9 +137,14 @@ class VoiceController {
   
   // We are in "recording mode" when:
   // - The arpeggiator is set to "latch" and a first key has been pressed.
-  // - We are in one of the two "latch and record" modes and the first key
-  // is being pressed.
+  // - The "rec" sequencer mode has been activated.
   static uint8_t recording_;
+  static uint8_t recording_note_;
+  static uint8_t recording_gate_;
+  // This indicates at which step we must stop recording (1 pattern cycle). Set
+  // to 0xff when we're still waiting for a note to be played to initiate
+  // recording.
+  static uint8_t will_stop_at_step_;  
 
   // In order to sync the LFOs to an external MIDI clock, we need to estimate at
   // which BPM the master MIDI clock is running. This attemps to track this by

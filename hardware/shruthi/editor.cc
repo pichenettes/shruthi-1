@@ -436,6 +436,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
     if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
       JumpToPageGroup(id + GROUP_SEQUENCER_ARPEGGIATOR);
     } else {
+      editor_mode_ = EDITOR_MODE_PATCH;
       JumpToPageGroup(id + GROUP_OSC);
     }
   }
@@ -467,6 +468,23 @@ void Editor::HandleClick() {
     (*ui_handler_[page_definition_[current_page_].ui_type].click_handler)();
   }
   Refresh();
+}
+
+/* static */
+uint8_t Editor::HandleNoteOn(uint8_t note, uint16_t velocity) {
+  uint8_t handled = 0;
+  if (current_page_ == PAGE_SEQ_TRACKER &&
+      display_mode_ == DISPLAY_MODE_EDIT) {
+    engine.mutable_sequencer_settings()->steps[cursor_].set_note(note);
+    engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(velocity);
+    ++cursor_;
+    if (cursor_ >= engine.sequencer_settings().pattern_size) {
+      cursor_ = 0;
+    }
+    Refresh();
+    handled = 1;
+  }
+  return handled;
 }
 
 /* static */
@@ -652,11 +670,12 @@ void Editor::DisplayLoadSavePage() {
 void Editor::MoveSequencerCursor(int8_t direction) {
   int8_t new_cursor = cursor_;
   new_cursor += direction;
+  const SequencerSettings& seq = engine.sequencer_settings();
   if (new_cursor < 0) {
     cursor_ = 0xff;
     current_page_ = page_definition_[current_page_].overall_previous;
     PageChange();
-  } else if (new_cursor >= engine.GetParameter(PRM_SEQ_PATTERN_SIZE)) {
+  } else if (new_cursor >= seq.pattern_size) {
     cursor_ = 0;
     current_page_ = page_definition_[current_page_].overall_next;
     PageChange();
@@ -714,7 +733,7 @@ void Editor::HandleSequencerNavigation(
       case 1:
         {
           cursor_ = value >> 6;
-          uint8_t max_position = engine.GetParameter(PRM_SEQ_PATTERN_SIZE) - 1;
+          uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
           if (cursor_ > max_position) {
             cursor_ = max_position;
           }
@@ -791,7 +810,7 @@ void Editor::HandleTrackerInput(
     case 0:
       {
         cursor_ = value >> 6;
-        uint8_t max_position = engine.GetParameter(PRM_SEQ_PATTERN_SIZE) - 1;
+        uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
         if (cursor_ > max_position) {
           cursor_ = max_position;
         }

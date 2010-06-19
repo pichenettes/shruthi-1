@@ -170,6 +170,11 @@ class Editor {
 
   // Handles a click on the encoder.
   static void HandleClick();
+  
+  // The editor can react to a note on. This is used for step-by-step
+  // pattern programming. This function returns true when the note has been
+  // recorded in the sequence. In this case, it is not processed!
+  static uint8_t HandleNoteOn(uint8_t note, uint16_t velocity);
 
   // Displays variants of the current page.
   static void Refresh();
@@ -210,6 +215,7 @@ class Editor {
   // Output and Input handling for all the different category of pages.
   static void DisplayEditOverviewPage();
   static void DisplayEditDetailsPage();
+  
   static void HandleEditInput(uint8_t knob_index, uint16_t value);
   static void HandleEditIncrement(int8_t direction);
 
@@ -238,6 +244,7 @@ class Editor {
   static void ToggleLoadSaveAction();
   static void HandleLoadSaveIncrement(int8_t direction);
   static void HandleLoadSaveClick();
+  
   static void RestoreEditBuffer();
   static int8_t edited_item_number();
   static void set_edited_item_number(int8_t value);
