@@ -192,7 +192,6 @@ class Editor {
 
  private:
   // This is called whenever we move to another page.
-  static void PageChange();
   static void PrettyPrintParameterValue(const ParameterDefinition& parameter,
                                         char* buffer, uint8_t width);
 
@@ -205,6 +204,8 @@ class Editor {
   static uint8_t KnobIndexToParameterId(uint8_t knob_index);
 
   static void JumpToPageGroup(uint8_t id);
+  static void PageChange();
+  static void ShowEditCursor();
 
   // Output and Input handling for all the different category of pages.
   static void DisplayEditOverviewPage();

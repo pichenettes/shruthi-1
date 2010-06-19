@@ -250,13 +250,13 @@ void Editor::PageChange() {
       memset(locked_, 0, kNumEditingPots);
     }
   }
+  display.set_cursor_position(kLcdNoCursor);
 }
 
 /* static */
 void Editor::JumpToPageGroup(uint8_t group) {
   cursor_ = 0;
   assign_in_progress_ = 0;
-  display.set_cursor_position(kLcdNoCursor);
   display_mode_ = DISPLAY_MODE_OVERVIEW;
   subpage_ = 0;
   // If we move to another group, go to the last visited page in this group.
@@ -279,6 +279,13 @@ void Editor::Relax() {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
     Refresh();
   }
+}
+
+/* static */
+void Editor::ShowEditCursor() {
+  display.set_cursor_position(kLcdWidth + cursor_);
+  display.set_cursor_character(
+      display_mode_ == DISPLAY_MODE_EDIT ? kLcdEditCursor : kLcdCursor);
 }
 
 /* static */
@@ -634,9 +641,7 @@ void Editor::DisplayLoadSavePage() {
     }
   }
   if (action_ == ACTION_SAVE && is_cursor_at_valid_position()) {
-    display.set_cursor_position(kLcdWidth + cursor_);
-    display.set_cursor_character(
-        display_mode_ == DISPLAY_MODE_EDIT ? kLcdEditCursor : kLcdCursor);
+    ShowEditCursor();
   } else {
     display.set_cursor_position(kLcdNoCursor);
   }
@@ -650,15 +655,14 @@ void Editor::MoveSequencerCursor(int8_t direction) {
   if (new_cursor < 0) {
     cursor_ = 0xff;
     current_page_ = page_definition_[current_page_].overall_previous;
-    display.set_cursor_position(kLcdNoCursor);
+    PageChange();
   } else if (new_cursor >= engine.GetParameter(PRM_SEQ_PATTERN_SIZE)) {
     cursor_ = 0;
     current_page_ = page_definition_[current_page_].overall_next;
-    display.set_cursor_position(kLcdNoCursor);
+    PageChange();
   } else {
     cursor_ = new_cursor;
   }
-  PageChange();
 }
 
 /* static */
@@ -685,9 +689,7 @@ void Editor::DisplayStepSequencerPage() {
     line_buffer_[seq.pattern_size] = '|';
   }
   display.Print(1, line_buffer_);
-  display.set_cursor_position(kLcdWidth + cursor_);
-  display.set_cursor_character(
-      display_mode_ == DISPLAY_MODE_EDIT ? kLcdEditCursor : kLcdCursor);
+  ShowEditCursor();
 }
 
 /* static */
@@ -859,9 +861,7 @@ void Editor::DisplayPageRPage() {
     line_buffer_[engine.sequencer_settings().pattern_size] = '|';
   }
   display.Print(1, line_buffer_);
-  display.set_cursor_position(kLcdWidth + cursor_);
-  display.set_cursor_character(
-      display_mode_ == DISPLAY_MODE_EDIT ? kLcdEditCursor : kLcdCursor);
+  ShowEditCursor();
 }
 
 /* static */
