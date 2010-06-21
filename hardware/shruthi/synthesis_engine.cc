@@ -286,9 +286,16 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
           const ParameterDefinition& p = (
               ParameterDefinitions::parameter_definition(
                   nrpn_parameter_number_));
-          // TODO(pichenettes): test fails when parameter is signed!!
-          if (value >= p.min_value && value <= p.max_value) {
-            SetParameter(nrpn_parameter_number_, value);
+          if (p.unit == UNIT_INT8) {
+            int8_t signed_value = static_cast<int8_t>(value);
+            if (signed_value >= static_cast<int8_t>(p.min_value) &&
+                signed_value <= static_cast<int8_t>(p.max_value)) {
+              SetParameter(nrpn_parameter_number_, value);
+            }
+          } else {
+            if (value >= p.min_value && value <= p.max_value) {
+              SetParameter(nrpn_parameter_number_, value);
+            }
           }
         }
         data_entry_msb_ = 0;
