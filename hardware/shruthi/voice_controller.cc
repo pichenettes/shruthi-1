@@ -130,7 +130,7 @@ void VoiceController::Reset() {
     inactive_steps_ = 0;
     pattern_mask_ = 0xffff;
     internal_clock_counter_ = 0;
-    midi_clock_counter_ = 0;
+    midi_clock_counter_ = 1;  // We'll receive a clock message just afterwards.
     step_duration_estimator_num_ = 0xffff;
     step_duration_estimator_den_ = 0xff;
     expanded_pattern_step_ = expanded_pattern_size_ - 1;

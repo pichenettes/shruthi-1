@@ -25,6 +25,7 @@
 #include "hardware/hal/devices/external_eeprom.h"
 #include "hardware/hal/devices/shift_register.h"
 #include "hardware/shruthi/display.h"
+#include "hardware/shruthi/oscillator.h"
 #include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/op.h"
 
@@ -51,6 +52,9 @@ uint8_t Storage::load_buffer_[sizeof(Patch)];
 uint8_t Storage::sysex_rx_buffer_[129];
 
 /* static */
+uint8_t* Storage::sysex_rx_destination_;
+
+/* static */
 uint8_t Storage::undo_buffer_[sizeof(Patch)];
 
 /* static */
@@ -73,9 +77,14 @@ static const prog_char sysex_rx_header[] PROGMEM = {
   0xf0,  // <SysEx>
   0x00, 0x20, 0x77,  // TODO(pichenettes): register manufacturer ID.
   0x00, 0x02,  // Product ID for Shruthi-1.
-  // 0x01: patch transfer, 0x02: sequence transfer, 0x40: big dump
-  // 0x00: extra argument byte not used for patch/sequence transfer, used
-  // to number blocks during big dump.
+  // Then:
+  // * Command byte:
+  // - 0x01: patch transfer
+  // - 0x02: sequence transfer
+  // - 0x03: waveform transfer
+  // - 0x40: big dump
+  // * Argument byte:
+  // Not used for 0x01-0x03, but used for block numbering for 0x40.
 };
 
 
@@ -148,6 +157,7 @@ void Storage::SysExBulkDump() {
 void Storage::SysExParseCommand() {
   sysex_rx_bytes_received_ = 0;
   sysex_rx_state_ = RECEIVING_DATA;
+  sysex_rx_destination_ = sysex_rx_buffer_;
   switch (sysex_rx_command_[0]) {
     case 0x01:  // Patch transfer
       sysex_rx_expected_size_ = StorageConfiguration<Patch>::size;
@@ -156,6 +166,11 @@ void Storage::SysExParseCommand() {
     case 0x02:  // Sequence transfer
       sysex_rx_expected_size_ = \
           StorageConfiguration<SequencerSettings>::size;
+      break;
+      
+    case 0x03:  // Wavetable dump
+      sysex_rx_destination_ = user_wavetable;
+      sysex_rx_expected_size_ = kUserWavetableSize;
       break;
         
     case 0x40:  // Raw data dump
@@ -180,7 +195,11 @@ void Storage::SysExAcceptBuffer() {
       success = AcceptData(engine.mutable_sequencer_settings(),
                            sysex_rx_buffer_);
       break;
-      
+    
+    case 0x03:
+      success = 1;
+      break;
+    
     case 0x40:  // Raw data dump
       {
         ProgressBar::Write((1 << (sysex_rx_command_[1] & 7)) * 2 - 1);
@@ -236,12 +255,12 @@ void Storage::SysExReceive(uint8_t sysex_rx_byte) {
       {
         uint16_t i = sysex_rx_bytes_received_ >> 1;
         if (sysex_rx_bytes_received_ & 1) {
-          sysex_rx_buffer_[i] |= sysex_rx_byte & 0xf;
+          sysex_rx_destination_[i] |= sysex_rx_byte & 0xf;
           if (i < sysex_rx_expected_size_) {
-            sysex_rx_checksum_ += sysex_rx_buffer_[i];
+            sysex_rx_checksum_ += sysex_rx_destination_[i];
           }
         } else {
-          sysex_rx_buffer_[i] = ShiftLeft4(sysex_rx_byte);
+          sysex_rx_destination_[i] = ShiftLeft4(sysex_rx_byte);
         }
         sysex_rx_bytes_received_++;
         if (sysex_rx_bytes_received_ >= (1 + sysex_rx_expected_size_) * 2) {
@@ -251,8 +270,8 @@ void Storage::SysExReceive(uint8_t sysex_rx_byte) {
     break;
 
   case RECEIVING_FOOTER:
-    if (sysex_rx_byte == 0xf7 /*&&
-        sysex_rx_checksum_ == sysex_rx_buffer_[sysex_rx_expected_size_]*/) {
+    if (sysex_rx_byte == 0xf7 &&
+        sysex_rx_checksum_ == sysex_rx_destination_[sysex_rx_expected_size_]) {
       SysExAcceptBuffer();
     } else {
       sysex_rx_state_ = RECEPTION_ERROR;

@@ -83,6 +83,12 @@ void SynthesisEngine::Init() {
   }
   nrpn_parameter_number_ = 255;
   dirty_ = 0;
+  
+  // Fill the "user" wavetable with data from an existing wavetable.
+  ResourcesManager::Load(
+      wav_res_low_res_wavetable_2,
+      user_wavetable,
+      kUserWavetableSize);
 }
 
 static const prog_char init_patch[] PROGMEM = {
@@ -280,6 +286,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
           const ParameterDefinition& p = (
               ParameterDefinitions::parameter_definition(
                   nrpn_parameter_number_));
+          // TODO(pichenettes): test fails when parameter is signed!!
           if (value >= p.min_value && value <= p.max_value) {
             SetParameter(nrpn_parameter_number_, value);
           }
@@ -384,12 +391,15 @@ void SynthesisEngine::Clock() {
 
 /* static */
 void SynthesisEngine::Start() {
+  if (sequencer_settings_.seq_mode >= SEQUENCER_MODE_RPS) {
+    controller_.NoteOn(60, 100);
+  }
   controller_.Start();
 }
 
 /* static */
 void SynthesisEngine::Stop() {
-  controller_.Stop();
+  controller_.StopAndKillNotes();
 }
 
 /* static */

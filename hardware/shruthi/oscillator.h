@@ -30,6 +30,7 @@
 
 #include "hardware/shruthi/patch.h"
 #include "hardware/shruthi/resources.h"
+#include "hardware/shruthi/synthesis_engine.h"
 #include "hardware/utils/random.h"
 #include "hardware/utils/op.h"
 
@@ -38,6 +39,7 @@ using hardware_utils::Random;
 
 static const uint16_t kWavetableSize = 16 * 257;
 static const uint16_t kLowResWavetableSize = 16 * 129;
+static const uint16_t kUserWavetableSize = 8 * 129;
 
 namespace hardware_shruthi {
 
@@ -47,6 +49,8 @@ namespace hardware_shruthi {
 static inline uint8_t ReadSample(const prog_uint8_t* table, uint16_t phase) {
   return ResourcesManager::Lookup<uint8_t, uint8_t>(table, phase >> 8);
 }
+
+extern uint8_t user_wavetable[];
 
 #ifdef USE_OPTIMIZED_OP
 static inline uint8_t InterpolateSample(
@@ -74,6 +78,31 @@ static inline uint8_t InterpolateSample(
   );
   return result;
 }
+static inline uint8_t InterpolateSampleRam(
+    const uint8_t* table,
+    uint16_t phase) {
+  uint8_t result;
+  asm(
+    "movw r30, %A1"           "\n\t"  // copy base address to r30:r31
+    "add r30, %B2"            "\n\t"  // increment table address by phaseH
+    "adc r31, r1"             "\n\t"  // just carry
+    "ld %0, z+"               "\n\t"  // load sample[n]
+    "ld r1, z+"               "\n\t"  // load sample[n+1]
+    "mul %A2, r1"             "\n\t"  // multiply second sample by phaseL
+    "movw r30, r0"            "\n\t"  // result to accumulator
+    "com %A2"                 "\n\t"  // 255 - phaseL -> phaseL
+    "mul %A2, %0"             "\n\t"  // multiply first sample by phaseL
+    "com %A2"                 "\n\t"  // 255 - phaseL -> phaseL
+    "add r30, r0"             "\n\t"  // accumulate L
+    "adc r31, r1"             "\n\t"  // accumulate H
+    "eor r1, r1"              "\n\t"  // reset r1 after multiplication
+    "mov %0, r31"             "\n\t"  // use sum H as output
+    : "=r" (result)
+    : "a" (table), "a" (phase)
+    : "r30", "r31"
+  );
+  return result;
+}
 #else
 static inline uint8_t InterpolateSample(const prog_uint8_t* table,
                                         uint16_t phase) {
@@ -81,6 +110,10 @@ static inline uint8_t InterpolateSample(const prog_uint8_t* table,
       ResourcesManager::Lookup<uint8_t, uint8_t>(table, phase >> 8),
       ResourcesManager::Lookup<uint8_t, uint8_t>(table, 1 + (phase >> 8)),
       phase & 0xff);
+}
+static inline uint8_t InterpolateSampleRam(const uint8_t* table,
+                                           uint16_t phase) {
+  return Mix(table[phase >> 8], table[1 + (phase >> 8)], phase & 0xff);
 }
 #endif  // USE_OPTIMIZED_OP
 
@@ -338,18 +371,14 @@ class Oscillator {
     const prog_uint8_t* base_address = waveform_table[
         WAV_RES_WAVETABLE_1 + shape_ - WAVEFORM_WAVETABLE_1];
     data_.sw.wave[0] = base_address + offset;
-    
+    data_.sw.wave[1] = data_.sw.wave[0];
     if (high_resolution) {
       if (offset < kWavetableSize - 257) {
-        data_.sw.wave[1] = base_address + (offset + 257);
-      } else {
-        data_.sw.wave[1] = base_address + offset;
+        data_.sw.wave[1] += 257;
       }
     } else {
-      if (offset < kWavetableSize / 2 - 129) {
-        data_.sw.wave[1] = base_address + (offset + 129);
-      } else {
-        data_.sw.wave[1] = base_address + offset;
+      if (offset < kLowResWavetableSize - 129) {
+        data_.sw.wave[1] += 129;
       }
     }
     data_.sw.high_resolution = high_resolution;
@@ -364,6 +393,31 @@ class Oscillator {
     held_sample_ = InterpolateTwoTables(
         data_.st.wave[0], data_.st.wave[1],
         phase, data_.st.balance);
+  }
+  
+  // The position is freely determined by the parameter
+  static void UpdateSweepingWavetableRam() {
+    uint8_t balance_index = Swap4(parameter_);
+    data_.sw.balance = balance_index & 0xf0;
+    uint8_t wave_index = balance_index & 0xf;
+    
+    uint16_t offset = wave_index << 7;
+    offset += wave_index;
+    data_.sw.wave[0] = user_wavetable + offset;
+    data_.sw.wave[1] = data_.sw.wave[0];
+    if (offset < kUserWavetableSize - 129) {
+      data_.sw.wave[1] += 129;
+    }
+  }
+  
+  static void RenderSweepingWavetableRam() {
+    phase_ += phase_increment_;
+    uint16_t phase = phase_;
+    phase >>= 1;
+    held_sample_ = Mix(
+        InterpolateSampleRam(data_.sw.wave[0], phase),
+        InterpolateSampleRam(data_.sw.wave[1], phase),
+        data_.st.balance);
   }
 
   // ------- Casio CZ-like synthesis -------------------------------------------
@@ -657,6 +711,7 @@ template<int id> AlgorithmFn Oscillator<id>::fn_table_[] = {
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
   { &Osc::UpdateSweepingWavetable, &Osc::RenderSweepingWavetable },
+  { &Osc::UpdateSweepingWavetableRam, &Osc::RenderSweepingWavetableRam },
   
   { &Osc::UpdateSilence, &Osc::Render8BitLand },
   { &Osc::UpdateSilence, &Osc::RenderCrushedSine },

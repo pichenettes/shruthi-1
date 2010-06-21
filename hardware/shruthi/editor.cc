@@ -789,8 +789,13 @@ void Editor::DisplayTrackerPage() {
   }
   if (cursor_ > 0) {
     engine.sequencer_settings().PrintStep(cursor_ - 1, line_buffer_);
+  } else {
+    // This is an invisible character. It is just there to prevent the status
+    // indicator to be printed on the last column instead of the first.
+    line_buffer_[kLcdWidth - 1] = 0xfe;
   }
   display.Print(0, line_buffer_);
+
   engine.sequencer_settings().PrintStep(cursor_, line_buffer_);
   line_buffer_[0] = 0x7e;
   display.Print(1, line_buffer_);

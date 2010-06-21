@@ -173,6 +173,7 @@ class Storage {
   static uint8_t undo_buffer_[sizeof(Patch)];
   static uint8_t load_buffer_[sizeof(Patch)];
   static uint8_t sysex_rx_buffer_[129];
+  static uint8_t* sysex_rx_destination_;
   static uint16_t sysex_rx_bytes_received_;
   static uint16_t sysex_rx_expected_size_;
   static uint8_t sysex_rx_state_;

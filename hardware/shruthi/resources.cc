@@ -272,6 +272,7 @@ static const prog_char str_res_bowed[] PROGMEM = "bowed";
 static const prog_char str_res_slap[] PROGMEM = "slap";
 static const prog_char str_res_organ[] PROGMEM = "organ";
 static const prog_char str_res_male[] PROGMEM = "male";
+static const prog_char str_res_user[] PROGMEM = "user";
 static const prog_char str_res_8bits[] PROGMEM = "8bits";
 static const prog_char str_res_crush[] PROGMEM = "crush";
 static const prog_char str_res_pwm[] PROGMEM = "pwm";
@@ -567,6 +568,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_slap,
   str_res_organ,
   str_res_male,
+  str_res_user,
   str_res_8bits,
   str_res_crush,
   str_res_pwm,
