@@ -86,14 +86,22 @@ static const uint8_t kPinEncoderB = 0;
 static const uint8_t kPinEncoderClick = 2;
 
 // Shift registers / muxes.
-static const uint8_t kPinData = 23;
+
 static const uint8_t kPinDigitalInput = 6;
-static const uint8_t kPinLatch = 22;
 static const uint8_t kPinClk = 7;
 
-// RS and Enable lines for LCD display
+#ifdef HARDWARE_REV_02
+static const uint8_t kPinData = 23;
+static const uint8_t kPinLatch = 22;
 static const uint8_t kPinLcdRs = 20;
 static const uint8_t kPinLcdEnable = 21;
+#else
+static const uint8_t kPinData = 5;
+static const uint8_t kPinLcdRs = 17;
+static const uint8_t kPinLcdEnable = 18;
+static const uint8_t kPinLatch = 19;
+#endif  // HARDWARE_REV_02
+
 
 // PWM/audio output.
 static const uint8_t kPinVcoOut = 12;
@@ -105,6 +113,14 @@ static const uint8_t kPinCv2Out = 4;
 
 static const uint8_t kPinAnalogInput = 0;
 static const uint8_t kPinCvInput = 4;
+
+#ifdef HARDWARE_REV_02
+#define MidiPort SerialPort1
+#define LcdNibble PARALLEL_NIBBLE_LOW
+#else
+#define MidiPort SerialPort0
+#define LcdNibble PARALLEL_NIBBLE_HIGH
+#endif  // HARDWARE_REV_02
 
 // ---- LCD display type -------------------------------------------------------
 

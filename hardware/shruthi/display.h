@@ -30,6 +30,7 @@
 using hardware_hal::BufferedDisplay;
 using hardware_hal::Gpio;
 using hardware_hal::Hd44780Lcd;
+using hardware_hal::PARALLEL_NIBBLE_HIGH;
 using hardware_hal::PARALLEL_NIBBLE_LOW;
 using hardware_hal::ParallelPort;
 using hardware_hal::PortC;
@@ -39,7 +40,7 @@ namespace hardware_shruthi {
 typedef Hd44780Lcd<
     Gpio<kPinLcdRs>,
     Gpio<kPinLcdEnable>,
-    ParallelPort<PortC, PARALLEL_NIBBLE_LOW> > Lcd;
+    ParallelPort<PortC, LcdNibble> > Lcd;
 
 extern Lcd lcd;
 extern BufferedDisplay<Lcd> display;

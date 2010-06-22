@@ -290,7 +290,7 @@ void Storage::WriteExternal(
   e.Init();
   uint16_t written = e.Write(address, data, size);
   e.Done();
-  lcd.EnableRefresh();  
+  lcd.EnableRefresh();
 }
 
 /* static */

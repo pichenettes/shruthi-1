@@ -40,7 +40,7 @@ using hardware_utils::NaiveScheduler;
 using hardware_utils::Task;
 
 // Midi input.
-Serial<SerialPort1, 31250, BUFFERED, POLLED> midi_io;
+Serial<MidiPort, 31250, BUFFERED, POLLED> midi_io;
 
 // Input event handlers.
 typedef MuxedAnalogInput<kPinAnalogInput> PotsMux;
