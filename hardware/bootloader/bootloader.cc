@@ -32,9 +32,9 @@
 
 using namespace hardware_hal;
 
-ShiftRegisterInput<Gpio<22>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> switches;
-ShiftRegisterOutput<Gpio<22>, Gpio<7>, Gpio<23>, 8, MSB_FIRST> status_leds;
-Serial<SerialPort1, 31250, POLLED, DISABLED> midi;
+ShiftRegisterInput<Gpio<19>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> switches;
+ShiftRegisterOutput<Gpio<19>, Gpio<7>, Gpio<5>, 8, MSB_FIRST> status_leds;
+Serial<SerialPort0, 31250, POLLED, DISABLED> midi;
 
 uint16_t page = 0;
 uint8_t rx_buffer[2 * (SPM_PAGESIZE + 1)];

@@ -95,11 +95,13 @@ static const uint8_t kPinData = 23;
 static const uint8_t kPinLatch = 22;
 static const uint8_t kPinLcdRs = 20;
 static const uint8_t kPinLcdEnable = 21;
+static const uint8_t kMidiRxPin = 10;
 #else
 static const uint8_t kPinData = 5;
-static const uint8_t kPinLcdRs = 17;
+static const uint8_t kPinLcdRs = 10;
 static const uint8_t kPinLcdEnable = 18;
 static const uint8_t kPinLatch = 19;
+static const uint8_t kMidiRxPin = 8;
 #endif  // HARDWARE_REV_02
 
 

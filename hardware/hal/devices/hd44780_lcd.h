@@ -138,6 +138,7 @@ class Hd44780Lcd {
 
   static inline void DisableRefresh() {
     if (transmitting_) {
+      transmitting_ = 0;
       EndWrite();
     }
     enabled_ = 0;
@@ -222,7 +223,7 @@ class Hd44780Lcd {
     SlowWrite(LCD_DATA | (value & 0x0f));
   }
 
-  static uint8_t transmitting_;
+  static volatile uint8_t transmitting_;
   static volatile uint8_t enabled_;
   static volatile uint8_t blink_counter_;
 
@@ -232,8 +233,8 @@ class Hd44780Lcd {
 /* static */
 template<typename RsPin, typename EnablePin, typename ParallelPort,
          uint8_t width, uint8_t height>
-uint8_t Hd44780Lcd<RsPin, EnablePin, ParallelPort, width,
-                   height>::transmitting_;
+volatile uint8_t Hd44780Lcd<RsPin, EnablePin, ParallelPort, width,
+                            height>::transmitting_;
 
 /* static */
 template<typename RsPin, typename EnablePin, typename ParallelPort,

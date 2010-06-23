@@ -110,6 +110,7 @@ class I2cMaster {
     I2cInterrupt::clear();
     I2cEnable::clear();
     I2cAck::clear();
+    i2c_handler_ = NULL;
     DigitalInput<16>::DisablePullUpResistor();
     DigitalInput<17>::DisablePullUpResistor();
   }

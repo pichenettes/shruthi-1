@@ -15,6 +15,7 @@
 
 #include "hardware/hal/adc.h"
 #include "hardware/hal/audio_output.h"
+#include "hardware/hal/devices/external_eeprom.h"
 #include "hardware/hal/devices/input_array.h"
 #include "hardware/hal/devices/output_array.h"
 #include "hardware/hal/devices/rotary_encoder.h"
@@ -289,7 +290,7 @@ void Init() {
   audio_out.Init();
   
   // In case the bootloader has not done it, enable the pull-up on the MIDI in.
-  DigitalInput<10>::EnablePullUpResistor();
+  DigitalInput<kMidiRxPin>::EnablePullUpResistor();
   midi_io.Init();
   pots.Init();
   switches.Init();
@@ -316,6 +317,9 @@ void Init() {
   lcd.SetCustomCharMapRes(character_table[0], 8, 0);
 
   editor.Init();
+#ifndef HARDWARE_REV_02
+  ExternalEeprom<>::Init();
+#endif
 
   engine.Init();
   if (engine.system_settings().display_splash_screen) {
