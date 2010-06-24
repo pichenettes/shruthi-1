@@ -28,13 +28,7 @@
 #include "hardware/hal/i2c/i2c.h"
 #include "hardware/hal/time.h"
 
-#include "hardware/hal/devices/shift_register.h"
-
 namespace hardware_hal {
-  typedef ShiftRegisterOutput<Gpio<19>, Gpio<7>, Gpio<5>, 8, MSB_FIRST> status_leds;
-
-
-
 
 template<uint16_t eeprom_size = kDefaultExternalEepromSize /* bytes */,
         typename Bus = I2cMaster<8, 64>,
@@ -61,7 +55,6 @@ class ExternalEeprom {
     uint16_t read = 0;
     while (size > 0) {
       // Try to read as much as possible from the buffer from the previous op.
-      status_leds::Write(0x33);
       while (Bus::readable() && size) {
         --size;
         ++read;
@@ -69,11 +62,9 @@ class ExternalEeprom {
       }
       // We need to request more data, but no more than the size of a block.
       if (size) {
-        status_leds::Write(0x55);
         Bus::Wait();
         uint8_t requested = size > block_size ? block_size : size;
         Bus::Request((base_address + bank_) | 0x50, requested);
-        status_leds::Write(0xbb);
         if (Bus::Wait() != I2C_ERROR_NONE) {
           return size - read;
         }
