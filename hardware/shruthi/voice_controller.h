@@ -118,6 +118,7 @@ class VoiceController {
   static uint8_t pattern_step_;
   static uint8_t expanded_pattern_step_;
   static uint8_t expanded_pattern_size_;
+  static uint8_t expanded_pattern_[256];
 
   // Incremented/decremented by 1 for up/down pattern.
   static int8_t arp_step_;

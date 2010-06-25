@@ -48,6 +48,7 @@ uint16_t VoiceController::pattern_mask_;
 uint8_t VoiceController::pattern_step_;
 uint8_t VoiceController::expanded_pattern_step_;
 uint8_t VoiceController::expanded_pattern_size_;
+uint8_t VoiceController::expanded_pattern_[256];
 
 int8_t VoiceController::arp_step_;
 int8_t VoiceController::arp_current_direction_;
@@ -160,38 +161,69 @@ void VoiceController::AllNotesOff() {
 void VoiceController::ComputeExpandedPatternSize() {
   uint8_t flow = sequencer_settings_->arp_flow;
   uint8_t pattern_size = sequencer_settings_->pattern_size;
-  if (flow >= FLOW_KRAMA_2) {
+  if (flow >= FLOW_GLASS_2) {
     pattern_size >>= 1;
   }
-  if (flow >= FLOW_KRAMA_4) {
+  if (flow >= FLOW_GLASS_4) {
     pattern_size >>= 1;
   }
-  switch (flow & 0x3) {
+  switch (flow) {
     case FLOW_NORMAL:
-      expanded_pattern_size_ = flow < 4
-          ? pattern_size
-          : 2 * (pattern_size - 1);
+      expanded_pattern_size_ = pattern_size;
       break;
     case FLOW_REVERSE:
-      expanded_pattern_size_ = flow < 4
-          ? pattern_size
-          : 6 * (pattern_size - 1);
+      expanded_pattern_size_ = pattern_size;
       break;
     case FLOW_BACK_FORTH_1:
-      expanded_pattern_size_ = flow < 4
-          ? 2 * pattern_size
-          : 9 * (pattern_size - 2);
+      expanded_pattern_size_ = 2 * pattern_size;
       break;
     case FLOW_BACK_FORTH_2:
-      expanded_pattern_size_ = flow < 4
-          ? 2 * (pattern_size - 1)
-          : 13 * (pattern_size - 2);
+      expanded_pattern_size_ = 2 * (pattern_size - 1);
       break;
+    default:
+      {
+        uint8_t flow_type = flow - FLOW_GLASS;
+        while (flow_type >= 5) {
+          flow_type -= 5;
+        }
+        switch (flow_type) {
+          case 0:
+            // Compute a Philip Glass-like sequence expansion.
+            expanded_pattern_size_ = 0;
+            for (uint8_t i = 0; i < pattern_size; ++i) {
+              for (uint8_t j = 0; j < i + 1; ++j) {
+                expanded_pattern_[expanded_pattern_size_++] = j;
+              }
+            }
+            for (uint8_t i = 0; i < pattern_size; ++i) {
+              for (uint8_t j = i + 1; j < pattern_size; ++j) {
+                expanded_pattern_[expanded_pattern_size_++] = j;
+              }
+            }
+            break;
+          
+          case 1:
+            expanded_pattern_size_ = 2 * (pattern_size - 1);
+            break;
+          
+          case 2:
+            expanded_pattern_size_ = 6 * (pattern_size - 1);
+            break;
+          
+          case 3:
+            expanded_pattern_size_ = 9 * (pattern_size - 2);
+            break;
+          
+          case 4:
+            expanded_pattern_size_ = 13 * (pattern_size - 2);
+            break;
+        }
+    }
   }
-  if (flow >= FLOW_KRAMA_2) {
+  if (flow >= FLOW_GLASS_2) {
     expanded_pattern_size_ <<= 1;
   }
-  if (flow >= FLOW_KRAMA_4) {
+  if (flow >= FLOW_GLASS_4) {
     expanded_pattern_size_ <<= 1;
   }
 }
@@ -391,10 +423,10 @@ int8_t VoiceController::FoldPattern() {
   uint8_t step = expanded_pattern_step_;
   uint8_t flow = sequencer_settings_->arp_flow;
   uint8_t pattern_size = sequencer_settings_->pattern_size;
-  if (flow >= FLOW_KRAMA_2) {
+  if (flow >= FLOW_GLASS_2) {
     step >>= 1;
   }
-  if (flow >= FLOW_KRAMA_4) {
+  if (flow >= FLOW_GLASS_4) {
     step >>= 1;
   }
   switch (flow) {
@@ -415,15 +447,25 @@ int8_t VoiceController::FoldPattern() {
       break;
 
     default:
-      pattern_step_ = ResourcesManager::Lookup<uint8_t, uint8_t>(
-          waveform_table[WAV_RES_EXPANSION_KRAMA + (flow & 0x3)],
-          step);
+      {
+        uint8_t flow_type = flow - FLOW_GLASS;
+        while (flow_type >= 5) {
+          flow_type -= 5;
+        }
+        if (flow_type == 0) {
+          pattern_step_ = expanded_pattern_[step];
+        } else {
+          pattern_step_ = ResourcesManager::Lookup<uint8_t, uint8_t>(
+              waveform_table[WAV_RES_EXPANSION_KRAMA + flow_type - 1],
+              step);
+        }
+      }
       break;
   }
-  if (flow >= FLOW_KRAMA_4) {
+  if (flow >= FLOW_GLASS_4) {
     pattern_step_ <<= 2;
     pattern_step_ += (expanded_pattern_step_ & 0x3);
-  } else if (flow >= FLOW_KRAMA_2) {
+  } else if (flow >= FLOW_GLASS_2) {
     pattern_step_ <<= 1;
     pattern_step_ += (expanded_pattern_step_ & 0x1);
   }
@@ -449,7 +491,8 @@ uint8_t VoiceController::Control() {
 
   // Advance to the next step.
   ++expanded_pattern_step_;
-  if (expanded_pattern_step_ >= expanded_pattern_size_) {
+  if (expanded_pattern_size_ &&
+      expanded_pattern_step_ >= expanded_pattern_size_) {
     expanded_pattern_step_ = 0;
   }
 

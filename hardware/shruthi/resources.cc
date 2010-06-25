@@ -212,14 +212,17 @@ static const prog_char str_res_T[] PROGMEM = "~";
 static const prog_char str_res___[] PROGMEM = "";
 static const prog_char str_res_T_[] PROGMEM = "~-";
 static const prog_char str_res__T_[] PROGMEM = "~";
+static const prog_char str_res_glass[] PROGMEM = "glass";
 static const prog_char str_res_krama[] PROGMEM = "krama";
 static const prog_char str_res_jata[] PROGMEM = "jata";
 static const prog_char str_res_sikha[] PROGMEM = "sikha";
 static const prog_char str_res_ghana[] PROGMEM = "ghana";
+static const prog_char str_res_2glass[] PROGMEM = "2glass";
 static const prog_char str_res_2krama[] PROGMEM = "2krama";
 static const prog_char str_res_2jata[] PROGMEM = "2jata";
 static const prog_char str_res_2sikha[] PROGMEM = "2sikha";
 static const prog_char str_res_2ghana[] PROGMEM = "2ghana";
+static const prog_char str_res_4glass[] PROGMEM = "4glass";
 static const prog_char str_res_4krama[] PROGMEM = "4krama";
 static const prog_char str_res_4jata[] PROGMEM = "4jata";
 static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
@@ -508,14 +511,17 @@ PROGMEM const prog_char* string_table[] = {
   str_res___,
   str_res_T_,
   str_res__T_,
+  str_res_glass,
   str_res_krama,
   str_res_jata,
   str_res_sikha,
   str_res_ghana,
+  str_res_2glass,
   str_res_2krama,
   str_res_2jata,
   str_res_2sikha,
   str_res_2ghana,
+  str_res_4glass,
   str_res_4krama,
   str_res_4jata,
   str_res_4sikha,

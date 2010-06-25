@@ -218,14 +218,17 @@ master
  \x7f
 \x7e-\x7f
  \x7e\x7f
+glass
 krama
 jata
 sikha
 ghana
+2glass
 2krama
 2jata
 2sikha
 2ghana
+4glass
 4krama
 4jata
 4sikha

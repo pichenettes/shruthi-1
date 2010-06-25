@@ -18,6 +18,7 @@
 
 AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
 AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
+PROGRAMMER     = avrispmkII
 
 TARGET         = muboot
 PACKAGES       = hardware/bootloader
@@ -104,7 +105,7 @@ $(BUILD_DIR)/%.sym: $(BUILD_DIR)/%.elf
 AVRDUDE_CONF     = $(AVR_ETC_PATH)/avrdude.conf
 AVRDUDE_COM_OPTS = -V -p $(DMCU)
 AVRDUDE_COM_OPTS += -C $(AVRDUDE_CONF)
-AVRDUDE_ISP_OPTS = -c avrispmkII -P usb -Ulock:w:0x0F:m
+AVRDUDE_ISP_OPTS = -c $(PROGRAMMER) -P usb -Ulock:w:0x0F:m
 
 
 # ------------------------------------------------------------------------------

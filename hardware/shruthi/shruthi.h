@@ -89,7 +89,7 @@ static const uint8_t kPinEncoderClick = 2;
 
 static const uint8_t kPinDigitalInput = 6;
 static const uint8_t kPinClk = 7;
-
+#define HARDWARE_REV_02
 #ifdef HARDWARE_REV_02
 static const uint8_t kPinData = 23;
 static const uint8_t kPinLatch = 22;
