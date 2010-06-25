@@ -232,6 +232,7 @@ static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
 static const prog_char str_res_push[] PROGMEM = "push";
 static const prog_char str_res_lag[] PROGMEM = "lag";
 static const prog_char str_res_human[] PROGMEM = "human";
+static const prog_char str_res_monkey[] PROGMEM = "monkey";
 static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res___seq[] PROGMEM = "seq";
@@ -531,6 +532,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_push,
   str_res_lag,
   str_res_human,
+  str_res_monkey,
   str_res__off,
   str_res_thru,
   str_res___seq,
@@ -910,6 +912,10 @@ const prog_uint16_t lut_res_groove_human[] PROGMEM = {
       88,   -101,    107,    -95,     88,    -88,     50,    -38,
       65,    -88,    101,    -95,    101,   -127,     63,    -31,
 };
+const prog_uint16_t lut_res_groove_monkey[] PROGMEM = {
+      70,    -84,     84,   -112,     84,    -98,    112,    -98,
+      54,    -70,    127,    -84,    127,   -112,     84,    -84,
+};
 
 
 PROGMEM const prog_uint16_t* lookup_table_table[] = {
@@ -956,6 +962,7 @@ PROGMEM const prog_uint16_t* lookup_table_table[] = {
   lut_res_groove_push,
   lut_res_groove_lag,
   lut_res_groove_human,
+  lut_res_groove_monkey,
 };
 
 const prog_uint8_t wav_res_formant_sine[] PROGMEM = {
@@ -4175,7 +4182,6 @@ const prog_uint8_t* waveform_table[] = {
 };
 
 const prog_uint8_t chr_res_special_characters[] PROGMEM = {
-       0,      0,      0,      0,      0,      0,      0,      0,
        2,      3,      3,      2,      2,     14,     30,     12,
        0,      0,      0,      4,      4,     14,     17,     31,
        4,     14,     21,      4,      4,      4,      4,      0,

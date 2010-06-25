@@ -314,7 +314,7 @@ void Init() {
 
   lcd.Init();
   display.Init();
-  lcd.SetCustomCharMapRes(character_table[0], 8, 0);
+  lcd.SetCustomCharMapRes(character_table[0], 7, 1);
 
   editor.Init();
 #ifndef HARDWARE_REV_02

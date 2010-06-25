@@ -239,6 +239,7 @@ shuffle
 push
 lag
 human
+monkey
 
  off
 thru
