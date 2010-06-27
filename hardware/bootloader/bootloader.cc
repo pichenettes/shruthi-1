@@ -1,4 +1,4 @@
-// Copyright 2009 Olivier Gillet.
+// Copyright 2010 Olivier Gillet.
 //
 // Adapted by Olivier Gillet (ol.gillet@gmail.com) from the original Arduino
 // bootloader contributed by: D. Mellis, D. Cuartielles, Dr. Erik Lins,
@@ -18,7 +18,7 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Bootloader compatible with STK500 and MIDI SysEx, for ATMega644p.
+// Bootloader supporting MIDI SysEx update.
 //
 // Caveat: assumes the firmware flashing is always done from first to last
 // block, in increasing order. Random access flashing is not supported!
