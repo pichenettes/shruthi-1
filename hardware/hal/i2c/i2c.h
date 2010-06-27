@@ -90,6 +90,9 @@ class I2cMaster {
   typedef typename DataTypeForSize<I2cInput<0>::data_size>::Type Value;
 
   static void Init() {
+    DigitalInput<16>::EnablePullUpResistor();
+    DigitalInput<17>::EnablePullUpResistor();
+
     // Prescaler is set to a factor of 1.
     Prescaler0::clear();
     Prescaler1::clear();
@@ -108,6 +111,8 @@ class I2cMaster {
     I2cEnable::clear();
     I2cAck::clear();
     i2c_handler_ = NULL;
+    DigitalInput<16>::DisablePullUpResistor();
+    DigitalInput<17>::DisablePullUpResistor();
   }
 
   static uint8_t Wait() {

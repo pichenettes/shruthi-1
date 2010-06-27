@@ -297,7 +297,7 @@ void Init() {
   encoder.Init();
   leds.Init();
   
-  // Initialize all the PWM outputs, in 31.25kHz, phase correct mode.
+  // Initialize all the PWM outputs to 39kHz, phase correct mode.
   Timer<0>::set_prescaler(1);
   Timer<0>::set_mode(TIMER_PWM_PHASE_CORRECT);
   Timer<1>::set_prescaler(1);
