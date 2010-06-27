@@ -71,13 +71,26 @@ JUNINESS = 1.0
 CAUSAL = False
 
 
-def Scale(array, min=0, max=255, center=True):
+def Dither(x, order=0, type=numpy.uint8):
+  for i in xrange(order):
+    x = numpy.hstack((numpy.zeros(1,), numpy.cumsum(x)))
+  x = numpy.round(x)
+  for i in xrange(order):
+    x = numpy.diff(x)
+  if any(x < numpy.iinfo(type).min) or any(x > numpy.iinfo(type).max):
+    print 'Clipping occurred!'
+  x[x < numpy.iinfo(type).min] = numpy.iinfo(type).min
+  x[x > numpy.iinfo(type).max] = numpy.iinfo(type).max
+  return x.astype(type)
+
+
+def Scale(array, min=1, max=254, center=True, dither=2):
   if center:
     array -= array.mean()
   mx = numpy.abs(array).max()
   array = (array + mx) / (2 * mx)
   array = array * (max - min) + min
-  return numpy.round(array).astype(int)
+  return Dither(array, order=dither)
 
 
 def MinimumPhaseReconstruction(signal, fft_size=16384):
@@ -92,7 +105,6 @@ def MinimumPhaseReconstruction(signal, fft_size=16384):
 # Sine wave.
 numpy.random.seed(21)
 sine = -numpy.sin(numpy.arange(WAVETABLE_SIZE + 1) / float(WAVETABLE_SIZE) * 2 * numpy.pi) * 127.5 + 127.5
-sine += numpy.random.rand(WAVETABLE_SIZE + 1) - 0.5
 
 # Band limited waveforms.
 num_zones = (107 - 24) / 16 + 2
@@ -259,4 +271,4 @@ Waveshapper/distorsion
 signal_range = ((numpy.arange(0, 256) / 128.0 - 1.0))
 fuzz = numpy.tanh(6.0 * signal_range) * 128.0 + 128.0
 
-waveforms.append(('distortion', Scale(fuzz)))
+waveforms.append(('distortion', Scale(fuzz, dither=0)))
