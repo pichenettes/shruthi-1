@@ -86,6 +86,8 @@ def Near(a, b, tolerance=1.1):
 
 i_min = CutoffToIcontrol(cutoff_min)
 i_max = CutoffToIcontrol(cutoff_max)
+print 'imin', i_min
+print 'imax', i_max
 
 print 'Expected control current range:', i_min, i_max
 

@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION        = 0.1
+VERSION        = 0.9
 TARGET         = shruthi1
 PACKAGES       = hardware/base hardware/hal hardware/hal/i2c hardware/hal/devices hardware/midi hardware/utils hardware/shruthi
 RESOURCES      = hardware/shruthi/resources
@@ -29,18 +29,3 @@ resources:	$(wildcard $(RESOURCES)/*.py)
 		python $(RESOURCE_COMPILER) $(RESOURCES)/resources.py
 
 include $(DEP_FILE)
-
-
-# ------------------------------------------------------------------------------
-# Patch libraries
-# ------------------------------------------------------------------------------
-
-LIBRARIAN = hardware/tools/librarian/librarian.py
-
-dump_patches: eeprom_backup
-	$(LIBRARIAN) -d $(EEPROM_DATA) > $(PATCH_LIBRARY)
-
-upload_patches:
-	$(LIBRARIAN) -c $(PATCH_LIBRARY) > $(EEPROM_DATA)
-	$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_SER_OPTS) \
-		-U eeprom:w:$(EEPROM_DATA):i
