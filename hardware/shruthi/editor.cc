@@ -1167,6 +1167,13 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
         prefix = 'x';
       }
       break;
+    case UNIT_LFO_WAVEFORM:
+      if (value >= LFO_WAVEFORM_WAVE_1) {
+        text = NULL;
+        value = value - LFO_WAVEFORM_WAVE_1 + 1;
+        prefix = '\x05';
+      }
+      break;
     case UNIT_TEMPO_WITH_EXTERNAL_CLOCK:
       if (value < 40) {
         value = value - 35;

@@ -27,6 +27,7 @@
 #include "hardware/base/base.h"
 #include "hardware/shruthi/envelope.h"
 #include "hardware/shruthi/patch.h"
+#include "hardware/shruthi/resources.h"
 #include "hardware/shruthi/sequencer_settings.h"
 #include "hardware/shruthi/shruthi.h"
 #include "hardware/utils/random.h"
@@ -56,6 +57,10 @@ class Lfo {
     
     // Compute the LFO value.
     switch (shape_) {
+      case LFO_WAVEFORM_RAMP:
+        value = phase_ >> 8;
+        break;
+        
       case LFO_WAVEFORM_S_H:
         if (triggered_) {
           value_ = Random::GetByte();
@@ -82,7 +87,13 @@ class Lfo {
         break;
         
       default:
-        value = phase_ >> 8;
+        {
+          uint8_t shape_offset = shape_ - LFO_WAVEFORM_WAVE_1;
+          value = ResourcesManager::Lookup<uint8_t, uint8_t>(
+              wav_res_low_res_wavetable_7 + (
+                  static_cast<uint16_t>(shape_offset) << 7) + shape_offset,
+              phase_ >> 9);
+        }
         break;
     }
     previous_phase_ = phase_;
