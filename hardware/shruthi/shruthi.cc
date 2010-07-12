@@ -289,8 +289,6 @@ void Init() {
   scheduler.Init();
   audio_out.Init();
   
-  // In case the bootloader has not done it, enable the pull-up on the MIDI in.
-  DigitalInput<kMidiRxPin>::EnablePullUpResistor();
   midi_io.Init();
   pots.Init();
   switches.Init();

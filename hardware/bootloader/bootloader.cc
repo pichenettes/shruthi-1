@@ -32,8 +32,8 @@
 
 using namespace hardware_hal;
 
-ShiftRegisterInput<Gpio<19>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> switches;
-ShiftRegisterOutput<Gpio<19>, Gpio<7>, Gpio<5>, 8, MSB_FIRST> status_leds;
+ShiftRegisterInput<Gpio<10>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> switches;
+ShiftRegisterOutput<Gpio<10>, Gpio<7>, Gpio<5>, 8, MSB_FIRST> status_leds;
 Serial<SerialPort0, 31250, POLLED, DISABLED> midi;
 
 uint16_t page = 0;
@@ -49,10 +49,6 @@ inline void Init() {
 
   status_leds.Init();
   switches.Init();
-
-  // Enable pull-up resistor on RX pins.
-  DigitalInput<8>::EnablePullUpResistor();
-  DigitalInput<10>::EnablePullUpResistor();
 }
 
 void WriteBufferToFlash() {
