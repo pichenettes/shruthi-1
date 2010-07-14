@@ -216,7 +216,7 @@ We provide in the rest of this section a validation of the selected values.
 
 \paragraph{Input impedance} Greater than $30k\Omega$, all good!
 
-\paragraph{OTA small voltage constraint} The signal output by the digital oscillator is in the $0-5V$ range, then AC-coupled and scaled by a gain of $0.47$ in the input mixer. The signal at the input of the OTA-C cells has thus a range of $\frac{R_s}{R_b + R_s} \times 0.47 \times 5 = 50mV$. But wait, there's a cheat... the value of the resistors of the first OTA-C cell are different ($R_b = 22k\Omega$, instead of $10k\Omega$) to provide a higher attenuation, which prevents the filter from clipping and going instable when entering self-oscillation. This has the slightly annoying side effect of shifting one of the poles of the filter roughly one octave lower. Yes, this is a dirty trick, which wouldn't have been necessary if the circuit was powered by $\pm 12V$ rails (more headroom for the op-amps) or if we have allowed ourself a nasty LED or diode soft-clipping on the resonance feedback path. Anyway... with this higher attenuation factor, the input signal swing is $25mV$, gently hitting the non-linearity area of the OTA.
+\paragraph{OTA small voltage constraint} The signal output by the digital oscillator is in the $0-5V$ range, then AC-coupled and scaled by a gain of $0.22$ in the input mixer. The signal at the input of the OTA-C cells has thus a range of $\frac{R_s}{R_b + R_s} \times 0.22 \times 5 = 25mV$.
 
 \paragraph{OTA small current constraint} The worst case corresponds to the maximum cutoff value, which can be obtained with an input signal $V_{fin} = 5V$, $R_{35}$ trimmed to 0, and $R_{34}$ trimmed to $20k\Omega$. In this case, $V_{freq} = 128mV$ and $I_{freq} = 2mA$, small enough to avoid destroying the LM13700.
 
@@ -248,7 +248,7 @@ TODO
 \begin{itemize}
 \item Stricter temperature compensation on the exponential converter.
 \item Try the ``PNP + swapped $Q7$/$Q8$" trick to avoid the extra transistors in the exponential converter.
-\item LED clipping in the feedback loop to tame the filter instability~-- ideally one shouldn't have to trim the resonance feedback gain.
+\item LED clipping in the feedback loop to tame the resonance strength~-- ideally one shouldn't have to trim the resonance feedback gain.
 \end{itemize}
 
 \end{document}
