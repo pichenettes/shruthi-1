@@ -12,3 +12,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
 include hardware/shruthi/makefile
+
+FIRMWARE      = $(BUILD_DIR)/shruthi1.hex
+BOOTLOADER    = $(BUILD_ROOT)/muboot/muboot.hex
+
+upload_all:	$(FIRMWARE) $(BOOTLOADER)
+		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
+			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i

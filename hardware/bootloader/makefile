@@ -22,7 +22,8 @@ PROGRAMMER     = avrispmkII
 
 TARGET         = muboot
 PACKAGES       = hardware/bootloader
-BUILD_DIR      = build/$(TARGET)
+BUILD_ROOT     = build
+BUILD_DIR      = $(BUILD_ROOT)/$(TARGET)
 
 MCU            = atmega644p
 DMCU           = m644p

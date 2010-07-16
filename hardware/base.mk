@@ -15,7 +15,8 @@
 
 AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
 AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
-BUILD_DIR      = build/$(TARGET)
+BUILD_ROOT     = build
+BUILD_DIR      = $(BUILD_ROOT)/$(TARGET)
 PROGRAMMER     = avrispmkII
 
 MCU_NAME       = 644
