@@ -257,6 +257,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static uint8_t nrpn_parameter_number_msb_;
   static uint8_t data_entry_msb_;
   static uint8_t dirty_;
+  static uint8_t ignore_note_off_messages_;  // For hold pedal.
 
   // Called whenever a parameter related to LFOs/envelopes is modified (for now
   // everytime a parameter is modified by the user).

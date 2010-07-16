@@ -26,6 +26,7 @@ const uint8_t kModulationWheelMsb = 0x01;
 const uint8_t kDataEntryMsb = 0x06;
 const uint8_t kDataEntryLsb = 0x26;
 const uint8_t kPortamentoTimeMsb = 0x05;
+const uint8_t kHoldPedal = 0x40;
 const uint8_t kHarmonicIntensity = 0x47;
 const uint8_t kRelease = 0x48;
 const uint8_t kAttack = 0x49;

@@ -64,6 +64,7 @@ uint8_t SynthesisEngine::num_lfo_reset_steps_;
 uint8_t SynthesisEngine::lfo_reset_counter_;
 uint8_t SynthesisEngine::lfo_to_reset_;
 uint8_t SynthesisEngine::dirty_;
+uint8_t SynthesisEngine::ignore_note_off_messages_;
 
 /* </static> */
 
@@ -233,6 +234,9 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
 
 /* static */
 void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
+  if (ignore_note_off_messages_) {
+    return;
+  }
   if (system_settings_.midi_out_mode >= MIDI_OUT_1_0) {
     polychaining_allocator_.set_size(
         system_settings_.midi_out_mode - MIDI_OUT_1_0 + 1);
@@ -299,6 +303,14 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
           }
         }
         data_entry_msb_ = 0;
+        break;
+      case hardware_midi::kHoldPedal:
+        if (value >= 64) {
+          ignore_note_off_messages_ = 1;
+        } else {
+          ignore_note_off_messages_ = 0;
+          controller_.AllNotesOff();
+        }
         break;
       case hardware_midi::kPortamentoTimeMsb:
         system_settings_.portamento = value;
