@@ -112,11 +112,9 @@ static const prog_char init_patch[] PROGMEM = {
     MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
     MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
     MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
+    MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 0,
     MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
     MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
-    // By default, the resonance tracks the note. Tracking works best when the
-    // transistors are thermically coupled.
-    MOD_SRC_NOTE, MOD_DST_FILTER_CUTOFF, 63,
     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
     MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
     MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_COARSE, 32,
@@ -789,6 +787,13 @@ inline void Voice::Control() {
     }
   }
   // Hardcoded filter modulations.
+  // By default, the resonance tracks the note. Tracking works best when the
+  // transistors are thermically coupled. You can disable tracking by applying
+  // a negative modulation from NOTE to CUTOFF.
+  dst[MOD_DST_FILTER_CUTOFF] = Clip(
+      dst[MOD_DST_FILTER_CUTOFF] + pitch_value_ - 8192,
+      0,
+      16383);
   dst[MOD_DST_FILTER_CUTOFF] = Clip(
       dst[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
           engine.patch_.filter_env,

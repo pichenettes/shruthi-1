@@ -237,7 +237,7 @@ static const prog_char raw_parameter_definition[
   PRM_SEQ_GROOVE_AMOUNT,
   0, 127,
   UNIT_RAW_UINT8,
-  STR_RES_AMOUNT, STR_RES_AMOUNT,
+  STR_RES_AMT, STR_RES_AMOUNT,
 
   // Arpeggiator.
   PRM_ARP_DIRECTION,
