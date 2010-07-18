@@ -180,7 +180,7 @@ static const prog_char str_res_patch[] PROGMEM = "patch";
 static const prog_char str_res_sequence[] PROGMEM = "sequence";
 static const prog_char str_res_save_midi_kbd[] PROGMEM = "save midi/kbd";
 static const prog_char str_res_settings_[] PROGMEM = "settings?";
-static const prog_char str_res_start_full_midi[] PROGMEM = "start full MIDI";
+static const prog_char str_res_start_full_midi[] PROGMEM = "start full midi";
 static const prog_char str_res_backup_[] PROGMEM = "backup?";
 static const prog_char str_res_load[] PROGMEM = "load";
 static const prog_char str_res_save[] PROGMEM = "save";
@@ -239,14 +239,14 @@ static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res___seq[] PROGMEM = "seq";
 static const prog_char str_res_split[] PROGMEM = "split";
 static const prog_char str_res_full[] PROGMEM = "full";
-static const prog_char str_res_1__[] PROGMEM = "1>|";
-static const prog_char str_res_2_1[] PROGMEM = "2>1";
-static const prog_char str_res_3_2[] PROGMEM = "3>2";
-static const prog_char str_res_4_3[] PROGMEM = "4>3";
-static const prog_char str_res_5_4[] PROGMEM = "5>4";
-static const prog_char str_res_6_5[] PROGMEM = "6>5";
-static const prog_char str_res_7_6[] PROGMEM = "7>6";
-static const prog_char str_res_8_7[] PROGMEM = "8>7";
+static const prog_char str_res_1T_[] PROGMEM = "1~|";
+static const prog_char str_res_2T1[] PROGMEM = "2~1";
+static const prog_char str_res_3T2[] PROGMEM = "3~2";
+static const prog_char str_res_4T3[] PROGMEM = "4~3";
+static const prog_char str_res_5T4[] PROGMEM = "5~4";
+static const prog_char str_res_6T5[] PROGMEM = "6~5";
+static const prog_char str_res_7T6[] PROGMEM = "7~6";
+static const prog_char str_res_8T7[] PROGMEM = "8~7";
 static const prog_char str_res_tri[] PROGMEM = "tri";
 static const prog_char str_res_sqr[] PROGMEM = "sqr";
 static const prog_char str_res_s_h[] PROGMEM = "s&h";
@@ -540,14 +540,14 @@ PROGMEM const prog_char* string_table[] = {
   str_res___seq,
   str_res_split,
   str_res_full,
-  str_res_1__,
-  str_res_2_1,
-  str_res_3_2,
-  str_res_4_3,
-  str_res_5_4,
-  str_res_6_5,
-  str_res_7_6,
-  str_res_8_7,
+  str_res_1T_,
+  str_res_2T1,
+  str_res_3T2,
+  str_res_4T3,
+  str_res_5T4,
+  str_res_6T5,
+  str_res_7T6,
+  str_res_8T7,
   str_res_tri,
   str_res_sqr,
   str_res_s_h,

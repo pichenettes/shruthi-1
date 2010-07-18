@@ -276,7 +276,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_SEQUENCE 152  // sequence
 #define STR_RES_SAVE_MIDI_KBD 153  // save midi/kbd
 #define STR_RES_SETTINGS_ 154  // settings?
-#define STR_RES_START_FULL_MIDI 155  // start full MIDI
+#define STR_RES_START_FULL_MIDI 155  // start full midi
 #define STR_RES_BACKUP_ 156  // backup?
 #define STR_RES_LOAD 157  // load
 #define STR_RES_SAVE 158  // save
@@ -335,14 +335,14 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES___SEQ 211  //   seq
 #define STR_RES_SPLIT 212  // split
 #define STR_RES_FULL 213  // full
-#define STR_RES_1__ 214  // 1>|
-#define STR_RES_2_1 215  // 2>1
-#define STR_RES_3_2 216  // 3>2
-#define STR_RES_4_3 217  // 4>3
-#define STR_RES_5_4 218  // 5>4
-#define STR_RES_6_5 219  // 6>5
-#define STR_RES_7_6 220  // 7>6
-#define STR_RES_8_7 221  // 8>7
+#define STR_RES_1T_ 214  // 1~|
+#define STR_RES_2T1 215  // 2~1
+#define STR_RES_3T2 216  // 3~2
+#define STR_RES_4T3 217  // 4~3
+#define STR_RES_5T4 218  // 5~4
+#define STR_RES_6T5 219  // 6~5
+#define STR_RES_7T6 220  // 7~6
+#define STR_RES_8T7 221  // 8~7
 #define STR_RES_TRI 222  // tri
 #define STR_RES_SQR 223  // sqr
 #define STR_RES_S_H 224  // s&h
