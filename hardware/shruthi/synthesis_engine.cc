@@ -219,14 +219,14 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     if (system_settings_.midi_out_mode == MIDI_OUT_SPLIT &&
         note >= system_settings_.midi_split_point * 12) {
       midi_dispatcher.Send3(0x90 | channel, note, velocity);
-      return;
+    } else {
+      // If the note controller is not active, we are not currently playing a
+      // sequence, so we retrigger the LFOs.
+      if (!controller_.active()) {
+        lfo_reset_counter_ = num_lfo_reset_steps_ - 1;
+      }
+      controller_.NoteOn(note, velocity);
     }
-    // If the note controller is not active, we are not currently playing a
-    // sequence, so we retrigger the LFOs.
-    if (!controller_.active()) {
-      lfo_reset_counter_ = num_lfo_reset_steps_ - 1;
-    }
-    controller_.NoteOn(note, velocity);
   }
 }
 
@@ -250,9 +250,9 @@ void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
     if (system_settings_.midi_out_mode == MIDI_OUT_SPLIT &&
         note >= system_settings_.midi_split_point * 12) {
       midi_dispatcher.Send3(0x80 | channel, note, 0);
-      return;
+    } else {
+      controller_.NoteOff(note);
     }
-    controller_.NoteOff(note);
   }
 }
 

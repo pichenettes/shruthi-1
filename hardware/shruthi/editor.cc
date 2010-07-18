@@ -556,7 +556,7 @@ void Editor::set_edited_item_number(int8_t value) {
 /* static */
 uint8_t Editor::is_cursor_at_valid_position() {
   uint16_t allowed_cursor_positions = editor_mode_ == EDITOR_MODE_PATCH
-      ? 0x07fb : 0x0003;
+      ? 0x0ff7 : 0x0007;
   return ((1 << cursor_) & allowed_cursor_positions) != 0;
 }
 
@@ -593,14 +593,14 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
         cursor_ = new_cursor;
       }
     } else {
-      if (cursor_ <= 1) {
+      if (cursor_ <= 2) {
         set_edited_item_number(edited_item_number() + direction);      
-      } else if (cursor_ >= 3 && cursor_ < 3 + kPatchNameSize &&
+      } else if (cursor_ >= 4 && cursor_ < 4 + kPatchNameSize &&
                  editor_mode_ == EDITOR_MODE_PATCH) {
-        uint8_t value = engine.patch().name[cursor_ - 3];
+        uint8_t value = engine.patch().name[cursor_ - 4];
         value += direction;
         if (value >= 32 && value <= 128) {
-          engine.mutable_patch()->name[cursor_ - 3] = value;
+          engine.mutable_patch()->name[cursor_ - 4] = value;
         }
       }
     }
@@ -638,18 +638,18 @@ void Editor::DisplayLoadSavePage() {
   display.Print(0, line_buffer_);
 
   if (editor_mode_ == EDITOR_MODE_PATCH) {
-    UnsafeItoa<int16_t>(edited_item_number() + 1, 2, line_buffer_);
-    AlignRight(line_buffer_, 2);
-    memcpy(line_buffer_ + 3, engine.patch().name, kPatchNameSize);
+    UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
+    AlignRight(line_buffer_, 3);
+    memcpy(line_buffer_ + 4, engine.patch().name, kPatchNameSize);
   } else {
-    UnsafeItoa<int16_t>(edited_item_number() + 1, 2, line_buffer_);
-    AlignRight(line_buffer_, 2);
+    UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
+    AlignRight(line_buffer_, 3);
     for (uint8_t i = 0; i < 8; ++i) {
-      line_buffer_[i + 3] = engine.sequencer_settings().steps[i].character();
+      line_buffer_[i + 4] = engine.sequencer_settings().steps[i].character();
     }
   }
-  line_buffer_[2] = ' ';
-  memset(line_buffer_ + 11, ' ', kLcdWidth - 11);
+  line_buffer_[3] = ' ';
+  memset(line_buffer_ + 12, ' ', kLcdWidth - 12);
   if (action_ == ACTION_SAVE) {
     line_buffer_[kLcdWidth - 2] = 'k';
     line_buffer_[kLcdWidth - 3] = 'o';

@@ -132,9 +132,9 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
     uint8_t hi = status & 0xf0;
     // When is parsed midi data forwarded to the MIDI out?
     // - When the data is a channel different from the RX channel.
-    // - When we are in "Full mode".
+    // - When we are in "Full" mode.
     // - When the midi message is not a note on/note off.
-    if (mode() >= MIDI_OUT_FULL) {
+    if (mode() >= MIDI_OUT_SPLIT) {
       if (status != 0xf0 && status != 0xf7) {
         if ((hi != 0x80 && hi != 0x90) ||
             mode() == MIDI_OUT_FULL ||
@@ -173,7 +173,7 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
   static uint8_t current_parameter_index_;
   
   static void ProcessSysEx(uint8_t byte) {
-    if (mode() >= MIDI_OUT_FULL) {
+    if (mode() >= MIDI_OUT_SPLIT) {
       Send(byte, NULL, 0);
     }
     Storage::SysExReceive(byte);

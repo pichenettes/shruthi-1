@@ -180,7 +180,7 @@ patch
 sequence
 save midi/kbd
 settings?
-start full MIDI
+start full midi
 backup?
 load
 save
