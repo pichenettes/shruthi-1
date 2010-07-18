@@ -255,10 +255,10 @@ static const prog_char raw_parameter_definition[
   UNIT_ARPEGGIO_PATTERN,
   STR_RES_PATTERN, STR_RES_PATTERN,
 
-  PRM_ARP_FLOW,
-  FLOW_NORMAL, FLOW_GHANA_4,
-  UNIT_SEQUENCER_FLOW,
-  STR_RES_FLOW, STR_RES_FLOW,
+  PRM_ARP_WARP,
+  WARP_NORMAL, WARP_GHANA_4,
+  UNIT_SEQUENCER_WARP,
+  STR_RES_WRP, STR_RES_WARP,
 
   // Keyboard and system settings.
   PRM_SYS_OCTAVE,
@@ -307,6 +307,11 @@ static const prog_char raw_parameter_definition[
   UNIT_UINT8,
   STR_RES_PAUSE, STR_RES_PAUSE,
   
+  PRM_SYS_DISPLAY_SNAP,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES_SNAP, STR_RES_SNAP,
+
   PRM_SYS_DISPLAY_DELIMITER,
   0, 1,
   UNIT_BOOLEAN,
@@ -317,11 +322,6 @@ static const prog_char raw_parameter_definition[
   UNIT_BOOLEAN,
   STR_RES_SPLASH, STR_RES_SPLASH,
   
-  PRM_SYS_DISPLAY_SNAP,
-  0, 1,
-  UNIT_BOOLEAN,
-  STR_RES_SNAP, STR_RES_SNAP,
-
   PRM_SEQ_PATTERN_ROTATION,
   0, 15,
   UNIT_UINT8,

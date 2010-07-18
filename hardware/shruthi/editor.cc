@@ -1187,6 +1187,8 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
       if (value == kNumArpeggiatorPatterns) {
         value = 0;
         text = STR_RES_SEQUENCER;
+      } else {
+        ++value;
       }
       break;
     case UNIT_SPLIT_POINT:
@@ -1225,6 +1227,7 @@ void Editor::HandleConfirmInput(uint8_t knob_index, uint16_t value) {
 
 /* static */
 void Editor::DisplayConfirmPage() {
+  display.set_cursor_position(kLcdNoCursor);
   for (uint8_t i = 0; i < 2; ++i) {
     ResourcesManager::LoadStringResource(
         confirm_page_settings_.text + i,

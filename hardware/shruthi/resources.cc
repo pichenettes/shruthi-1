@@ -58,7 +58,8 @@ static const prog_char str_res_bpm[] PROGMEM = "bpm";
 static const prog_char str_res_groove[] PROGMEM = "groove";
 static const prog_char str_res_direction[] PROGMEM = "direction";
 static const prog_char str_res_pattern[] PROGMEM = "pattern";
-static const prog_char str_res_flow[] PROGMEM = "flow";
+static const prog_char str_res_warp[] PROGMEM = "warp";
+static const prog_char str_res_wrp[] PROGMEM = "wrp";
 static const prog_char str_res_start[] PROGMEM = "start";
 static const prog_char str_res_length[] PROGMEM = "length";
 static const prog_char str_res_octave[] PROGMEM = "octave";
@@ -358,7 +359,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_groove,
   str_res_direction,
   str_res_pattern,
-  str_res_flow,
+  str_res_warp,
+  str_res_wrp,
   str_res_start,
   str_res_length,
   str_res_octave,

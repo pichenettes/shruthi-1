@@ -39,28 +39,28 @@ enum ArpeggioVelocitySource {
 };
 
 enum Flow {
-  FLOW_NORMAL,
-  FLOW_REVERSE,
-  FLOW_BACK_FORTH_1,
-  FLOW_BACK_FORTH_2,
+  WARP_NORMAL,
+  WARP_REVERSE,
+  WARP_BACK_FORTH_1,
+  WARP_BACK_FORTH_2,
   
-  FLOW_GLASS,
-  FLOW_KRAMA,
-  FLOW_JATA,
-  FLOW_SIKHA,
-  FLOW_GHANA,
+  WARP_GLASS,
+  WARP_KRAMA,
+  WARP_JATA,
+  WARP_SIKHA,
+  WARP_GHANA,
 
-  FLOW_GLASS_2,
-  FLOW_KRAMA_2,
-  FLOW_JATA_2,
-  FLOW_SIKHA_2,
-  FLOW_GHANA_2,
+  WARP_GLASS_2,
+  WARP_KRAMA_2,
+  WARP_JATA_2,
+  WARP_SIKHA_2,
+  WARP_GHANA_2,
 
-  FLOW_GLASS_4,
-  FLOW_KRAMA_4,
-  FLOW_JATA_4,
-  FLOW_SIKHA_4,
-  FLOW_GHANA_4,
+  WARP_GLASS_4,
+  WARP_KRAMA_4,
+  WARP_JATA_4,
+  WARP_SIKHA_4,
+  WARP_GHANA_4,
 };
 
 enum ArpeggioDirection {
@@ -170,7 +170,7 @@ struct SequencerSettings {
   uint8_t arp_direction;
   uint8_t arp_range;
   uint8_t arp_pattern;
-  uint8_t arp_flow;
+  uint8_t arp_warp;
   
   uint8_t pattern_size;
   uint8_t pattern_rotation;
@@ -201,7 +201,7 @@ enum SequencerParameter {
   PRM_ARP_DIRECTION,
   PRM_ARP_RANGE,
   PRM_ARP_PATTERN,
-  PRM_ARP_FLOW,
+  PRM_ARP_WARP,
   
   PRM_SEQ_PATTERN_SIZE,
   PRM_SEQ_PATTERN_ROTATION,

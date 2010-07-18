@@ -132,7 +132,7 @@ static const prog_char init_patch[] PROGMEM = {
 
 static const prog_char init_sequence[] PROGMEM = {
     // Sequencer
-    SEQUENCER_MODE_STEP, 120, 0, FLOW_NORMAL,
+    SEQUENCER_MODE_STEP, 120, 0, WARP_NORMAL,
     ARPEGGIO_DIRECTION_UP, 1, 0, ARPEGGIO_VELOCITY_SOURCE_KEYBOARD,
     
     // Pattern size and pattern
@@ -285,9 +285,20 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         value |= data_entry_msb_;
         if (nrpn_parameter_number_ != 255) {
           dirty_ = 1;
+          // Finds the parameter definition id matching this parameter id.
+          uint8_t parameter_definition_id = nrpn_parameter_number_;
+          if (parameter_definition_id >= PRM_SEQ_MODE) {
+            parameter_definition_id -= PRM_SEQ_MODE;
+            parameter_definition_id += PRM_MOD_ROW + 1;
+          } else if (parameter_definition_id >= PRM_MOD_SOURCE) {
+            while (parameter_definition_id > PRM_MOD_AMOUNT) {
+              parameter_definition_id -= 3;
+            }
+            ++parameter_definition_id;
+          }
           const ParameterDefinition& p = (
               ParameterDefinitions::parameter_definition(
-                  nrpn_parameter_number_));
+                  parameter_definition_id));
           if (p.unit == UNIT_INT8) {
             int8_t signed_value = static_cast<int8_t>(value);
             if (signed_value >= static_cast<int8_t>(p.min_value) &&

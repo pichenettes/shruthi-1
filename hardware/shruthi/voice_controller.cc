@@ -159,34 +159,34 @@ void VoiceController::AllNotesOff() {
 
 /* static */
 void VoiceController::ComputeExpandedPatternSize() {
-  uint8_t flow = sequencer_settings_->arp_flow;
+  uint8_t warp = sequencer_settings_->arp_warp;
   uint8_t pattern_size = sequencer_settings_->pattern_size;
-  if (flow >= FLOW_GLASS_2) {
+  if (warp >= WARP_GLASS_2) {
     pattern_size >>= 1;
   }
-  if (flow >= FLOW_GLASS_4) {
+  if (warp >= WARP_GLASS_4) {
     pattern_size >>= 1;
   }
-  switch (flow) {
-    case FLOW_NORMAL:
+  switch (warp) {
+    case WARP_NORMAL:
       expanded_pattern_size_ = pattern_size;
       break;
-    case FLOW_REVERSE:
+    case WARP_REVERSE:
       expanded_pattern_size_ = pattern_size;
       break;
-    case FLOW_BACK_FORTH_1:
+    case WARP_BACK_FORTH_1:
       expanded_pattern_size_ = 2 * pattern_size;
       break;
-    case FLOW_BACK_FORTH_2:
+    case WARP_BACK_FORTH_2:
       expanded_pattern_size_ = 2 * (pattern_size - 1);
       break;
     default:
       {
-        uint8_t flow_type = flow - FLOW_GLASS;
-        while (flow_type >= 5) {
-          flow_type -= 5;
+        uint8_t warp_type = warp - WARP_GLASS;
+        while (warp_type >= 5) {
+          warp_type -= 5;
         }
-        switch (flow_type) {
+        switch (warp_type) {
           case 0:
             // Compute a Philip Glass-like sequence expansion.
             expanded_pattern_size_ = 0;
@@ -220,10 +220,10 @@ void VoiceController::ComputeExpandedPatternSize() {
         }
     }
   }
-  if (flow >= FLOW_GLASS_2) {
+  if (warp >= WARP_GLASS_2) {
     expanded_pattern_size_ <<= 1;
   }
-  if (flow >= FLOW_GLASS_4) {
+  if (warp >= WARP_GLASS_4) {
     expanded_pattern_size_ <<= 1;
   }
 }
@@ -421,51 +421,51 @@ void VoiceController::NoteOff(uint8_t note) {
 int8_t VoiceController::FoldPattern() {
   int8_t before = pattern_step_;
   uint8_t step = expanded_pattern_step_;
-  uint8_t flow = sequencer_settings_->arp_flow;
+  uint8_t warp = sequencer_settings_->arp_warp;
   uint8_t pattern_size = sequencer_settings_->pattern_size;
-  if (flow >= FLOW_GLASS_2) {
+  if (warp >= WARP_GLASS_2) {
     step >>= 1;
   }
-  if (flow >= FLOW_GLASS_4) {
+  if (warp >= WARP_GLASS_4) {
     step >>= 1;
   }
-  switch (flow) {
-    case FLOW_NORMAL:
+  switch (warp) {
+    case WARP_NORMAL:
       pattern_step_ = step;
       break;
 
-    case FLOW_REVERSE:
+    case WARP_REVERSE:
       pattern_step_ = pattern_size - step - 1;
       break;
 
-    case FLOW_BACK_FORTH_1:
+    case WARP_BACK_FORTH_1:
       pattern_step_ = step < pattern_size ? step : 2 * pattern_size - step - 1;
       break;
 
-    case FLOW_BACK_FORTH_2:
+    case WARP_BACK_FORTH_2:
       pattern_step_ = step < pattern_size ? step : 2 * pattern_size - step - 2;
       break;
 
     default:
       {
-        uint8_t flow_type = flow - FLOW_GLASS;
-        while (flow_type >= 5) {
-          flow_type -= 5;
+        uint8_t warp_type = warp - WARP_GLASS;
+        while (warp_type >= 5) {
+          warp_type -= 5;
         }
-        if (flow_type == 0) {
+        if (warp_type == 0) {
           pattern_step_ = expanded_pattern_[step];
         } else {
           pattern_step_ = ResourcesManager::Lookup<uint8_t, uint8_t>(
-              waveform_table[WAV_RES_EXPANSION_KRAMA + flow_type - 1],
+              waveform_table[WAV_RES_EXPANSION_KRAMA + warp_type - 1],
               step);
         }
       }
       break;
   }
-  if (flow >= FLOW_GLASS_4) {
+  if (warp >= WARP_GLASS_4) {
     pattern_step_ <<= 2;
     pattern_step_ += (expanded_pattern_step_ & 0x3);
-  } else if (flow >= FLOW_GLASS_2) {
+  } else if (warp >= WARP_GLASS_2) {
     pattern_step_ <<= 1;
     pattern_step_ += (expanded_pattern_step_ & 0x1);
   }

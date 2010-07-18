@@ -87,6 +87,7 @@ static const uint8_t kPinEncoderClick = 2;
 
 // Shift registers / muxes.
 
+// #define HARDWARE_REV_02
 static const uint8_t kPinDigitalInput = 6;
 static const uint8_t kPinClk = 7;
 #ifdef HARDWARE_REV_02

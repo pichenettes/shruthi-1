@@ -94,7 +94,7 @@ void Storage::SysExDumpBuffer(
     uint8_t command,
     uint8_t argument,
     uint8_t size) {
-  Serial<SerialPort1, 31250, DISABLED, POLLED> midi_output;
+  Serial<MidiPort, 31250, DISABLED, POLLED> midi_output;
   // Outputs the SysEx header.
   for (uint8_t i = 0; i < sizeof(sysex_rx_header); ++i) {
     midi_output.Write(pgm_read_byte(sysex_rx_header + i));

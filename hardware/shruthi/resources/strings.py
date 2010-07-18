@@ -53,7 +53,8 @@ bpm
 groove
 direction
 pattern
-flow
+warp
+wrp
 start
 length
 octave
