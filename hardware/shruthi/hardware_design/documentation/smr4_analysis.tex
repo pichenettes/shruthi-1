@@ -66,25 +66,25 @@ I_c(p) &=& g_m (V_+(p) - V_-(p)) \\
  &=& 19.2 I_{freq} \frac{R_s}{R_b + 2 R_s} (V_{in}(p) + V_{out}(p))
 \end{eqnarray}
 
-The operational amplifier $IC_{8D}$ is in a simple ``current to voltage" configuration:
+The operational amplifier $IC_{8D}$ is in a simple inverting ``current to voltage" configuration:
 
 \begin{eqnarray}
-V_{out}(p) &=& I_c(p) Z_{feedback}(p) \\
- &=& \frac{I_c(p)}{Cp} \\
- &=& 19.2 I_{freq} \frac{R_s}{(R_b + 2 R_s)Cp} (V_{in}(p) + V_{out}(p))
+V_{out}(p) &=& - I_c(p) Z_{feedback}(p) \\
+ &=& - \frac{I_c(p)}{Cp} \\
+ &=& - 19.2 I_{freq} \frac{R_s}{(R_b + 2 R_s)Cp} (V_{in}(p) + V_{out}(p))
 \end{eqnarray}
 
 Solving for $V_{out}(p)$ and dividing by $V_{in}(p)$, we find the transfer function:
 
 \begin{eqnarray}
-H(p) &=& \frac{1}{1 + \frac{(R_b + 2 R_s)}{R_s} Cp \frac{1}{19.2 I_{freq}}}
+H(p) &=& \frac{-1}{1 + \frac{(R_b + 2 R_s)}{R_s} Cp \frac{1}{19.2 I_{freq}}}
 \end{eqnarray}
 
 The pole is at the frequency $f$ such that:
 
 \begin{eqnarray}
 0 &=& 1 + \frac{(R_b + 2 R_s)}{R_s} C 2\pi f \frac{1}{19.2 I_{freq}} \\
-f &=& \frac{19.2 I_{freq}}{2 \pi \frac{(R_b + 2 R_s)}{R_s} C}
+f &=& -\frac{19.2 I_{freq}}{2 \pi \frac{(R_b + 2 R_s)}{R_s} C}
 \end{eqnarray}
 
 At this stage, we can already pick values for $R_b$, $R_s$, $C$ and design the exponential current source so that its current range translate into a target frequency range using the formula above.
