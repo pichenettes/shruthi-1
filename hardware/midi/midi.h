@@ -23,6 +23,7 @@
 namespace hardware_midi {
 
 const uint8_t kModulationWheelMsb = 0x01;
+const uint8_t kModulationWheelJoystickMsb = 0x02;
 const uint8_t kDataEntryMsb = 0x06;
 const uint8_t kDataEntryLsb = 0x26;
 const uint8_t kPortamentoTimeMsb = 0x05;

@@ -237,6 +237,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
  private:
   // Value of global modulation parameters, scaled to 0-255;
   static uint8_t modulation_sources_[kNumGlobalModulationSources];
+  static uint8_t unregistered_modulation_sources_[1];
 
   static uint8_t data_access_byte_[1];
   static Patch patch_;

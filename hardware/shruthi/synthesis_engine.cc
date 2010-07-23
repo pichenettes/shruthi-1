@@ -44,6 +44,7 @@ TransientGenerator<1> transient_generator;
 
 /* <static> */
 uint8_t SynthesisEngine::modulation_sources_[kNumGlobalModulationSources];
+uint8_t SynthesisEngine::unregistered_modulation_sources_[1];
 
 uint8_t SynthesisEngine::oscillator_decimation_;
 
@@ -278,6 +279,9 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
       case hardware_midi::kModulationWheelMsb:
         modulation_sources_[MOD_SRC_WHEEL] = value << 1;
         break;
+      case hardware_midi::kModulationWheelJoystickMsb:
+        unregistered_modulation_sources_[0] = (value << 1);
+        break;
       case hardware_midi::kDataEntryMsb:
         data_entry_msb_ = value << 7;
         break;
@@ -386,6 +390,7 @@ void SynthesisEngine::AllNotesOff(uint8_t channel) {
 void SynthesisEngine::ResetAllControllers(uint8_t channel) {
   modulation_sources_[MOD_SRC_PITCH_BEND] = 128;
   modulation_sources_[MOD_SRC_WHEEL] = 0;
+  unregistered_modulation_sources_[0] = 0;
 }
 
 // When in Omni mode, disable Omni and enable reception only on the channel on
@@ -633,14 +638,14 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     if (pitch_shift != 32767) {
       // Some scales/raga settings might have muted notes. Do not trigger
       // anything in this case!
-      pitch_target_ = (static_cast<uint16_t>(note) << 7) + pitch_shift;
+      pitch_target_ = (static_cast<uint16_t>(note) * 128) + pitch_shift;
     } else {
       if (legato) {
         legato = 255;
       }
     }
   } else {
-    pitch_target_ = (static_cast<uint16_t>(note) << 7);
+    pitch_target_ = UnsignedUnsignedMul(note, 128);
   }
   if (!legato || (!engine.system_settings_.legato && legato != 255)) {
     TriggerEnvelope(ATTACK);
@@ -730,10 +735,10 @@ inline void Voice::Control() {
   modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = signal_;
 
   // Load and scale to 0-16383 the initial value of each modulated parameter.
-  dst[MOD_DST_FILTER_CUTOFF] = engine.patch_.filter_cutoff << 7;
+  dst[MOD_DST_FILTER_CUTOFF] = UnsignedUnsignedMul(engine.patch_.filter_cutoff, 128);
   dst[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
-  dst[MOD_DST_PWM_1] = engine.patch_.osc[0].parameter << 7;
-  dst[MOD_DST_PWM_2] = engine.patch_.osc[1].parameter << 7;
+  dst[MOD_DST_PWM_1] = UnsignedUnsignedMul(engine.patch_.osc[0].parameter, 128);
+  dst[MOD_DST_PWM_2] = UnsignedUnsignedMul(engine.patch_.osc[1].parameter, 128);
   dst[MOD_DST_VCO_1_2_COARSE] = dst[MOD_DST_VCO_1_2_FINE] =
       dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
   dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
@@ -782,7 +787,7 @@ inline void Voice::Control() {
           source == MOD_SRC_PITCH_BEND ||
           source == MOD_SRC_NOTE ||
           source == MOD_SRC_AUDIO) {
-        modulation -= amount << 7;
+        modulation -= SignedUnsignedMul(amount, 128);
       }
       dst[destination] = Clip(modulation, 0, 16383);
     } else {
@@ -813,9 +818,15 @@ inline void Voice::Control() {
       16383);
   dst[MOD_DST_FILTER_CUTOFF] = Clip(
       dst[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
+          engine.patch_.filter_env,
+          engine.unregistered_modulation_sources_[0]),
+      0,
+      16383);
+  dst[MOD_DST_FILTER_CUTOFF] = Clip(
+      dst[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
           engine.patch_.filter_lfo,
           engine.modulation_sources_[MOD_SRC_LFO_2]) -
-      (engine.patch_.filter_lfo << 7),
+      UnsignedUnsignedMul(engine.patch_.filter_lfo, 128),
       0,
       16383);
   
@@ -858,7 +869,7 @@ inline void Voice::Control() {
         osc_2.UpdateSecondaryParameter(engine.patch_.osc[i].range + 24);
       }
     } else {
-      pitch += static_cast<int16_t>(engine.patch_.osc[i].range) << 7;
+      pitch += SignedUnsignedMul(engine.patch_.osc[i].range, 128);
     }
     // -24 / +24 semitones by the main octave controller.
     pitch += static_cast<int16_t>(engine.system_settings_.octave) * kOctave;
