@@ -25,9 +25,9 @@ using namespace hardware_hal;
 using namespace hardware_utils;
 
 typedef Hd44780Lcd<
-    Gpio<20>,
-    Gpio<21>,
-    ParallelPort<PortC, PARALLEL_NIBBLE_LOW> > Lcd;
+    Gpio<18>,
+    Gpio<19>,
+    ParallelPort<PortC, PARALLEL_NIBBLE_HIGH> > Lcd;
 
 Lcd lcd;
 BufferedDisplay<Lcd> display;
@@ -57,10 +57,8 @@ TIMER_0_TICK {
 }
 
 int main(void) {
-  InitAtmega(false);
-
+  InitAtmega(true);
   lcd.Init();
-
   Timer<2>::set_prescaler(1);
   Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
   Timer<2>::Start();
