@@ -41,7 +41,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_PRM, STR_RES_PARAMETER,
 
   PRM_OSC_RANGE_1,
-  -12, 12,
+  -24, 24,
   UNIT_INT8,
   STR_RES_RNG, STR_RES_RANGE,
 
@@ -88,7 +88,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_NOI, STR_RES_NOISE,
 
   PRM_MIX_SUB_OSC_SHAPE,
-  WAVEFORM_SUB_OSC_SQUARE, WAVEFORM_SUB_OSC_POP,
+  WAVEFORM_SUB_OSC_SQUARE_1, WAVEFORM_SUB_OSC_POP,
   UNIT_SUB_OSC_WAVEFORM,
   STR_RES_SHAPE, STR_RES_SHAPE,
 

@@ -98,7 +98,7 @@ static const prog_char init_patch[] PROGMEM = {
     WAVEFORM_SAW, 0, 0, 0,
     WAVEFORM_SQUARE, 16, -12, 12,
     // Mixer
-    32, 0, 0, WAVEFORM_SUB_OSC_SQUARE,
+    32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
     // Filter
     96, 0, 32, 0,
     // ADSR
@@ -355,6 +355,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
     const ParameterDefinition& parameter = (
         ParameterDefinitions::parameter_definition(controller));
     SetParameter(parameter.id, ParameterDefinitions::Scale(parameter, value));
+    dirty_ = 1;
   }
 }
 
@@ -648,7 +649,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     pitch_target_ = UnsignedUnsignedMul(note, 128);
   }
   if (!legato || (!engine.system_settings_.legato && legato != 255)) {
-    TriggerEnvelope(ATTACK);
+    TriggerEnvelope(PRE_ATTACK);
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're
     // doing monophonic things anyway (and some pseudo-polysynths/organs are
@@ -950,7 +951,10 @@ inline void Voice::Audio() {
           modulation_destinations_[MOD_DST_MIX_BALANCE]);
       break;
     case OP_RING_MOD:
-      mix = SignedSignedMulScale8(mix + 128, osc_2_signal + 128) + 128;
+      mix = Mix(
+          mix,
+          SignedSignedMulScale8(mix + 128, osc_2_signal + 128) + 128,
+          modulation_destinations_[MOD_DST_MIX_BALANCE]);
       break;
     case OP_XOR:
       mix ^= osc_2_signal;
@@ -968,7 +972,7 @@ inline void Voice::Audio() {
   // Disable sub oscillator and noise when the "vowel" waveform is used - it is
   // just too costly.
   if (engine.patch_.osc[0].shape != WAVEFORM_VOWEL) {
-    if (engine.patch_.mix_sub_osc_shape <= WAVEFORM_SUB_OSC_TRIANGLE) {
+    if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
       mix = Mix(
           mix,
           sub_osc.Render(),

@@ -47,7 +47,7 @@ static const prog_uint16_t units_definitions[UNIT_SPLIT_POINT + 1]
   0,
   STR_RES_OFF,
   STR_RES_NONE,
-  STR_RES__SQUARE,
+  STR_RES_SQ1,
   STR_RES_SUM,
   STR_RES_TRI,
   0,

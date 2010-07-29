@@ -22,16 +22,16 @@
 //
 // 
 // 
-// <-- A --><-- D -->           <-- R -->
-//          1  2                4  5
-//        /\
-//       /  \
-//      /    \
-//     /       \
-//    /          \ ____________
-//   /                         \
-//  /                           \
-// /                              \
+// < P ><-- A --><-- D -->           <-- R -->
+//               1  2                4  5
+//              /\
+//             /  \
+//            /    \
+//           /       \
+//          /          \ ____________
+//  _      /                         \
+//    -   /                           \
+//      \/                              \
 
 #ifndef HARDWARE_SHRUTHI_ENVELOPE_H_
 #define HARDWARE_SHRUTHI_ENVELOPE_H_
@@ -46,15 +46,25 @@ using namespace hardware_utils_op;
 namespace hardware_shruthi {
 
 enum EnvelopeStage {
-  ATTACK = 0,
-  DECAY_1 = 1,
-  DECAY_2 = 2,
-  SUSTAIN = 3,
-  RELEASE_1 = 4,
-  RELEASE_2 = 5,
-  DEAD = 6,
-  // Padding added so that the size of an envelope object is exactly 32 bytes.
-  UNKNOWN = 7,
+  // What to do when two notes of a sound with a very long attack time are
+  // played in sequence?
+  // - Should we reset the envelope to 0 and restart the attack? This creates
+  // a nasty click because of the sharp reset.
+  // - Should we start the attack from the current value of the envelope? This
+  // creates a very weird effect on pads or flutes - if notes are played very
+  // fast they end up colliding into each other.
+  //
+  // The solution is to have a very short "pre-attack" phase in which the
+  // envelope quickly goes to 0 to avoid a click, and then restart at the
+  // attack.
+  PRE_ATTACK = 0,
+  ATTACK = 1,
+  DECAY_1 = 2,
+  DECAY_2 = 3,
+  SUSTAIN = 4,
+  RELEASE_1 = 5,
+  RELEASE_2 = 6,
+  DEAD = 7,
 };
 
 
@@ -97,8 +107,8 @@ class Envelope {
   int16_t target_;  // target value (moves to next stage once reached).
   int16_t value_;  // envelope value, 0-16384.
   // Increment and target for each stage of the envelope.
-  int16_t stage_increment_[UNKNOWN + 1];
-  int16_t stage_target_[UNKNOWN + 1];
+  int16_t stage_increment_[DEAD + 1];
+  int16_t stage_target_[DEAD + 1];
  
   DISALLOW_COPY_AND_ASSIGN(Envelope);
 };

@@ -123,8 +123,8 @@ reso
 lf1
 lf2
 seq
-sq1
-sq2
+ sq1
+ sq2
  arp
 whl
 aft
@@ -269,6 +269,18 @@ step
 off
 on
 
+sq1
+tr1
+pl1
+sq2
+tr2
+pl2
+click
+glitch
+blow
+metal
+pop
+
 none
 saw
 square
@@ -294,13 +306,6 @@ crush
 pwm
  noise
 vowel
- square
- triang
-click
-glitch
-blow
-metal
-pop
 
 equal
 """

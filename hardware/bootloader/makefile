@@ -30,7 +30,7 @@ DMCU           = m644p
 F_CPU          = 20000000
 
 LFUSE          = FF
-# Set to DC to enable bootloader
+# Set to D7 to disable bootloader
 HFUSE          = D6
 EFUSE          = FD
 

@@ -729,34 +729,36 @@ class SubOscillator {
   // Called whenever the parameters of the oscillator change. Can be used
   // to pre-compute parameters, set tables, etc.
   static inline void SetupAlgorithm(uint8_t shape) {
-    base_resource_id_ = shape == WAVEFORM_SUB_OSC_SQUARE ?
-        WAV_RES_BANDLIMITED_SQUARE_1 :
-        WAV_RES_BANDLIMITED_TRIANGLE_1;
+    shift_ = 0;
+    if (shape >= 3) {
+      shift_ = 1;
+      shape -= 3;
+    }
+    shape_ = shape;
   }
   static inline uint8_t Render() {
-    if (!engine.oscillator_decimation()) {
-      phase_ += phase_increment_;
-      held_sample_ = InterpolateTwoTables(
-          data_.st.wave[0], data_.st.wave[1],
-          phase_, data_.st.balance);
-    }
-    return held_sample_;
-  }
+    phase_ += phase_increment_;
+    switch (shape_) {
+      case 0:
+        return phase_ < 0x8000 ? 0 : 255;
 
+      case 1:
+        return phase_ & 0x8000
+          ? phase_ >> 7
+          : ~static_cast<uint8_t>(phase_ >> 7);
+          
+      case 2:
+        return phase_ < 0x4000 ? 0 : 255;
+    }
+  }
   static inline void Update(
       uint8_t parameter,
       uint8_t note,
       uint16_t increment) {
-    phase_increment_ = increment << 2;
-    
-    uint8_t balance_index = Swap4(note);
-    data_.st.balance = balance_index & 0xf0;
-
-    uint8_t wave_index = balance_index & 0x0f;
-    wave_index = AddClip(wave_index, 1, kNumZonesHalfSampleRate);
-    data_.st.wave[0] = waveform_table[base_resource_id_ + wave_index];
-    wave_index = AddClip(wave_index, 1, kNumZonesHalfSampleRate);
-    data_.st.wave[1] = waveform_table[base_resource_id_ + wave_index];
+    if (shift_) {
+      increment >>= 1;
+    }
+    phase_increment_ = increment;
   }
 
  private:
@@ -764,13 +766,8 @@ class SubOscillator {
   static uint16_t phase_;
   static uint16_t phase_increment_;
 
-  static uint8_t base_resource_id_;
-
-  // Sample generated in the previous full call.
-  static uint8_t held_sample_;
-
-  // Union of state data used by each algorithm.
-  static OscillatorData data_;
+  static uint8_t shape_;
+  static uint8_t shift_;
 
   DISALLOW_COPY_AND_ASSIGN(SubOscillator);
 };
@@ -778,9 +775,8 @@ class SubOscillator {
 /* <static> */
 template<int id> uint16_t SubOscillator<id>::phase_;
 template<int id> uint16_t SubOscillator<id>::phase_increment_;
-template<int id> uint8_t SubOscillator<id>::base_resource_id_;
-template<int id> uint8_t SubOscillator<id>::held_sample_;
-template<int id> OscillatorData SubOscillator<id>::data_;
+template<int id> uint8_t SubOscillator<id>::shape_;
+template<int id> uint8_t SubOscillator<id>::shift_;
 
 /* </static> */
 

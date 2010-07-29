@@ -125,8 +125,8 @@ static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_lf1[] PROGMEM = "lf1";
 static const prog_char str_res_lf2[] PROGMEM = "lf2";
 static const prog_char str_res_seq[] PROGMEM = "seq";
-static const prog_char str_res_sq1[] PROGMEM = "sq1";
-static const prog_char str_res_sq2[] PROGMEM = "sq2";
+static const prog_char str_res__sq1[] PROGMEM = "sq1";
+static const prog_char str_res__sq2[] PROGMEM = "sq2";
 static const prog_char str_res__arp[] PROGMEM = "arp";
 static const prog_char str_res_whl[] PROGMEM = "whl";
 static const prog_char str_res_aft[] PROGMEM = "aft";
@@ -258,6 +258,17 @@ static const prog_char str_res_34[] PROGMEM = "";
 static const prog_char str_res__[] PROGMEM = "?";
 static const prog_char str_res_off[] PROGMEM = "off";
 static const prog_char str_res_on[] PROGMEM = "on";
+static const prog_char str_res_sq1[] PROGMEM = "sq1";
+static const prog_char str_res_tr1[] PROGMEM = "tr1";
+static const prog_char str_res_pl1[] PROGMEM = "pl1";
+static const prog_char str_res_sq2[] PROGMEM = "sq2";
+static const prog_char str_res_tr2[] PROGMEM = "tr2";
+static const prog_char str_res_pl2[] PROGMEM = "pl2";
+static const prog_char str_res_click[] PROGMEM = "click";
+static const prog_char str_res_glitch[] PROGMEM = "glitch";
+static const prog_char str_res_blow[] PROGMEM = "blow";
+static const prog_char str_res_metal[] PROGMEM = "metal";
+static const prog_char str_res_pop[] PROGMEM = "pop";
 static const prog_char str_res_none[] PROGMEM = "none";
 static const prog_char str_res_saw[] PROGMEM = "saw";
 static const prog_char str_res_square[] PROGMEM = "square";
@@ -283,13 +294,6 @@ static const prog_char str_res_crush[] PROGMEM = "crush";
 static const prog_char str_res_pwm[] PROGMEM = "pwm";
 static const prog_char str_res__noise[] PROGMEM = "noise";
 static const prog_char str_res_vowel[] PROGMEM = "vowel";
-static const prog_char str_res__square[] PROGMEM = "square";
-static const prog_char str_res__triang[] PROGMEM = "triang";
-static const prog_char str_res_click[] PROGMEM = "click";
-static const prog_char str_res_glitch[] PROGMEM = "glitch";
-static const prog_char str_res_blow[] PROGMEM = "blow";
-static const prog_char str_res_metal[] PROGMEM = "metal";
-static const prog_char str_res_pop[] PROGMEM = "pop";
 static const prog_char str_res_equal[] PROGMEM = "equal";
 static const prog_char str_res_just[] PROGMEM = "just";
 static const prog_char str_res_pythag[] PROGMEM = "pythag";
@@ -426,8 +430,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_lf1,
   str_res_lf2,
   str_res_seq,
-  str_res_sq1,
-  str_res_sq2,
+  str_res__sq1,
+  str_res__sq2,
   str_res__arp,
   str_res_whl,
   str_res_aft,
@@ -559,6 +563,17 @@ PROGMEM const prog_char* string_table[] = {
   str_res__,
   str_res_off,
   str_res_on,
+  str_res_sq1,
+  str_res_tr1,
+  str_res_pl1,
+  str_res_sq2,
+  str_res_tr2,
+  str_res_pl2,
+  str_res_click,
+  str_res_glitch,
+  str_res_blow,
+  str_res_metal,
+  str_res_pop,
   str_res_none,
   str_res_saw,
   str_res_square,
@@ -584,13 +599,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_pwm,
   str_res__noise,
   str_res_vowel,
-  str_res__square,
-  str_res__triang,
-  str_res_click,
-  str_res_glitch,
-  str_res_blow,
-  str_res_metal,
-  str_res_pop,
   str_res_equal,
   str_res_just,
   str_res_pythag,

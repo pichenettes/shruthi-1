@@ -24,6 +24,7 @@ namespace hardware_shruthi {
 const uint8_t kEnvelopeKnee = 8;
 
 void Envelope::Init() {
+  stage_target_[PRE_ATTACK] = 0;
   stage_target_[ATTACK] = 16383;
   stage_increment_[SUSTAIN] = 0;
   stage_target_[RELEASE_2] = 0;
@@ -61,6 +62,8 @@ void Envelope::Update(
   // Update the envelope increments and targets.
   stage_increment_[ATTACK] = ScaleEnvelopeIncrement(
       attack, 127);
+  stage_increment_[PRE_ATTACK] = -ScaleEnvelopeIncrement(
+      attack >> 3, 127);
   stage_increment_[DECAY_1] = -ScaleEnvelopeIncrement(
         decay > kEnvelopeKnee ? decay - kEnvelopeKnee : 0,
         127 - sustain);
