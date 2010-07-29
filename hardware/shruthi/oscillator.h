@@ -734,21 +734,17 @@ class SubOscillator {
       shift_ = 1;
       shape -= 3;
     }
-    shape_ = shape;
+    is_square_ = shape != 1;
+    pulse_width_ = shape == 0 ? 0x80 : 0x40;
   }
   static inline uint8_t Render() {
     phase_ += phase_increment_;
-    switch (shape_) {
-      case 0:
-        return phase_ < 0x8000 ? 0 : 255;
-
-      case 1:
-        return phase_ & 0x8000
-          ? phase_ >> 7
-          : ~static_cast<uint8_t>(phase_ >> 7);
-          
-      case 2:
-        return phase_ < 0x4000 ? 0 : 255;
+    if (is_square_) {
+      return static_cast<uint8_t>(phase_ >> 8) < pulse_width_ ? 0 : 255;
+    } else {
+      return phase_ & 0x8000
+        ? phase_ >> 7
+        : ~static_cast<uint8_t>(phase_ >> 7);
     }
   }
   static inline void Update(
@@ -766,8 +762,9 @@ class SubOscillator {
   static uint16_t phase_;
   static uint16_t phase_increment_;
 
-  static uint8_t shape_;
   static uint8_t shift_;
+  static uint8_t pulse_width_;
+  static uint8_t is_square_;
 
   DISALLOW_COPY_AND_ASSIGN(SubOscillator);
 };
@@ -775,8 +772,9 @@ class SubOscillator {
 /* <static> */
 template<int id> uint16_t SubOscillator<id>::phase_;
 template<int id> uint16_t SubOscillator<id>::phase_increment_;
-template<int id> uint8_t SubOscillator<id>::shape_;
 template<int id> uint8_t SubOscillator<id>::shift_;
+template<int id> uint8_t SubOscillator<id>::pulse_width_;
+template<int id> uint8_t SubOscillator<id>::is_square_;
 
 /* </static> */
 
