@@ -147,7 +147,12 @@ HEX2SYSEX = hardware/tools/hex2sysex/hex2sysex.py
 $(BUILD_DIR)/%.mid: $(BUILD_DIR)/%.hex
 	$(HEX2SYSEX) -o $@ $<
 
+$(BUILD_DIR)/%.syx: $(BUILD_DIR)/%.hex
+	$(HEX2SYSEX) --syx -o $@ $<
+
 midi: $(BUILD_DIR)/$(TARGET).mid
+
+syx: $(BUILD_DIR)/$(TARGET).syx
 
 
 # ------------------------------------------------------------------------------
