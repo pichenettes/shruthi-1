@@ -246,6 +246,7 @@ class SysExEvent(Event):
         data,
         '\xf7'])
     assert all(ord(x) < 128 for x in self._message[:-1])
+    self._raw_message = '\xf0' + self._message
     self._message = ''.join([
         '\xf0',
         PackVariableLengthInteger(len(self._message)),
@@ -253,6 +254,10 @@ class SysExEvent(Event):
 
   def Serialize(self, running_status):
     return self._message, None
+
+  @property
+  def raw_message(self):
+    return self._raw_message
 
 
 def Nibblize(data, add_checksum=True):

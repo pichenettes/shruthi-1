@@ -25,6 +25,7 @@ usage:
   python hex2sysex.py \
     [--page_size 128] \
     [--delay 250] \
+    [--syx] \
     [--output_file path_to/firmware.mid] \
     path_to/firmware.hex
 """
@@ -66,22 +67,31 @@ def CreateMidifile(
   # The first SysEx block must not start at 0! Sequencers like Logic play the
   # first SysEx block everytime stop/play is pressed.
   time = 1
+  syx_data = []
   for i in xrange(0, size, page_size):
     block = ''.join(map(chr, data[i:i+page_size]))
     padding = page_size - len(block)
     block += '\x00' * padding
-    t.AddEvent(time, midifile.SysExEvent(
+    event = midifile.SysExEvent(
         options.manufacturer_id,
         options.device_id,
-        options.update_command + midifile.Nibblize(block)))
+        options.update_command + midifile.Nibblize(block))
+    t.AddEvent(time, event)
+    syx_data.append(event.raw_message)
     # ms -> s -> beats -> ticks
     time += int(delay / 1000.0 / 0.5 * 96)
-  t.AddEvent(time, midifile.SysExEvent(
+  event = midifile.SysExEvent(
       options.manufacturer_id,
       options.device_id,
-      options.reset_command))
+      options.reset_command)
+  t.AddEvent(time, event)
+  syx_data.append(event.raw_message)
+  
   f = file(output_file, 'w')
-  m.Write(f, format=1)
+  if options.syx:
+    f.write(''.join(syx_data))
+  else:
+    m.Write(f, format=1)
   f.close()
 
 
@@ -132,6 +142,13 @@ if __name__ == '__main__':
       dest='reset_command',
       default='\x7f\x00',
       help='Post-OS update reset SysEx command')
+  parser.add_option(
+      '-s',
+      '--syx',
+      dest='syx',
+      action='store_true',
+      default=False,
+      help='Produces a .syx file instead of a MIDI file')
   parser.add_option(
       '-c',
       '--comments',
