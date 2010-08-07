@@ -749,7 +749,6 @@ class SubOscillator {
   }
   static inline void Update(
       uint8_t parameter,
-      uint8_t note,
       uint16_t increment) {
     if (shift_) {
       increment >>= 1;

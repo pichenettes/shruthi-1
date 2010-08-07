@@ -31,13 +31,33 @@ import sys
 sys.path.append('.')
 
 
+def HexDump(data):
+  return ''.join('%02x' % ord(byte) for byte in data)
+
+
+def FormatSequence(data):
+  s = []
+  for a, b in zip(data[::2], data[1::2]):
+    a = ord(a)
+    b = ord(b)
+    note = a & 0x7f
+    gate = (a & 0x80)
+    legato = (b & 0x80) != 0
+    velocity = b & 0x70
+    controller = b & 0x0f
+    code = '.' if not gate else ('o' if not legato else '-')
+    s.append('%(code)s %(note)02d %(velocity)02x %(controller)1x' % locals())
+  return '\t'.join(s)
+
+
 MEMORY_LAYOUT = [
-  (1,  16, 'settings', lambda x, y: 'settings'),
-  (16, 92, 'patch', lambda x, y: y[68:76]),
-  (16, 32, 'sequence', lambda x, y: 'sequence_%d' % x),
-  (1,  48, 'padding', lambda x, y: 'padding'),
-  (64, 92, 'patch', lambda x, y: y[68:76]),
-  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % x)
+  (1,  16, 'settings', lambda x, y: 'settings', HexDump),
+  (16, 92, 'patch', lambda x, y: y[68:76], HexDump),
+  (16, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
+  (1,  48, 'padding', lambda x, y: 'internal_padding', HexDump),
+  (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
+  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
+  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
 ]
 
 
@@ -82,7 +102,7 @@ def ExtractSyxData(syx_content):
 def Parse(data):
   content = {}
   offset = 0
-  for entries, size, kind, name_extractor in MEMORY_LAYOUT:
+  for entries, size, kind, name_extractor, formatter in MEMORY_LAYOUT:
     extracted_items = content.setdefault(kind, [])
     for entry in range(entries):
       block = data[offset:offset + size]
@@ -90,7 +110,7 @@ def Parse(data):
       name = name_extractor(len(extracted_items), block)
       block = block.replace(name, '$NAME' + '_' * (len(name) - 5))
       name = ''.join('_' if ord(c) < 32 or ord(c) > 126 else c for c in name)
-      extracted_items.append((name, block))
+      extracted_items.append((name, formatter(block)))
   return content
 
 
@@ -100,7 +120,6 @@ def main(options, args):
   output = file(options.output_file, 'w') if options.output_file else sys.stdout
   for content_type, content in content.items():
     for name, data in content:
-      data = ''.join('%02x' % ord(byte) for byte in data)
       output.write('%(content_type)s\t%(name)s\t%(data)s\n' % locals())
   output.close()
 
@@ -116,6 +135,6 @@ if __name__ == '__main__':
       metavar='FILE')
   options, args = parser.parse_args()
   if len(args) != 1:
-    logging.fatal('Specify a source and destination hex file')
+    logging.fatal('Specify a source and destination syx file')
   else:
     main(options, args)

@@ -913,10 +913,7 @@ inline void Voice::Control() {
           modulation_destinations_[MOD_DST_PWM_1],
           midi_note,
           increment);
-      sub_osc.Update(
-          0,
-          midi_note - 12,
-          increment >> 1);
+      sub_osc.Update(0, increment >> 1);
     } else {
       osc_2.Update(
           modulation_destinations_[MOD_DST_PWM_2],
