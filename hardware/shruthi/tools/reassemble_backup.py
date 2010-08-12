@@ -77,6 +77,8 @@ def Parse(file_name):
   content = {}
   for line in file(file_name):
     tokens = line.strip().split('\t')
+    if not tokens or not tokens[0] or tokens[0].startswith('#'):
+      continue
     kind = tokens[0]
     name = tokens[1]
     data = PARSERS[kind]('\t'.join(tokens[2:]), name)
