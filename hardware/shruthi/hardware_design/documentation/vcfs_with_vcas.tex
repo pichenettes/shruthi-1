@@ -23,9 +23,9 @@ This document explains how a voltage-controlled amplifier (VCA) can be used to b
 
 \section{VCA cell}
 
-A variety of VCA chips have been designed for musical applications. The CEM3381 and CEM3382 are current-in, current-out dual VCA chips with a linear or exponential response. The SSM2024 is a voltage-in, current-out quad CCA (current-controlled amplifier) with a linear response. All of them are discontinued. The CEM3381 and CEM3382 have been reincarnated as the PA381 and PA382 used in DSI's designs, but those chips are not sold to the general public.
+A variety of VCA chips have been designed for musical applications. The CEM3381 and CEM3382 are current-in, current-out dual VCA chips with a linear or exponential response. The SSM2024 is a voltage-in, current-out quad CCA (current-controlled amplifier) with a linear response. All of them are discontinued. The CEM3381 and CEM3382 have been reincarnated as the PA381 and PA382 chips used in DSI's designs, but those chips are not sold to the general public.
 
-In this document we focus on the current-in, current-out VCA cell with a logarithmic response of the SSM2164. This popular and easily available chip from Analog Devices provides 4 of such VCA cells in a convenient DIP16 package. A clone from CoolAudio with the denomination V2164 is also available.
+In this document we will focus on the current-in, current-out VCA cell with a logarithmic response of the SSM2164. This popular and easily available chip from Analog Devices provides 4 of such VCA cells in a convenient DIP16 package. CoolAudio also sells its own version of this chip with the denomination V2164.
 
 \begin{figure}
 \begin{center}
@@ -43,7 +43,7 @@ In this document we focus on the current-in, current-out VCA cell with a logarit
 \label{fig:vca}
 \end{figure}
 
-Figure \ref{fig:vca} shows the symbol used for representing this cell. The input voltage $v_s$ is converted into the input current $i_{in}$ through the resistor $R$. $i_out$ is the output current, and $v_c$ is a control voltage controlling the gain. The behaviour of such a cell can be modelled by the following relationship:
+Figure \ref{fig:vca} shows the symbol used for representing this cell. The input voltage $v_s$ is converted into the input current $i_{in}$ through the resistor $R$. $i_{out}$ is the output current, and $v_c$ is a control voltage modulating the gain. The behaviour of such a cell can be modelled by the following relationship:
 
 $$i_{out} = i_{in} 10^{-\frac{3}{2} v_c} = \frac{v_s}{R} 10^{-\frac{3}{2} v_c}$$
 
@@ -56,34 +56,35 @@ G_{db}(v_c) &=& 20\log_{10} \frac{i_{out}}{i_{in}} \\
 
 The response scale is thus $-30dB/V$.
 
-It can be seen that contrary to what one would expect from a VCA, the gain is maximal for a null control voltage, and goes down exponentially as the control voltage goes up. One might rather call this cell an ``attenuator" due to this reverse relationship!
+It can be seen that contrary to what one would expect from a VCA module in a synthesizer, the gain is maximal for a null control voltage, and goes down exponentially as the control voltage increases. One might rather call this cell an ``attenuator" due to this reverse relationship!
 
 \section{VCA-based LPF}
 
 \subsection{1-pole LPF cell}
 
-Let's work the circuit in figure \ref{fig:vcf} from left to right. The current at the input of the VCA is the sum of the input current, and the current fedback from the output:
+Let's model the circuit in figure \ref{fig:vcf} from left to right. The current at the input of the VCA is the sum of the input current, and the current fed back from the output:
 
 \begin{figure}
 \begin{center}
 \begin{circuitikz} \ctikzset{bipoles/not port/circle width=0}
  \draw
  (0, 0) node[op amp] (opamp) {}
- (opamp.out) node[anchor=south] {$v_o$}
  (opamp.-) node[anchor=south] {$v'_-$}
  (opamp.+) to[short] (-1.5, -0.5)
+ (opamp.out) to[short, -] (3, 0)
+ (3, 0) node[anchor=south] {$v_o$}
  (-1.5, -0.5) to (-1.5, -1)
  (-1.5, -1) node[ground] {}
- (opamp.-) to (-1.5, 0.5)
+ (opamp.-) to[, -*] (-1.5, 0.5)
  (-1.5, 0.5) to (-1.5, 1.5)
- (-1.5, 1.5) to[C, C=$C$] (2, 1.5)
+ (-1.5, 1.5) to[C, C=$C$, -*] (2, 1.5)
  (2, 1.5) to[short] (2, 0)
- (2, 0) to (opamp.out)
+ (2, 0) to[*-] (opamp.out)
  (2, 1.5) to (2, 3)
  (2, 3) to[R, R=$R$] (-4.5, 3)
  (-7, 0.5) to[R, R=$R$, i=$i_s$] (-5, 0.5)
  (-5, 0.5) to[short] (-4.5, 0.5)
- (-4.5, 3) to[i=$i_o$] (-4.5, 0.5)
+ (-4.5, 3) to[i=$i_o$, -*] (-4.5, 0.5)
  (-3, 0.5) node[not port] (amp) {}
  (-4.5, 0.5) to[i=$i_{in}$] (amp.in)
  (amp.out) to[i=$i_{out}$] (-1.5, 0.5)
@@ -97,18 +98,18 @@ Let's work the circuit in figure \ref{fig:vcf} from left to right. The current a
 \end{figure}
 
 \begin{eqnarray*}
-i_{in}(p) &=& i_o(p) + i_s(p) \\
-i_{in}(p) &=& \frac{1}{R}(v_o(p) + v_s(p))
+i_{in}(p) &=& i_s(p) + i_o(p) \\
+i_{in}(p) &=& \frac{1}{R}(v_s(p) + v_o(p))
 \end{eqnarray*}
 
-The op-amp is used as a transimpedance amplifier (or current to voltage converter), and is inverting:
+The op-amp is used as a current to voltage converter (or \emph{transimpedance amplifier}), and is inverting:
 
 \begin{eqnarray*}
 v_o(p) &=& -Z_{feedback}(p) i_-(p) \\
 v_o(p) &=& -\frac{1}{Cp} i_{out}(p) \\
 v_o(p) &=& -\frac{1}{Cp} 10^{-\frac{3}{2} v_c} i_{in}(p) \\
 v_o(p) &=& -\frac{1}{Cp} 10^{-\frac{3}{2} v_c} \frac{1}{R}(v_o(p) + v_s(p)) \\
-v_o(p) \left(1 + \frac{1}{RCp} 10^{-\frac{3}{2} v_c} \right) &=& -\frac{1}{RCp} 10^{-\frac{3}{2} v_c}v_s(p)
+v_o(p) &=& \frac{-\frac{1}{RCp} 10^{-\frac{3}{2} v_c}v_s(p)}{\left(1 + \frac{1}{RCp} 10^{-\frac{3}{2} v_c} \right)}
 \end{eqnarray*}
 
 We can now compute the transfert function:
@@ -125,30 +126,30 @@ This is the transfer function of an (inverting) 1-pole low-pass filter, with a p
 f_c &=& \frac{-1}{2 \pi RC} 10^{-\frac{3}{2} v_c}
 \end{eqnarray*}
 
-A 4-pole filter can be created by chaining 4 such modules.
+A 4-pole filter can be created by simply chaining 4 such modules.
 
 \subsection{Cutoff frequency scaling}
 
-From the previous equation, it can be seen that $v_c$ controls the cutoff frequency with an exponential response (which is exactly the required behaviour!). When $v_c$ is null, the cutoff frequency is that of the circuit $RC$ pair. The cutoff frequency is decreased with a $-30dB/V$ slope. For example, if $v_c$ is equal to $2V$, the cutoff frequency will be $1/1000$ of the roll-off frequency of the $RC$ pair. Observe that the control is inversed: the cutoff frequency is high for low values of $v_c$ and reversely. To deal with that, the input control voltage has to be inverted, and shifted.
+From the previous equation, it can be seen that $v_c$ controls the cutoff frequency with an exponential response, which is exactly the required behaviour! When $v_c$ is null, the cutoff frequency is that of the circuit $RC$ pair, and decreases with a $-30dB/V$ slope as $v_c$ increases. For example, if $v_c$ is equal to $2V$, the cutoff frequency will be $1/1000$ of the roll-off frequency of the $RC$ pair. Observe that this is the opposite of what one would expect from a VCF module: the cutoff frequency is high for low values of $v_c$ and reversely. To deal with that, the input control voltage has to be inverted, and shifted.
 
 \begin{figure}
 \begin{center}
 \begin{circuitikz}
  \draw
  (0, 0) node[op amp] (opamp) {}
- (opamp.out) node[anchor=south] {$v_c$}
+ (opamp.out) to[short] (2, 0)
+ (2, 0) node[anchor=south] {$v_c$}
  (opamp.-) node[anchor=south] {$v'_-$}
  (opamp.+) to[short] (-1.5, -0.5)
  (-1.5, -0.5) to (-1.5, -1)
  (-1.5, -1) node[ground] {}
- (opamp.-) to (-1.5, 0.5)
+ (opamp.-) to[-*] (-1.5, 0.5)
  (-1.5, 0.5) to (-1.5, 2)
  (-1.5, 2) to[R, R=$R_2$] (1.5, 2)
- (1.5, 2) to[short] (1.5, 0)
- (1.5, 0) to (opamp.out)
+ (1.5, 2) to[short, -*] (1.5, 0)
  (-1.5, 0.5) to (-1.5, 0.0)
- (-4, 0.0) to[R, R=$R_1$] (-1.5, 0.0)
- (-4, 1) to[R, R=$R_1$] (-1.5, 1)
+ (-4, 0.0) to[R, R=$R_1$, -*] (-1.5, 0.0)
+ (-4, 1) to[R, R=$R_1$, -*] (-1.5, 1)
  (-4, 1) node[anchor=east] {$v_{ee}$}
  (-4, 0) node[anchor=east] {$v_{CV}$}
 ;\end{circuitikz}
@@ -165,9 +166,9 @@ When $v_{CV}$ is null (low cutoff), the output is a positive value $-\frac{R_2}{
 
 Let us figure what the values of the components should be for the Shruthi-1, in which the control voltage are in the $[0, 5]V$ range and the power supply is $\pm5V$.
 
-First, decide on the $RC$ pair for the filter. The value of $R$ is dictated by the SSM2164 datasheet, in which $30k\Omega$ resistors are always used on the inputs. Since we prefer values in the E12 series, $R = 33k\Omega$. The value of $C$ must be such that the maximal cutoff frequency is outside of the human hearing range, for example $20kHz$. This yields $C = \frac{1}{2 \pi \times 20000 \times 33000} = 241pF$ close enough to the standard value of $220pF$.
+First, we must decide on the filter $RC$. The value of $R$ is dictated by the SSM2164 datasheet, in which $30k\Omega$ resistors are always used on the inputs. Since we prefer values in the E12 series, let's stick to $R = 33k\Omega$. The value of $C$ must be such that the maximal cutoff frequency is outside of the human hearing range~-- let's pick $20kHz$. This yields $C = \frac{1}{2 \pi \times 20000 \times 33000} = 241pF$ close enough to the standard value of $220pF$.
 
-If we want the cutoff to have a $5Hz$ to $20kHz$ range, $v_c$ must be such that an attenuation of $4000$ (or 72dB) is produced at the VCA when $v_{CV}$ is set to 0. Given the $30dB/V$ scale of the filter, this implies that $v_c = \frac{72}{30} = 2.4V$ to achieve the minimum cutoff frequency. If the VCA control voltage is produced by the op-amp circuit given above, this implies:
+If we want the cutoff to have a $5Hz$ to $20kHz$ range, $v_c$ must be such that an attenuation of $4000$ (or 72dB) is produced at the VCA when $v_{CV}$ is set to 0. Given the $30dB/V$ scale of the filter, this implies that $v_c = \frac{72}{30} = 2.4V$ to achieve this minimum cutoff frequency. If the VCA control voltage is produced by the op-amp circuit given above, this implies:
 
 $$\frac{R_2}{R_1} = \frac{2.4}{5}$$
 
@@ -179,13 +180,17 @@ The circuit described here has the following advantages over an OTA-based LPF:
 
 \begin{itemize}
 \item Better signal to noise ratio. OTAs require the input voltage to be scaled to a mV range.
-\item Only 2 chips are required for a 4-poles VCF (the SSM2164 and a quad op-amp). The OTA version of the same filter requires 2 dual OTAs and a quad op-amp.
-\item No need for an exponential current source, since the exponential conversion is built right into the chip. This means no problem matching or thermally coupling transistors.
+\item Only 2 chips are required for a 4-pole VCF (the SSM2164 and a quad op-amp). The OTA version of the same filter requires 2 dual OTAs and a quad op-amp.
+\item No need for an exponential current source, since the exponential conversion is built right into the chip. If high precision is required, this means no problem matching or thermally coupling transistors; and in any case, this reduces the part count.
 \end{itemize}
 
-A discutable advantage is that the VCA circuit yields less distortion. This is true, since OTAs, when not linearized, have a tanh shapping curve. But this non-linearity helps in giving character to the sound.
+A disputable advantage is that the VCA circuit yields less distortion. This is true, since OTAs, when not linearized, have a tanh shaping curve. But this non-linearity helps in giving character to the sound.
 
 \section{Other circuits}
+
+\subsection{1-pole High-pass filter}
+
+\subsection{State variable filter}
 
 \textit{To be continued}
 
