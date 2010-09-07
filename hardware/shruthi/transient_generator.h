@@ -41,6 +41,9 @@ class TransientGenerator {
     if (shape < WAVEFORM_SUB_OSC_CLICK)  {
       return;  // Not my business... handled by the sub oscillator!
     }
+    if (shape > WAVEFORM_SUB_OSC_POP) {
+      shape = WAVEFORM_SUB_OSC_POP;
+    }
     fn_ = fn_table_[shape - WAVEFORM_SUB_OSC_CLICK];
   }
   
