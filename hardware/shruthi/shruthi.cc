@@ -120,9 +120,12 @@ void UpdateLedsTask() {
 }
 
 void UpdateDisplayTask() {
+  // Check if some patch settings have been modified by a SysEx or NRPN. If this
+  // is the case, refresh the content of the LCD display.
   if (engine.dirty()) {
     editor.Refresh();
   }
+  // The display can now blink the cursor and/or output modified characters.
   display.Tick();
 }
 
@@ -208,8 +211,11 @@ void MidiTask() {
 }
 
 void AudioRenderingTask() {
+  // Run only when there's a block of 40 samples to fill...
   if (audio_out.writable_block()) {
+    // Generate a sample of the control signals.
     engine.Control();
+    // Generate 40 samples of the audio signals.
     if (engine.voice(0).dead()) {
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
         audio_out.Overwrite(128);
@@ -230,7 +236,7 @@ void AudioRenderingTask() {
 
 uint16_t previous_num_glitches;
 
-// This task displays a '!' in the status area of the LCD displays whenever
+// This task displays a '!' in the status area of the LCD whenever
 // a discontinuity occurred in the audio rendering. Even if the code is
 // optimized in such a way that it never occurs, I'd rather keep it here in
 // case new features are implemented and need performance monitoring.
