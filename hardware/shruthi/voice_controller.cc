@@ -281,6 +281,9 @@ void VoiceController::TouchSequence() {
     step_duration_[i] = average_step_duration_ + swing;
   }
   estimated_beat_duration_ = average_step_duration_ / (kControlRate / 4);
+  if (sequencer_settings_->seq_mode > SEQUENCER_MODE_IMPROVISATION) {
+    sequencer_settings_->seq_mode = SEQUENCER_MODE_IMPROVISATION;
+  }
   handler_ = handler_table_[sequencer_settings_->seq_mode];
 }
 
