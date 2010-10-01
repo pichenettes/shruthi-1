@@ -77,8 +77,8 @@ class Storage {
   
   template<typename T>
   static uint8_t size() {
-    return StorageConfiguration<Patch>::num_internal +
-           StorageConfiguration<Patch>::num_external;
+    return StorageConfiguration<T>::num_internal +
+           StorageConfiguration<T>::num_external;
   }
 
   template<typename T>
