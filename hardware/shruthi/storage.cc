@@ -286,15 +286,7 @@ void Storage::WriteExternal(
     uint16_t address,
     uint8_t size) {
   ExternalEeprom<> e;
-#ifdef HARDWARE_REV_02
-  lcd.DisableRefresh();
-  e.Init();
-#endif
   uint16_t written = e.Write(address, data, size);
-#ifdef HARDWARE_REV_02
-  e.Done();
-  lcd.EnableRefresh();
-#endif
 }
 
 /* static */
@@ -303,14 +295,7 @@ void Storage::ReadExternal(
     uint16_t address,
     uint8_t size) {
   ExternalEeprom<> e;
-#ifdef HARDWARE_REV_02
-  lcd.DisableRefresh();
-  e.Init();
-#endif
   e.Read(address, size, data);
-#ifdef HARDWARE_REV_02
-  e.Done();
-#endif
   lcd.EnableRefresh();  
 }
 

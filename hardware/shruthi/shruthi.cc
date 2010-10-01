@@ -321,9 +321,7 @@ void Init() {
   lcd.SetCustomCharMapRes(character_table[0], 7, 1);
 
   editor.Init();
-#ifndef HARDWARE_REV_02
   ExternalEeprom<>::Init();
-#endif
 
   engine.Init();
   if (engine.system_settings().display_splash_screen) {
