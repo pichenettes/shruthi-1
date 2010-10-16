@@ -396,6 +396,11 @@ class Oscillator {
     held_sample_ = InterpolateTwoTables(
         data_.st.wave[0], data_.st.wave[1],
         phase, data_.st.balance);
+    // For low-fi (PPG-ish) version, use this instead:
+    /*held_sample_ = Mix(
+        ReadSample(data_.st.wave[0], phase),
+        ReadSample(data_.st.wave[1], phase),
+        data_.st.balance);*/
   }
   
   // The position is freely determined by the parameter
