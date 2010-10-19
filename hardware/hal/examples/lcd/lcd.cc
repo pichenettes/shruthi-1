@@ -70,6 +70,7 @@ int main(void) {
   display.Print(0, "hello \x01\x02\x03\x04\x05\x06\x07");
   uint16_t cpt = 0;
   display.set_cursor_position(31);
+  
   while (1) {
     cpt = (cpt + 1) & 0x07ff;
     if (cpt == 1) {

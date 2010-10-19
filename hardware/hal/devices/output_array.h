@@ -30,6 +30,8 @@
 #ifndef HARDWARE_HAL_DEVICES_OUTPUT_ARRAY_H_
 #define HARDWARE_HAL_DEVICES_OUTPUT_ARRAY_H_
 
+#include <string.h>
+
 #include "hardware/hal/devices/shift_register.h"
 #include "hardware/hal/size_to_type.h"
 
@@ -200,6 +202,7 @@ class OutputArray<Latch, Clock, Data, size, 1, order, safe> {
       bits_ &= ~mask;
     }
   }
+  static inline void Clear() { bits_ = 0; }
   static inline uint8_t value(uint8_t output_index) {
     T mask = T(1) << output_index;
     return T(bits_ & mask) ? 1 : 0;
