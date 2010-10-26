@@ -57,8 +57,8 @@ class RotaryEncoder {
     SwitchA::Read();
     SwitchB::Read();
     SwitchClick::Read();
-    if (SwitchA::raised()) {
-      increment = SwitchB::debounced_value() ? 1 : -1;
+    if (SwitchA::lowered()) {
+      increment = SwitchB::debounced_value() ? -1 : 1;
     }
     return increment;
   }

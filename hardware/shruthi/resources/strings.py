@@ -182,7 +182,7 @@ save midi/kbd
 settings?
 start full midi
 backup?
-load
+browse
 save
 compare
 ----

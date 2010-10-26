@@ -625,7 +625,7 @@ void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) { }
 /* static */
 void Editor::DisplayLoadSavePage() {
   ResourcesManager::LoadStringResource(
-      STR_RES_LOAD + action_,
+      STR_RES_BROWSE + action_,
       line_buffer_,
       8);
   ResourcesManager::LoadStringResource(

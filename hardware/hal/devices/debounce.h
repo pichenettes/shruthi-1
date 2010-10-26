@@ -51,7 +51,6 @@ class DebouncedSwitch {
   static inline uint8_t raised() { return state_ == 0x7f; }
   static inline uint8_t high() { return state_ == 0xff; }
   static inline uint8_t low() { return state_ == 0x00; }
-
   static inline uint8_t debounced_value() { return debounced_value_; }
 
  private:

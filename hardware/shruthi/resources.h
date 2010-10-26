@@ -278,7 +278,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_SETTINGS_ 154  // settings?
 #define STR_RES_START_FULL_MIDI 155  // start full midi
 #define STR_RES_BACKUP_ 156  // backup?
-#define STR_RES_LOAD 157  // load
+#define STR_RES_BROWSE 157  // browse
 #define STR_RES_SAVE 158  // save
 #define STR_RES_COMPARE 159  // compare
 #define STR_RES_ 160  // ----

@@ -182,7 +182,7 @@ static const prog_char str_res_save_midi_kbd[] PROGMEM = "save midi/kbd";
 static const prog_char str_res_settings_[] PROGMEM = "settings?";
 static const prog_char str_res_start_full_midi[] PROGMEM = "start full midi";
 static const prog_char str_res_backup_[] PROGMEM = "backup?";
-static const prog_char str_res_load[] PROGMEM = "load";
+static const prog_char str_res_browse[] PROGMEM = "browse";
 static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
@@ -487,7 +487,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_settings_,
   str_res_start_full_midi,
   str_res_backup_,
-  str_res_load,
+  str_res_browse,
   str_res_save,
   str_res_compare,
   str_res_,
