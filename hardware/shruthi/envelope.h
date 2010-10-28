@@ -23,7 +23,7 @@
 // 
 // 
 // < P ><-- A --><-- D -->           <-- R -->
-//               1  2                4  5
+//               1  2  3             4  5  6
 //              /\
 //             /  \
 //            /    \
@@ -61,10 +61,12 @@ enum EnvelopeStage {
   ATTACK = 1,
   DECAY_1 = 2,
   DECAY_2 = 3,
-  SUSTAIN = 4,
-  RELEASE_1 = 5,
-  RELEASE_2 = 6,
-  DEAD = 7,
+  DECAY_3 = 4,
+  SUSTAIN = 5,
+  RELEASE_1 = 6,
+  RELEASE_2 = 7,
+  RELEASE_3 = 8,
+  DEAD = 9,
 };
 
 
@@ -98,7 +100,8 @@ class Envelope {
     }
   }
 
-  static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale);
+  static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale) 
+      __attribute__((noinline));
 
  private:
   uint8_t release_;  // release time.
