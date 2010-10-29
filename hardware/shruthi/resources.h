@@ -389,8 +389,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_PWM 265  // pwm
 #define STR_RES__NOISE 266  //  noise
 #define STR_RES_VOWEL 267  // vowel
-#define STR_RES_SMR 268  // smr
-#define STR_RES_CEM 269  // cem
+#define STR_RES_CEM 268  // cem
+#define STR_RES_SMR 269  // smr
 #define STR_RES_SSM 270  // ssm
 #define STR_RES_4CV_IN 271  // 4cv in
 #define STR_RES_PRGM 272  // prgm

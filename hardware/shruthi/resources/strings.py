@@ -306,8 +306,8 @@ pwm
  noise
 vowel
 
-smr
 cem
+smr
 ssm
 
 4cv in

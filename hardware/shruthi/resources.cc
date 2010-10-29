@@ -293,8 +293,8 @@ static const prog_char str_res_crush[] PROGMEM = "crush";
 static const prog_char str_res_pwm[] PROGMEM = "pwm";
 static const prog_char str_res__noise[] PROGMEM = "noise";
 static const prog_char str_res_vowel[] PROGMEM = "vowel";
-static const prog_char str_res_smr[] PROGMEM = "smr";
 static const prog_char str_res_cem[] PROGMEM = "cem";
+static const prog_char str_res_smr[] PROGMEM = "smr";
 static const prog_char str_res_ssm[] PROGMEM = "ssm";
 static const prog_char str_res_4cv_in[] PROGMEM = "4cv in";
 static const prog_char str_res_prgm[] PROGMEM = "prgm";
@@ -603,8 +603,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_pwm,
   str_res__noise,
   str_res_vowel,
-  str_res_smr,
   str_res_cem,
+  str_res_smr,
   str_res_ssm,
   str_res_4cv_in,
   str_res_prgm,

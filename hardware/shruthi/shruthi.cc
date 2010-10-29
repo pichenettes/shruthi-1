@@ -350,8 +350,23 @@ void Init() {
   ExternalEeprom<>::Init();
 
   engine.Init();
-  editor.DisplaySplashScreen(STR_RES_V + 1);
 
+  // If the encoder is pressed at startup, toggle the "Boot on patch page"
+  // flag.
+  if (encoder.immediate_value() == 0) {
+    engine.mutable_system_settings()->patch_restore_on_boot ^= 0x80;
+    engine.system_settings().EepromSave();
+  }
+  
+  // When booting on the patch page, jump to the patch page and restore the
+  // previously loaded patch.
+  if (engine.system_settings().patch_restore_on_boot & 0x80) {
+    editor.BootOnPatchBrowsePage(
+        engine.system_settings().patch_restore_on_boot & 0x7f);
+  } else {
+    editor.DisplaySplashScreen(STR_RES_V + 1);
+  }
+  
   scheduler.Init();
 }
 

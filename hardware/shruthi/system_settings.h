@@ -41,13 +41,16 @@ class SystemSettings {
   uint8_t expansion_cv_mode;
   uint8_t display_snap;
 
+  uint8_t padding[2];
+  uint8_t patch_restore_on_boot;
+
   void EepromSave() const;
   uint8_t EepromLoad();
 };
 
 enum FilterBoard {
-  FILTER_BOARD_SMR,
   FILTER_BOARD_CEM,
+  FILTER_BOARD_SMR,
   FILTER_BOARD_SSM,
 };
 

@@ -71,6 +71,7 @@ class RotaryEncoder {
   }
 
   static uint8_t clicked() { return SwitchClick::raised(); }
+  static uint8_t immediate_value() { return SwitchClick::immediate_value(); }
 
  private:
   static uint32_t next_readout_;
@@ -98,6 +99,7 @@ class RotaryEncoderBuffer {
   
   static inline uint8_t clicked() { return clicked_; }
   static inline uint8_t increment() { return increment_; }
+  static inline uint8_t immediate_value() { return Encoder::immediate_value(); }
   static void Flush() {
     increment_ = 0;
     clicked_ = 0; 

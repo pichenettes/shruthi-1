@@ -195,6 +195,8 @@ class Editor {
   
   static void Confirm(ConfirmPageSettings confirm_page_settings);
 
+  static void BootOnPatchBrowsePage(uint8_t patch_index);
+
  private:
   // This is called whenever we move to another page.
   static void PrettyPrintParameterValue(const ParameterDefinition& parameter,

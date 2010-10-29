@@ -610,8 +610,13 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
     set_edited_item_number(edited_item_number() + direction);
     if (action_ == ACTION_LOAD) {
       if (editor_mode_ == EDITOR_MODE_PATCH) {
-        Storage::Load(engine.mutable_patch(), edited_item_number());
+        uint8_t n = edited_item_number();
+        Storage::Load(engine.mutable_patch(), n);
         engine.TouchPatch(1);
+        if (engine.system_settings().patch_restore_on_boot & 0x80) {
+          engine.mutable_system_settings()->patch_restore_on_boot = 0x80 | n;
+          engine.system_settings().EepromSave();
+        }
       } else {
         Storage::Load(engine.mutable_sequencer_settings(),
                       edited_item_number());
@@ -1243,6 +1248,16 @@ void Editor::DisplayConfirmPage() {
     }
     display.Print(i, line_buffer_);
   }
+}
+
+/* static */
+void Editor::BootOnPatchBrowsePage(uint8_t index) {
+  ToggleLoadSaveAction();
+  if (index >= Storage::size<Patch>()) {
+    index = Storage::size<Patch>() - 1;
+  } 
+  current_patch_number_ = index;
+  HandleLoadSaveIncrement(0);
 }
 
 }  // namespace hardware_shruthi
