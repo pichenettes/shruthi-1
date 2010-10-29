@@ -77,6 +77,8 @@ PwmOutput<kPinCv2Out> cv_2_out;
 
 MidiStreamParser<MidiDispatcher> midi_parser;
 
+static uint8_t scanned_expansion_cv = 0;
+
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
 // are called in sequence, with some tasks being more frequently called than
@@ -116,7 +118,12 @@ void UpdateLedsTask() {
       mask <<= 1;
     }
   }
-  leds.Output();
+  leds.Begin();
+  leds.ShiftOut();
+  if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
+    leds.ShiftOutByte(scanned_expansion_cv);
+  }
+  leds.End();
 }
 
 void UpdateDisplayTask() {
@@ -193,11 +200,28 @@ TASK_END
 uint8_t current_cv;
 
 void CvTask() {
-  ++current_cv;
-  if (current_cv >= kNumCvInputs) {
-    current_cv = 0;
+  if (engine.system_settings().expansion_cv_mode == CV_MODE_4CV_IN) {
+    ++current_cv;
+    if (current_cv >= kNumCvInputs) {
+      current_cv = 0;
+    }
+    engine.set_cv(current_cv, Adc::Read(kPinCvInput + current_cv) >> 2);
+  } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
+    uint8_t scanned_value = Adc::Read(kPinCvInput) >> 2;
+    scanned_expansion_cv = (scanned_expansion_cv + 1) & 0x1f;
+    // Do something with read CV!
+  } else {
+    uint8_t value = Adc::Read(kPinCvInput + current_cv) >> 2;
+    if (current_cv <= 1) {
+      value >>= 1;
+      uint8_t offset = current_cv * 4;
+      engine.SetParameter(PRM_OSC_PARAMETER_1 + offset, value);
+      ++current_cv;
+    } else {
+      engine.set_unregistered_modulation(0, value);
+      current_cv = 0;
+    }
   }
-  engine.set_cv(current_cv, Adc::Read(kPinCvInput + current_cv) >> 2);
 }
 
 void MidiTask() {
@@ -292,7 +316,6 @@ TIMER_2_TICK {
 }
 
 void Init() {
-  scheduler.Init();
   audio_out.Init();
   
   midi_io.Init();
@@ -324,11 +347,9 @@ void Init() {
   ExternalEeprom<>::Init();
 
   engine.Init();
-  if (engine.system_settings().display_splash_screen) {
-    editor.DisplaySplashScreen(STR_RES_V + 1);
-  } else {
-    editor.Refresh();
-  }
+  editor.DisplaySplashScreen(STR_RES_V + 1);
+
+  scheduler.Init();
 }
 
 int main(void) {

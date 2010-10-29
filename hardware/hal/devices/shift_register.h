@@ -47,8 +47,7 @@ template<typename Latch, typename Clock, typename Data,
 struct ShiftRegisterOutput<Latch, Clock, Data, size, LSB_FIRST>
   : public BaseShiftRegisterOutput<Latch, Clock, Data> {
   ShiftRegisterOutput() { }
-  static void Write(typename DataTypeForSize<size>::Type data) {
-    Latch::Low();
+  static void ShiftOut(typename DataTypeForSize<size>::Type data) {
     Data::Low();
     for (uint8_t i = size; i > 0; --i) {
       Clock::Low();
@@ -57,7 +56,17 @@ struct ShiftRegisterOutput<Latch, Clock, Data, size, LSB_FIRST>
       Clock::High();
     }
     Clock::Low();
+  }
+  static void Begin() {
+    Latch::Low();
+  }
+  static void End() {
     Latch::High();
+  }
+  static void Write(typename DataTypeForSize<size>::Type data) {
+    Begin();
+    ShiftOut(data);
+    End();
   }
 };
 
@@ -66,8 +75,7 @@ struct ShiftRegisterOutput<Latch, Clock, Data, size, MSB_FIRST>
   : public BaseShiftRegisterOutput<Latch, Clock, Data> {
   ShiftRegisterOutput() { }
   typedef typename DataTypeForSize<size>::Type T;
-  static void Write(T data) {
-    Latch::Low();
+  static void ShiftOut(T data) {
     Data::Low();
     T mask = (T(1) << (size - 1));
     for (uint8_t i = size; i > 0; --i) {
@@ -81,7 +89,17 @@ struct ShiftRegisterOutput<Latch, Clock, Data, size, MSB_FIRST>
       Clock::High();
     }
     Clock::Low();
+  }
+  static void Begin() {
+    Latch::Low();
+  }
+  static void End() {
     Latch::High();
+  }
+  static void Write(typename DataTypeForSize<size>::Type data) {
+    Begin();
+    ShiftOut(data);
+    End();
   }
 };
 

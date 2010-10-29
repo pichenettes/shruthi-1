@@ -818,9 +818,8 @@ inline void Voice::Control() {
       0,
       16383);
   dst[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
-          engine.patch_.filter_env,
-          engine.unregistered_modulation_sources_[0]),
+      dst[MOD_DST_FILTER_CUTOFF] + (
+          engine.unregistered_modulation_sources_[0] << 6),
       0,
       16383);
   dst[MOD_DST_FILTER_CUTOFF] = Clip(

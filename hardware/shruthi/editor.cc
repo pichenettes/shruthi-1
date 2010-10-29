@@ -40,7 +40,7 @@ namespace hardware_shruthi {
 /* extern */
 Editor editor;
 
-static const prog_uint16_t units_definitions[UNIT_SPLIT_POINT + 1]
+static const prog_uint16_t units_definitions[UNIT_CV_MODE + 1]
     PROGMEM = {
   0,
   0,
@@ -63,7 +63,9 @@ static const prog_uint16_t units_definitions[UNIT_SPLIT_POINT + 1]
   STR_RES_SWING,
   0,
   STR_RES_FREE,
-  0
+  0,
+  STR_RES_SMR,
+  STR_RES_4CV_IN,
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -156,7 +158,7 @@ const PageDefinition Editor::page_definition_[] = {
 
   /* PAGE_SYS_DISPLAY */ { PAGE_SYS_KBD, GROUP_SYS,
     PAGE_SYS_KBD, PAGE_SYS_KBD,
-    STR_RES_DISPLAY, PARAMETER_EDITOR, 52, LED_6_MASK },
+    STR_RES_SYSTEM, PARAMETER_EDITOR, 52, LED_6_MASK },
 
   /* PAGE_LOAD_SAVE */ { PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
@@ -923,24 +925,20 @@ void Editor::DisplayEditOverviewPage() {
     uint8_t index = KnobIndexToParameterId(i);
     const ParameterDefinition& parameter = (
         ParameterDefinitions::parameter_definition(index));
+    uint8_t caption_position = i * kColumnWidth;
+    uint8_t text_position = i * kColumnWidth + kLcdWidth + 1;
     ResourcesManager::LoadStringResource(
         parameter.short_name,
-        line_buffer_ + i * kColumnWidth,
+        line_buffer_ + caption_position,
         kColumnWidth - 1);
-    line_buffer_[i * kColumnWidth + kColumnWidth - 1] = '\0';
-    AlignRight(line_buffer_ + i * kColumnWidth, kColumnWidth);
+    line_buffer_[caption_position + kColumnWidth - 1] = '\0';
+    line_buffer_[text_position + kColumnWidth - 1] = '\0';
+    AlignRight(line_buffer_ + caption_position, kColumnWidth);
     PrettyPrintParameterValue(
         parameter,
-        line_buffer_ + i * kColumnWidth + kLcdWidth + 1,
+        line_buffer_ + text_position,
         kColumnWidth - 1);
-    line_buffer_[i * kColumnWidth + kColumnWidth + kLcdWidth] = '\0';
-    AlignRight(line_buffer_ + i * kColumnWidth + kLcdWidth + 1, kColumnWidth);
-  }
-  if (engine.system_settings().display_delimiter) {
-    for (uint8_t i = 0; i < kLcdWidth; i += kColumnWidth) {
-      line_buffer_[i] = '|';
-      line_buffer_[i + kLcdWidth + 1] = '|';
-    }
+    AlignRight(line_buffer_ + text_position, kColumnWidth);
   }
 
   // Change the case of the current parameter accessible by the rotary encoder.

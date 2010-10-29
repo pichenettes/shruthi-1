@@ -67,9 +67,8 @@ midi chan
 chn
 midi out
 pause
-delimiter
-splash
 snap
+cv.mode
 oscillator 1
 oscillator 2
 mixer
@@ -81,7 +80,7 @@ arpeggio
 step sequencer
 keyboard
 midi
-display
+system
 performance
 
 cut
@@ -188,7 +187,7 @@ compare
 ----
 
 v
-mutable    v0.91
+mutable    v0.92
 instruments \x06\x07-1
 
 extern
@@ -306,6 +305,14 @@ crush
 pwm
  noise
 vowel
+
+smr
+cem
+ssm
+
+4cv in
+prgm
+pedals
 
 equal
 """

@@ -37,12 +37,24 @@ class SystemSettings {
   uint8_t midi_split_point;
   
   uint8_t display_delay;
-  uint8_t display_delimiter;
-  uint8_t display_splash_screen;
+  uint8_t expansion_filter_board;
+  uint8_t expansion_cv_mode;
   uint8_t display_snap;
 
   void EepromSave() const;
   uint8_t EepromLoad();
+};
+
+enum FilterBoard {
+  FILTER_BOARD_SMR,
+  FILTER_BOARD_CEM,
+  FILTER_BOARD_SSM,
+};
+
+enum CvMode {
+  CV_MODE_4CV_IN,
+  CV_MODE_PROGRAMMER,
+  CV_MODE_PEDALS
 };
 
 enum SystemParameter {
@@ -57,8 +69,8 @@ enum SystemParameter {
   PRM_SYS_MIDI_SPLIT_POINT,
   
   PRM_SYS_DISPLAY_DELAY,
-  PRM_SYS_DISPLAY_DELIMITER,
-  PRM_SYS_DISPLAY_SHOW_SPLASH_SCREEN,
+  PRM_SYS_EXPANSION_FILTER_BOARD,
+  PRM_SYS_EXPANSION_CV_MODE,
   PRM_SYS_DISPLAY_SNAP
 };
 

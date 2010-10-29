@@ -177,6 +177,9 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static void set_cv(uint8_t cv, uint8_t value) {
     modulation_sources_[MOD_SRC_CV_1 + cv] = value;
   }
+  static void set_unregistered_modulation(uint8_t index, uint8_t value) {
+    unregistered_modulation_sources_[index] = value;
+  }
   static uint8_t oscillator_decimation() { return oscillator_decimation_; }
   static void ResetPatch();
   static void ResetSequencerSettings();

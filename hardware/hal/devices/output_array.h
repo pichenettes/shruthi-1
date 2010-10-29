@@ -61,10 +61,16 @@ class OutputArray {
   static inline Value value(Index output_index) {
     return values_[output_index];
   }
-  static inline void DebugOutput(uint8_t v) {
-    Register::Write(v);
+  static inline void ShiftOutByte(uint8_t v) {
+    Register::ShiftOut(v);
   }
-  static inline void Output() {
+  static inline void Begin() {
+    Register::Begin();
+  }
+  static inline void End() {
+    Register::End();
+  }
+  static inline void ShiftOut() {
     Index c = 0;
     Index bit = 1;
     for (Index i = 0; i < size; ++i) {
@@ -77,7 +83,12 @@ class OutputArray {
     if (cycle_ == ((1 << bit_depth) - 1)) {
       cycle_ = 0;
     }
-    Register::Write(c);
+    Register::ShiftOut(c);
+  }
+  static inline void Write() {
+    Begin();
+    ShiftOut();
+    End();
   }
  private:
   static Value values_[size];
@@ -131,10 +142,16 @@ class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
       return values_[output_index >> 1] & 0x0f;
     }
   }
-  static inline void DebugOutput(uint8_t v) {
-    Register::Write(v);
+  static inline void ShiftOutByte(uint8_t v) {
+    Register::ShiftOut(v);
   }
-  static inline void Output() {
+  static inline void Begin() {
+    Register::Begin();
+  }
+  static inline void End() {
+    Register::End();
+  }
+  static inline void ShiftOut() {
     Index c = 0;
     Index bit = 1;
     for (Index i = 0; i < size; ++i) {
@@ -156,7 +173,12 @@ class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
     }
     ++cycle_;
     cycle_ = (cycle_ & 15);
-    Register::Write(c);
+    Register::ShiftOut(c);
+  }
+  static inline void Write() {
+    Begin();
+    ShiftOut();
+    End();
   }
  private:
   static Value values_[(size - 1) / 2 + 1];
@@ -207,15 +229,26 @@ class OutputArray<Latch, Clock, Data, size, 1, order, safe> {
     T mask = T(1) << output_index;
     return T(bits_ & mask) ? 1 : 0;
   }
-  static inline void DebugOutput(uint8_t v) {
-    Register::Write(v);
+  static inline void ShiftOutByte(uint8_t v) {
+    Register::ShiftOut(v);
   }
-  static inline void Output() {
+  static inline void Begin() {
+    Register::Begin();
+  }
+  static inline void End() {
+    Register::End();
+  }
+  static inline void ShiftOut() {
     if (bits_ == last_bits_) {
       return;
     }
-    Register::Write(bits_);
+    Register::ShiftOut(bits_);
     last_bits_ = bits_;
+  }
+  static inline void Write() {
+    Begin();
+    ShiftOut();
+    End();
   }
  private:
   static T bits_;
