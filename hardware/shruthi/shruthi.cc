@@ -208,8 +208,11 @@ void CvTask() {
     engine.set_cv(current_cv, Adc::Read(kPinCvInput + current_cv) >> 2);
   } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
     uint8_t scanned_value = Adc::Read(kPinCvInput) >> 3;
-    engine.SetScaledParameter(scanned_expansion_cv, scanned_value);
-    scanned_expansion_cv = (scanned_expansion_cv + 1) & 0x1f;
+    engine.SetScaledParameter(scanned_expansion_cv & 0x1f, scanned_value);
+    ++scanned_expansion_cv;
+    if (scanned_expansion_cv >= 0x30) {
+      scanned_expansion_cv = 0;
+    }
   } else {
     uint8_t value = Adc::Read(kPinCvInput + current_cv) >> 2;
     if (current_cv <= 1) {
@@ -281,8 +284,8 @@ Scheduler scheduler;
 template<>
 Task Scheduler::tasks_[] = {
     { &AudioRenderingTask, 16 },
-    { &MidiTask, 6 },
     { &UpdateLedsTask, 4 },
+    { &MidiTask, 6 },
     { &UpdateDisplayTask, 2 },
     { &AudioGlitchMonitoringTask, 1 },
     { &InputTask, 2 },
