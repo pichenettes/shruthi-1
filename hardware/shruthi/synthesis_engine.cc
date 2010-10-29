@@ -352,9 +352,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
     }
   }
   if (editing_controller) {
-    const ParameterDefinition& parameter = (
-        ParameterDefinitions::parameter_definition(controller));
-    SetParameter(parameter.id, ParameterDefinitions::Scale(parameter, value));
+    SetScaledParameter(controller, value);
     dirty_ = 1;
   }
 }
@@ -437,9 +435,23 @@ void SynthesisEngine::Stop() {
 }
 
 /* static */
+void SynthesisEngine::SetScaledParameter(
+    uint8_t parameter_index,
+    uint8_t value) {
+  const ParameterDefinition& parameter = (
+      ParameterDefinitions::parameter_definition(parameter_index));
+  SetParameter(
+      parameter.id,
+      ParameterDefinitions::Scale(parameter, value));
+}
+
+/* static */
 void SynthesisEngine::SetParameter(
     uint8_t parameter_index,
     uint8_t parameter_value) {
+  if (data_access_byte_[parameter_index + 1] == parameter_value) {
+    return;
+  }
   data_access_byte_[parameter_index + 1] = parameter_value;
   if (parameter_index >= PRM_ENV_ATTACK_1 &&
       parameter_index <= PRM_LFO_RETRIGGER_2) {
