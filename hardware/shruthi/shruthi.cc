@@ -119,10 +119,10 @@ void UpdateLedsTask() {
     }
   }
   leds.Begin();
-  leds.ShiftOut();
   if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
     leds.ShiftOutByte(scanned_expansion_cv);
   }
+  leds.ShiftOut();
   leds.End();
 }
 
