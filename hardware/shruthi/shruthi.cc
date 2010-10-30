@@ -77,7 +77,7 @@ PwmOutput<kPinCv2Out> cv_2_out;
 
 MidiStreamParser<MidiDispatcher> midi_parser;
 
-static uint8_t programmer_counter = 0;
+static uint8_t programmer_active_pot = 0;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -120,7 +120,7 @@ void UpdateLedsTask() {
   }
   leds.Begin();
   if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
-    leds.ShiftOutByte(programmer_counter & 0x1f);
+    leds.ShiftOutByte(programmer_active_pot);
   }
   leds.ShiftOut();
   leds.End();
@@ -198,6 +198,9 @@ TASK_END
 }
 
 uint8_t current_cv;
+uint8_t programmer_counter = 0;
+uint8_t currently_tweaked_pot;
+uint16_t pots_value[32];
 
 void CvTask() {
   if (engine.system_settings().expansion_cv_mode == CV_MODE_4CV_IN) {
@@ -207,11 +210,20 @@ void CvTask() {
     }
     engine.set_cv(current_cv, Adc::Read(kPinCvInput + current_cv) >> 2);
   } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
-    uint8_t scanned_value = Adc::Read(kPinCvInput) >> 3;
-    engine.SetScaledParameter(programmer_counter & 0x1f, scanned_value);
+    uint16_t value = Adc::Read(kPinCvInput);
+    // Read the pot selected on the multiplexer. If it has been touched, 
+    // change the corresponding parameter in the editor, and instruct the
+    // scanner to spend more time scanning this pot.
+    if ((pots_value[programmer_active_pot] - value > 8) ||
+        (pots_value[programmer_active_pot] - value < -8)) {
+      engine.SetScaledParameter(programmer_active_pot, value >> 3);
+      currently_tweaked_pot = programmer_active_pot;
+    }
     ++programmer_counter;
-    if (programmer_counter >= 0x30) {
-      programmer_counter = 0;
+    if (programmer_counter & 1) {
+      programmer_active_pot = currently_tweaked_pot;
+    } else {
+      programmer_active_pot = (programmer_counter >> 1) & 0x1f;
     }
   } else {
     uint8_t value = Adc::Read(kPinCvInput + current_cv) >> 2;

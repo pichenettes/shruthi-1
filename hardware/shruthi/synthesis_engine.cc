@@ -354,7 +354,6 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
   }
   if (editing_controller) {
     SetScaledParameter(controller, value);
-    dirty_ = 1;
   }
 }
 
@@ -439,6 +438,7 @@ void SynthesisEngine::Stop() {
 void SynthesisEngine::SetScaledParameter(
     uint8_t parameter_index,
     uint8_t value) {
+  dirty_ = 1;
   const ParameterDefinition& parameter = (
       ParameterDefinitions::parameter_definition(parameter_index));
   SetParameter(
