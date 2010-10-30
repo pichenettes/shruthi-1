@@ -77,7 +77,7 @@ PwmOutput<kPinCv2Out> cv_2_out;
 
 MidiStreamParser<MidiDispatcher> midi_parser;
 
-static uint8_t scanned_expansion_cv = 0;
+static uint8_t programmer_counter = 0;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -120,7 +120,7 @@ void UpdateLedsTask() {
   }
   leds.Begin();
   if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
-    leds.ShiftOutByte(scanned_expansion_cv);
+    leds.ShiftOutByte(programmer_counter & 0x1f);
   }
   leds.ShiftOut();
   leds.End();
@@ -208,10 +208,10 @@ void CvTask() {
     engine.set_cv(current_cv, Adc::Read(kPinCvInput + current_cv) >> 2);
   } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
     uint8_t scanned_value = Adc::Read(kPinCvInput) >> 3;
-    engine.SetScaledParameter(scanned_expansion_cv & 0x1f, scanned_value);
-    ++scanned_expansion_cv;
-    if (scanned_expansion_cv >= 0x30) {
-      scanned_expansion_cv = 0;
+    engine.SetScaledParameter(programmer_counter & 0x1f, scanned_value);
+    ++programmer_counter;
+    if (programmer_counter >= 0x30) {
+      programmer_counter = 0;
     }
   } else {
     uint8_t value = Adc::Read(kPinCvInput + current_cv) >> 2;
@@ -284,8 +284,8 @@ Scheduler scheduler;
 template<>
 Task Scheduler::tasks_[] = {
     { &AudioRenderingTask, 16 },
-    { &UpdateLedsTask, 4 },
     { &MidiTask, 6 },
+    { &UpdateLedsTask, 4 },
     { &UpdateDisplayTask, 2 },
     { &AudioGlitchMonitoringTask, 1 },
     { &InputTask, 2 },
