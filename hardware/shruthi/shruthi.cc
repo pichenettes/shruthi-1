@@ -119,10 +119,10 @@ void UpdateLedsTask() {
     }
   }
   leds.Begin();
+  leds.ShiftOut();
   if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
     leds.ShiftOutByte(programmer_active_pot);
   }
-  leds.ShiftOut();
   leds.End();
 }
 
@@ -200,7 +200,7 @@ TASK_END
 uint8_t current_cv;
 uint8_t programmer_counter = 0;
 uint8_t currently_tweaked_pot;
-uint16_t pots_value[32];
+int16_t pots_value[32];
 
 void CvTask() {
   if (engine.system_settings().expansion_cv_mode == CV_MODE_4CV_IN) {
@@ -210,7 +210,7 @@ void CvTask() {
     }
     engine.set_cv(current_cv, Adc::Read(kPinCvInput + current_cv) >> 2);
   } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
-    uint16_t value = Adc::Read(kPinCvInput);
+    int16_t value = Adc::Read(kPinCvInput);
     // Read the pot selected on the multiplexer. If it has been touched, 
     // change the corresponding parameter in the editor, and instruct the
     // scanner to spend more time scanning this pot.
@@ -218,6 +218,7 @@ void CvTask() {
         (pots_value[programmer_active_pot] - value < -8)) {
       engine.SetScaledParameter(programmer_active_pot, value >> 3);
       currently_tweaked_pot = programmer_active_pot;
+      pots_value[programmer_active_pot] = value;
     }
     ++programmer_counter;
     if (programmer_counter & 1) {
