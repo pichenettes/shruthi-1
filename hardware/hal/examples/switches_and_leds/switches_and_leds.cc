@@ -93,6 +93,6 @@ int main(void) {
     for (uint8_t i = 0; i < 8; ++i) {
       leds.set_value(i, (i == current_led || full) ? intensity : 0);
     }
-    leds.Output();
+    leds.Write();
   }
 }
