@@ -14,7 +14,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "hardware/hal/init_atmega.h"
-#include "hardware/hal/input_array.h"
+#include "hardware/hal/devices/input_array.h"
 #include "hardware/hal/serial.h"
 #include "hardware/hal/time.h"
 #include "hardware/utils/output_stream.h"
