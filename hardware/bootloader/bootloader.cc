@@ -112,8 +112,6 @@ inline void MidiLoop() {
             state = READING_COMMAND;
           }
         } else {
-          current_led = 1;
-          status = 0x55;
           bytes_read = 0;
         }
         break;
