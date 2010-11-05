@@ -112,8 +112,6 @@ inline void MidiLoop() {
             state = READING_COMMAND;
           }
         } else {
-          current_led = 1;
-          status = 0x55;
           bytes_read = 0;
         }
         break;
@@ -129,8 +127,6 @@ inline void MidiLoop() {
           }
         } else {
           state = MATCHING_HEADER;
-          current_led = 1;
-          status = 0;
           bytes_read = 0;
         }
         break;
@@ -171,9 +167,6 @@ inline void MidiLoop() {
               progress_counter = 0;
             }
             status ^= current_led;
-          } else {
-            current_led = 1;
-            status = 0;
           }
           state = MATCHING_HEADER;
           bytes_read = 0;
