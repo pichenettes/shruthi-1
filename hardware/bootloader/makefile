@@ -132,11 +132,12 @@ terminal:
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -tuF
 
 fuses:
-		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -Ulock:w:0x0F:m -e -u \
+		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -u \
 			-U lock:w:0x3f:m \
 			-U efuse:w:0x$(EFUSE):m \
 			-U hfuse:w:0x$(HFUSE):m \
-			-U lfuse:w:0x$(LFUSE):m
+			-U lfuse:w:0x$(LFUSE):m \
+			-Ulock:w:0x0F:m
 
 clean:
 		$(REMOVE) $(OBJS) $(TARGETS) $(DEP_FILE) $(DEPS)
