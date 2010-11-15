@@ -44,10 +44,11 @@ using hardware_utils::Task;
 Serial<MidiPort, 31250, BUFFERED, POLLED> midi_io;
 
 // Input event handlers.
-typedef MuxedAnalogInput<kPinAnalogInput> PotsMux;
-typedef InputArray<PotsMux, kNumEditingPots, 8> Pots;
+typedef AdcInputScanner AnalogInputs;
+typedef InputArray<AnalogInputs, kNumEditingPots, 8> Pots;
 
 Pots pots;
+AnalogInputs analog_inputs;
 
 // LED array.
 OutputArray<
@@ -161,8 +162,8 @@ TASK_BEGIN_NEAR
     }
 
     // Read the ADC.
+    analog_inputs.Scan();
     pot_event = pots.Read();
-    PotsMux::set_pin(pots.active_input());
 
     // Update the editor if something happened.
     // Revert back to the main page when nothing happened for 1.5s.
@@ -203,14 +204,19 @@ uint8_t currently_tweaked_pot;
 int16_t pots_value[32];
 
 void CvTask() {
+  analog_inputs.Scan();
   if (engine.system_settings().expansion_cv_mode == CV_MODE_4CV_IN) {
+    analog_inputs.set_num_inputs(8);
     ++current_cv;
     if (current_cv >= kNumCvInputs) {
       current_cv = 0;
     }
-    engine.set_cv(current_cv, Adc::Read(kPinCvInput + current_cv) >> 2);
+    engine.set_cv(
+        current_cv,
+        analog_inputs.Read(kPinCvInput + current_cv) >> 2);
   } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
-    int16_t value = Adc::Read(kPinCvInput);
+    analog_inputs.set_num_inputs(5);
+    int16_t value = analog_inputs.Read(kPinCvInput);
     // Read the pot selected on the multiplexer. If it has been touched, 
     // change the corresponding parameter in the editor, and instruct the
     // scanner to spend more time scanning this pot.
@@ -227,7 +233,8 @@ void CvTask() {
       programmer_active_pot = (programmer_counter >> 1) & 0x1f;
     }
   } else {
-    uint8_t value = Adc::Read(kPinCvInput + current_cv) >> 2;
+    analog_inputs.set_num_inputs(7);
+    uint8_t value = analog_inputs.Read(kPinCvInput + current_cv) >> 2;
     if (current_cv <= 1) {
       value >>= 1;
       uint8_t offset = current_cv * 4;
@@ -332,8 +339,11 @@ TIMER_2_TICK {
 }
 
 void Init() {
-  audio_out.Init();
+  sei();
+  UCSR0B = 0;
+  UCSR1B = 0;
   
+  audio_out.Init();
   midi_io.Init();
   pots.Init();
   switches.Init();
@@ -358,7 +368,6 @@ void Init() {
   lcd.Init();
   display.Init();
   lcd.SetCustomCharMapRes(character_table[0], 7, 1);
-
   editor.Init();
   ExternalEeprom<>::Init();
 
@@ -384,7 +393,6 @@ void Init() {
 }
 
 int main(void) {
-  InitAtmega(false);  // Do not initialize timers.
   Init();
   scheduler.Run();
 }

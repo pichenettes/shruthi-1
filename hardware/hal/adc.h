@@ -39,6 +39,12 @@ typedef BitInRegister<ADCSRARegister, ADEN> AdcEnabled;
 
 class Adc {
  public:
+  Adc() { }
+  
+  static inline void Init() {
+    set_prescaler(7);  // 128 -> 156kHz ADC clock.
+    Enable();
+  }
   static inline void set_prescaler(uint8_t factor) {
     ADCSRA = (ADCSRA & ~0x07) | (factor & 0x07);
   }
@@ -57,10 +63,7 @@ class Adc {
     Wait();
     return ReadOut();
   }
-
- private:
-  static uint8_t reference_;
- 
+  
   static inline void StartConversion(uint8_t pin) {
     ADMUX = reference_ | (pin & 0x07);
     AdcConvert::set();
@@ -73,7 +76,55 @@ class Adc {
     uint8_t high = ADCH;
     return (high << 8) | low;
   }
+
+ private:
+  static uint8_t reference_;
+ 
   DISALLOW_COPY_AND_ASSIGN(Adc);
+};
+
+// Class that cycles through all the analog pins and read their value. Compared
+// to Adc::Read(), this class is wait-free as it doesn't block on the
+// ADSC bit value.
+class AdcInputScanner {
+ public:
+  enum {
+    buffer_size = 0,
+    data_size = 16,
+  };
+   
+  AdcInputScanner() { }
+  
+  static void Init() {
+    Adc::Init();
+    current_pin_ = 0;
+    Adc::StartConversion(0);
+  }
+  
+  static inline void set_num_inputs(uint8_t num_inputs) {
+    num_inputs_ = num_inputs;
+  }
+  
+  static inline int16_t Read(uint8_t pin) {
+    return state_[pin];
+  }
+  
+  static void Scan() {
+    Adc::Wait();
+    state_[current_pin_] = Adc::ReadOut();
+    ++current_pin_;
+    if (current_pin_ >= num_inputs_) {
+      current_pin_ = 0;
+    }
+    Adc::StartConversion(current_pin_);
+  }
+  
+ private:
+  static uint8_t current_pin_;
+  static uint8_t num_inputs_;
+  static int16_t state_[8];
+  
+  DISALLOW_COPY_AND_ASSIGN(AdcInputScanner);
 };
 
 template<int pin>

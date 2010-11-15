@@ -53,7 +53,7 @@ class InputArray {
     // No need to initialize anything - the first cycle of readouts will take
     // care of this.
     active_input_ = 0;
-    starting_up_ = 1;
+    starting_up_ = 2;
     Input::Init();
   }
   static void Lock(uint16_t threshold) {
@@ -69,7 +69,7 @@ class InputArray {
     e.id = active_input_;
 
     // Read a value from the ADC and check if something occurred.
-    e.value = Input::Read();
+    e.value = Input::Read(active_input_);
     uint8_t same;
     int16_t delta = static_cast<int16_t>(values_[active_input_]) - 
         static_cast<int16_t>(e.value);
@@ -96,7 +96,7 @@ class InputArray {
     // During the first cycle, do not raise any event - just record the values.
     if (starting_up_) {
       if (active_input_ == 0) {
-        starting_up_ = 0;
+        --starting_up_;
       }
       e.event = EVENT_NONE;
       e.time = 0;

@@ -41,10 +41,6 @@ inline void InitAtmega(bool init_timers) {
     InitClock();
   }
 
-  // ADC setup.
-  Adc::set_prescaler(7);  // 128 -> 125kHz sampling rate.
-  Adc::Enable();
-
   // Neuter the UARTs.
   UCSR0B = 0;
   UCSR1B = 0;

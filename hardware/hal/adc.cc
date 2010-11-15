@@ -24,4 +24,13 @@ namespace hardware_hal {
 /* static */
 uint8_t Adc::reference_ = ADC_DEFAULT << 6;
 
+/* static */
+uint8_t AdcInputScanner::current_pin_;
+
+/* static */
+uint8_t AdcInputScanner::num_inputs_;
+
+/* static */
+int16_t AdcInputScanner::state_[8];
+
 }  // namespace hardware_hal
