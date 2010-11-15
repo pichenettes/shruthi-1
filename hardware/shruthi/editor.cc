@@ -84,7 +84,7 @@ const UiHandler Editor::ui_handler_[] = {
     &Editor::HandleStepSequencerInput, &Editor::HandleStepSequencerIncrement,
     NULL },
   { &Editor::DisplayLoadSavePage, &Editor::DisplayLoadSavePage,
-    &Editor::HandleLoadSaveInput, &Editor::HandleLoadSaveIncrement,
+    &Editor::HandleEditInput, &Editor::HandleLoadSaveIncrement,
     &Editor::HandleLoadSaveClick },
   { &Editor::DisplayConfirmPage, &Editor::DisplayConfirmPage,
     &Editor::HandleConfirmInput, &Editor::HandleConfirmIncrement,
@@ -627,9 +627,6 @@ void Editor::HandleLoadSaveIncrement(int8_t direction) {
 }
 
 /* static */
-void Editor::HandleLoadSaveInput(uint8_t knob_index, uint16_t value) { }
-
-/* static */
 void Editor::DisplayLoadSavePage() {
   ResourcesManager::LoadStringResource(
       STR_RES_BROWSE + action_,
@@ -1023,7 +1020,7 @@ void Editor::DisplayEditDetailsPage() {
 
 /* static */
 uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
-  if (current_page_ == PAGE_PERFORMANCE) {
+  if (current_page_ == PAGE_PERFORMANCE || current_page_ == PAGE_LOAD_SAVE) {
     subpage_ = engine.mutable_patch()->assigned_parameters[knob_index].subpage;
     return engine.mutable_patch()->assigned_parameters[knob_index].id;
   } else {

@@ -242,7 +242,6 @@ class Editor {
   static void HandleConfirmClick();
 
   static void DisplayLoadSavePage();
-  static void HandleLoadSaveInput(uint8_t knob_index, uint16_t value);
   static void ToggleLoadSaveAction();
   static void HandleLoadSaveIncrement(int8_t direction);
   static void HandleLoadSaveClick();
