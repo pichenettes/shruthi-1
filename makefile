@@ -13,8 +13,8 @@
  
 include hardware/shruthi/makefile
 
-FIRMWARE      = $(BUILD_DIR)/shruthi1.hex
-BOOTLOADER    = $(BUILD_ROOT)/muboot/muboot.hex
+FIRMWARE      = $(BUILD_DIR)shruthi1.hex
+BOOTLOADER    = $(BUILD_ROOT)muboot/muboot.hex
 EEPROM        = hardware/shruthi/data/factory_data/eeprom_content.hex
 
 upload_all:	$(FIRMWARE) $(BOOTLOADER)

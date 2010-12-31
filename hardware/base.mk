@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin
-AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc
-BUILD_ROOT     = build
-BUILD_DIR      = $(BUILD_ROOT)/$(TARGET)
+AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin/
+AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc/
+BUILD_ROOT     = build/
+BUILD_DIR      = $(BUILD_ROOT)$(TARGET)/
 PROGRAMMER     = avrispmkII
 
 MCU_NAME       = 644
@@ -29,22 +29,22 @@ VPATH          = $(PACKAGES)
 CC_FILES       = $(notdir $(wildcard $(patsubst %,%/*.cc,$(PACKAGES))))
 AS_FILES       = $(notdir $(wildcard $(patsubst %,%/*.as,$(PACKAGES))))
 OBJ_FILES      = $(CC_FILES:.cc=.o) $(AS_FILES:.S=.o)
-OBJS           = $(patsubst %,$(BUILD_DIR)/%,$(OBJ_FILES))
+OBJS           = $(patsubst %,$(BUILD_DIR)%,$(OBJ_FILES))
 DEPS           = $(OBJS:.o=.d)
 
-TARGET_HEX     = $(BUILD_DIR)/$(TARGET).hex
-TARGET_ELF     = $(BUILD_DIR)/$(TARGET).elf
-TARGETS        = $(BUILD_DIR)/$(TARGET).*
-DEP_FILE       = $(BUILD_DIR)/depends.mk
+TARGET_HEX     = $(BUILD_DIR)$(TARGET).hex
+TARGET_ELF     = $(BUILD_DIR)$(TARGET).elf
+TARGETS        = $(BUILD_DIR)$(TARGET).*
+DEP_FILE       = $(BUILD_DIR)depends.mk
 
-CC             = $(AVR_TOOLS_PATH)/avr-gcc
-CXX            = $(AVR_TOOLS_PATH)/avr-g++
-OBJCOPY        = $(AVR_TOOLS_PATH)/avr-objcopy
-OBJDUMP        = $(AVR_TOOLS_PATH)/avr-objdump
-AR             = $(AVR_TOOLS_PATH)/avr-ar
-SIZE           = $(AVR_TOOLS_PATH)/avr-size
-NM             = $(AVR_TOOLS_PATH)/avr-nm
-AVRDUDE        = $(AVR_TOOLS_PATH)/avrdude
+CC             = $(AVR_TOOLS_PATH)avr-gcc
+CXX            = $(AVR_TOOLS_PATH)avr-g++
+OBJCOPY        = $(AVR_TOOLS_PATH)avr-objcopy
+OBJDUMP        = $(AVR_TOOLS_PATH)avr-objdump
+AR             = $(AVR_TOOLS_PATH)avr-ar
+SIZE           = $(AVR_TOOLS_PATH)avr-size
+NM             = $(AVR_TOOLS_PATH)avr-nm
+AVRDUDE        = $(AVR_TOOLS_PATH)avrdude
 REMOVE         = rm -f
 CAT            = cat
 
@@ -59,16 +59,16 @@ LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections -Os
 # Source compiling
 # ------------------------------------------------------------------------------
 
-$(BUILD_DIR)/%.o: %.cc
+$(BUILD_DIR)%.o: %.cc
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-$(BUILD_DIR)/%.o: %.s
+$(BUILD_DIR)%.o: %.s
 	$(CC) -c $(CPPFLAGS) $(ASFLAGS) $< -o $@
 
-$(BUILD_DIR)/%.d: %.cc
+$(BUILD_DIR)%.d: %.cc
 	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $< -MF $@ -MT $(@:.d=.o)
 
-$(BUILD_DIR)/%.d: %.s
+$(BUILD_DIR)%.d: %.s
 	$(CC) -MM $(CPPFLAGS) $(ASFLAGS) $< -MF $@ -MT $(@:.d=.o)
 
 
@@ -76,24 +76,24 @@ $(BUILD_DIR)/%.d: %.s
 # Object file conversion
 # ------------------------------------------------------------------------------
 
-$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)%.hex: $(BUILD_DIR)%.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
-$(BUILD_DIR)/%.eep: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)%.eep: $(BUILD_DIR)%.elf
 	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 		--change-section-lma .eeprom=0 -O ihex $< $@
 
-$(BUILD_DIR)/%.lss: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)%.lss: $(BUILD_DIR)%.elf
 	$(OBJDUMP) -h -S $< > $@
 
-$(BUILD_DIR)/%.sym: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)%.sym: $(BUILD_DIR)%.elf
 	$(NM) -n $< > $@
 
 # ------------------------------------------------------------------------------
 # AVRDude
 # ------------------------------------------------------------------------------
 
-AVRDUDE_CONF     = $(AVR_ETC_PATH)/avrdude.conf
+AVRDUDE_CONF     = $(AVR_ETC_PATH)avrdude.conf
 AVRDUDE_COM_OPTS = -V -p $(DMCU)
 AVRDUDE_COM_OPTS += -C $(AVRDUDE_CONF)
 AVRDUDE_ISP_OPTS = -c $(PROGRAMMER) -P usb
@@ -126,7 +126,7 @@ depends:  $(DEPS)
 firmware_size:  $(TARGET_ELF)
 		$(SIZE) $(TARGET_ELF) > firmware_size
 
-$(BUILD_DIR)/$(TARGET).top_symbols: $(TARGET_ELF)
+$(BUILD_DIR)$(TARGET).top_symbols: $(TARGET_ELF)
 		$(NM) $(TARGET_ELF) --size-sort -C -f bsd -r > $@
 
 size: firmware_size
@@ -144,15 +144,15 @@ include $(DEP_FILE)
 
 HEX2SYSEX = hardware/tools/hex2sysex/hex2sysex.py
 
-$(BUILD_DIR)/%.mid: $(BUILD_DIR)/%.hex
+$(BUILD_DIR)%.mid: $(BUILD_DIR)%.hex
 	$(HEX2SYSEX) -o $@ $<
 
-$(BUILD_DIR)/%.syx: $(BUILD_DIR)/%.hex
+$(BUILD_DIR)%.syx: $(BUILD_DIR)%.hex
 	$(HEX2SYSEX) --syx -o $@ $<
 
-midi: $(BUILD_DIR)/$(TARGET).mid
+midi: $(BUILD_DIR)$(TARGET).mid
 
-syx: $(BUILD_DIR)/$(TARGET).syx
+syx: $(BUILD_DIR)$(TARGET).syx
 
 
 # ------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ REMOTE_HOST = mutable-instruments.net
 REMOTE_USER = shruti
 REMOTE_PATH = public_html/static/firmware
 
-publish: $(BUILD_DIR)/$(TARGET).mid $(BUILD_DIR)/$(TARGET).hex
-	scp $(BUILD_DIR)/$(TARGET).mid $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)/$(TARGET)_$(VERSION).mid
-		scp $(BUILD_DIR)/$(TARGET).hex $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)//$(TARGET)_$(VERSION).hex
-		scp $(BUILD_DIR)/$(TARGET).syx $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)//$(TARGET)_$(VERSION).syx
+publish: $(BUILD_DIR)$(TARGET).mid $(BUILD_DIR)$(TARGET).hex
+	scp $(BUILD_DIR)$(TARGET).mid $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)/$(TARGET)_$(VERSION).mid
+		scp $(BUILD_DIR)$(TARGET).hex $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)//$(TARGET)_$(VERSION).hex
+		scp $(BUILD_DIR)$(TARGET).syx $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)//$(TARGET)_$(VERSION).syx
