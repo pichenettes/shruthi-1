@@ -40,7 +40,7 @@ VPATH          = $(PACKAGES)
 CC_FILES       = $(notdir $(wildcard $(patsubst %,%/*.cc,$(PACKAGES))))
 AS_FILES       = $(notdir $(wildcard $(patsubst %,%/*.as,$(PACKAGES))))
 OBJ_FILES      = $(CC_FILES:.cc=.o) $(AS_FILES:.S=.o)
-OBJS           = $(patsubst %,$(BUILD_DIR)/%,$(OBJ_FILES))
+OBJS           = $(patsubst %,$(BUILD_DIR)%,$(OBJ_FILES))
 DEPS           = $(OBJS:.o=.d)
 
 TARGET_HEX     = $(BUILD_DIR)$(TARGET).hex
@@ -89,13 +89,13 @@ $(BUILD_DIR)%.d: %.s
 # Object file conversion
 # ------------------------------------------------------------------------------
 
-$(BUILD_DIR)%.hex: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)%.hex: $(BUILD_DIR)%.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
-$(BUILD_DIR)%.lss: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)%.lss: $(BUILD_DIR)%.elf
 	$(OBJDUMP) -h -S $< > $@
 
-$(BUILD_DIR)%.sym: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)%.sym: $(BUILD_DIR)%.elf
 	$(NM) -n $< > $@
 
 
