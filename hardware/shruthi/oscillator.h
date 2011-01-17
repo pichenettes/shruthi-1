@@ -566,6 +566,9 @@ class Oscillator {
   // used in Cantarino, the Arduino speech synthesizer, by Peter Knight.
   // http://code.google.com/p/tinkerit/wiki/Cantarino
   static void UpdateVowel() {
+    if (id == 2) {
+      return;  // Do not duplicate this code for the second oscillator.
+    }
     data_.vw.update++;
     if (data_.vw.update == kVowelControlRateDecimation) {
       data_.vw.update = 0;
@@ -605,6 +608,10 @@ class Oscillator {
     }
   }
   static void RenderVowel() {
+    if (id == 2) {
+      return;  // Do not duplicate this code for the second oscillator.
+    }
+    
     HALF_SAMPLE_RATE;
 
     int8_t result = 0;
