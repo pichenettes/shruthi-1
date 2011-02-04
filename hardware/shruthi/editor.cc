@@ -64,7 +64,7 @@ static const prog_uint16_t units_definitions[UNIT_CV_MODE + 1]
   0,
   STR_RES_FREE,
   0,
-  STR_RES_SMR,
+  STR_RES_CEM,
   STR_RES_4CV_IN,
 };
 

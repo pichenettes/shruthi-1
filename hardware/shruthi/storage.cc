@@ -82,6 +82,7 @@ static const prog_char sysex_rx_header[] PROGMEM = {
   // - 0x01: patch transfer
   // - 0x02: sequence transfer
   // - 0x03: waveform transfer
+  // - 0x11: path transfer request
   // - 0x40: big dump
   // * Argument byte:
   // Not used for 0x01-0x03, but used for block numbering for 0x40.
@@ -172,11 +173,15 @@ void Storage::SysExParseCommand() {
       sysex_rx_destination_ = user_wavetable;
       sysex_rx_expected_size_ = kUserWavetableSize;
       break;
+    
+    case 0x11:  // Patch request
+      sysex_rx_expected_size_ = 0;
+      break;
         
     case 0x40:  // Raw data dump
       sysex_rx_expected_size_ = kSysExBulkDumpBlockSize;
       break;
-    
+      
     default:
       sysex_rx_state_ = RECEIVING_FOOTER;
       break;
@@ -198,6 +203,10 @@ void Storage::SysExAcceptBuffer() {
     
     case 0x03:
       success = 1;
+      break;
+    
+    case 0x11:
+      Storage::SysExDump(engine.mutable_patch());
       break;
     
     case 0x40:  // Raw data dump
