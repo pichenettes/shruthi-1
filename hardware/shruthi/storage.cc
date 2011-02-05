@@ -334,6 +334,7 @@ void Storage::Init() {
     address -= kBankSize;
   }
   // Try to read back this data to figure out the actual number of banks.
+  address = kMaxNumBanks * kBankSize - 2;
   num_accessible_banks_ = kMaxNumBanks;
   while (num_accessible_banks_ > 0) {
     ReadExternal((uint8_t*)&data, address, 2);
