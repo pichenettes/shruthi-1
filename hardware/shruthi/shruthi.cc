@@ -263,7 +263,7 @@ void AudioRenderingTask() {
     // Generate a sample of the control signals.
     engine.Control();
     // Generate 40 samples of the audio signals.
-    if (engine.voice(0).dead()) {
+    if (!engine.voice(0).vca()) {
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
         audio_out.Overwrite(128);
       }

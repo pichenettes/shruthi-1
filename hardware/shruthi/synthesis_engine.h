@@ -88,20 +88,13 @@ class Voice {
     return modulation_destinations_[MOD_DST_FILTER_RESONANCE];
   }
   static inline uint8_t cv_1()  {
-    uint8_t value = modulation_destinations_[MOD_DST_2_BITS];
-    return value == 0xff ?
-        modulation_destinations_[MOD_DST_CV_1] :
-        (value >= 32 ? 0xff : 0);
+    return modulation_destinations_[MOD_DST_CV_1];
   }
   static inline uint8_t cv_2()  {
-    uint8_t value = modulation_destinations_[MOD_DST_2_BITS];
-    return value == 0xff ?
-        modulation_destinations_[MOD_DST_CV_2] :
-        ((value & 31) >= 16 ? 0xff : 0);
+    return modulation_destinations_[MOD_DST_CV_2];
   }
   static inline uint8_t signal()  { return signal_; }
 
-  static inline uint8_t dead()  { return dead_; }
   static inline uint8_t modulation_source(uint8_t i) {
     return modulation_sources_[i - kNumGlobalModulationSources];
   }
@@ -113,8 +106,14 @@ class Voice {
   static void TriggerEnvelope(uint8_t index, uint8_t stage);
 
  private:
+  static void LoadSources();
+  static void ProcessModulationMatrix();
+  static void UpdateDestinations();
+  static void UpdatePhaseIncrements();
+   
   // Envelope generators.
   static Envelope envelope_[kNumEnvelopes];
+  static int16_t dst_[kNumModulationDestinations];
   static uint8_t dead_;
 
   // Counters/phases for the pitch envelope generator (portamento).
@@ -262,6 +261,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static uint8_t nrpn_parameter_number_msb_;
   static uint8_t data_entry_msb_;
   static uint8_t dirty_;
+  static uint8_t volume_;
   static uint8_t ignore_note_off_messages_;  // For hold pedal.
 
   // Called whenever a parameter related to LFOs/envelopes is modified (for now

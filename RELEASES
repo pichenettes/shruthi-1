@@ -10,7 +10,7 @@ programmer support.
 - Different options are available for using the 4 CV : 4 CV ins (assignable in
 mod matrix), 32-knobs programmer, or simple mapping to cutoff, param1/param2 for
 pedals and joystick.
-- The Shruthi-1 can now be configured to boot directly on the presets page (aka
+- The Shruthi-1 can be configured to boot directly on the presets page (aka
 "presets mode").
 - The shape of the envelope (approximation of an exponential) has been refined.
 - Support for NRPN increment/decrement.
@@ -18,9 +18,18 @@ pedals and joystick.
 a 512kb eeprom is used, the last 64kb block is not used (this is due to the
 fact that 16-bit arithmetic is used to compute addresses, and that the
 address space includes the 16kb of internal eeprom).
-- SysEx bulk transfer protocol can now handle address spaces of up to 64kbytes.
+- SysEx backup transfer protocol can handle a memory space of up to 64kbytes.
 - To make more room for upcoming feature, the waves wavetable has been
 downsampled to 128 samples/waveform instead of 256.
+- A bank and program change message is sent whenever a preset is loaded.
+- Bank change messages are handled, to allow patches above 128 to be loaded.
+- Volume change messages (CC 7) are handled.
+- The "2 bits" modulation destination is gone, since there are now better ways
+(extra TX pin, shift register out) to communicate with a filter board.
+- The modulation matrix processing code has been simplified.
+- The "digital silencing" of oscillators when envelopes have reached zero has
+been improved. The oscillators are now digitally silenced whenever the VCA
+destination in the modulation matrix has reached a value of zero.
 
 v0.91 --------------------------------------------------------------------------
 

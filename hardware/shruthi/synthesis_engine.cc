@@ -66,6 +66,7 @@ uint8_t SynthesisEngine::lfo_reset_counter_;
 uint8_t SynthesisEngine::lfo_to_reset_;
 uint8_t SynthesisEngine::dirty_;
 uint8_t SynthesisEngine::ignore_note_off_messages_;
+uint8_t SynthesisEngine::volume_;
 
 /* </static> */
 
@@ -184,6 +185,7 @@ void SynthesisEngine::TouchPatch(uint8_t cascade) {
       Storage::SysExDump(&patch_);
     }
   }
+  volume_ = 255;
 }
 
 /* static */
@@ -285,6 +287,9 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         break;
       case hardware_midi::kDataEntryMsb:
         data_entry_msb_ = value << 7;
+        break;
+      case hardware_midi::kVolume:
+        volume_ = value << 1;
         break;
       case hardware_midi::kDataEntryLsb:
       case hardware_midi::kDataIncrement:
@@ -403,6 +408,7 @@ void SynthesisEngine::ResetAllControllers(uint8_t channel) {
   modulation_sources_[MOD_SRC_PITCH_BEND] = 128;
   modulation_sources_[MOD_SRC_WHEEL] = 0;
   unregistered_modulation_sources_[0] = 0;
+  volume_ = 255;
 }
 
 // When in Omni mode, disable Omni and enable reception only on the channel on
@@ -423,7 +429,7 @@ void SynthesisEngine::Reset() {
   controller_.Reset();
   controller_.AllSoundOff();
   memset(modulation_sources_, 0, kNumGlobalModulationSources);
-  modulation_sources_[MOD_SRC_PITCH_BEND] = 128;
+  ResetAllControllers(0);
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     lfo_[i].Reset();
   }
@@ -632,6 +638,7 @@ int8_t Voice::modulation_destinations_[kNumModulationDestinations];
 uint8_t Voice::signal_;
 uint8_t Voice::osc1_phase_msb_;
 uint8_t Voice::last_note_;
+int16_t Voice::dst_[kNumModulationDestinations];
 /* </static> */
 
 /* static */
@@ -726,27 +733,7 @@ void Voice::Release() {
 }
 
 /* static */
-inline void Voice::Control() {
-  // Update the envelopes.
-  dead_ = 1;
-  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    envelope_[i].Render();
-    dead_ = dead_ && envelope_[i].dead();
-  }
-
-  pitch_value_ += pitch_increment_;
-  if ((pitch_increment_ > 0) ^ (pitch_value_ < pitch_target_)) {
-    pitch_value_ = pitch_target_;
-    pitch_increment_ = 0;
-  }
-
-  // Used temporarily, then scaled to modulation_destinations_. This does not
-  // need to be static, but if allocated on the heap, we get many push/pops,
-  // and the resulting code is slower.
-  static int16_t dst[kNumModulationDestinations];
-
-  uint8_t has_2_bits_cv = 0;
-
+inline void Voice::LoadSources() {
   // Rescale the value of each modulation sources. Envelopes are in the
   // 0-16383 range ; just like pitch. All are scaled to 0-255.
   modulation_sources_[MOD_SRC_ENV_1 - kNumGlobalModulationSources] = 
@@ -758,26 +745,30 @@ inline void Voice::Control() {
   modulation_sources_[MOD_SRC_GATE - kNumGlobalModulationSources] =
       envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
 
-  modulation_destinations_[MOD_DST_VCA] = 255;
+  modulation_destinations_[MOD_DST_VCA] = engine.volume_;
   modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = signal_;
-
-  // Load and scale to 0-16383 the initial value of each modulated parameter.
-  dst[MOD_DST_FILTER_CUTOFF] = UnsignedUnsignedMul(engine.patch_.filter_cutoff, 128);
-  dst[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
-  dst[MOD_DST_PWM_1] = UnsignedUnsignedMul(engine.patch_.osc[0].parameter, 128);
-  dst[MOD_DST_PWM_2] = UnsignedUnsignedMul(engine.patch_.osc[1].parameter, 128);
-  dst[MOD_DST_VCO_1_2_COARSE] = dst[MOD_DST_VCO_1_2_FINE] =
-      dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
-  dst[MOD_DST_VCO_2] = dst[MOD_DST_VCO_1] = 8192;
-  dst[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
-  dst[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
-  dst[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
-  dst[MOD_DST_CV_1] = 0;
-  dst[MOD_DST_CV_2] = 0;
-  dst[MOD_DST_2_BITS] = 0;
-  dst[MOD_DST_LFO_1] = 8192;
-  dst[MOD_DST_LFO_2] = 8192;
   
+  // Load and scale to 0-16383 the initial value of each modulated parameter.
+  dst_[MOD_DST_FILTER_CUTOFF] = UnsignedUnsignedMul(
+      engine.patch_.filter_cutoff, 128);
+  dst_[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
+  dst_[MOD_DST_PWM_1] = UnsignedUnsignedMul(engine.patch_.osc[0].parameter, 128);
+  dst_[MOD_DST_PWM_2] = UnsignedUnsignedMul(engine.patch_.osc[1].parameter, 128);
+  dst_[MOD_DST_VCO_1_2_COARSE] = dst_[MOD_DST_VCO_1_2_FINE] =
+      dst_[MOD_DST_VCO_2] = dst_[MOD_DST_VCO_1] = 8192;
+  dst_[MOD_DST_VCO_2] = dst_[MOD_DST_VCO_1] = 8192;
+  dst_[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
+  dst_[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
+  dst_[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
+  dst_[MOD_DST_CV_1] = 0;
+  dst_[MOD_DST_CV_2] = 0;
+  dst_[MOD_DST_TODO] = 0;
+  dst_[MOD_DST_LFO_1] = 8192;
+  dst_[MOD_DST_LFO_2] = 8192;
+}
+
+/* static */
+inline void Voice::ProcessModulationMatrix() {
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     int8_t amount = engine.patch_.modulation_matrix.modulation[i].amount;
@@ -803,11 +794,8 @@ inline void Voice::Control() {
       // Voice specific sources, read from the voice.
       source_value = modulation_sources_[source - kNumGlobalModulationSources];
     }
-    if (destination == MOD_DST_2_BITS) {
-      has_2_bits_cv = 1;
-    }
     if (destination != MOD_DST_VCA) {
-      int16_t modulation = dst[destination];
+      int16_t modulation = dst_[destination];
       modulation += SignedUnsignedMul(amount, source_value);
       // For those sources, use relative modulation.
       if (source <= MOD_SRC_LFO_2 ||
@@ -816,7 +804,7 @@ inline void Voice::Control() {
           source == MOD_SRC_AUDIO) {
         modulation -= SignedUnsignedMul(amount, 128);
       }
-      dst[destination] = Clip(modulation, 0, 16383);
+      dst_[destination] = Clip(modulation, 0, 16383);
     } else {
       // The VCA modulation is multiplicative, not additive. Yet another
       // Special case :(.
@@ -829,27 +817,31 @@ inline void Voice::Control() {
           Mix(255, source_value, amount << 2));
     }
   }
+}
+
+/* static */
+inline void Voice::UpdateDestinations() {
   // Hardcoded filter modulations.
   // By default, the resonance tracks the note. Tracking works best when the
   // transistors are thermically coupled. You can disable tracking by applying
   // a negative modulation from NOTE to CUTOFF.
-  dst[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst[MOD_DST_FILTER_CUTOFF] + pitch_value_ - 8192,
+  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
+      dst_[MOD_DST_FILTER_CUTOFF] + pitch_value_ - 8192,
       0,
       16383);
-  dst[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
+  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
+      dst_[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
           engine.patch_.filter_env,
           modulation_sources_[MOD_SRC_ENV_1 - kNumGlobalModulationSources]),
       0,
       16383);
-  dst[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst[MOD_DST_FILTER_CUTOFF] + (
+  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
+      dst_[MOD_DST_FILTER_CUTOFF] + (
           engine.unregistered_modulation_sources_[0] << 6),
       0,
       16383);
-  dst[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
+  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
+      dst_[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
           engine.patch_.filter_lfo,
           engine.modulation_sources_[MOD_SRC_LFO_2]) -
       UnsignedUnsignedMul(engine.patch_.filter_lfo, 128),
@@ -858,32 +850,29 @@ inline void Voice::Control() {
   
   // Store in memory all the updated parameters.
   modulation_destinations_[MOD_DST_FILTER_CUTOFF] = ShiftRight6(
-      dst[MOD_DST_FILTER_CUTOFF]);
+      dst_[MOD_DST_FILTER_CUTOFF]);
 
   modulation_destinations_[MOD_DST_FILTER_RESONANCE] = ShiftRight6(
-      dst[MOD_DST_FILTER_RESONANCE]);
+      dst_[MOD_DST_FILTER_RESONANCE]);
 
   modulation_destinations_[MOD_DST_CV_1] = ShiftRight6(
-        dst[MOD_DST_CV_1]);
+        dst_[MOD_DST_CV_1]);
   modulation_destinations_[MOD_DST_CV_2] = ShiftRight6(
-        dst[MOD_DST_CV_2]);
-  if (has_2_bits_cv) {
-    modulation_destinations_[MOD_DST_2_BITS] = static_cast<uint8_t>(
-        dst[MOD_DST_2_BITS] >> 8);
-  } else {
-    modulation_destinations_[MOD_DST_2_BITS] = 0xff;
-  }
-  modulation_destinations_[MOD_DST_PWM_1] = dst[MOD_DST_PWM_1] >> 7;
-  modulation_destinations_[MOD_DST_PWM_2] = dst[MOD_DST_PWM_2] >> 7;
-  modulation_destinations_[MOD_DST_LFO_1] = dst[MOD_DST_LFO_1] >> 8;
-  modulation_destinations_[MOD_DST_LFO_2] = dst[MOD_DST_LFO_2] >> 8;
+        dst_[MOD_DST_CV_2]);
+  modulation_destinations_[MOD_DST_PWM_1] = dst_[MOD_DST_PWM_1] >> 7;
+  modulation_destinations_[MOD_DST_PWM_2] = dst_[MOD_DST_PWM_2] >> 7;
+  modulation_destinations_[MOD_DST_LFO_1] = dst_[MOD_DST_LFO_1] >> 8;
+  modulation_destinations_[MOD_DST_LFO_2] = dst_[MOD_DST_LFO_2] >> 8;
   
   modulation_destinations_[MOD_DST_MIX_BALANCE] = ShiftRight6(
-      dst[MOD_DST_MIX_BALANCE]);
+      dst_[MOD_DST_MIX_BALANCE]);
   
-  modulation_destinations_[MOD_DST_MIX_NOISE] = dst[MOD_DST_MIX_NOISE] >> 8;
-  modulation_destinations_[MOD_DST_MIX_SUB_OSC] = dst[MOD_DST_MIX_SUB_OSC] >> 7;
-  
+  modulation_destinations_[MOD_DST_MIX_NOISE] = dst_[MOD_DST_MIX_NOISE] >> 8;
+  modulation_destinations_[MOD_DST_MIX_SUB_OSC] = dst_[MOD_DST_MIX_SUB_OSC] >> 7;
+}
+
+/* static */
+inline void Voice::UpdatePhaseIncrements() {
   // Update the oscillator parameters.
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
     int16_t pitch = pitch_value_;
@@ -904,11 +893,11 @@ inline void Voice::Control() {
       pitch += engine.patch_.osc[1].option;
     }
     // -16 / +16 semitones by the routed modulations.
-    pitch += (dst[MOD_DST_VCO_1 + i] - 8192) >> 2;
+    pitch += (dst_[MOD_DST_VCO_1 + i] - 8192) >> 2;
     // -4 / +4 semitones by the vibrato and pitch bend.
-    pitch += (dst[MOD_DST_VCO_1_2_COARSE] - 8192) >> 4;
+    pitch += (dst_[MOD_DST_VCO_1_2_COARSE] - 8192) >> 4;
     // -1 / +1 semitones by the vibrato and pitch bend.
-    pitch += (dst[MOD_DST_VCO_1_2_FINE] - 8192) >> 7;
+    pitch += (dst_[MOD_DST_VCO_1_2_FINE] - 8192) >> 7;
     // -1 / +1 semitones by master tuning.
     pitch += engine.system_settings_.master_tuning;
 
@@ -946,6 +935,25 @@ inline void Voice::Control() {
           increment);
     }
   }
+}
+
+/* static */
+inline void Voice::Control() {
+  // Update the envelopes.
+  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
+    envelope_[i].Render();
+  }
+
+  pitch_value_ += pitch_increment_;
+  if ((pitch_increment_ > 0) ^ (pitch_value_ < pitch_target_)) {
+    pitch_value_ = pitch_target_;
+    pitch_increment_ = 0;
+  }
+
+  LoadSources();
+  ProcessModulationMatrix();
+  UpdateDestinations();
+  UpdatePhaseIncrements();
 }
 
 /* static */

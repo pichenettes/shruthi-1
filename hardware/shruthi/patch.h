@@ -190,7 +190,7 @@ enum ModulationDestination {
   MOD_DST_FILTER_RESONANCE,
   MOD_DST_CV_1,
   MOD_DST_CV_2,
-  MOD_DST_2_BITS,
+  MOD_DST_TODO,
   MOD_DST_LFO_1,
   MOD_DST_LFO_2
 };

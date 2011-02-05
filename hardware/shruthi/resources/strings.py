@@ -115,7 +115,7 @@ subosc
 reso
  cv 1
  cv 2
-2 bits
+xxx
  lfo 1
  lfo 2
 

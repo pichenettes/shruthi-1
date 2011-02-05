@@ -76,7 +76,6 @@ class Envelope {
  
   void Init();
 
-  uint8_t dead() { return stage_ == DEAD; }
   uint8_t stage() { return stage_; }
   int16_t value() { return value_; }
 
