@@ -123,10 +123,10 @@ static const prog_char init_patch[] PROGMEM = {
     // Name
     'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
     // Performance page assignments.
+    1, 0,
     PRM_FILTER_CUTOFF, 0,
     PRM_FILTER_RESONANCE, 0,
-    1, 0,
-    5, 0,
+    PRM_FILTER_ENV, 0,
     // Extra padding for future improvements.
     'p', 'a', 'd', 'd', 'i', 'n', 'g', '!'
 };
