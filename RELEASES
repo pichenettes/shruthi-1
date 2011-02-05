@@ -1,0 +1,24 @@
+v0.92 (work in progress) -------------------------------------------------------
+
+- SysEx Patch request command (0x11 0x00). Upon reception of this command, the
+Shruthi dumps the currently edited patch. Might be useful for an editor!
+- Code size optimization saved 460 bytes.
+- Patches can be tweaked from the load/save page. In this case, the 4 knobs have
+the functions assigned to them in the performance page for this patch.
+- ADC scanning code overhaul. The benefits are a more reactive UI and...
+programmer support.
+- Different options are available for using the 4 CV : 4 CV ins (assignable in
+mod matrix), 32-knobs programmer, or simple mapping to cutoff, param1/param2 for
+pedals and joystick.
+- The Shruthi-1 can now be configured to boot directly on the presets page (aka
+"presets mode").
+- The shape of the envelope (approximation of an exponential) has been refined.
+
+v0.91 --------------------------------------------------------------------------
+
+- Improved encoder debouncing/decoding algorithm.
+- Changed "load" label to "browse" in patch load/save page.
+
+v0.90 --------------------------------------------------------------------------
+
+- Original release.
