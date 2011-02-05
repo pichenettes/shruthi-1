@@ -13,6 +13,7 @@ pedals and joystick.
 - The Shruthi-1 can now be configured to boot directly on the presets page (aka
 "presets mode").
 - The shape of the envelope (approximation of an exponential) has been refined.
+- Support for NRPN increment/decrement.
 
 v0.91 --------------------------------------------------------------------------
 

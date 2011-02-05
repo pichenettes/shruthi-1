@@ -453,9 +453,9 @@ void Editor::HandleInput(uint8_t knob_index, uint16_t value) {
 }
 
 /* static */
-void Editor::HandleIncrement(int8_t direction) {
+void Editor::HandleIncrement(int8_t increment) {
   (*ui_handler_[page_definition_[current_page_].ui_type].increment_handler)(
-      direction);
+      increment);
   Refresh();
 }
 
@@ -587,27 +587,27 @@ void Editor::HandleLoadSaveClick() {
 }
 
 /* static */
-void Editor::HandleLoadSaveIncrement(int8_t direction) {
+void Editor::HandleLoadSaveIncrement(int8_t increment) {
   if (action_ == ACTION_SAVE) {
     if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
-      int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
+      int8_t new_cursor = static_cast<int8_t>(cursor_) + increment;
       if (new_cursor >= 0 && new_cursor < kLcdWidth) {
         cursor_ = new_cursor;
       }
     } else {
       if (cursor_ <= 2) {
-        set_edited_item_number(edited_item_number() + direction);      
+        set_edited_item_number(edited_item_number() + increment);
       } else if (cursor_ >= 4 && cursor_ < 4 + kPatchNameSize &&
                  editor_mode_ == EDITOR_MODE_PATCH) {
         uint8_t value = engine.patch().name[cursor_ - 4];
-        value += direction;
+        value += increment;
         if (value >= 32 && value <= 128) {
           engine.mutable_patch()->name[cursor_ - 4] = value;
         }
       }
     }
   } else {
-    set_edited_item_number(edited_item_number() + direction);
+    set_edited_item_number(edited_item_number() + increment);
     if (action_ == ACTION_LOAD) {
       if (editor_mode_ == EDITOR_MODE_PATCH) {
         uint8_t n = edited_item_number();
@@ -671,9 +671,9 @@ void Editor::DisplayLoadSavePage() {
 }
 
 /* static */
-void Editor::MoveSequencerCursor(int8_t direction) {
+void Editor::MoveSequencerCursor(int8_t increment) {
   int8_t new_cursor = cursor_;
-  new_cursor += direction;
+  new_cursor += increment;
   const SequencerSettings& seq = engine.sequencer_settings();
   if (new_cursor < 0) {
     cursor_ = 0xff;
@@ -773,15 +773,15 @@ void Editor::HandleStepSequencerInput(
 }
 
 /* static */
-void Editor::HandleStepSequencerIncrement(int8_t direction) {
+void Editor::HandleStepSequencerIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
-    MoveSequencerCursor(direction);
+    MoveSequencerCursor(increment);
   } else {
     SequencerSettings* seq = engine.mutable_sequencer_settings();
     uint8_t position = (cursor_ + seq->pattern_rotation) & 0x0f;
     seq->steps[position].set_controller(
         seq->steps[position].controller() + \
-        direction);
+        increment);
   }
 }
 
@@ -852,12 +852,12 @@ void Editor::HandleTrackerInput(
 }
 
 /* static */
-void Editor::HandleTrackerIncrement(int8_t direction) {
+void Editor::HandleTrackerIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
-    MoveSequencerCursor(direction);
+    MoveSequencerCursor(increment);
   } else {
     int8_t note = engine.mutable_sequencer_settings()->steps[cursor_].note();
-    note += direction;
+    note += increment;
     if (note >= 12 && note < 108) {
       engine.mutable_sequencer_settings()->steps[cursor_].set_note(note);
     }
@@ -903,12 +903,12 @@ void Editor::HandlePageRInput(
 }
 
 /* static */
-void Editor::HandlePageRIncrement(int8_t direction) {
+void Editor::HandlePageRIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
-    MoveSequencerCursor(direction);
+    MoveSequencerCursor(increment);
   } else {
     int8_t flags = engine.mutable_sequencer_settings()->steps[cursor_].flags();
-    flags += direction;
+    flags += increment;
     if (flags >= 0 && flags <= 16) {
       engine.mutable_sequencer_settings()->steps[cursor_].set_flags(flags);
     }
@@ -1056,9 +1056,9 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
 }
 
 /* static */
-void Editor::HandleEditIncrement(int8_t direction) {
+void Editor::HandleEditIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
-    int8_t new_cursor = static_cast<int8_t>(cursor_) + direction;
+    int8_t new_cursor = static_cast<int8_t>(cursor_) + increment;
     if (current_page_ == PAGE_MOD_MATRIX) {
       last_visited_subpage_ = subpage_;
     }
@@ -1079,20 +1079,13 @@ void Editor::HandleEditIncrement(int8_t direction) {
     locked_[cursor_] = 0;
     const ParameterDefinition& parameter = (
         ParameterDefinitions::parameter_definition(index));
-
-    int16_t value = GetParameterValue(parameter.id);
-    if (parameter.unit == UNIT_INT8) {
-      value = static_cast<int16_t>(static_cast<int8_t>(value));
-      value += direction;
-      if (value >= static_cast<int8_t>(parameter.min_value) &&
-          value <= static_cast<int8_t>(parameter.max_value)) {
-        SetParameterValue(parameter.id, value);
-      }
-    } else {
-      value += direction;
-      if (value >= parameter.min_value && value <= parameter.max_value) {
-        SetParameterValue(parameter.id, value);
-      }
+    uint8_t old_value = GetParameterValue(parameter.id);
+    uint8_t new_value = ParameterDefinitions::Increment(
+        parameter,
+        old_value,
+        increment);
+    if (new_value != old_value) {
+      SetParameterValue(parameter.id, new_value);
     }
   }
 }
@@ -1217,7 +1210,7 @@ void Editor::HandleConfirmClick() {
 }
 
 /* static */
-void Editor::HandleConfirmIncrement(int8_t direction) {
+void Editor::HandleConfirmIncrement(int8_t increment) {
   cursor_ = !cursor_;
 }
 

@@ -367,4 +367,27 @@ uint8_t ParameterDefinitions::Scale(
   return scaled_value;
 }
 
+/* static */
+uint8_t ParameterDefinitions::Increment(
+    const ParameterDefinition& parameter,
+    uint8_t original_value,
+    int8_t increment) {
+  int16_t value = original_value;
+  uint8_t new_value = original_value;
+  if (parameter.unit == UNIT_INT8) {
+    value = static_cast<int16_t>(static_cast<int8_t>(value));
+    value += increment;
+    if (value >= static_cast<int8_t>(parameter.min_value) &&
+        value <= static_cast<int8_t>(parameter.max_value)) {
+      new_value = static_cast<uint8_t>(value);
+    }
+  } else {
+    value += increment;
+    if (value >= parameter.min_value && value <= parameter.max_value) {
+      new_value = static_cast<uint8_t>(value);
+    }
+  }
+  return new_value;
+}
+
 }  // hardware_shruti

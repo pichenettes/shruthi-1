@@ -287,6 +287,8 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         data_entry_msb_ = value << 7;
         break;
       case hardware_midi::kDataEntryLsb:
+      case hardware_midi::kDataIncrement:
+      case hardware_midi::kDataDecrement:
         value |= data_entry_msb_;
         if (nrpn_parameter_number_ != 255) {
           dirty_ = 1;
@@ -304,15 +306,26 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
           const ParameterDefinition& p = (
               ParameterDefinitions::parameter_definition(
                   parameter_definition_id));
-          if (p.unit == UNIT_INT8) {
-            int8_t signed_value = static_cast<int8_t>(value);
-            if (signed_value >= static_cast<int8_t>(p.min_value) &&
-                signed_value <= static_cast<int8_t>(p.max_value)) {
-              SetParameter(nrpn_parameter_number_, value);
+          if (controller == hardware_midi::kDataEntryLsb) {
+            if (p.unit == UNIT_INT8) {
+              int8_t signed_value = static_cast<int8_t>(value);
+              if (signed_value >= static_cast<int8_t>(p.min_value) &&
+                  signed_value <= static_cast<int8_t>(p.max_value)) {
+                SetParameter(nrpn_parameter_number_, value);
+              }
+            } else {
+              if (value >= p.min_value && value <= p.max_value) {
+                SetParameter(nrpn_parameter_number_, value);
+              }
             }
           } else {
-            if (value >= p.min_value && value <= p.max_value) {
-              SetParameter(nrpn_parameter_number_, value);
+            uint8_t old_value = GetParameter(nrpn_parameter_number_);
+            uint8_t new_value = ParameterDefinitions::Increment(
+                p,
+                old_value,
+                controller == hardware_midi::kDataIncrement ? 1 : -1);
+            if (new_value != old_value) {
+              SetParameter(nrpn_parameter_number_, new_value);
             }
           }
         }

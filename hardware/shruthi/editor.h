@@ -144,7 +144,7 @@ struct UiHandler {
   void (*overview_page)();
   void (*edit_page)();
   void (*input_handler)(uint8_t knob_index, uint16_t value);
-  void (*increment_handler)(int8_t direction);
+  void (*increment_handler)(int8_t increment);
   void (*click_handler)();
 };
 
@@ -166,7 +166,7 @@ class Editor {
   static void HandleInput(uint8_t knob_index, uint16_t value);
 
   // Handles a rotation of the encoder.
-  static void HandleIncrement(int8_t direction);
+  static void HandleIncrement(int8_t increment);
 
   // Handles a click on the encoder.
   static void HandleClick();
@@ -219,31 +219,31 @@ class Editor {
   static void DisplayEditDetailsPage();
   
   static void HandleEditInput(uint8_t knob_index, uint16_t value);
-  static void HandleEditIncrement(int8_t direction);
+  static void HandleEditIncrement(int8_t increment);
 
-  static void MoveSequencerCursor(int8_t direction);
+  static void MoveSequencerCursor(int8_t increment);
   static void HandleSequencerNavigation(uint8_t knob, uint16_t value);
   
   static void DisplayTrackerPage();
   static void HandleTrackerInput(uint8_t knob_index, uint16_t value);
-  static void HandleTrackerIncrement(int8_t direction);
+  static void HandleTrackerIncrement(int8_t increment);
 
   static void DisplayPageRPage();
   static void HandlePageRInput(uint8_t knob_index, uint16_t value);
-  static void HandlePageRIncrement(int8_t direction);
+  static void HandlePageRIncrement(int8_t increment);
 
   static void DisplayStepSequencerPage();
   static void HandleStepSequencerInput(uint8_t knob_index, uint16_t value);
-  static void HandleStepSequencerIncrement(int8_t direction);
+  static void HandleStepSequencerIncrement(int8_t increment);
   
   static void DisplayConfirmPage();
   static void HandleConfirmInput(uint8_t knob_index, uint16_t value);
-  static void HandleConfirmIncrement(int8_t direction);
+  static void HandleConfirmIncrement(int8_t increment);
   static void HandleConfirmClick();
 
   static void DisplayLoadSavePage();
   static void ToggleLoadSaveAction();
-  static void HandleLoadSaveIncrement(int8_t direction);
+  static void HandleLoadSaveIncrement(int8_t increment);
   static void HandleLoadSaveClick();
   
   static void RestoreEditBuffer();

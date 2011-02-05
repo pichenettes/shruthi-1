@@ -69,6 +69,10 @@ class ParameterDefinitions {
   ParameterDefinitions() { }
   static const ParameterDefinition& parameter_definition(uint8_t index);
   static uint8_t Scale(const ParameterDefinition& parameter, uint8_t value);
+  static uint8_t Increment(
+      const ParameterDefinition& parameter,
+      uint8_t value,
+      int8_t increment);
   
  private:
   static ParameterDefinition parameter_definition_;
