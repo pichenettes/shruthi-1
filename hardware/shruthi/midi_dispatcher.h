@@ -59,8 +59,12 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
       uint8_t channel,
       uint8_t controller,
       uint8_t value) {
-    display.set_status('\x05');
-    engine.ControlChange(channel, controller, value);
+    if (controller == hardware_midi::kBankLsb) {
+      current_bank_ = value;
+    } else {
+      display.set_status('\x05');
+      engine.ControlChange(channel, controller, value);
+    }
   }
   static inline void PitchBend(uint8_t channel, uint16_t pitch_bend) {
     display.set_status('\x02');
@@ -89,8 +93,9 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
   }
   
   static void ProgramChange(uint8_t channel, uint8_t program) {
-    if (program < Storage::size<Patch>()) {
-      Storage::Load(engine.mutable_patch(), program);
+    uint16_t n = program + (current_bank_ << 7);
+    if (n < Storage::size<Patch>()) {
+      Storage::Load(engine.mutable_patch(), n);
       // Do not force a SysEx sync because the slave in the polychain will also
       // receive the program change anyway!
       engine.TouchPatch(0);
@@ -157,6 +162,7 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
   static void NoteKilled(uint8_t note);
   static void NoteTriggered(uint8_t note, uint8_t velocity);
   static void Send(uint8_t status, uint8_t* data, uint8_t size);
+  static void Send2(uint8_t status, uint8_t a);
   static void Send3(uint8_t status, uint8_t a, uint8_t b);
   static void SendParameter(uint8_t index, uint8_t value);
 
@@ -171,6 +177,7 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
  private:
   static uint8_t data_entry_counter_;
   static uint8_t current_parameter_index_;
+  static uint8_t current_bank_;
   
   static void ProcessSysEx(uint8_t byte) {
     if (mode() >= MIDI_OUT_SPLIT) {

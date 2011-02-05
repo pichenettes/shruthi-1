@@ -27,6 +27,9 @@ uint8_t MidiDispatcher::current_parameter_index_;
 /* static */
 uint8_t MidiDispatcher::data_entry_counter_;
 
+/* static */
+uint8_t MidiDispatcher::current_bank_ = 0;
+
 MidiDispatcher midi_dispatcher;
 
 const uint8_t kDataEntryResendRate = 32;
@@ -60,6 +63,12 @@ void MidiDispatcher::Send(uint8_t status, uint8_t* data, uint8_t size) {
     OutputBuffer::Overwrite(*data++);
     --size;
   }
+}
+
+/* static */
+void MidiDispatcher::Send2(uint8_t status, uint8_t a) {
+  OutputBuffer::Overwrite(status);
+  OutputBuffer::Overwrite(a);
 }
 
 /* static */

@@ -25,6 +25,7 @@
 #include "hardware/hal/devices/switch_array.h"
 #include "hardware/hal/watchdog_timer.h"
 #include "hardware/shruthi/display.h"
+#include "hardware/shruthi/midi_dispatcher.h"
 #include "hardware/shruthi/parameter_definitions.h"
 #include "hardware/shruthi/storage.h"
 #include "hardware/shruthi/synthesis_engine.h"
@@ -612,6 +613,9 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
       if (editor_mode_ == EDITOR_MODE_PATCH) {
         uint16_t n = edited_item_number();
         Storage::Load(engine.mutable_patch(), n);
+        uint8_t channel = (engine.system_settings().midi_channel - 1) & 0xf;
+        midi_dispatcher.Send3(0xb0 | channel, 0x20, n >> 7);
+        midi_dispatcher.Send2(0xc0 | channel, n & 0x7f);
         engine.TouchPatch(1);
         if (engine.system_settings().patch_restore_on_boot & 0x80) {
           engine.mutable_system_settings()->patch_restore_on_boot = \
