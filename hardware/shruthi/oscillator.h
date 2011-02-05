@@ -37,8 +37,7 @@
 using namespace hardware_utils_op;
 using hardware_utils::Random;
 
-static const uint16_t kWavetableSize = 16 * 257;
-static const uint16_t kLowResWavetableSize = 16 * 129;
+static const uint16_t kWavetableSize = 16 * 129;
 static const uint16_t kUserWavetableSize = 8 * 129;
 
 namespace hardware_shruthi {
@@ -147,7 +146,6 @@ struct SawTriangleOscillatorData {
 struct SweepingWavetableOscillatorData {
   const prog_uint8_t* wave[2];
   uint8_t balance;
-  uint8_t high_resolution;
 };
 
 struct CzOscillatorData {
@@ -366,33 +364,22 @@ class Oscillator {
     uint8_t wave_index = balance_index & 0xf;
     
     uint16_t offset = wave_index << 8;
-    uint8_t high_resolution = (shape_ - WAVEFORM_WAVETABLE_1) < kNumHiResWavetables;
-    if (!high_resolution) {
-      offset >>= 1;
-    }
+    offset >>= 1;
+
     offset += wave_index;
     const prog_uint8_t* base_address = waveform_table[
         WAV_RES_WAVETABLE_1 + shape_ - WAVEFORM_WAVETABLE_1];
     data_.sw.wave[0] = base_address + offset;
     data_.sw.wave[1] = data_.sw.wave[0];
-    if (high_resolution) {
-      if (offset < kWavetableSize - 257) {
-        data_.sw.wave[1] += 257;
-      }
-    } else {
-      if (offset < kLowResWavetableSize - 129) {
-        data_.sw.wave[1] += 129;
-      }
+    if (offset < kWavetableSize - 129) {
+      data_.sw.wave[1] += 129;
     }
-    data_.sw.high_resolution = high_resolution;
   }
   
   static void RenderSweepingWavetable() {
     phase_ += phase_increment_;
     uint16_t phase = phase_;
-    if (!data_.sw.high_resolution) {
-      phase >>= 1;
-    }
+    phase >>= 1;
     held_sample_ = InterpolateTwoTables(
         data_.st.wave[0], data_.st.wave[1],
         phase, data_.st.balance);

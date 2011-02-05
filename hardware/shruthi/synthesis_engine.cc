@@ -88,7 +88,7 @@ void SynthesisEngine::Init() {
   
   // Fill the "user" wavetable with data from an existing wavetable.
   ResourcesManager::Load(
-      wav_res_low_res_wavetable_2,
+      wav_res_wavetable_3,
       user_wavetable,
       kUserWavetableSize);
 }
