@@ -369,7 +369,7 @@ void Init() {
   display.Init();
   lcd.SetCustomCharMapRes(character_table[0], 7, 1);
   editor.Init();
-  ExternalEeprom<>::Init();
+  Storage::Init();
 
   engine.Init();
 

@@ -119,6 +119,11 @@ static const uint8_t kLcdHeight = 2;
 
 static const uint8_t kSchedulerNumSlots = 32;
 
+// ---- EEPROM size ------------------------------------------------------------
+
+static const uint16_t kBankSize = 8192;
+static const uint16_t kMaxNumBanks = 2;
+
 }  // namespace hardware_shruthi
 
 #endif  // HARDWARE_SHRUTHI_SHRUTHI_H_

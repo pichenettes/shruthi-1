@@ -24,9 +24,11 @@
 #include <string.h>
 
 #include "hardware/base/base.h"
+#include "hardware/hal/devices/external_eeprom.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/patch.h"
 #include "hardware/shruthi/sequencer_settings.h"
+#include "hardware/shruthi/shruthi.h"
 #include "hardware/shruthi/system_settings.h"
 
 namespace hardware_shruthi {
@@ -71,6 +73,8 @@ template<> class StorageConfiguration<SequencerSettings> {
 
 class Storage {
  public:
+  static void Init();
+   
   static inline uint8_t sysex_rx_state() {
     return sysex_rx_state_;
   }
@@ -78,7 +82,11 @@ class Storage {
   template<typename T>
   static uint8_t size() {
     return StorageConfiguration<T>::num_internal +
-           StorageConfiguration<T>::num_external;
+           StorageConfiguration<T>::num_external * num_accessible_banks_;
+  }
+  
+  static uint16_t addressable_space_size() {
+    return hardware_hal::kInternalEepromSize + num_accessible_banks_ * kBankSize;
   }
 
   template<typename T>
@@ -147,16 +155,19 @@ class Storage {
    
  private:
   template<typename T>
-  static uint8_t* address(uint8_t slot) {
+  static uint8_t* address(uint16_t slot) {
     if (slot < StorageConfiguration<T>::num_internal) {
       return (uint8_t*)(
           StorageConfiguration<T>::offset_internal + \
           StorageConfiguration<T>::size * slot);
     } else {
       slot -= StorageConfiguration<T>::num_internal;
-      return (uint8_t*)(
-          StorageConfiguration<T>::offset_external + \
-          StorageConfiguration<T>::size * slot);
+      uint16_t base = StorageConfiguration<T>::offset_external;
+      while (slot >= StorageConfiguration<T>::num_external) {
+        slot -= StorageConfiguration<T>::num_external;
+        base += kBankSize;
+      }
+      return (uint8_t*)(base + StorageConfiguration<T>::size * slot);
     }
   }
 
@@ -179,7 +190,13 @@ class Storage {
   static uint8_t sysex_rx_state_;
   static uint8_t sysex_rx_checksum_;
   static uint8_t sysex_rx_command_[2];
+  static uint8_t num_accessible_banks_;
 };
+
+extern hardware_hal::ExternalEeprom<kBankSize * kMaxNumBanks> external_eeprom;
+
+extern Lcd lcd;
+
 
 }  // namespace hardware_shruthi
 

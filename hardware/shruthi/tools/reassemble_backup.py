@@ -61,6 +61,15 @@ MEMORY_LAYOUT = [
   (1,  48, 'padding'),
   (64, 92, 'patch'),
   (64, 32, 'sequence'),
+  (1,  256, 'padding'),
+  (64, 92, 'patch'),
+  (64, 32, 'sequence'),
+  (1,  256, 'padding'),
+  (64, 92, 'patch'),
+  (64, 32, 'sequence'),
+  (1,  256, 'padding'),
+  (64, 92, 'patch'),
+  (64, 32, 'sequence'),
   (1,  256, 'padding')
 ]
 
@@ -93,6 +102,8 @@ def Assemble(content):
     for _ in xrange(num_entries):
       index = counters.get(kind, 0)
       counters[kind] = index + 1
+      if index >= len(content[kind]):
+        break
       data = content[kind][index]
       assert len(data) == entry_size
       image.extend(data)
@@ -109,8 +120,8 @@ def WriteSyx(f, image):
     f.write('\x00\x20\x77')
     # Shruthi-1
     f.write('\x00\x02')
-    f.write('\x40')
-    f.write(chr(i))
+    f.write(chr(0x40 + (i / 128)))
+    f.write(chr(i % 128))
     for b in block + [checksum]:
       f.write(chr(b >> 4))
       f.write(chr(b & 0xf))

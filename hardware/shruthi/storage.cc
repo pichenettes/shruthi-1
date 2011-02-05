@@ -21,9 +21,8 @@
 
 #include <avr/pgmspace.h>
 
-#include "hardware/hal/serial.h"
-#include "hardware/hal/devices/external_eeprom.h"
 #include "hardware/hal/devices/shift_register.h"
+#include "hardware/hal/serial.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/oscillator.h"
 #include "hardware/shruthi/synthesis_engine.h"
@@ -35,7 +34,9 @@ using namespace hardware_utils_op;
 static const uint8_t kSysExBulkDumpBlockSize = 128;
 
 namespace hardware_shruthi {
-  
+
+ExternalEeprom<kMaxNumBanks * kBankSize> external_eeprom;
+
 // We directly address the facade LEDs to show a progress bar of the data
 // dump.
 typedef ShiftRegisterOutput<
@@ -72,6 +73,9 @@ uint16_t Storage::sysex_rx_expected_size_;
 /* static */
 uint8_t Storage::sysex_rx_command_[2];
 
+/* static */
+uint8_t Storage::num_accessible_banks_;
+
 
 static const prog_char sysex_rx_header[] PROGMEM = {
   0xf0,  // <SysEx>
@@ -83,9 +87,9 @@ static const prog_char sysex_rx_header[] PROGMEM = {
   // - 0x02: sequence transfer
   // - 0x03: waveform transfer
   // - 0x11: path transfer request
-  // - 0x40: big dump
+  // - 0x4n: big dump, n-th 16kb of addressable space
   // * Argument byte:
-  // Not used for 0x01-0x03, but used for block numbering for 0x40.
+  // Not used for 0x01-0x03, but used for block numbering for 0x4n.
 };
 
 
@@ -118,17 +122,12 @@ void Storage::SysExDumpBuffer(
 
 /* static */
 void Storage::SysExBulkDump() {
-  // Check at compile-time that the sizes won't cause overflows.
-  STATIC_ASSERT((kInternalEepromSize + kDefaultExternalEepromSize) % \
-      kSysExBulkDumpBlockSize == 0);
-  STATIC_ASSERT((kInternalEepromSize + kDefaultExternalEepromSize) / \
-      kSysExBulkDumpBlockSize < 128);
-    
+  uint8_t message_id = 0x40;
   uint8_t block_id = 0;
   uint8_t progress_leds = 1;
   uint16_t delay;
   for (uint16_t start = 0;
-       start < kInternalEepromSize + kDefaultExternalEepromSize;
+       start < addressable_space_size();
        start += kSysExBulkDumpBlockSize) {
     if (start < kInternalEepromSize) {
       eeprom_read_block(
@@ -145,9 +144,13 @@ void Storage::SysExBulkDump() {
     }
     SysExDumpBuffer(
         sysex_rx_buffer_,
-        0x40,
+        message_id,
         block_id++,
         kSysExBulkDumpBlockSize);
+    if (block_id == 128) {
+      block_id = 0;
+      ++message_id;
+    }
     ProgressBar::Write(progress_leds);
     progress_leds = progress_leds == 255 ? 1 : (progress_leds << 1) + 1;
     Delay(delay);
@@ -178,7 +181,10 @@ void Storage::SysExParseCommand() {
       sysex_rx_expected_size_ = 0;
       break;
         
-    case 0x40:  // Raw data dump
+    case 0x40:
+    case 0x41:
+    case 0x42:
+    case 0x43:
       sysex_rx_expected_size_ = kSysExBulkDumpBlockSize;
       break;
       
@@ -210,10 +216,20 @@ void Storage::SysExAcceptBuffer() {
       break;
     
     case 0x40:  // Raw data dump
+    case 0x41:
+    case 0x42:
+    case 0x43:
       {
         ProgressBar::Write((1 << (sysex_rx_command_[1] & 7)) * 2 - 1);
         uint16_t address = sysex_rx_command_[1] * kSysExBulkDumpBlockSize;
-        success = address < (kInternalEepromSize + kDefaultExternalEepromSize);
+        while (sysex_rx_command_[0] > 0x40) {
+          address += kSysExBulkDumpBlockSize * 128;
+          --sysex_rx_command_[0];
+        }
+        success = address < addressable_space_size();
+        if (!success) {
+          break;
+        }
         if (address < kInternalEepromSize) {
           eeprom_write_block(
               sysex_rx_buffer_,
@@ -294,8 +310,7 @@ void Storage::WriteExternal(
     const uint8_t* data,
     uint16_t address,
     uint8_t size) {
-  ExternalEeprom<> e;
-  uint16_t written = e.Write(address, data, size);
+  uint16_t written = external_eeprom.Write(address, data, size);
 }
 
 /* static */
@@ -303,9 +318,31 @@ void Storage::ReadExternal(
     uint8_t* data,
     uint16_t address,
     uint8_t size) {
-  ExternalEeprom<> e;
-  e.Read(address, size, data);
-  lcd.EnableRefresh();  
+  external_eeprom.Read(address, size, data);
+}
+
+/* static */
+void Storage::Init() {
+  uint16_t data;
+  external_eeprom.Init();
+  uint16_t address = kMaxNumBanks * kBankSize - 2;
+  // Write the sequence 0xfadN at the end of each bank, where N is the
+  // bank number.
+  for (uint8_t i = kMaxNumBanks; i > 0; --i) {
+    data = 0xfad0 + i;
+    WriteExternal((uint8_t*)&data, address, 2);
+    address -= kBankSize;
+  }
+  // Try to read back this data to figure out the actual number of banks.
+  num_accessible_banks_ = kMaxNumBanks;
+  while (num_accessible_banks_ > 0) {
+    ReadExternal((uint8_t*)&data, address, 2);
+    if (data == 0xfad0 + num_accessible_banks_) {
+      break;
+    }
+    --num_accessible_banks_;
+    address -= kBankSize;
+  }
 }
 
 }  // hardware_shruthi

@@ -247,8 +247,8 @@ class Editor {
   static void HandleLoadSaveClick();
   
   static void RestoreEditBuffer();
-  static int8_t edited_item_number();
-  static void set_edited_item_number(int8_t value);
+  static uint16_t edited_item_number();
+  static void set_edited_item_number(uint16_t value);
   static uint8_t is_cursor_at_valid_position();
   
   static void LoadPatch(uint8_t index);
@@ -280,8 +280,8 @@ class Editor {
 
   static uint8_t subpage_;
   static uint8_t action_;
-  static uint8_t current_patch_number_;
-  static uint8_t current_sequence_number_;
+  static uint16_t current_patch_number_;
+  static uint16_t current_sequence_number_;
   static ConfirmPageSettings confirm_page_settings_;
 
   static uint8_t assign_in_progress_; 

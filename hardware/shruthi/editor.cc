@@ -204,8 +204,8 @@ uint8_t Editor::cursor_;
 uint8_t Editor::last_knob_;
 uint8_t Editor::subpage_;
 uint8_t Editor::action_;
-uint8_t Editor::current_patch_number_ = 0;
-uint8_t Editor::current_sequence_number_ = 0;
+uint16_t Editor::current_patch_number_ = 0;
+uint16_t Editor::current_sequence_number_ = 0;
 
 uint8_t Editor::test_note_playing_ = 0;
 uint8_t Editor::assign_in_progress_ = 0;
@@ -534,7 +534,7 @@ void Editor::ToggleLoadSaveAction() {
 }
 
 /* static */
-int8_t Editor::edited_item_number() {
+uint16_t Editor::edited_item_number() {
   if (editor_mode_ == EDITOR_MODE_PATCH) {
     return current_patch_number_;
   } else {
@@ -543,13 +543,13 @@ int8_t Editor::edited_item_number() {
 }
 
 /* static */
-void Editor::set_edited_item_number(int8_t value) {
+void Editor::set_edited_item_number(uint16_t value) {
   if (editor_mode_ == EDITOR_MODE_PATCH) {
-    if (value >= 0 && value < Storage::size<Patch>()) {
+    if (value < Storage::size<Patch>()) {
       current_patch_number_ = value;
     }
   } else {
-    if (value >= 0 && value < Storage::size<SequencerSettings>()) {
+    if (value < Storage::size<SequencerSettings>()) {
       current_sequence_number_ = value;
     }
   }
@@ -610,11 +610,12 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
     set_edited_item_number(edited_item_number() + increment);
     if (action_ == ACTION_LOAD) {
       if (editor_mode_ == EDITOR_MODE_PATCH) {
-        uint8_t n = edited_item_number();
+        uint16_t n = edited_item_number();
         Storage::Load(engine.mutable_patch(), n);
         engine.TouchPatch(1);
         if (engine.system_settings().patch_restore_on_boot & 0x80) {
-          engine.mutable_system_settings()->patch_restore_on_boot = 0x80 | n;
+          engine.mutable_system_settings()->patch_restore_on_boot = \
+              0x80 | (n & 0x7f);
           engine.system_settings().EepromSave();
         }
       } else {

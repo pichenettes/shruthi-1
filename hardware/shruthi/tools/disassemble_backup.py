@@ -58,6 +58,15 @@ MEMORY_LAYOUT = [
   (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
   (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
   (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
+  (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
+  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
+  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
+  (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
+  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
+  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
+  (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
+  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
+  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
 ]
 
 
@@ -90,8 +99,8 @@ def ExtractSyxData(syx_content):
     head += 2
     
     # Remove leading command
-    assert packet[head] == '\x40'
-    assert packet[head + 1] == chr(index)
+    assert packet[head] == chr(0x40 + (index / 128))
+    assert packet[head + 1] == chr(index % 128)
     head += 2
     
     data.append(packet[head:tail])
@@ -105,6 +114,8 @@ def Parse(data):
   for entries, size, kind, name_extractor, formatter in MEMORY_LAYOUT:
     extracted_items = content.setdefault(kind, [])
     for entry in range(entries):
+      if offset >= len(data):
+        continue
       block = data[offset:offset + size]
       offset += size
       name = name_extractor(len(extracted_items), block)
