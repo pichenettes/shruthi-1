@@ -76,8 +76,6 @@ class Voice {
 
   static void ProcessBlock();
 
-  static inline uint8_t* buffer() { return buffer_; }
-
   // Called whenever a write to the CV analog outputs has to be made.
   static inline uint8_t cutoff()  {
     return modulation_destinations_[MOD_DST_FILTER_CUTOFF];

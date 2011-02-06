@@ -927,9 +927,7 @@ inline void Voice::UpdatePhaseIncrements() {
           buffer_);
       increment = Lsr24(increment);
       if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
-        sub_osc.Render(
-            increment,
-            sub_osc_buffer_);
+        sub_osc.Render(increment, sub_osc_buffer_);
       }
     } else {
       osc_2.Render(
