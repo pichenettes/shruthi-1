@@ -528,10 +528,13 @@ class Oscillator {
         static_cast<int32_t>(phase_increment_.integral) * multiplier) >> 8;
     parameter_ <<= 1;
     
+    // The modulator will have a 16 bits phase increment, so we need to drop
+    // the fractional part to 0 to ensure that the modulator frequency is
+    // the correct multiple of the carrier frequency.
+    phase_.fractional = 0;
     uint8_t size = kAudioBlockSize;
     while (size--) {
-      //UpdatePhase();
-      phase_.integral += phase_increment_.integral;
+      UpdatePhase();
       data_.fm.modulator_phase += increment;
       uint8_t modulator = ReadSample(waveform_table[WAV_RES_SINE],
                                      data_.fm.modulator_phase);
@@ -576,58 +579,44 @@ class Oscillator {
     }
   }
   
-  // ------- Vowel ------------------------------------------------------------
-  //
-  // The algorithm used here is a reimplementation of the synthesis algorithm
-  // used in Cantarino, the Arduino speech synthesizer, by Peter Knight.
-  // http://code.google.com/p/tinkerit/wiki/Cantarino
-  static void UpdateVowel() {
+  static void RenderVowel(uint8_t* buffer) {
     if (id == 2) {
       return;  // Do not duplicate this code for the second oscillator.
     }
     data_.vw.update++;
     if (data_.vw.update == kVowelControlRateDecimation) {
       data_.vw.update = 0;
-    } else {
-      return;
-    }
+      uint8_t offset_1 = ShiftRight4(parameter_);
+      offset_1 = (offset_1 << 2) + offset_1;  // offset_1 * 5
+      uint8_t offset_2 = offset_1 + 5;
+      uint8_t balance = parameter_ & 15;
+      for (uint8_t i = 0; i < 3; ++i) {
+        data_.vw.formant_increment[i] = UnscaledMix4(
+            ResourcesManager::Lookup<uint8_t, uint8_t>(
+                waveform_table[WAV_RES_VOWEL_DATA], offset_1 + i),
+            ResourcesManager::Lookup<uint8_t, uint8_t>(
+                waveform_table[WAV_RES_VOWEL_DATA], offset_2 + i),
+            balance);
+        data_.vw.formant_increment[i] <<= 3;
+      }
+      for (uint8_t i = 0; i < 2; ++i) {
+        uint8_t amplitude_a = ResourcesManager::Lookup<uint8_t, uint8_t>(
+            waveform_table[WAV_RES_VOWEL_DATA],
+            offset_1 + 3 + i);
+        uint8_t amplitude_b = ResourcesManager::Lookup<uint8_t, uint8_t>(
+            waveform_table[WAV_RES_VOWEL_DATA],
+            offset_2 + 3 + i);
 
-    uint8_t offset_1 = ShiftRight4(parameter_);
-    offset_1 = (offset_1 << 2) + offset_1;  // offset_1 * 5
-    uint8_t offset_2 = offset_1 + 5;
-    uint8_t balance = parameter_ & 15;
-    for (uint8_t i = 0; i < 3; ++i) {
-      data_.vw.formant_increment[i] = UnscaledMix4(
-          ResourcesManager::Lookup<uint8_t, uint8_t>(
-              waveform_table[WAV_RES_VOWEL_DATA], offset_1 + i),
-          ResourcesManager::Lookup<uint8_t, uint8_t>(
-              waveform_table[WAV_RES_VOWEL_DATA], offset_2 + i),
-          balance);
-      data_.vw.formant_increment[i] <<= 3;
+        data_.vw.formant_amplitude[2 * i + 1] = Mix4(
+            amplitude_a & 0x0f,
+            amplitude_b & 0x0f, balance);
+        amplitude_a = ShiftRight4(amplitude_a);
+        amplitude_b = ShiftRight4(amplitude_b);
+        data_.vw.formant_amplitude[2 * i] = Mix4(
+            amplitude_a,
+            amplitude_b, balance);
+      }
     }
-    for (uint8_t i = 0; i < 2; ++i) {
-      uint8_t amplitude_a = ResourcesManager::Lookup<uint8_t, uint8_t>(
-          waveform_table[WAV_RES_VOWEL_DATA],
-          offset_1 + 3 + i);
-      uint8_t amplitude_b = ResourcesManager::Lookup<uint8_t, uint8_t>(
-          waveform_table[WAV_RES_VOWEL_DATA],
-          offset_2 + 3 + i);
-
-      data_.vw.formant_amplitude[2 * i + 1] = Mix4(
-          amplitude_a & 0x0f,
-          amplitude_b & 0x0f, balance);
-      amplitude_a = ShiftRight4(amplitude_a);
-      amplitude_b = ShiftRight4(amplitude_b);
-      data_.vw.formant_amplitude[2 * i] = Mix4(
-          amplitude_a,
-          amplitude_b, balance);
-    }
-  }
-  static void RenderVowel(uint8_t* buffer) {
-    if (id == 2) {
-      return;  // Do not duplicate this code for the second oscillator.
-    }
-    UpdateVowel();
     uint8_t size = kAudioBlockSize;
     while (size) {
       int8_t result = 0;
