@@ -74,8 +74,7 @@ class Voice {
   // Move this voice to the release stage.
   static void Kill() { TriggerEnvelope(DEAD); }
 
-  static void Audio(uint8_t size);
-  static void Control();
+  static void ProcessBlock();
 
   static inline uint8_t* buffer() { return buffer_; }
 
@@ -136,7 +135,10 @@ class Voice {
   static uint8_t osc1_phase_msb_;
   
   static uint8_t buffer_[kAudioBlockSize];
-  static uint8_t aux_buffer_[kAudioBlockSize];
+  static uint8_t osc2_buffer_[kAudioBlockSize];
+  static uint8_t sub_osc_buffer_[kAudioBlockSize];
+  static uint8_t sync_state_[kAudioBlockSize];
+  static uint8_t no_sync_[kAudioBlockSize];
 
   DISALLOW_COPY_AND_ASSIGN(Voice);
 };
@@ -167,8 +169,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static void Start();
   static void Stop();
 
-  static void Audio(uint8_t size);
-  static void Control();
+  static void ProcessBlock();
 
   // Patch manipulation stuff.
   static void SetParameter(uint8_t parameter_index, uint8_t parameter_value);

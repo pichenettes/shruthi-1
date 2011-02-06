@@ -41,6 +41,13 @@ struct uint24_t {
   uint8_t fractional;
 };
 
+struct uint24c_t {
+  uint8_t carry;
+  uint16_t integral;
+  uint8_t fractional;
+};
+
+
 #define abs(x) ((x) > 0 ? (x) : -(x))
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \

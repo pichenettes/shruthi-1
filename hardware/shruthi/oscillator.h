@@ -192,8 +192,8 @@ union OscillatorState {
 };
 
 struct AlgorithmFn {
-  void (*update)();
-  void (*render)(uint8_t* buffer, uint8_t size);
+  void (*update)(uint8_t note);
+  void (*render)(uint8_t* buffer);
 };
 
 template<int id>
@@ -211,36 +211,27 @@ class Oscillator {
     fn_ = fn_table_[shape];
   }
   
-  static inline void Render(uint8_t* buffer, uint8_t size) {
-    (*fn_.render)(buffer, size);
-  }
-  
-  static inline void Update(
+  static inline void Render(
       uint8_t parameter,
       uint8_t note,
-      uint16_t integral,
-      uint8_t fractional) {
-    note_ = note;
+      uint24_t increment,
+      uint8_t* sync_state,
+      uint8_t* buffer) {
     parameter_ = parameter;
-    phase_increment_.integral = integral;
-    phase_increment_.fractional = fractional;
+    phase_increment_ = increment;
     // A hack: when pulse width is set to 0, use a simple wavetable.
     if (shape_ == WAVEFORM_SQUARE) {
       fn_ = fn_table_[shape_ + (parameter_ == 0 ? 1 : 0)];
     }
-    (*fn_.update)();
+    sync_state_ = sync_state;
+    (*fn_.update)(note);
+    (*fn_.render)(buffer);
   }
   
   static inline void UpdateSecondaryParameter(uint8_t secondary_parameter) {
     data_.fm.modulator_phase_increment = secondary_parameter;
   }
   
-  static inline uint16_t phase() { return phase_.integral; }
-  static inline void ResetPhase() {
-    phase_.integral = 0;
-    phase_.fractional = 0;
-  }
-
  private:
   // Current phase of the oscillator.
   static uint24_t phase_;
@@ -252,14 +243,9 @@ class Oscillator {
   // should also update the Update/Render pointers.
   static uint8_t shape_;
   static uint8_t shape_corrected_;
-  // Whether we are sweeping through the algorithms.
-  static uint8_t sweeping_;
 
   // Current value of the oscillator parameter.
   static uint8_t parameter_;
-
-  // Current MIDI note (used for wavetable selection).
-  static uint8_t note_;
 
   // Union of state data used by each algorithm.
   static OscillatorState data_;
@@ -267,22 +253,47 @@ class Oscillator {
   // A pair of pointers to the update/render functions. update function might be
   // NULL.
   static AlgorithmFn fn_;
-
   static AlgorithmFn fn_table_[];
+  
+  // A flag set to true when sync is enabled ; and a table to record the
+  // position of phrase wraps
+  static uint8_t* sync_state_;
 
   // ------- Silence (useful when processing external signals) -----------------
-  static void UpdateSilence() {
+  static void UpdateSilence(uint8_t note) {
   }
   
-  static void RenderSilence(uint8_t* buffer, uint8_t size) {
+  static void RenderSilence(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
       *buffer++ = 128;
     }
   }
+  
+  static inline uint8_t UpdatePhase() __attribute__((always_inline)) {
+    if (id == 1) {
+      uint24c_t phi = Add24Carry(phase_, phase_increment_);
+      *sync_state_++ = phi.carry;
+      phase_.fractional = phi.fractional;
+      phase_.integral = phi.integral;
+      return phi.carry;
+    } else {
+      if (*sync_state_++) {
+        phase_.integral = 0;
+        phase_.fractional = 0;
+        return 0;
+      } else {
+        uint24c_t phi = Add24Carry(phase_, phase_increment_);
+        phase_.fractional = phi.fractional;
+        phase_.integral = phi.integral;
+        return phi.carry;
+      }
+    }
+  }
 
   // ------- Band-limited PWM --------------------------------------------------
-  static void UpdateBandlimitedPwm() {
-    uint8_t balance_index = Swap4(note_ - 12);
+  static void UpdateBandlimitedPwm(uint8_t note) {
+    uint8_t balance_index = Swap4(note - 12);
     data_.pw.balance = balance_index & 0xf0;
 
     uint8_t wave_index = balance_index & 0xf;
@@ -292,15 +303,16 @@ class Oscillator {
     data_.pw.shift = static_cast<uint16_t>(parameter_ + 128) << 8;
     // For higher pitched notes, simply use 128
     data_.pw.scale = 192 - (parameter_ >> 1);
-    if (note_ > 64) {
-      data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
-      data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
+    if (note > 64) {
+      data_.pw.scale = Mix(data_.pw.scale, 104, (note - 64) << 2);
+      data_.pw.scale = Mix(data_.pw.scale, 104, (note - 64) << 2);
     }
-    phase_increment_ = Lsl24(phase_increment_);
   }
-  static void RenderBandlimitedPwm(uint8_t* buffer, uint8_t size) {
+  static void RenderBandlimitedPwm(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
+      UpdatePhase();
       uint8_t a = InterpolateTwoTables(
           data_.pw.wave[0],
           data_.pw.wave[1],
@@ -320,8 +332,8 @@ class Oscillator {
 
   // ------- Interpolation between two waveforms from two wavetables -----------
   // The position is determined by the note pitch, to prevent aliasing.
-  static void UpdateSimpleWavetable() {
-    uint8_t balance_index = Swap4(note_ - 12);
+  static void UpdateSimpleWavetable(uint8_t note) {
+    uint8_t balance_index = Swap4(note - 12);
     data_.st.balance = balance_index & 0xf0;
 
     uint8_t wave_index = balance_index & 0xf;
@@ -334,9 +346,10 @@ class Oscillator {
     wave_index = AddClip(wave_index, 1, kNumZonesFullSampleRate);
     data_.st.wave[1] = waveform_table[base_resource_id + wave_index];
   }
-  static void RenderSimpleWavetable(uint8_t* buffer, uint8_t size) {
+  static void RenderSimpleWavetable(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       uint8_t sample = InterpolateTwoTables(
           data_.st.wave[0], data_.st.wave[1],
           phase_.integral, data_.st.balance);
@@ -366,7 +379,7 @@ class Oscillator {
   
   // ------- Interpolation between two waveforms from two wavetables -----------
   // The position is freely determined by the parameter
-  static void UpdateSweepingWavetable() {
+  static void UpdateSweepingWavetable(uint8_t note) {
     uint8_t balance_index = Swap4(parameter_ << 1);
     data_.sw.balance = balance_index & 0xf0;
     uint8_t wave_index = balance_index & 0xf;
@@ -384,9 +397,10 @@ class Oscillator {
     }
   }
   
-  static void RenderSweepingWavetable(uint8_t* buffer, uint8_t size) {
+  static void RenderSweepingWavetable(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       uint16_t phase = phase_.integral;
       phase >>= 1;
       *buffer++ = InterpolateTwoTables(
@@ -396,7 +410,7 @@ class Oscillator {
   }
   
   // The position is freely determined by the parameter
-  static void UpdateSweepingWavetableRam() {
+  static void UpdateSweepingWavetableRam(uint8_t note) {
     uint8_t balance_index = Swap4(parameter_);
     data_.sw.balance = balance_index & 0xf0;
     uint8_t wave_index = balance_index & 0xf;
@@ -410,9 +424,10 @@ class Oscillator {
     }
   }
   
-  static void RenderSweepingWavetableRam(uint8_t* buffer, uint8_t size) {
+  static void RenderSweepingWavetableRam(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       uint16_t phase = phase_.integral;
       phase >>= 1;
       *buffer++ = Mix(
@@ -423,14 +438,15 @@ class Oscillator {
   }
 
   // ------- Casio CZ-like synthesis -------------------------------------------
-  static void UpdateCz() {
+  static void UpdateCz(uint8_t note) {
     data_.cz.formant_phase_increment = phase_increment_.integral + (
         (phase_increment_.integral * uint32_t(parameter_)) >> 3);
   }
   
-  static void RenderCzSaw(uint8_t* buffer, uint8_t size) {
+  static void RenderCzSaw(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       uint8_t phase = phase_.integral >> 8;
       uint8_t clipped_phase = phase < 0x20 ? phase << 3 : 0xff;
       *buffer++ = InterpolateSample(waveform_table[WAV_RES_SINE],
@@ -438,12 +454,10 @@ class Oscillator {
     }
   }
   
-  static void RenderCzPulseReso(uint8_t* buffer, uint8_t size) {
+  static void RenderCzPulseReso(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      uint8_t old_phase_msb = phase_.integral >> 8;
-      phase_ = Add24(phase_, phase_increment_);
-      uint8_t phase_msb = phase_.integral >> 8;
-      if (phase_msb < old_phase_msb) {
+      if (UpdatePhase()) {
         data_.cz.formant_phase = 0;
       }
       data_.cz.formant_phase += data_.cz.formant_phase_increment;
@@ -460,28 +474,24 @@ class Oscillator {
     }
   }
   
-  static void RenderCzSawReso(uint8_t* buffer, uint8_t size) {
+  static void RenderCzSawReso(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      uint8_t old_phase_msb = phase_.integral >> 8;
-      phase_ = Add24(phase_, phase_increment_);
-      uint8_t phase_msb = phase_.integral >> 8;
-      if (phase_msb < old_phase_msb) {
+      if (UpdatePhase()) {
         data_.cz.formant_phase = 0;
       }
       data_.cz.formant_phase += data_.cz.formant_phase_increment;
       uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
           data_.cz.formant_phase);
-      *buffer++ = MulScale8(result, ~phase_msb);
+      *buffer++ = MulScale8(result, ~(phase_.integral >> 8));
     }
   }
   
-  static void RenderCzTriReso(uint8_t* buffer, uint8_t size) {
+  static void RenderCzTriReso(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      uint8_t old_phase_msb = phase_.integral >> 8;
-      phase_ = Add24(phase_, phase_increment_);
-      uint8_t phase_msb = phase_.integral >> 8;
-      if (phase_msb < old_phase_msb) {
+      if (UpdatePhase()) {
         data_.cz.formant_phase = 0;
       }
       data_.cz.formant_phase += data_.cz.formant_phase_increment;
@@ -495,12 +505,10 @@ class Oscillator {
     }
   }
 
-  static void RenderCzSyncReso(uint8_t* buffer, uint8_t size) {
+  static void RenderCzSyncReso(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      uint8_t old_phase_msb = phase_.integral >> 8;
-      phase_ = Add24(phase_, phase_increment_);
-      uint8_t phase_msb = phase_.integral >> 8;
-      if (phase_msb < old_phase_msb) {
+      if (UpdatePhase()) {
         data_.cz.formant_phase = 0;
       }
       data_.cz.formant_phase += data_.cz.formant_phase_increment;
@@ -512,7 +520,7 @@ class Oscillator {
   }
   
   // ------- FM ----------------------------------------------------------------
-  static void UpdateFm() {
+  static void UpdateFm(uint8_t note) {
     uint8_t offset = data_.fm.modulator_phase_increment;
     if (offset < 12) {
       offset = 0;
@@ -527,9 +535,10 @@ class Oscillator {
         static_cast<int32_t>(phase_increment_.integral) * multiplier) >> 8;
     parameter_ <<= 1;
   }
-  static void RenderFm(uint8_t* buffer, uint8_t size) {
+  static void RenderFm(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       data_.fm.modulator_phase += data_.fm.modulator_phase_increment;
       uint8_t modulator = ReadSample(waveform_table[WAV_RES_SINE],
                                      data_.fm.modulator_phase);
@@ -540,18 +549,20 @@ class Oscillator {
   }
 
   // ------- 8-bit land --------------------------------------------------------
-  static void Render8BitLand(uint8_t* buffer, uint8_t size) {
+  static void Render8BitLand(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       uint8_t x = parameter_;
       *buffer++ = (((phase_.integral >> 8) ^ (x << 1)) & (~x)) + (x >> 1);
     }
   }
 
   // ------- 8-bit land --------------------------------------------------------
-  static void RenderCrushedSine(uint8_t* buffer, uint8_t size) {
+  static void RenderCrushedSine(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       ++data_.cr.decimate;
       if (parameter_ <= 63) {
         if (data_.cr.decimate >= parameter_ + 1) {
@@ -577,7 +588,7 @@ class Oscillator {
   // The algorithm used here is a reimplementation of the synthesis algorithm
   // used in Cantarino, the Arduino speech synthesizer, by Peter Knight.
   // http://code.google.com/p/tinkerit/wiki/Cantarino
-  static void UpdateVowel() {
+  static void UpdateVowel(uint8_t note) {
     if (id == 2) {
       return;  // Do not duplicate this code for the second oscillator.
     }
@@ -619,10 +630,11 @@ class Oscillator {
           amplitude_b, balance);
     }
   }
-  static void RenderVowel(uint8_t* buffer, uint8_t size) {
+  static void RenderVowel(uint8_t* buffer) {
     if (id == 2) {
       return;  // Do not duplicate this code for the second oscillator.
     }
+    uint8_t size = kAudioBlockSize;
     while (size) {
       int8_t result = 0;
       for (uint8_t i = 0; i < 3; ++i) {
@@ -650,15 +662,16 @@ class Oscillator {
   }
 
   // ------- Dirty Pwm (kills kittens) -----------------------------------------
-  static void RenderDirtyPwm(uint8_t* buffer, uint8_t size) {
+  static void RenderDirtyPwm(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       *buffer++ = (phase_.integral >> 8) < 127 + parameter_ ? 0 : 255;
     }
   }
   
   // ------- Quad saw (mit aliasing) -------------------------------------------
-  static void UpdateQuadSawPad() {
+  static void UpdateQuadSawPad(uint8_t note) {
     uint16_t phase_spread = (
         static_cast<uint32_t>(phase_increment_.integral) * parameter_) >> 13;
     ++phase_spread;
@@ -669,9 +682,10 @@ class Oscillator {
     }
   }
 
-  static void RenderQuadSawPad(uint8_t* buffer, uint8_t size) {
+  static void RenderQuadSawPad(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      UpdatePhase();
       data_.qs.phase[0] += data_.qs.phase_increment[0];
       data_.qs.phase[1] += data_.qs.phase_increment[1];
       data_.qs.phase[2] += data_.qs.phase_increment[2];
@@ -683,7 +697,8 @@ class Oscillator {
   }
 
   // ------- Low-passed, then high-passed white noise --------------------------
-  static void RenderFilteredNoise(uint8_t* buffer, uint8_t size) {
+  static void RenderFilteredNoise(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
     while (size--) {
       uint8_t innovation = Random::GetByte();
       // This trick is used to avoid having a DC component (no innovation) when
@@ -707,13 +722,11 @@ class Oscillator {
 #define Osc Oscillator<id>
 
 template<int id> uint24_t Oscillator<id>::phase_increment_;
-
 template<int id> uint24_t Oscillator<id>::phase_;
 template<int id> uint8_t Oscillator<id>::shape_;
 template<int id> uint8_t Oscillator<id>::shape_corrected_;
 template<int id> uint8_t Oscillator<id>::parameter_;
-template<int id> uint8_t Oscillator<id>::note_;
-template<int id> uint8_t Oscillator<id>::sweeping_;
+template<int id> uint8_t* Oscillator<id>::sync_state_;
 
 template<int id> OscillatorState Oscillator<id>::data_;
 
@@ -769,34 +782,29 @@ class SubOscillator {
     is_square_ = shape != 1;
     pulse_width_ = shape == 0 ? 0x80 : 0x40;
   }
-  static inline uint8_t Render(uint8_t* buffer, uint8_t size) {
+  
+  static inline void Render(
+      uint24_t increment,
+      uint8_t* buffer) {
+    if (shift_) {
+      increment = Lsr24(increment);
+    }
+    uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, phase_increment_);
+      phase_ = Add24(phase_, increment);
       if (is_square_) {
         *buffer++ = \
             static_cast<uint8_t>(phase_.integral >> 8) < pulse_width_ ? 0 : 255;
       } else {
-        *buffer++ = phase_.integral & 0x8000
-          ? phase_.integral >> 7
-          : ~static_cast<uint8_t>(phase_.integral >> 7);
+        uint8_t tri = phase_.integral >> 7;
+        *buffer++ = phase_.integral & 0x8000 ? tri : ~tri;
       }
-    }
-  }
-  static inline void Update(
-      uint8_t parameter,
-      uint16_t integral,
-      uint8_t fractional) {
-    phase_increment_.integral = integral;
-    phase_increment_.fractional = fractional;
-    if (shift_) {
-      phase_increment_ = Lsr24(phase_increment_);
     }
   }
 
  private:
   // Current phase of the oscillator.
   static uint24_t phase_;
-  static uint24_t phase_increment_;
 
   static uint8_t shift_;
   static uint8_t pulse_width_;
@@ -807,7 +815,6 @@ class SubOscillator {
 
 /* <static> */
 template<int id> uint24_t SubOscillator<id>::phase_;
-template<int id> uint24_t SubOscillator<id>::phase_increment_;
 template<int id> uint8_t SubOscillator<id>::shift_;
 template<int id> uint8_t SubOscillator<id>::pulse_width_;
 template<int id> uint8_t SubOscillator<id>::is_square_;

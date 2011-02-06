@@ -39,6 +39,27 @@ static inline uint8_t AddClip(uint8_t value, uint8_t increment, uint8_t max) {
 
 #ifdef USE_OPTIMIZED_OP
 
+static inline uint24c_t Add24Carry(uint24_t a, uint24_t b) {
+  uint16_t a_int = a.integral;
+  uint16_t b_int = b.integral;
+  uint8_t a_frac = a.fractional;
+  uint8_t b_frac = b.fractional;
+  uint8_t a_carry = 0;
+  uint24c_t result;
+  asm(
+    "add %0, %6"      "\n\t"
+    "adc %A1, %A7"    "\n\t"
+    "adc %B1, %B7"    "\n\t"
+    "adc %2, r1"      "\n\t"
+    : "=r" (a_frac), "=r" (a_int), "=r" (a_carry)
+    : "0" (a_frac), "1" (a_int), "2" (a_carry), "a" (b_frac), "a" (b_int)
+  );
+  result.integral = a_int;
+  result.fractional = a_frac;
+  result.carry = a_carry;
+  return result;
+}
+
 static inline uint24_t Add24(uint24_t a, uint24_t b) {
   uint16_t a_int = a.integral;
   uint16_t b_int = b.integral;

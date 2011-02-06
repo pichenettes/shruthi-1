@@ -14,7 +14,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "hardware/hal/adc.h"
-#include "hardware/hal/audio_output.h"
 #include "hardware/hal/devices/external_eeprom.h"
 #include "hardware/hal/devices/input_array.h"
 #include "hardware/hal/devices/output_array.h"
@@ -26,6 +25,7 @@
 #include "hardware/hal/time.h"
 #include "hardware/hal/timer.h"
 #include "hardware/midi/midi.h"
+#include "hardware/shruthi/audio_out.h"
 #include "hardware/shruthi/display.h"
 #include "hardware/shruthi/editor.h"
 #include "hardware/shruthi/midi_dispatcher.h"
@@ -69,7 +69,6 @@ RotaryEncoderBuffer<RotaryEncoder<
     Gpio<kPinEncoderB>,
     Gpio<kPinEncoderClick> > > encoder;
 
-AudioOutput<PwmOutput<kPinVcoOut>, kAudioBufferSize, kAudioBlockSize> audio_out;
 PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
 PwmOutput<kPinVcfResonanceOut> vcf_resonance_out;
 PwmOutput<kPinVcaOut> vca_out;
@@ -260,20 +259,7 @@ void MidiTask() {
 void AudioRenderingTask() {
   // Run only when there's a block of 40 samples to fill...
   if (audio_out.writable_block()) {
-    // Generate a sample of the control signals.
-    engine.Control();
-    // Generate 40 samples of the audio signals.
-    if (!engine.voice(0).vca()) {
-      for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
-        audio_out.Overwrite(128);
-      }
-    } else {
-      engine.Audio(kAudioBlockSize);
-      uint8_t* samples = engine.voice(0).buffer();
-      for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
-        audio_out.Overwrite(*samples++);
-      }
-    }
+    engine.ProcessBlock();
     vcf_cutoff_out.Write(engine.voice(0).cutoff());
     vcf_resonance_out.Write(engine.voice(0).resonance());
     vca_out.Write(engine.voice(0).vca());
