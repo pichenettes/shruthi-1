@@ -296,7 +296,7 @@ class Oscillator {
       data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
       data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
     }
-    phase_increment_ = Lsr24(phase_increment_);
+    phase_increment_ = Lsl24(phase_increment_);
   }
   static void RenderBandlimitedPwm(uint8_t* buffer, uint8_t size) {
     while (size) {
@@ -441,8 +441,7 @@ class Oscillator {
   static void RenderCzPulseReso(uint8_t* buffer, uint8_t size) {
     while (size--) {
       uint8_t old_phase_msb = phase_.integral >> 8;
-      phase_.integral += phase_increment_.integral;
-      // phase_ = Add24(phase_, phase_increment_);
+      phase_ = Add24(phase_, phase_increment_);
       uint8_t phase_msb = phase_.integral >> 8;
       if (phase_msb < old_phase_msb) {
         data_.cz.formant_phase = 0;

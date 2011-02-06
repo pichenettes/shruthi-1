@@ -34,6 +34,8 @@ giving it a richer timbre.
 detuning effects between the oscillators, especially in the lowest notes.
 - The audio engine has been rewritten from a "breadth first" to a "depth first"
 perspective, and as a result, is faster.
+- As a result of the audio engine rewrite, the vowel oscillator can now be used
+with the noise and sub generators.
 - To make more room for upcoming feature, the waves wavetable has been
 downsampled to 128 samples/waveform instead of 256.
 

@@ -47,13 +47,11 @@ class TransientGenerator {
     fn_ = fn_table_[shape - WAVEFORM_SUB_OSC_CLICK];
   }
   
-  static inline uint8_t Render(uint8_t* buffer, uint8_t size, uint8_t amount) {
-    if (counter_ != 0) {
-      while (size--) {
-        uint8_t value = (*fn_)();
-        uint8_t amplitude = MulScale8(gain_, amount);
-        *buffer++ = Mix(*buffer, value, amplitude);
-      }
+  static inline void Render(uint8_t* buffer, uint8_t size, uint8_t amount) {
+    while (counter_ && size--) {
+      uint8_t value = (*fn_)();
+      uint8_t amplitude = MulScale8(gain_, amount);
+      *buffer++ = Mix(*buffer, value, amplitude);
     }
   }
   

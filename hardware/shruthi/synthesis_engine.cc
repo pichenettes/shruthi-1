@@ -963,11 +963,22 @@ inline void Voice::Audio(uint8_t size) {
   osc_2.Render(aux_buffer_, size);
   switch (engine.patch_.osc[0].option) {
     case OP_SUM:
-    case OP_RING_MOD:
+    case OP_SYNC:
       for (uint8_t i = 0; i < size; ++i) {
         buffer_[i] = Mix(
           buffer_[i],
           aux_buffer_[i],
+          modulation_destinations_[MOD_DST_MIX_BALANCE]);
+      }
+      break;
+    case OP_RING_MOD:
+      for (uint8_t i = 0; i < size; ++i) {
+        uint8_t ring_mod = SignedSignedMulScale8(
+            buffer_[i] + 128,
+            aux_buffer_[i] + 128) + 128;
+        buffer_[i] = Mix(
+          buffer_[i],
+          ring_mod,
           modulation_destinations_[MOD_DST_MIX_BALANCE]);
       }
       break;
