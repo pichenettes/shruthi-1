@@ -61,6 +61,7 @@ void Envelope::Trigger(uint8_t stage) {
   }
   increment_ = stage_increment_[stage];
   target_ = stage_target_[stage];
+  velocity_increment_ = 0;
 }
 
 void Envelope::Update(

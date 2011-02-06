@@ -33,7 +33,7 @@ static const prog_char str_res_rng[] PROGMEM = "rng";
 static const prog_char str_res_op_[] PROGMEM = "op.";
 static const prog_char str_res_operator[] PROGMEM = "operator";
 static const prog_char str_res_detune[] PROGMEM = "detune";
-static const prog_char str_res_osc_bal[] PROGMEM = "osc bal";
+static const prog_char str_res_osc_mix[] PROGMEM = "osc mix";
 static const prog_char str_res_sub_osc_[] PROGMEM = "sub osc.";
 static const prog_char str_res_resonance[] PROGMEM = "resonance";
 static const prog_char str_res_env1Tvcf[] PROGMEM = "env1~vcf";
@@ -101,7 +101,7 @@ static const prog_char str_res_sub[] PROGMEM = "sub";
 static const prog_char str_res_res[] PROGMEM = "res";
 static const prog_char str_res__cv1[] PROGMEM = "cv1";
 static const prog_char str_res__cv2[] PROGMEM = "cv2";
-static const prog_char str_res_2bt[] PROGMEM = "2bt";
+static const prog_char str_res__atk[] PROGMEM = "atk";
 static const prog_char str_res__lf1[] PROGMEM = "lf1";
 static const prog_char str_res__lf2[] PROGMEM = "lf2";
 static const prog_char str_res_cutoff[] PROGMEM = "cutoff";
@@ -118,7 +118,7 @@ static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_reso[] PROGMEM = "reso";
 static const prog_char str_res__cv_1[] PROGMEM = "cv 1";
 static const prog_char str_res__cv_2[] PROGMEM = "cv 2";
-static const prog_char str_res_2_bits[] PROGMEM = "2 bits";
+static const prog_char str_res__attack[] PROGMEM = "attack";
 static const prog_char str_res__lfo_1[] PROGMEM = "lfo 1";
 static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_lf1[] PROGMEM = "lf1";
@@ -198,6 +198,8 @@ static const prog_char str_res_sync[] PROGMEM = "sync";
 static const prog_char str_res_ring[] PROGMEM = "ring";
 static const prog_char str_res_xor[] PROGMEM = "xor";
 static const prog_char str_res_fuzz[] PROGMEM = "fuzz";
+static const prog_char str_res___4[] PROGMEM = ">>4";
+static const prog_char str_res___8[] PROGMEM = ">>8";
 static const prog_char str_res_stp[] PROGMEM = "stp";
 static const prog_char str_res_arp[] PROGMEM = "arp";
 static const prog_char str_res_arpSlt[] PROGMEM = "arp+lt";
@@ -343,7 +345,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_op_,
   str_res_operator,
   str_res_detune,
-  str_res_osc_bal,
+  str_res_osc_mix,
   str_res_sub_osc_,
   str_res_resonance,
   str_res_env1Tvcf,
@@ -411,7 +413,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_res,
   str_res__cv1,
   str_res__cv2,
-  str_res_2bt,
+  str_res__atk,
   str_res__lf1,
   str_res__lf2,
   str_res_cutoff,
@@ -428,7 +430,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_reso,
   str_res__cv_1,
   str_res__cv_2,
-  str_res_2_bits,
+  str_res__attack,
   str_res__lfo_1,
   str_res__lfo_2,
   str_res_lf1,
@@ -508,6 +510,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_ring,
   str_res_xor,
   str_res_fuzz,
+  str_res___4,
+  str_res___8,
   str_res_stp,
   str_res_arp,
   str_res_arpSlt,

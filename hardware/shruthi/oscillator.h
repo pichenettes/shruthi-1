@@ -267,13 +267,11 @@ class Oscillator {
       if (*sync_state_++) {
         phase_.integral = 0;
         phase_.fractional = 0;
-        return 0;
-      } else {
-        uint24c_t phi = Add24Carry(phase_, phase_increment_);
-        phase_.fractional = phi.fractional;
-        phase_.integral = phi.integral;
-        return phi.carry;
       }
+      uint24c_t phi = Add24Carry(phase_, phase_increment_);
+      phase_.fractional = phi.fractional;
+      phase_.integral = phi.integral;
+      return phi.carry;
     }
   }
   

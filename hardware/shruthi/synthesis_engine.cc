@@ -753,7 +753,7 @@ inline void Voice::LoadSources() {
   dst_[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
   dst_[MOD_DST_CV_1] = 0;
   dst_[MOD_DST_CV_2] = 0;
-  dst_[MOD_DST_TODO] = 0;
+  dst_[MOD_DST_ATTACK] = 0;
   dst_[MOD_DST_LFO_1] = 8192;
   dst_[MOD_DST_LFO_2] = 8192;
 }
@@ -860,6 +860,9 @@ inline void Voice::UpdateDestinations() {
   
   modulation_destinations_[MOD_DST_MIX_NOISE] = dst_[MOD_DST_MIX_NOISE] >> 8;
   modulation_destinations_[MOD_DST_MIX_SUB_OSC] = dst_[MOD_DST_MIX_SUB_OSC] >> 7;
+  
+  envelope_[0].SetVelocity(dst_[MOD_DST_ATTACK] >> 7);
+  envelope_[1].SetVelocity(dst_[MOD_DST_ATTACK] >> 7);
 }
 
 /* static */
@@ -966,18 +969,10 @@ inline void Voice::ProcessBlock() {
     }
     return;
   }
+  uint8_t op = engine.patch_.osc[0].option;
 
   // Mix oscillators.
-  switch (engine.patch_.osc[0].option) {
-    case OP_SUM:
-    case OP_SYNC:
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        buffer_[i] = Mix(
-          buffer_[i],
-          osc2_buffer_[i],
-          modulation_destinations_[MOD_DST_MIX_BALANCE]);
-      }
-      break;
+  switch (op) {
     case OP_RING_MOD:
       for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
         uint8_t ring_mod = SignedSignedMulScale8(
@@ -995,7 +990,7 @@ inline void Voice::ProcessBlock() {
         buffer_[i] ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
       }
       break;
-    case OP_WAVESHAPPER:
+    case OP_FUZZ:
       for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
         buffer_[i] >>= 1;
         buffer_[i] += (osc2_buffer_[i] >> 1);
@@ -1006,10 +1001,26 @@ inline void Voice::ProcessBlock() {
             modulation_destinations_[MOD_DST_MIX_BALANCE]);
       }
       break;
+    default:
+      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+        buffer_[i] = Mix(
+          buffer_[i],
+          osc2_buffer_[i],
+          modulation_destinations_[MOD_DST_MIX_BALANCE]);
+      }
+      break;
   }
+  
+  uint8_t decimate = 1;
+  if (op == OP_CRUSH_4) {
+    decimate = 4;
+  } else if (op == OP_CRUSH_8) {
+    decimate = 8;
+  }
+  
   // Mix-in sub oscillator or transient generator.
   if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
-    for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    for (uint8_t i = 0; i < kAudioBlockSize; i += decimate) {
       buffer_[i] = Mix(
         buffer_[i],
         sub_osc_buffer_[i],
@@ -1020,6 +1031,17 @@ inline void Voice::ProcessBlock() {
         buffer_,
         modulation_destinations_[MOD_DST_MIX_SUB_OSC] << 1);
   }
+  
+  // Apply optional bitcrushing.
+  if (decimate > 1) {
+    for (uint8_t i = 0; i < kAudioBlockSize; ) {
+      uint8_t value = buffer_[i++];
+      for (uint8_t j = 1; j < decimate; ++j) {
+        buffer_[i++] = value;
+      }
+    }
+  }
+  
   // Mix with noise and output.
   uint8_t noise = Random::GetByte();
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {

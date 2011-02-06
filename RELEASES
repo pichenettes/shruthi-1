@@ -1,30 +1,44 @@
 v0.92 (work in progress) -------------------------------------------------------
 
-- SysEx Patch request command (0x11 0x00). Upon reception of this command, the
-Shruthi dumps the currently edited patch. Might be useful for an editor!
-- Code size optimization saved 460 bytes.
+UI
+
 - Patches can be tweaked from the load/save page. In this case, the 4 knobs have
 the functions assigned to them in the performance page for this patch.
-- ADC scanning code overhaul. The benefits are a more reactive UI and...
-programmer support.
-- Different options are available for using the 4 CV : 4 CV ins (assignable in
-mod matrix), 32-knobs programmer, or simple mapping to cutoff, param1/param2 for
-pedals and joystick.
 - The Shruthi-1 can be configured to boot directly on the presets page (aka
 "presets mode").
-- The shape of the envelope (approximation of an exponential) has been refined.
-- Support for NRPN increment/decrement.
+- Non-blocking ADC scanning increases UI responsiveness.
+- The "mix" and "osc 1" pages have been modified. The sub-oscillator settings
+are now on the same page as the oscillator 1 settings.
+
+SYSTEM
+
+- Different options are available for using the 4 CV: 4 CV ins (assignable in
+mod matrix -- default setting), 32-knobs programmer, or simple mapping to
+cutoff, param1/param2 for pedals and joystick.
 - External eeproms larger than 64kb are supported, up to 512kb. Note that when
 a 512kb eeprom is used, the last 64kb block is not used (this is due to the
 fact that 16-bit arithmetic is used to compute addresses, and that the
-address space includes the 16kb of internal eeprom).
-- SysEx backup transfer protocol can handle a memory space of up to 64kbytes.
+address space includes the 16kb of the internal eeprom).
+
+MIDI
+
+- SysEx Patch request command (0x11 0x00). Upon reception of this command, the
+Shruthi dumps the currently edited patch. Might be useful for an editor!
+- Support for NRPN increment/decrement.
+- The SysEx backup protocol has been extended to support backing up / restoring
+more than 16kb of patch data.
 - A bank and program change message is sent whenever a preset is loaded.
 - Bank change messages are handled, to allow patches above 128 to be loaded.
 - Volume change messages (CC 7) are handled.
+
+SYNTHESIS
+
+- The shape of the envelope (approximation of an exponential) has been refined.
 - The "2 bits" modulation destination is gone, since there are now better ways
 (extra TX pin, shift register out) to communicate with a filter board.
-- The modulation matrix processing code has been simplified.
+- A new modulation destination (replacing "2 bits") allows the attack of both
+envelopes to be sped up. This settings is particularly useful when velocity
+is used as a modulation source.
 - The "digital silencing" of oscillators when envelopes have reached zero has
 been improved. The oscillators are now digitally silenced whenever the VCA
 destination in the modulation matrix has reached a value of zero.
@@ -38,6 +52,16 @@ perspective, and as a result, is faster.
 with the noise and sub generators.
 - To make more room for upcoming feature, the waves wavetable has been
 downsampled to 128 samples/waveform instead of 256.
+- New mixing mode (>>4, >>8) allows the oscillators signal to be
+bitcrushed (sample rate reduction with a S&H).
+
+CODE
+
+- Code size optimization saved 460 bytes.
+- The modulation matrix processing code has been simplified.
+- A menu in the UI and code infrastructure is ready to provide filter-board
+specific menus and parameters in future firmware revisions.
+
 
 v0.91 --------------------------------------------------------------------------
 

@@ -85,6 +85,7 @@ class Envelope {
 
   void Render() {
     value_ += increment_;
+    value_ += velocity_increment_;
     // This code makes the assumption that only the ATTACK stage has a positive
     // slope. This is true for the classical ADSR envelope. To support more
     // complex multistage envelopes, the correct code is:
@@ -98,6 +99,17 @@ class Envelope {
       Trigger(stage_);
     }
   }
+  
+  void SetVelocity(uint8_t velocity) {
+    velocity_increment_ = 0;
+    if (increment_ > 0 && velocity) {
+      velocity = 80 - velocity;
+      if (velocity > 128) {
+        velocity = 0;
+      }
+      velocity_increment_ = ScaleEnvelopeIncrement(velocity, 127);
+    }
+  }
 
   static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale) 
       __attribute__((noinline));
@@ -106,6 +118,7 @@ class Envelope {
   uint8_t release_;  // release time.
   uint8_t stage_;  // current envelope stage.
   int16_t increment_;  // envelope value increment.
+  int16_t velocity_increment_;  // envelope value increment.
   int16_t target_;  // target value (moves to next stage once reached).
   int16_t value_;  // envelope value, 0-16384.
   // Increment and target for each stage of the envelope.

@@ -28,7 +28,7 @@ rng
 op.
 operator
 detune
-osc bal
+osc mix
 sub osc.
 resonance
 env1~vcf
@@ -97,7 +97,7 @@ sub
 res
  cv1
  cv2
-2bt
+ atk
  lf1
  lf2
 
@@ -115,7 +115,7 @@ subosc
 reso
  cv 1
  cv 2
-xxx
+ attack
  lfo 1
  lfo 2
 
@@ -201,6 +201,8 @@ sync
 ring
 xor
 fuzz
+>>4
+>>8
 
 stp
 arp

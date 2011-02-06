@@ -190,7 +190,7 @@ enum ModulationDestination {
   MOD_DST_FILTER_RESONANCE,
   MOD_DST_CV_1,
   MOD_DST_CV_2,
-  MOD_DST_TODO,
+  MOD_DST_ATTACK,
   MOD_DST_LFO_1,
   MOD_DST_LFO_2
 };
@@ -270,6 +270,7 @@ enum OscillatorAlgorithm {
   WAVEFORM_DIRTY_PWM,
   WAVEFORM_FILTERED_NOISE,
   WAVEFORM_VOWEL,
+  WAVEFORM_LAST
 };
 
 static const uint8_t kNumHiResWavetables = 1;
@@ -285,7 +286,8 @@ enum SubOscillatorAlgorithm {
   WAVEFORM_SUB_OSC_GLITCH,
   WAVEFORM_SUB_OSC_BLOW,
   WAVEFORM_SUB_OSC_METALLIC,
-  WAVEFORM_SUB_OSC_POP
+  WAVEFORM_SUB_OSC_POP,
+  WAVEFORM_SUB_OSC_LAST
 };
 
 enum LfoWave {
@@ -311,13 +313,15 @@ enum LfoWave {
   LFO_WAVEFORM_WAVE_14,
   LFO_WAVEFORM_WAVE_15,
   LFO_WAVEFORM_WAVE_16,
+  LFO_WAVEFORM_LAST
 };
 
 enum LfoMode {
   // For oscillators.
   LFO_MODE_FREE,
   LFO_MODE_SLAVE,
-  LFO_MODE_MASTER
+  LFO_MODE_MASTER,
+  LFO_MOD_LAST
 };
 
 enum Status {
@@ -326,11 +330,14 @@ enum Status {
 };
 
 enum OPERATOR {
-  OP_SUM = 0,
-  OP_SYNC = 1,
-  OP_RING_MOD = 2,
-  OP_XOR = 3,
-  OP_WAVESHAPPER = 4,
+  OP_SUM,
+  OP_SYNC,
+  OP_RING_MOD,
+  OP_XOR,
+  OP_FUZZ,
+  OP_CRUSH_4,
+  OP_CRUSH_8,
+  OP_LAST
 };
 
 }  // namespace hardware_shruthi
