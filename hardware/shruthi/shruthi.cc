@@ -268,9 +268,10 @@ void AudioRenderingTask() {
         audio_out.Overwrite(128);
       }
     } else {
+      engine.Audio(kAudioBlockSize);
+      uint8_t* samples = engine.voice(0).buffer();
       for (uint8_t i = kAudioBlockSize; i > 0 ; --i) {
-        engine.Audio();
-        audio_out.Overwrite(engine.voice(0).signal());
+        audio_out.Overwrite(*samples++);
       }
     }
     vcf_cutoff_out.Write(engine.voice(0).cutoff());

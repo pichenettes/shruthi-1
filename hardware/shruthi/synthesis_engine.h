@@ -74,8 +74,10 @@ class Voice {
   // Move this voice to the release stage.
   static void Kill() { TriggerEnvelope(DEAD); }
 
-  static void Audio();
+  static void Audio(uint8_t size);
   static void Control();
+
+  static inline uint8_t* buffer() { return buffer_; }
 
   // Called whenever a write to the CV analog outputs has to be made.
   static inline uint8_t cutoff()  {
@@ -93,8 +95,6 @@ class Voice {
   static inline uint8_t cv_2()  {
     return modulation_destinations_[MOD_DST_CV_2];
   }
-  static inline uint8_t signal()  { return signal_; }
-
   static inline uint8_t modulation_source(uint8_t i) {
     return modulation_sources_[i - kNumGlobalModulationSources];
   }
@@ -132,9 +132,11 @@ class Voice {
   // in the modulation destinations enum.
   static int8_t modulation_destinations_[kNumModulationDestinations];
 
-  static uint8_t signal_;
   static uint8_t last_note_;
   static uint8_t osc1_phase_msb_;
+  
+  static uint8_t buffer_[kAudioBlockSize];
+  static uint8_t aux_buffer_[kAudioBlockSize];
 
   DISALLOW_COPY_AND_ASSIGN(Voice);
 };
@@ -165,7 +167,7 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static void Start();
   static void Stop();
 
-  static void Audio();
+  static void Audio(uint8_t size);
   static void Control();
 
   // Patch manipulation stuff.
@@ -180,7 +182,6 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static void set_unregistered_modulation(uint8_t index, uint8_t value) {
     unregistered_modulation_sources_[index] = value;
   }
-  static uint8_t oscillator_decimation() { return oscillator_decimation_; }
   static void ResetPatch();
   static void ResetSequencerSettings();
   static void ResetSequence();
@@ -256,7 +257,6 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static Voice voice_[kNumVoices];
   static VoiceController controller_;
   static VoiceAllocator polychaining_allocator_;
-  static uint8_t oscillator_decimation_;
   static uint8_t nrpn_parameter_number_;
   static uint8_t nrpn_parameter_number_msb_;
   static uint8_t data_entry_msb_;

@@ -39,6 +39,56 @@ static inline uint8_t AddClip(uint8_t value, uint8_t increment, uint8_t max) {
 
 #ifdef USE_OPTIMIZED_OP
 
+static inline uint24_t Add24(uint24_t a, uint24_t b) {
+  uint16_t a_int = a.integral;
+  uint16_t b_int = b.integral;
+  uint8_t a_frac = a.fractional;
+  uint8_t b_frac = b.fractional;
+  uint24_t result;
+  asm(
+    "add %0, %4"      "\n\t"
+    "adc %A1, %A5"    "\n\t"
+    "adc %B1, %B5"    "\n\t"
+    : "=r" (a_frac), "=r" (a_int)
+    : "0" (a_frac), "1" (a_int), "a" (b_frac), "a" (b_int)
+  );
+  result.integral = a_int;
+  result.fractional = a_frac;
+  return result;
+}
+
+static inline uint24_t Lsr24(uint24_t a) {
+  uint16_t a_int = a.integral;
+  uint8_t a_frac = a.fractional;
+  uint24_t result;
+  asm(
+    "lsr %B1"      "\n\t"
+    "ror %A1"    "\n\t"
+    "ror %0"    "\n\t"
+    : "=r" (a_frac), "=r" (a_int)
+    : "0" (a_frac), "1" (a_int)
+  );
+  result.integral = a_int;
+  result.fractional = a_frac;
+  return result;
+}
+
+static inline uint24_t Lsl24(uint24_t a) {
+  uint16_t a_int = a.integral;
+  uint8_t a_frac = a.fractional;
+  uint24_t result;
+  asm(
+    "lsl %0"    "\n\t"
+    "rol %A1"    "\n\t"
+    "rol %B1"      "\n\t"
+    : "=r" (a_frac), "=r" (a_int)
+    : "0" (a_frac), "1" (a_int)
+  );
+  result.integral = a_int;
+  result.fractional = a_frac;
+  return result;
+}
+
 static inline uint8_t Clip8(int16_t value) {
   uint8_t result;
   asm(

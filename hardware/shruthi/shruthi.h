@@ -86,7 +86,6 @@ static const uint8_t kPinEncoderB = 0;
 static const uint8_t kPinEncoderClick = 2;
 
 // Shift registers / muxes.
-
 static const uint8_t kPinDigitalInput = 6;
 static const uint8_t kPinClk = 7;
 static const uint8_t kPinData = 5;

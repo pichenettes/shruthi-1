@@ -46,8 +46,6 @@ TransientGenerator<1> transient_generator;
 uint8_t SynthesisEngine::modulation_sources_[kNumGlobalModulationSources];
 uint8_t SynthesisEngine::unregistered_modulation_sources_[1];
 
-uint8_t SynthesisEngine::oscillator_decimation_;
-
 uint8_t SynthesisEngine::data_access_byte_[1];
 Patch SynthesisEngine::patch_;
 SequencerSettings SynthesisEngine::sequencer_settings_;
@@ -616,14 +614,9 @@ void SynthesisEngine::Control() {
 }
 
 /* static */
-void SynthesisEngine::Audio() {
-  // Tick the noise generator.
-  oscillator_decimation_ = (oscillator_decimation_ + 1) & 3;
-  if (!oscillator_decimation_) {
-    Random::Update();
-  }
+void SynthesisEngine::Audio(uint8_t size) {
   for (uint8_t i = 0; i < kNumVoices; ++i) {
-    voice_[i].Audio();
+    voice_[i].Audio(size);
   }
 }
 
@@ -635,17 +628,17 @@ int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
 uint8_t Voice::modulation_sources_[kNumVoiceModulationSources];
 int8_t Voice::modulation_destinations_[kNumModulationDestinations];
-uint8_t Voice::signal_;
 uint8_t Voice::osc1_phase_msb_;
 uint8_t Voice::last_note_;
 int16_t Voice::dst_[kNumModulationDestinations];
+uint8_t Voice::buffer_[kAudioBlockSize];
+uint8_t Voice::aux_buffer_[kAudioBlockSize];
 /* </static> */
 
 /* static */
 void Voice::Init() {
   pitch_value_ = 0;
   last_note_ = 0;
-  signal_ = 128;
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
     envelope_[i].Init();
   }
@@ -746,7 +739,7 @@ inline void Voice::LoadSources() {
       envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
 
   modulation_destinations_[MOD_DST_VCA] = engine.volume_;
-  modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = signal_;
+  modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = buffer_[0];
   
   // Load and scale to 0-16383 the initial value of each modulated parameter.
   dst_[MOD_DST_FILTER_CUTOFF] = UnsignedUnsignedMul(
@@ -911,28 +904,36 @@ inline void Voice::UpdatePhaseIncrements() {
       ref_pitch += kOctave;
       ++num_shifts;
     }
-    uint16_t increment = ResourcesManager::Lookup<uint16_t, uint16_t>(
+    uint24_t increment;
+    increment.integral = ResourcesManager::Lookup<uint16_t, uint16_t>(
         lut_res_oscillator_increments, ref_pitch >> 1);
+    increment.fractional = 0;
     // Divide the pitch increment by the number of octaves we had to transpose
     // to get a value in the lookup table.
-    increment >>= num_shifts;
+    while (num_shifts--) {
+      increment = Lsr24(increment);
+    }
 
     // Now the oscillators can recompute all their internal variables!
     int8_t midi_note = pitch >> 7;
     if (midi_note < 12) {
       midi_note = 12;
     }
+    // phase_increment.fractional = 0;
     if (i == 0) {
       osc_1.Update(
           modulation_destinations_[MOD_DST_PWM_1],
           midi_note,
-          increment);
-      sub_osc.Update(0, increment >> 1);
+          increment.integral,
+          increment.fractional);
+      increment = Lsr24(increment);
+      sub_osc.Update(0, increment.integral, increment.fractional);
     } else {
       osc_2.Update(
           modulation_destinations_[MOD_DST_PWM_2],
           midi_note,
-          increment);
+          increment.integral,
+          increment.fractional);
     }
   }
 }
@@ -943,7 +944,7 @@ inline void Voice::Control() {
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
     envelope_[i].Render();
   }
-
+  
   pitch_value_ += pitch_increment_;
   if ((pitch_increment_ > 0) ^ (pitch_value_ < pitch_target_)) {
     pitch_value_ = pitch_target_;
@@ -957,71 +958,59 @@ inline void Voice::Control() {
 }
 
 /* static */
-inline void Voice::Audio() {
-  uint8_t osc_2_signal = osc_2.Render();
-  uint8_t mix = osc_1.Render();
+inline void Voice::Audio(uint8_t size) {
+  osc_1.Render(buffer_, size);
+  osc_2.Render(aux_buffer_, size);
   switch (engine.patch_.osc[0].option) {
-    case OP_SYNC:
-      {
-        uint8_t phase_msb = osc_1.phase() >> 8;
-        if (phase_msb < osc1_phase_msb_) {
-          osc_2.ResetPhase();
-        }
-        // Store the phase of the oscillator to check later whether the phase has
-        // been wrapped. Because the phase increment is likely to be below
-        // 65536 - 256, we can use the most significant byte only to detect
-        // wrapping.
-        osc1_phase_msb_ = phase_msb;
-      }
-      // Fall through!
     case OP_SUM:
-      mix = Mix(
-          mix,
-          osc_2_signal,
-          modulation_destinations_[MOD_DST_MIX_BALANCE]);
-      break;
     case OP_RING_MOD:
-      mix = Mix(
-          mix,
-          SignedSignedMulScale8(mix + 128, osc_2_signal + 128) + 128,
+      for (uint8_t i = 0; i < size; ++i) {
+        buffer_[i] = Mix(
+          buffer_[i],
+          aux_buffer_[i],
           modulation_destinations_[MOD_DST_MIX_BALANCE]);
+      }
       break;
     case OP_XOR:
-      mix ^= osc_2_signal;
-      mix ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
+      for (uint8_t i = 0; i < size; ++i) {
+        buffer_[i] ^= aux_buffer_[i];
+        buffer_[i] ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
+      }
       break;
     case OP_WAVESHAPPER:
-      mix >>= 1;
-      mix += osc_2_signal >> 1;
-      mix = Mix(
-          mix,
-          ResourcesManager::Lookup<uint8_t, uint8_t>(
-              wav_res_distortion, mix),
-          modulation_destinations_[MOD_DST_MIX_BALANCE]);
+      for (uint8_t i = 0; i < size; ++i) {
+        buffer_[i] >>= 1;
+        buffer_[i] += (aux_buffer_[i] >> 1);
+        buffer_[i] = Mix(
+            buffer_[i],
+            ResourcesManager::Lookup<uint8_t, uint8_t>(
+                wav_res_distortion, buffer_[i]),
+            modulation_destinations_[MOD_DST_MIX_BALANCE]);
+      }
+      break;
   }
-  // Disable sub oscillator and noise when the "vowel" waveform is used - it is
-  // just too costly.
-  if (engine.patch_.osc[0].shape != WAVEFORM_VOWEL) {
-    if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
-      mix = Mix(
-          mix,
-          sub_osc.Render(),
-          modulation_destinations_[MOD_DST_MIX_SUB_OSC]);
-    } else {
-      uint8_t amplitude = MulScale8(
-          transient_generator.gain(),
-          modulation_destinations_[MOD_DST_MIX_SUB_OSC] << 1);
-      mix = Mix(
-          mix,
-          transient_generator.Render(),
-          amplitude);
+  if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
+    sub_osc.Render(aux_buffer_, size);
+    for (uint8_t i = 0; i < size; ++i) {
+      buffer_[i] = Mix(
+        buffer_[i],
+        aux_buffer_[i],
+        modulation_destinations_[MOD_DST_MIX_SUB_OSC]);
     }
-    mix = Mix(
-        mix,
-        Random::state_msb(),
+  } else {
+    transient_generator.Render(
+        buffer_,
+        size,
+        modulation_destinations_[MOD_DST_MIX_SUB_OSC] << 1);
+  }
+  uint8_t noise = Random::GetByte();
+  for (uint8_t i = 0; i < size; ++i) {
+    noise = (noise * 73 /*251*/) + 1;
+    buffer_[i] = Mix(
+        buffer_[i],
+        noise,
         modulation_destinations_[MOD_DST_MIX_NOISE]);
   }
-  signal_ = mix;
 }
 
 }  // namespace hardware_shruthi

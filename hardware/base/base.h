@@ -36,6 +36,11 @@ typedef union {
   uint16_t words[2];
 } LongWord;
 
+struct uint24_t {
+  uint16_t integral;
+  uint8_t fractional;
+};
+
 #define abs(x) ((x) > 0 ? (x) : -(x))
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \

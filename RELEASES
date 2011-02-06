@@ -19,8 +19,6 @@ a 512kb eeprom is used, the last 64kb block is not used (this is due to the
 fact that 16-bit arithmetic is used to compute addresses, and that the
 address space includes the 16kb of internal eeprom).
 - SysEx backup transfer protocol can handle a memory space of up to 64kbytes.
-- To make more room for upcoming feature, the waves wavetable has been
-downsampled to 128 samples/waveform instead of 256.
 - A bank and program change message is sent whenever a preset is loaded.
 - Bank change messages are handled, to allow patches above 128 to be loaded.
 - Volume change messages (CC 7) are handled.
@@ -30,6 +28,14 @@ downsampled to 128 samples/waveform instead of 256.
 - The "digital silencing" of oscillators when envelopes have reached zero has
 been improved. The oscillators are now digitally silenced whenever the VCA
 destination in the modulation matrix has reached a value of zero.
+- The noise source in the mixer is now refreshed at 40kHz instead of 10kHz,
+giving it a richer timbre.
+- The phase counters are now 24 bits instead of 16 bits. This allows more subtle
+detuning effects between the oscillators, especially in the lowest notes.
+- The audio engine has been rewritten from a "breadth first" to a "depth first"
+perspective, and as a result, is faster.
+- To make more room for upcoming feature, the waves wavetable has been
+downsampled to 128 samples/waveform instead of 256.
 
 v0.91 --------------------------------------------------------------------------
 
