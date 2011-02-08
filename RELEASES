@@ -9,6 +9,9 @@ the functions assigned to them in the performance page for this patch.
 - Non-blocking ADC scanning increases UI responsiveness.
 - The "mix" and "osc 1" pages have been modified. The sub-oscillator settings
 are now on the same page as the oscillator 1 settings.
+- Holding the load/save switch (S6) pressed down while rotating the encoder
+allows the values to be incremented/decremented by steps of 10.
+Useful for browsing patches!
 
 SYSTEM
 

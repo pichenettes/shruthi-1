@@ -248,7 +248,7 @@ class Editor {
   
   static void RestoreEditBuffer();
   static uint16_t edited_item_number();
-  static void set_edited_item_number(uint16_t value);
+  static void set_edited_item_number(int16_t value);
   static uint8_t is_cursor_at_valid_position();
   
   static void LoadPatch(uint8_t index);

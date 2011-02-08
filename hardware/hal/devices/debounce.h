@@ -54,7 +54,7 @@ class DebouncedSwitch {
   static inline uint8_t state() { return state_; }
   static inline uint8_t debounced_value() { return debounced_value_; }
   static inline uint8_t immediate_value() { return Input::value(); }
-
+  
  private:
   static uint8_t state_;
   static uint8_t debounced_value_;

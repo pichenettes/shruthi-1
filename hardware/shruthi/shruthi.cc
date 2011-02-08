@@ -178,7 +178,12 @@ TASK_BEGIN_NEAR
 
     if (encoder.increment()) {
       switches.Touch();
-      editor.HandleIncrement(encoder.increment());
+      int8_t increment = encoder.increment();
+      if (switches.shifted()) {
+        switches.InhibitShiftRelease();
+        increment *= 10;
+      }
+      editor.HandleIncrement(increment);
     } else {
       if (encoder.clicked()) {
         switches.Touch();

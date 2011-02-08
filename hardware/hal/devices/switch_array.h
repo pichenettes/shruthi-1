@@ -63,6 +63,8 @@ class SwitchArray {
 
   static uint32_t last_event_time() { return last_event_time_; }
   static uint32_t idle_time() { return milliseconds() - last_event_time_; }
+  static uint8_t shifted() { return switch_state_[shift].state == 0x00; }
+  static void InhibitShiftRelease() { inhibit_shift_release_ = 1; }
   static const SwitchState& switch_state(uint8_t i) { return switch_state_[i]; }
   static uint8_t released() {
     for (uint8_t i = 0; i < num_inputs; ++i) {
@@ -86,7 +88,7 @@ class SwitchArray {
           inhibit_shift_release_ = 0;
         } else {
           e.id = i;
-          e.shifted = (switch_state_[shift].state == 0x00) ? 1 : 0;
+          e.shifted = shifted();
           e.hold_time = static_cast<uint16_t>(
               last_event_time_ - switch_state_[i].time) >> 8;
           if (e.shifted) {

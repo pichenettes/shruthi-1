@@ -80,7 +80,7 @@ class Storage {
   }
   
   template<typename T>
-  static uint8_t size() {
+  static uint16_t size() {
     return StorageConfiguration<T>::num_internal +
            StorageConfiguration<T>::num_external * num_accessible_banks_;
   }
@@ -112,7 +112,7 @@ class Storage {
   }
   
   template<typename T>
-  static void Write(T* ptr, uint8_t slot) {
+  static void Write(T* ptr, uint16_t slot) {
     ptr->PrepareForWrite();
     if (slot < StorageConfiguration<T>::num_internal) {
       eeprom_write_block(
@@ -128,7 +128,7 @@ class Storage {
     }
   }
   template<typename T>
-  static void Load(T* ptr, uint8_t slot) {
+  static void Load(T* ptr, uint16_t slot) {
     if (slot < StorageConfiguration<T>::num_internal) {
       eeprom_read_block(
           load_buffer_,

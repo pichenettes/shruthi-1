@@ -544,15 +544,20 @@ uint16_t Editor::edited_item_number() {
 }
 
 /* static */
-void Editor::set_edited_item_number(uint16_t value) {
+void Editor::set_edited_item_number(int16_t value) {
+  if (value < 0) {
+    value = 0;
+  }
   if (editor_mode_ == EDITOR_MODE_PATCH) {
-    if (value < Storage::size<Patch>()) {
-      current_patch_number_ = value;
+    if (value >= Storage::size<Patch>()) {
+      value = Storage::size<Patch>() - 1;
     }
+    current_patch_number_ = value;
   } else {
-    if (value < Storage::size<SequencerSettings>()) {
-      current_sequence_number_ = value;
+    if (value >= Storage::size<SequencerSettings>()) {
+      value = Storage::size<SequencerSettings>();
     }
+    current_sequence_number_ = value;
   }
 }
 
