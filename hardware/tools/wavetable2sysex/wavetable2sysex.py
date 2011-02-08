@@ -45,7 +45,7 @@ def CreateMidifile(
       'Contains wavetable data for Shruthi-1',
       'Created from %(input_file_name)s' % locals(),
       'Size: %(size)d' % locals()]
-  m = midifile.MidiFile()
+  m = midifile.Writer()
   if options.write_comments:
     for comment in comments:
       m.AddTrack().AddEvent(0, midifile.TextEvent(comment))

@@ -57,7 +57,7 @@ def CreateMidifile(
       'Size: %(size)d' % locals(),
       'Page size: %(page_size)d' % locals(),
       'Delay: %(delay)d ms' % locals()]
-  m = midifile.MidiFile()
+  m = midifile.Writer()
   if options.write_comments:
     for comment in comments:
       m.AddTrack().AddEvent(0, midifile.TextEvent(comment))

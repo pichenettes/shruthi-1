@@ -23,6 +23,7 @@
 """
 
 import bisect
+import copy
 import math
 import struct
 
@@ -272,6 +273,7 @@ class SysExEvent(Event):
         device_id,
         data,
         '\xf7'])
+    self.raw_message = copy.copy(self.message)
     assert all(ord(x) < 128 for x in self.message[:-1])
     self.message = ''.join([
         '\xf0',
