@@ -142,7 +142,7 @@ include $(DEP_FILE)
 # Midi files for firmware update
 # ------------------------------------------------------------------------------
 
-HEX2SYSEX = hardware/tools/hex2sysex/hex2sysex.py
+HEX2SYSEX = python hardware/tools/hex2sysex/hex2sysex.py
 
 $(BUILD_DIR)%.mid: $(BUILD_DIR)%.hex
 	$(HEX2SYSEX) -o $@ $<
