@@ -55,7 +55,7 @@ def CreateMidifile(
       options.manufacturer_id,
       options.device_id,
       options.update_command + midifile.Nibblize(data)))
-  f = file(output_file, 'w')
+  f = file(output_file, 'wb')
   m.Write(f, format=1)
   f.close()
 
