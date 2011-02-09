@@ -74,7 +74,7 @@ def GenerateHeader(base_name, res):
   for resource in res.resources:
     max_num_resources = max(max_num_resources, len(resource[0]))
 
-  f = file(os.path.join(res.target, base_name + '.h'), 'w')
+  f = file(os.path.join(res.target, base_name + '.h'), 'wb')
   header_guard = res.target.replace(os.path.sep, '_').upper()
   f.write(res.header + '\n\n')
   f.write('#ifndef %s_%s_H_\n' % (header_guard, base_name.upper()))
@@ -125,7 +125,7 @@ def GenerateHeader(base_name, res):
 
 
 def GenerateCc(base_name, res):
-  f = file(os.path.join(res.target, base_name + '.cc'), 'w')
+  f = file(os.path.join(res.target, base_name + '.cc'), 'wb')
   f.write(res.header + '\n\n')
   f.write('#include "%s.h"\n' % base_name)
   if res.namespace:

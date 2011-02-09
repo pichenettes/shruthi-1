@@ -534,6 +534,6 @@ if __name__ == '__main__':
       '\x00\x01',
       '\x7f\x7f' + Nibblize('\xff\x00\xcc')))
   
-  f = file('output.mid', 'w')
+  f = file('output.mid', 'wb')
   m.Write(f, format=0)
   f.close()

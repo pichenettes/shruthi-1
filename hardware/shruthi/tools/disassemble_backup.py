@@ -128,7 +128,7 @@ def Parse(data):
 def main(options, args):
   data = file(args[0]).read()
   content = Parse(ExtractSyxData(data))
-  output = file(options.output_file, 'w') if options.output_file else sys.stdout
+  output = file(options.output_file, 'wb') if options.output_file else sys.stdout
   for content_type, content in content.items():
     for name, data in content:
       output.write('%(content_type)s\t%(name)s\t%(data)s\n' % locals())

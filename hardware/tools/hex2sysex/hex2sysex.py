@@ -87,7 +87,7 @@ def CreateMidifile(
   t.AddEvent(time, event)
   syx_data.append(event.raw_message)
   
-  f = file(output_file, 'w')
+  f = file(output_file, 'wb')
   if options.syx:
     f.write(''.join(syx_data))
   else:
