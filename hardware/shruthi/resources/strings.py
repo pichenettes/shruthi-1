@@ -22,6 +22,7 @@
 strings = """
 shape
 parameter
+resonance
 prm
 range
 rng
@@ -103,7 +104,7 @@ pw2
 mix
 noi
 sub
-resonance
+res
  cv1
  cv2
  atk

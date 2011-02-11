@@ -24,12 +24,13 @@
 namespace hardware_shruthi {
 
 void Patch::PrepareForWrite() {
-    filter_topology_ = (filter_1_mode_ << 4) | filter_2_mode_;
-    op_data_[0] = ops_[0].operands[0];
-    op_data_[1] = (ops_[0].operands[1] << 3) | ops_[0].op;
-    op_data_[2] = ops_[1].operands[0];
-    op_data_[3] = (ops_[1].operands[1] << 3) | ops_[1].op;
-  }
+  exclamation_mark_ = '!';
+  filter_topology_ = (filter_1_mode_ << 4) | filter_2_mode_;
+  op_data_[0] = ops_[0].operands[0];
+  op_data_[1] = (ops_[0].operands[1] << 3) | ops_[0].op;
+  op_data_[2] = ops_[1].operands[0];
+  op_data_[3] = (ops_[1].operands[1] << 3) | ops_[1].op;
+}
 
 uint8_t Patch::CheckBuffer(uint8_t* buffer) {
   for (uint8_t i = 8; i < 24; ++i) {

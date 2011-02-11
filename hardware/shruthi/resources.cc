@@ -27,6 +27,7 @@ namespace hardware_shruthi {
 
 static const prog_char str_res_shape[] PROGMEM = "shape";
 static const prog_char str_res_parameter[] PROGMEM = "parameter";
+static const prog_char str_res_resonance[] PROGMEM = "resonance";
 static const prog_char str_res_prm[] PROGMEM = "prm";
 static const prog_char str_res_range[] PROGMEM = "range";
 static const prog_char str_res_rng[] PROGMEM = "rng";
@@ -107,7 +108,7 @@ static const prog_char str_res_5f[] PROGMEM = "f";
 static const prog_char str_res_mix[] PROGMEM = "mix";
 static const prog_char str_res_noi[] PROGMEM = "noi";
 static const prog_char str_res_sub[] PROGMEM = "sub";
-static const prog_char str_res_resonance[] PROGMEM = "resonance";
+static const prog_char str_res_res[] PROGMEM = "res";
 static const prog_char str_res__cv1[] PROGMEM = "cv1";
 static const prog_char str_res__cv2[] PROGMEM = "cv2";
 static const prog_char str_res__atk[] PROGMEM = "atk";
@@ -348,6 +349,7 @@ static const prog_char str_res_rasia[] PROGMEM = "rasia";
 PROGMEM const prog_char* string_table[] = {
   str_res_shape,
   str_res_parameter,
+  str_res_resonance,
   str_res_prm,
   str_res_range,
   str_res_rng,
@@ -428,7 +430,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_mix,
   str_res_noi,
   str_res_sub,
-  str_res_resonance,
+  str_res_res,
   str_res__cv1,
   str_res__cv2,
   str_res__atk,
