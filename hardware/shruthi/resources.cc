@@ -35,7 +35,6 @@ static const prog_char str_res_operator[] PROGMEM = "operator";
 static const prog_char str_res_detune[] PROGMEM = "detune";
 static const prog_char str_res_osc_mix[] PROGMEM = "osc mix";
 static const prog_char str_res_sub_osc_[] PROGMEM = "sub osc.";
-static const prog_char str_res_resonance[] PROGMEM = "resonance";
 static const prog_char str_res_env1Tvcf[] PROGMEM = "env1~vcf";
 static const prog_char str_res_lfo2Tvcf[] PROGMEM = "lfo2~vcf";
 static const prog_char str_res_attack[] PROGMEM = "attack";
@@ -78,6 +77,7 @@ static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
 static const prog_char str_res_oscillator_2[] PROGMEM = "oscillator 2";
 static const prog_char str_res_mixer[] PROGMEM = "mixer";
 static const prog_char str_res_filter[] PROGMEM = "filter";
+static const prog_char str_res_filter_2[] PROGMEM = "filter 2";
 static const prog_char str_res_envelope_1[] PROGMEM = "envelope 1";
 static const prog_char str_res_envelope_2[] PROGMEM = "envelope 2";
 static const prog_char str_res_sequencer[] PROGMEM = "sequencer";
@@ -87,6 +87,15 @@ static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
 static const prog_char str_res_midi[] PROGMEM = "midi";
 static const prog_char str_res_system[] PROGMEM = "system";
 static const prog_char str_res_performance[] PROGMEM = "performance";
+static const prog_char str_res_lpf[] PROGMEM = "lpf";
+static const prog_char str_res_bpf[] PROGMEM = "bpf";
+static const prog_char str_res_hpf[] PROGMEM = "hpf";
+static const prog_char str_res__lp[] PROGMEM = "=lp";
+static const prog_char str_res__bp[] PROGMEM = "=bp";
+static const prog_char str_res__hp[] PROGMEM = "=hp";
+static const prog_char str_res_lp[] PROGMEM = ":lp";
+static const prog_char str_res_bp[] PROGMEM = ":bp";
+static const prog_char str_res_hp[] PROGMEM = ":hp";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
 static const prog_char str_res_pw1[] PROGMEM = "pw1";
@@ -98,7 +107,7 @@ static const prog_char str_res_5f[] PROGMEM = "f";
 static const prog_char str_res_mix[] PROGMEM = "mix";
 static const prog_char str_res_noi[] PROGMEM = "noi";
 static const prog_char str_res_sub[] PROGMEM = "sub";
-static const prog_char str_res_res[] PROGMEM = "res";
+static const prog_char str_res_resonance[] PROGMEM = "resonance";
 static const prog_char str_res__cv1[] PROGMEM = "cv1";
 static const prog_char str_res__cv2[] PROGMEM = "cv2";
 static const prog_char str_res__atk[] PROGMEM = "atk";
@@ -295,9 +304,9 @@ static const prog_char str_res_crush[] PROGMEM = "crush";
 static const prog_char str_res_pwm[] PROGMEM = "pwm";
 static const prog_char str_res__noise[] PROGMEM = "noise";
 static const prog_char str_res_vowel[] PROGMEM = "vowel";
-static const prog_char str_res_cem[] PROGMEM = "cem";
-static const prog_char str_res_smr[] PROGMEM = "smr";
+static const prog_char str_res__lpf[] PROGMEM = "lpf";
 static const prog_char str_res_ssm[] PROGMEM = "ssm";
+static const prog_char str_res_svf[] PROGMEM = "svf";
 static const prog_char str_res_4cv_in[] PROGMEM = "4cv in";
 static const prog_char str_res_prgm[] PROGMEM = "prgm";
 static const prog_char str_res_pedals[] PROGMEM = "pedals";
@@ -347,7 +356,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_detune,
   str_res_osc_mix,
   str_res_sub_osc_,
-  str_res_resonance,
   str_res_env1Tvcf,
   str_res_lfo2Tvcf,
   str_res_attack,
@@ -390,6 +398,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_oscillator_2,
   str_res_mixer,
   str_res_filter,
+  str_res_filter_2,
   str_res_envelope_1,
   str_res_envelope_2,
   str_res_sequencer,
@@ -399,6 +408,15 @@ PROGMEM const prog_char* string_table[] = {
   str_res_midi,
   str_res_system,
   str_res_performance,
+  str_res_lpf,
+  str_res_bpf,
+  str_res_hpf,
+  str_res__lp,
+  str_res__bp,
+  str_res__hp,
+  str_res_lp,
+  str_res_bp,
+  str_res_hp,
   str_res_cut,
   str_res_vca,
   str_res_pw1,
@@ -410,7 +428,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_mix,
   str_res_noi,
   str_res_sub,
-  str_res_res,
+  str_res_resonance,
   str_res__cv1,
   str_res__cv2,
   str_res__atk,
@@ -607,9 +625,9 @@ PROGMEM const prog_char* string_table[] = {
   str_res_pwm,
   str_res__noise,
   str_res_vowel,
-  str_res_cem,
-  str_res_smr,
+  str_res__lpf,
   str_res_ssm,
+  str_res_svf,
   str_res_4cv_in,
   str_res_prgm,
   str_res_pedals,

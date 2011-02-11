@@ -49,9 +49,9 @@ class SystemSettings {
 };
 
 enum FilterBoard {
-  FILTER_BOARD_CEM,
-  FILTER_BOARD_SMR,
+  FILTER_BOARD_LPF,
   FILTER_BOARD_SSM,
+  FILTER_BOARD_SVF,
 };
 
 enum CvMode {

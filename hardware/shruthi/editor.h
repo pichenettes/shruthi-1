@@ -72,6 +72,7 @@ enum Page {
   PAGE_OSC_OSC_2,
   PAGE_OSC_OSC_MIX,
   PAGE_FILTER_FILTER,
+  PAGE_FILTER_MULTIMODE,
   PAGE_MOD_ENV_1,
   PAGE_MOD_ENV_2,
   PAGE_MOD_LFO_1,
@@ -198,6 +199,10 @@ class Editor {
   static void BootOnPatchBrowsePage(uint8_t patch_index);
 
  private:
+  // This hides or shows the second filter page, with settings for
+  // upcoming multimode filters.
+  static void ConfigureFilterMenu();
+   
   // This is called whenever we move to another page.
   static void PrettyPrintParameterValue(const ParameterDefinition& parameter,
                                         char* buffer, uint8_t width);
@@ -264,7 +269,7 @@ class Editor {
   // complete a knob assignment action.
   static uint8_t HandleKnobAssignment(uint8_t knob_index);
 
-  static const PageDefinition page_definition_[];
+  static PageDefinition page_definition_[];
   static const UiHandler ui_handler_[];
 
   static ParameterPage current_page_;

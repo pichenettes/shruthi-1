@@ -25,10 +25,19 @@
 
 using namespace hardware_hal;
 
+#ifdef SERIAL_RX_0
+
 ISR(USART0_RX_vect) {
   SerialInput<SerialPort0>::Received();
 }
 
+#endif  // SERIAL_RX_0
+
+
+#ifdef SERIAL_RX_1
+
 ISR(USART1_RX_vect) {
   SerialInput<SerialPort1>::Received();
 }
+
+#endif  // SERIAL_RX_1

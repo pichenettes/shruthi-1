@@ -44,13 +44,23 @@ namespace hardware_shruthi {
 
 #define WAV_RES_SINE WAV_RES_BANDLIMITED_TRIANGLE_6
 
-static inline uint8_t ReadSample(const prog_uint8_t* table, uint16_t phase) {
+
+static inline uint8_t ReadSample(
+    const prog_uint8_t* table,
+    uint16_t phase) __attribute__((always_inline));
+static inline uint8_t ReadSample(
+    const prog_uint8_t* table,
+    uint16_t phase) {
   return ResourcesManager::Lookup<uint8_t, uint8_t>(table, phase >> 8);
 }
 
 extern uint8_t user_wavetable[];
 
 #ifdef USE_OPTIMIZED_OP
+static inline uint8_t InterpolateSample(
+    const prog_uint8_t* table,
+    uint16_t phase) __attribute__((always_inline));
+
 static inline uint8_t InterpolateSample(
     const prog_uint8_t* table,
     uint16_t phase) {
@@ -76,6 +86,12 @@ static inline uint8_t InterpolateSample(
   );
   return result;
 }
+
+static inline uint8_t InterpolateSampleRam(
+    const uint8_t* table,
+    uint16_t phase) __attribute__((always_inline));
+
+
 static inline uint8_t InterpolateSampleRam(
     const uint8_t* table,
     uint16_t phase) {
@@ -102,18 +118,24 @@ static inline uint8_t InterpolateSampleRam(
   return result;
 }
 #else
-static inline uint8_t InterpolateSample(const prog_uint8_t* table,
-                                        uint16_t phase) {
+static inline uint8_t InterpolateSample(
+    const prog_uint8_t* table,
+    uint16_t phase) {
   return Mix(
       ResourcesManager::Lookup<uint8_t, uint8_t>(table, phase >> 8),
       ResourcesManager::Lookup<uint8_t, uint8_t>(table, 1 + (phase >> 8)),
       phase & 0xff);
 }
-static inline uint8_t InterpolateSampleRam(const uint8_t* table,
-                                           uint16_t phase) {
+static inline uint8_t InterpolateSampleRam(
+    const uint8_t* table,
+    uint16_t phase) {
   return Mix(table[phase >> 8], table[1 + (phase >> 8)], phase & 0xff);
 }
 #endif  // USE_OPTIMIZED_OP
+
+static inline uint8_t InterpolateTwoTables(
+    const prog_uint8_t* table_a, const prog_uint8_t* table_b,
+    uint16_t phase, uint8_t balance) __attribute__((always_inline));
 
 static inline uint8_t InterpolateTwoTables(
     const prog_uint8_t* table_a, const prog_uint8_t* table_b,

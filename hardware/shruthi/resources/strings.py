@@ -30,7 +30,6 @@ operator
 detune
 osc mix
 sub osc.
-resonance
 env1~vcf
 lfo2~vcf
 attack
@@ -73,6 +72,7 @@ oscillator 1
 oscillator 2
 mixer
 filter
+filter 2
 envelope 1
 envelope 2
 sequencer
@@ -82,6 +82,15 @@ keyboard
 midi
 system
 performance
+lpf
+bpf
+hpf
+=lp
+=bp
+=hp
+:lp
+:bp
+:hp
 
 cut
 vca
@@ -94,7 +103,7 @@ pw2
 mix
 noi
 sub
-res
+resonance
  cv1
  cv2
  atk
@@ -308,9 +317,9 @@ pwm
  noise
 vowel
 
-cem
-smr
+ lpf
 ssm
+svf
 
 4cv in
 prgm

@@ -52,7 +52,7 @@ template<> class StorageConfiguration<Patch> {
     num_external = 64,
     offset_internal = 16,
     offset_external = 0,
-    size = sizeof(Patch),
+    size = PATCH_SIZE,
     sysex_object_id = 0x01,
   };
 };
@@ -63,9 +63,9 @@ template<> class StorageConfiguration<SequencerSettings> {
     num_internal = 16,
     num_external = 64,
     offset_internal = StorageConfiguration<Patch>::offset_internal + \
-        StorageConfiguration<Patch>::num_internal * sizeof(Patch),
+        StorageConfiguration<Patch>::num_internal * PATCH_SIZE,
     offset_external = StorageConfiguration<Patch>::offset_external + \
-        StorageConfiguration<Patch>::num_external * sizeof(Patch),
+        StorageConfiguration<Patch>::num_external * PATCH_SIZE,
     size = sizeof(SequenceStep) * kNumSteps,
     sysex_object_id = 0x02,  
   };

@@ -127,8 +127,11 @@ static const prog_char init_patch[] PROGMEM = {
     PRM_FILTER_CUTOFF, 0,
     PRM_FILTER_RESONANCE, 0,
     PRM_FILTER_ENV, 0,
-    // Extra padding for future improvements.
-    'p', 'a', 'd', 'd', 'i', 'n', 'g', '!'
+    // Settings for second filter
+    0, 0, 0 /* LP in parallel with a second LP */, 
+    0, 0, 0, 0,
+    '!',
+    0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 static const prog_char init_sequence[] PROGMEM = {
@@ -164,7 +167,7 @@ static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
     0, 0, 0, 0,
     0, 1, 1, 5,
-    8, 0, 1, 0,
+    8, 0, 0, 0,
     0, 0, 0,
 };
 
@@ -753,6 +756,12 @@ inline void Voice::LoadSources() {
   dst_[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
   dst_[MOD_DST_CV_1] = 0;
   dst_[MOD_DST_CV_2] = 0;
+  if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM) {
+    dst_[MOD_DST_CV_1] = UnsignedUnsignedMul(
+        engine.patch_.filter_cutoff_2, 128);
+    dst_[MOD_DST_CV_2] = UnsignedUnsignedMul(
+        engine.patch_.filter_resonance_2, 128);
+  }
   dst_[MOD_DST_ATTACK] = 0;
   dst_[MOD_DST_LFO_1] = 8192;
   dst_[MOD_DST_LFO_2] = 8192;

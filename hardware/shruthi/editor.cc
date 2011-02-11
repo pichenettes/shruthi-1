@@ -41,7 +41,7 @@ namespace hardware_shruthi {
 /* extern */
 Editor editor;
 
-static const prog_uint16_t units_definitions[UNIT_CV_MODE + 1]
+static const prog_uint16_t units_definitions[UNIT_LAST]
     PROGMEM = {
   0,
   0,
@@ -65,8 +65,10 @@ static const prog_uint16_t units_definitions[UNIT_CV_MODE + 1]
   0,
   STR_RES_FREE,
   0,
-  STR_RES_CEM,
+  STR_RES__LPF,
   STR_RES_4CV_IN,
+  STR_RES_LPF,
+  STR_RES__LP
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -92,7 +94,7 @@ const UiHandler Editor::ui_handler_[] = {
     &Editor::HandleConfirmClick },
 };
 
-const PageDefinition Editor::page_definition_[] = {
+PageDefinition Editor::page_definition_[] = {
   /* PAGE_OSC_OSC_1 */ { PAGE_OSC_OSC_2, GROUP_OSC,
     PAGE_MOD_MATRIX, PAGE_OSC_OSC_2,
     STR_RES_OSCILLATOR_1, PARAMETER_EDITOR, 0, LED_1_MASK },
@@ -105,12 +107,16 @@ const PageDefinition Editor::page_definition_[] = {
     PAGE_OSC_OSC_2, PAGE_FILTER_FILTER,
     STR_RES_MIXER, PARAMETER_EDITOR, 8, LED_1_MASK | LED_2_MASK },
 
-  /* PAGE_FILTER_FILTER */ { PAGE_FILTER_FILTER, GROUP_FILTER,
-    PAGE_OSC_OSC_MIX, PAGE_MOD_ENV_1,
+  /* PAGE_FILTER_FILTER */ { PAGE_FILTER_MULTIMODE, GROUP_FILTER,
+    PAGE_OSC_OSC_MIX, PAGE_FILTER_MULTIMODE,
     STR_RES_FILTER, PARAMETER_EDITOR, 12, LED_3_MASK },
 
+  /* PAGE_FILTER_MULTIMODE */ { PAGE_FILTER_FILTER, GROUP_FILTER,
+    PAGE_OSC_OSC_MIX, PAGE_MOD_ENV_1,
+    STR_RES_FILTER_2, PARAMETER_EDITOR, 58, LED_3_MASK },
+
   /* PAGE_MOD_ENV_1 */ { PAGE_MOD_ENV_2, GROUP_MOD_SOURCES,
-    PAGE_FILTER_FILTER, PAGE_MOD_ENV_2,
+    PAGE_FILTER_MULTIMODE, PAGE_MOD_ENV_2,
     STR_RES_ENVELOPE_1, PARAMETER_EDITOR, 16, LED_4_MASK },
 
   /* PAGE_MOD_ENV_2 */ { PAGE_MOD_LFO_1, GROUP_MOD_SOURCES,
@@ -219,6 +225,23 @@ uint8_t Editor::locked_[kNumEditingPots];
 /* static */
 void Editor::Init() {
   line_buffer_[kLcdWidth] = '\0';
+}
+
+void Editor::ConfigureFilterMenu() {
+  uint8_t n = engine.system_settings().expansion_filter_board;
+  if (n == 0) {
+    page_definition_[PAGE_FILTER_FILTER].next = PAGE_FILTER_FILTER;
+    page_definition_[PAGE_FILTER_FILTER].overall_next = PAGE_MOD_ENV_1;
+    page_definition_[PAGE_MOD_ENV_1].overall_previous = PAGE_FILTER_FILTER;
+  } else {
+    page_definition_[PAGE_FILTER_FILTER].next = PAGE_FILTER_MULTIMODE;
+    page_definition_[PAGE_FILTER_FILTER].overall_next = PAGE_FILTER_MULTIMODE;
+    page_definition_[PAGE_MOD_ENV_1].overall_previous = PAGE_FILTER_MULTIMODE;
+    page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index = 58;
+    while (--n) {
+      page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index += 4;
+    }
+  }
 }
 
 /* static */
@@ -492,6 +515,7 @@ uint8_t Editor::HandleNoteOn(uint8_t note, uint16_t velocity) {
 
 /* static */
 void Editor::Refresh() {
+  ConfigureFilterMenu();
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     (*ui_handler_[page_definition_[current_page_].ui_type].overview_page)();
   } else {

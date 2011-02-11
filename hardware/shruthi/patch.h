@@ -39,6 +39,11 @@ struct Modulation {
   int8_t amount;
 };
 
+struct Operation {
+  uint8_t operands[2];
+  uint8_t op;
+};
+
 union ModulationMatrix {
   Modulation modulation[kModulationMatrixSize];
   uint8_t raw_modulation_data[kModulationMatrixSize * 3];
@@ -86,6 +91,8 @@ struct ParameterAssignment {
   uint8_t subpage;
 };
 
+#define PATCH_SIZE (sizeof(Patch) - 8)
+
 class Patch {
  public:
   // Offset: 0-8
@@ -118,24 +125,21 @@ class Patch {
   ParameterAssignment assigned_parameters[4];
   
   // Offset: 84-92
-  uint8_t padding[8];
+  uint8_t filter_cutoff_2;
+  uint8_t filter_resonance_2;
+  uint8_t filter_topology_;
+  uint8_t op_data_[4];
+  uint8_t exclamation_mark_;
+  
+  // 8 bytes of decompressed patch data.
+  uint8_t filter_1_mode_;
+  uint8_t filter_2_mode_;
+  Operation ops_[2];
   
   uint8_t* saved_data() { return (uint8_t*)(this); }
-  void PrepareForWrite() { return; }
-  uint8_t CheckBuffer(uint8_t* buffer) {
-    for (uint8_t i = 8; i < 24; ++i) {
-      if (buffer[i] >= 128) {
-        name[0] = '?';
-        return 0;
-      }
-    }
-    if (buffer[91] != '!') {
-      name[0] = '?';
-      return 0;
-    }
-    return 1;
-  }
-  void Update() { }
+  void PrepareForWrite();
+  uint8_t CheckBuffer(uint8_t* buffer);
+  void Update();
 };
 
 enum ModulationSource {
@@ -242,6 +246,16 @@ enum PatchParameter {
   PRM_MOD_DESTINATION,
   PRM_MOD_AMOUNT,
   PRM_MOD_ROW,
+  
+  PRM_FILTER_CUTOFF_2 = 84,
+  PRM_FILTER_RESONANCE_2 = 85,
+  PRM_FILTER_MODE_1 = 92,
+  PRM_FILTER_MODE_2 = 93,
+  
+  PRM_OP_OP1 = 94,
+  PRM_OP_OP2 = 95,
+  PRM_OP_OPERATOR = 96,
+  PRM_OP_ROW = 97
 };
 
 enum OscillatorAlgorithm {
@@ -338,6 +352,21 @@ enum OPERATOR {
   OP_CRUSH_4,
   OP_CRUSH_8,
   OP_LAST
+};
+
+enum MainFilterMode {
+  FILTER_MODE_LP,
+  FILTER_MODE_BP,
+  FILTER_MODE_HP
+};
+
+enum SecondaryFilterMode {
+  FILTER_MODE_PARALLEL_LP,
+  FILTER_MODE_PARALLEL_BP,
+  FILTER_MODE_PARALLEL_HP,
+  FILTER_MODE_SERIAL_LP,
+  FILTER_MODE_SERIAL_BP,
+  FILTER_MODE_SERIAL_HP
 };
 
 }  // namespace hardware_shruthi

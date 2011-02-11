@@ -64,6 +64,7 @@ CODE
 - The modulation matrix processing code has been simplified.
 - A menu in the UI and code infrastructure is ready to provide filter-board
 specific menus and parameters in future firmware revisions.
+- Changed compilation flags to achieve smaller code size.
 
 
 v0.91 --------------------------------------------------------------------------

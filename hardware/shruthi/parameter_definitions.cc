@@ -28,7 +28,7 @@
 namespace hardware_shruthi {
 
 static const prog_char raw_parameter_definition[
-    58 * sizeof(ParameterDefinition)] PROGMEM = {
+    66 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_LAST - 1,
@@ -101,7 +101,7 @@ static const prog_char raw_parameter_definition[
   PRM_FILTER_RESONANCE,
   0, 63,
   UNIT_UINT8,
-  STR_RES_RES, STR_RES_RESONANCE,
+  STR_RES_RESONANCE, STR_RES_RESONANCE,
 
   PRM_FILTER_ENV,
   0, 63,
@@ -313,7 +313,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_SNAP, STR_RES_SNAP,
 
   PRM_SYS_EXPANSION_FILTER_BOARD,
-  FILTER_BOARD_CEM, FILTER_BOARD_SSM,
+  FILTER_BOARD_LPF, FILTER_BOARD_SSM, /* FILTER_BOARD_SVF */
   UNIT_FILTER_BOARD,
   STR_RES_FILTER, STR_RES_FILTER,
   
@@ -330,7 +330,49 @@ static const prog_char raw_parameter_definition[
   PRM_SEQ_PATTERN_SIZE,
   1, 16,
   UNIT_UINT8,
-  STR_RES_LENGTH, STR_RES_LENGTH
+  STR_RES_LENGTH, STR_RES_LENGTH,
+  
+  // Settings for SSM2044 filter board.
+  PRM_FILTER_CUTOFF_2,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_HPF, STR_RES_HPF,
+
+  PRM_FILTER_RESONANCE_2,
+  0, 0,
+  UNIT_UINT8,
+  STR_RES_, STR_RES_,
+
+  PRM_FILTER_RESONANCE_2,
+  0, 0,
+  UNIT_INT8,
+  STR_RES_, STR_RES_,
+
+  PRM_FILTER_RESONANCE_2,
+  0, 0,
+  UNIT_INT8,
+  STR_RES_, STR_RES_,
+  
+  // Settings for dual SVF filter board.
+  PRM_FILTER_CUTOFF_2,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_CUTOFF, STR_RES_CUTOFF,
+
+  PRM_FILTER_RESONANCE_2,
+  0, 63,
+  UNIT_UINT8,
+  STR_RES_RESONANCE, STR_RES_RESONANCE,
+
+  PRM_FILTER_MODE_1,
+  FILTER_MODE_LP, FILTER_MODE_HP,
+  UNIT_FILTER_1_MODE,
+  STR_RES_MODE, STR_RES_MODE,
+
+  PRM_FILTER_MODE_2,
+  FILTER_MODE_PARALLEL_LP, FILTER_MODE_SERIAL_HP,
+  UNIT_FILTER_2_MODE,
+  STR_RES_MODE, STR_RES_MODE,
 };
 
 /* static */

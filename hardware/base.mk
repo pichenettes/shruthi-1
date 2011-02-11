@@ -15,6 +15,8 @@
 
 AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin/
 AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc/
+#AVR_TOOLS_PATH = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/
+#AVR_ETC_PATH   = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/etc/
 BUILD_ROOT     = build/
 BUILD_DIR      = $(BUILD_ROOT)$(TARGET)/
 PROGRAMMER     = avrispmkII
@@ -50,7 +52,9 @@ CAT            = cat
 
 CPPFLAGS      = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I. \
 			-g -Os -w -Wall \
-			-ffunction-sections -fdata-sections -D$(MCU_DEFINE)
+			-ffunction-sections -fdata-sections -D$(MCU_DEFINE) \
+			-DSERIAL_RX_0 -fno-move-loop-invariants \
+			-mcall-prologues
 CXXFLAGS      = -fno-exceptions
 ASFLAGS       = -mmcu=$(MCU) -I. -x assembler-with-cpp
 LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections -Os
