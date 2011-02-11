@@ -15,8 +15,8 @@
 
 AVR_TOOLS_PATH = /usr/local/CrossPack-AVR/bin/
 AVR_ETC_PATH   = /usr/local/CrossPack-AVR/etc/
-#AVR_TOOLS_PATH = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/
-#AVR_ETC_PATH   = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/etc/
+# AVR_TOOLS_PATH = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/
+# AVR_ETC_PATH   = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/etc/
 BUILD_ROOT     = build/
 BUILD_DIR      = $(BUILD_ROOT)$(TARGET)/
 PROGRAMMER     = avrispmkII

@@ -418,7 +418,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
   } else if (event.hold_time >= 6) {
     switch (event.id) {
       case KEY_1:
-        engine.NoteOn(0, 60, test_note_playing_ ? 0 : 100);
+        engine.NoteOn(0, 60, test_note_playing_ * 100);
         test_note_playing_ ^= 1;
         break;
 
@@ -499,8 +499,7 @@ void Editor::HandleClick() {
 /* static */
 uint8_t Editor::HandleNoteOn(uint8_t note, uint16_t velocity) {
   uint8_t handled = 0;
-  if (current_page_ == PAGE_SEQ_TRACKER &&
-      display_mode_ == DISPLAY_MODE_EDIT) {
+  if (current_page_ == PAGE_SEQ_TRACKER && display_mode_ == DISPLAY_MODE_EDIT) {
     engine.mutable_sequencer_settings()->steps[cursor_].set_note(note);
     engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(velocity);
     ++cursor_;

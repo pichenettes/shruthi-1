@@ -37,18 +37,14 @@ const uint8_t kDataEntryResendRate = 32;
 /* static */
 void MidiDispatcher::NoteKilled(uint8_t note) {
   if (mode() == MIDI_OUT_SEQUENCER) {
-    OutputBuffer::Overwrite(0x90 | channel());
-    OutputBuffer::Overwrite(note);
-    OutputBuffer::Overwrite(0);
+    Send3(0x90 | channel(), note, 0);
   }
 }
 
 /* static */
 void MidiDispatcher::NoteTriggered(uint8_t note, uint8_t velocity) {
   if (mode() == MIDI_OUT_SEQUENCER) {
-    OutputBuffer::Overwrite(0x90 | channel());
-    OutputBuffer::Overwrite(note);
-    OutputBuffer::Overwrite(velocity);
+    Send3(0x90 | channel(), note, velocity);
   }
 }
 
@@ -88,20 +84,14 @@ void MidiDispatcher::SendParameter(uint8_t index, uint8_t value) {
   if (mode() >= MIDI_OUT_FULL) {
     if (current_parameter_index_ != index || \
         data_entry_counter_ >= kDataEntryResendRate) {
-      OutputBuffer::Overwrite(0xb0 | channel());
-      OutputBuffer::Overwrite(hardware_midi::kNrpnLsb);
-      OutputBuffer::Overwrite(index);
+      Send3(0xb0 | channel(), hardware_midi::kNrpnLsb, index);
       current_parameter_index_ = index;
       data_entry_counter_ = 0;
     }
     if (value & 0x80) {
-      OutputBuffer::Overwrite(0xb0 | channel());
-      OutputBuffer::Overwrite(hardware_midi::kDataEntryMsb);
-      OutputBuffer::Overwrite(1);
+      Send3(0xb0 | channel(), hardware_midi::kDataEntryMsb, 1);
     }
-    OutputBuffer::Overwrite(0xb0 | channel());
-    OutputBuffer::Overwrite(hardware_midi::kDataEntryLsb);
-    OutputBuffer::Overwrite(value & 0x7f);
+    Send3(0xb0 | channel(), hardware_midi::kDataEntryLsb, value & 0x7f);
   }
 }
 
