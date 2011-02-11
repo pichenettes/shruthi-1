@@ -643,7 +643,7 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
         Storage::Load(engine.mutable_patch(), n);
         uint8_t channel = (engine.system_settings().midi_channel - 1) & 0xf;
         midi_dispatcher.Send3(0xb0 | channel, 0x20, n >> 7);
-        midi_dispatcher.Send2(0xc0 | channel, n & 0x7f);
+        midi_dispatcher.Send3(0xc0 | channel, n & 0x7f, 0xfe);
         engine.TouchPatch(1);
         if (engine.system_settings().patch_restore_on_boot & 0x80) {
           engine.mutable_system_settings()->patch_restore_on_boot = \

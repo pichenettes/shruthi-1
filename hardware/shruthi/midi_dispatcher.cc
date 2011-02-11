@@ -62,12 +62,6 @@ void MidiDispatcher::Send(uint8_t status, uint8_t* data, uint8_t size) {
 }
 
 /* static */
-void MidiDispatcher::Send2(uint8_t status, uint8_t a) {
-  OutputBuffer::Overwrite(status);
-  OutputBuffer::Overwrite(a);
-}
-
-/* static */
 void MidiDispatcher::Send3(uint8_t status, uint8_t a, uint8_t b) {
   OutputBuffer::Overwrite(status);
   OutputBuffer::Overwrite(a);

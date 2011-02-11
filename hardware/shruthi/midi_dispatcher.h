@@ -162,7 +162,6 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
   static void NoteKilled(uint8_t note);
   static void NoteTriggered(uint8_t note, uint8_t velocity);
   static void Send(uint8_t status, uint8_t* data, uint8_t size);
-  static void Send2(uint8_t status, uint8_t a);
   static void Send3(uint8_t status, uint8_t a, uint8_t b);
   static void SendParameter(uint8_t index, uint8_t value);
 
