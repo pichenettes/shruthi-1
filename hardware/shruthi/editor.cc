@@ -68,7 +68,8 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   STR_RES__LPF,
   STR_RES_4CV_IN,
   STR_RES_LPF,
-  STR_RES__LP
+  STR_RES_ELP,
+  STR_RES_ADD
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -131,9 +132,13 @@ PageDefinition Editor::page_definition_[] = {
     PAGE_MOD_LFO_1, PAGE_MOD_MATRIX,
     STR_RES_LFO_2, PARAMETER_EDITOR, 28, LED_5_MASK },
 
-  /* PAGE_MOD_MATRIX */ { PAGE_MOD_MATRIX, GROUP_MOD_MATRIX,
-    PAGE_MOD_LFO_2, PAGE_OSC_OSC_1,
+  /* PAGE_MOD_MATRIX */ { PAGE_MOD_OPERATORS, GROUP_MOD_MATRIX,
+    PAGE_MOD_LFO_2, PAGE_MOD_OPERATORS,
     STR_RES_MOD_, PARAMETER_EDITOR, 32, 0 },
+
+  /* PAGE_MOD_OPERATORS */ { PAGE_MOD_MATRIX, GROUP_MOD_MATRIX,
+    PAGE_MOD_MATRIX, PAGE_OSC_OSC_1,
+    STR_RES_OPERATORS, PARAMETER_EDITOR, 58, 0 },
 
   /* PAGE_SEQ_SEQUENCER */ { PAGE_SEQ_ARPEGGIATOR, GROUP_SEQUENCER_ARPEGGIATOR,
     PAGE_SEQ_CONTROLLER, PAGE_SEQ_ARPEGGIATOR,
@@ -237,7 +242,7 @@ void Editor::ConfigureFilterMenu() {
     page_definition_[PAGE_FILTER_FILTER].next = PAGE_FILTER_MULTIMODE;
     page_definition_[PAGE_FILTER_FILTER].overall_next = PAGE_FILTER_MULTIMODE;
     page_definition_[PAGE_MOD_ENV_1].overall_previous = PAGE_FILTER_MULTIMODE;
-    page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index = 58;
+    page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index = 62;
     while (--n) {
       page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index += 4;
     }
@@ -1132,6 +1137,8 @@ void Editor::SetParameterValue(uint8_t id, uint8_t value) {
   if (current_page_ == PAGE_MOD_MATRIX && id == PRM_MOD_ROW) {
     subpage_ = value;
     last_visited_subpage_ = value;
+  } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
+    subpage_ = value;
   } else {
     engine.SetParameter(id + subpage_ * 3, value);
   }
@@ -1141,6 +1148,8 @@ void Editor::SetParameterValue(uint8_t id, uint8_t value) {
 uint8_t Editor::GetParameterValue(uint8_t id) {
   uint8_t value;
   if (current_page_ == PAGE_MOD_MATRIX && id == PRM_MOD_ROW) {
+    value = subpage_;
+  } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
     value = subpage_;
   } else {
     value = engine.GetParameter(id + subpage_ * 3);

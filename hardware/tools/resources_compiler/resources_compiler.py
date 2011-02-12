@@ -47,6 +47,12 @@ def Canonicalize(x):
       out_chr[i] = ord('P')
     elif chr(i) == '+':
       out_chr[i] = ord('S')
+    elif chr(i) == '=':
+      out_chr[i] = ord('e')
+    elif chr(i) == '>':
+      out_chr[i] = ord('g')
+    elif chr(i) == '<':
+      out_chr[i] = ord('l')
     elif chr(i) == '^':
       out_chr[i] = ord('x')
     elif chr(i) == '"':

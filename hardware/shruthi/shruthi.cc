@@ -108,6 +108,11 @@ void UpdateLedsTask() {
                 editor.subpage()].source);
         leds.set_value(LED_6, current_modulation_source_value >> 4);
       }
+      if (editor.current_page() == PAGE_MOD_OPERATORS) {
+        uint8_t current_operator_value = engine.modulation_source(0,
+            MOD_SRC_OP_1 + editor.subpage());
+        leds.set_value(LED_6, current_operator_value >> 4);
+      }
     }
     uint8_t pattern = editor.leds_pattern();
     uint8_t mask = 1;

@@ -172,9 +172,13 @@ enum ModulationSource {
   MOD_SRC_NOTE,
   MOD_SRC_GATE,
   MOD_SRC_AUDIO,
+  MOD_SRC_OP_1,
+  MOD_SRC_OP_2,
+  
+  MOD_SRC_LAST
 };
 
-static const uint8_t kNumModulationSources = MOD_SRC_AUDIO + 1;
+static const uint8_t kNumModulationSources = MOD_SRC_LAST;
 static const uint8_t kNumGlobalModulationSources = MOD_SRC_NOISE + 1;
 static const uint8_t kNumVoiceModulationSources = kNumModulationSources -
     kNumGlobalModulationSources;
@@ -196,10 +200,11 @@ enum ModulationDestination {
   MOD_DST_CV_2,
   MOD_DST_ATTACK,
   MOD_DST_LFO_1,
-  MOD_DST_LFO_2
+  MOD_DST_LFO_2,
+  MOD_DST_LAST
 };
 
-static const uint8_t kNumModulationDestinations = MOD_DST_LFO_2 + 1;
+static const uint8_t kNumModulationDestinations = MOD_DST_LAST;
 
 enum PatchParameter {
   PRM_OSC_SHAPE_1,
@@ -343,7 +348,7 @@ enum Status {
   ON
 };
 
-enum OPERATOR {
+enum Operator {
   OP_SUM,
   OP_SYNC,
   OP_RING_MOD,
@@ -352,6 +357,17 @@ enum OPERATOR {
   OP_CRUSH_4,
   OP_CRUSH_8,
   OP_LAST
+};
+
+enum CvOperator {
+  OP_CV_SUM,
+  OP_CV_PRODUCT,
+  OP_CV_MAX,
+  OP_CV_MIN,
+  OP_CV_XOR,
+  OP_CV_GE,
+  OP_CV_LE,
+  OP_CV_LAST
 };
 
 enum MainFilterMode {

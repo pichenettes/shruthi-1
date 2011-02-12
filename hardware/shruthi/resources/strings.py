@@ -40,6 +40,7 @@ sustain
 release
 rate
 modulation
+operators
 mod.
 source
 src
@@ -111,6 +112,17 @@ res
  lf1
  lf2
 
+in1
+in2
+out
+add
+prd
+max
+min
+ xor
+>=
+<=
+
 cutoff
  vca
 pwm1
@@ -155,6 +167,8 @@ rnd
 not
 gat
 aud
+op1
+op2
 
 lfo 1
 lfo 2
@@ -182,6 +196,8 @@ random
 note
 gate
 audio
+op. 1
+op. 2
 
 touch a knob to
 assign parameter

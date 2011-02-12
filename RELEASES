@@ -57,6 +57,9 @@ with the noise and sub generators.
 downsampled to 128 samples/waveform instead of 256.
 - New mixing mode (>>4, >>8) allows the oscillators signal to be
 bitcrushed (sample rate reduction with a S&H).
+- A new feature ("operators") allows 2 pairs of modulation sources to be
+combined through a variety of mathematical operations (addition, multiplication,
+comparison) to yield two new complex modulation sources.
 
 CODE
 

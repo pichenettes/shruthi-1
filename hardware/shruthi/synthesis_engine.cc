@@ -379,7 +379,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
 
 /* static */
 void SynthesisEngine::PitchBend(uint8_t channel, uint16_t pitch_bend) {
-  uint8_t value = ShiftRight6(pitch_bend);
+  uint8_t value = pitch_bend >> 6;
   modulation_sources_[MOD_SRC_PITCH_BEND] = value;
 }
 
@@ -728,6 +728,8 @@ void Voice::Release() {
 
 /* static */
 inline void Voice::LoadSources() {
+  static uint8_t ops[7];
+  
   // Rescale the value of each modulation sources. Envelopes are in the
   // 0-16383 range ; just like pitch. All are scaled to 0-255.
   modulation_sources_[MOD_SRC_ENV_1 - kNumGlobalModulationSources] = 
@@ -738,9 +740,41 @@ inline void Voice::LoadSources() {
       ShiftRight6(pitch_value_);
   modulation_sources_[MOD_SRC_GATE - kNumGlobalModulationSources] =
       envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
+  modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = buffer_[0];
+  
+  // Apply the modulation operators
+  for (uint8_t i = 0; i < 2; ++i) {
+    uint8_t x = engine.patch_.ops_[i].operands[0];
+    uint8_t y = engine.patch_.ops_[i].operands[1];
+    if (x < kNumGlobalModulationSources) {
+      // Global sources, read from the engine.
+      x = engine.modulation_sources_[x];
+    } else {
+      // Voice specific sources, read from the voice.
+      x = modulation_sources_[x - kNumGlobalModulationSources];
+    }
+    if (y < kNumGlobalModulationSources) {
+      // Global sources, read from the engine.
+      y = engine.modulation_sources_[y];
+    } else {
+      // Voice specific sources, read from the voice.
+      y = modulation_sources_[y - kNumGlobalModulationSources];
+    }
+    if (x > y) {
+      ops[2] = x;  ops[5] = 255;
+      ops[3] = y;  ops[6] = 0;
+    } else {
+      ops[2] = y;  ops[5] = 0;
+      ops[3] = x;  ops[6] = 255;
+    }
+    ops[0] = (x >> 1) + (y >> 1);
+    ops[1] = MulScale8(x, y);
+    ops[4] = x ^ y;
+    modulation_sources_[MOD_SRC_OP_1 - kNumGlobalModulationSources + i] = \
+        ops[engine.patch_.ops_[i].op];
+  }
 
   modulation_destinations_[MOD_DST_VCA] = engine.volume_;
-  modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = buffer_[0];
   
   // Load and scale to 0-16383 the initial value of each modulated parameter.
   dst_[MOD_DST_FILTER_CUTOFF] = UnsignedUnsignedMul(

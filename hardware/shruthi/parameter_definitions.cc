@@ -28,7 +28,7 @@
 namespace hardware_shruthi {
 
 static const prog_char raw_parameter_definition[
-    66 * sizeof(ParameterDefinition)] PROGMEM = {
+    70 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_LAST - 1,
@@ -73,8 +73,8 @@ static const prog_char raw_parameter_definition[
 
   // Mix balance.
   PRM_OSC_OPTION_1,
-  0, OP_LAST - 1,
-  UNIT_OPERATOR,
+  0, OP_CV_LAST - 1,
+  UNIT_CV_OPERATOR,
   STR_RES_OP_, STR_RES_OPERATOR,
 
   PRM_MIX_BALANCE,
@@ -331,6 +331,27 @@ static const prog_char raw_parameter_definition[
   1, 16,
   UNIT_UINT8,
   STR_RES_LENGTH, STR_RES_LENGTH,
+  
+  // Operators
+  PRM_OP_ROW,
+  0, 1,
+  UNIT_INDEX,
+  STR_RES_OP_, STR_RES_OPERATOR,
+
+  PRM_OP_OP1,
+  0, kNumModulationSources - 1,
+  UNIT_MODULATION_SOURCE,
+  STR_RES_IN1, STR_RES_IN1,
+
+  PRM_OP_OP2,
+  0, kNumModulationSources - 1,
+  UNIT_MODULATION_SOURCE,
+  STR_RES_IN2, STR_RES_IN2,
+
+  PRM_OP_OPERATOR,
+  0, OP_LAST - 1,
+  UNIT_CV_OPERATOR,
+  STR_RES_OUT, STR_RES_OUT,
   
   // Settings for SSM2044 filter board.
   PRM_FILTER_CUTOFF_2,
