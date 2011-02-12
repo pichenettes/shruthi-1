@@ -318,11 +318,11 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
               int8_t signed_value = static_cast<int8_t>(value);
               if (signed_value >= static_cast<int8_t>(p.min_value) &&
                   signed_value <= static_cast<int8_t>(p.max_value)) {
-                SetParameter(nrpn_parameter_number_, value);
+                SetParameter(nrpn_parameter_number_, value, 0);
               }
             } else {
               if (value >= p.min_value && value <= p.max_value) {
-                SetParameter(nrpn_parameter_number_, value);
+                SetParameter(nrpn_parameter_number_, value, 0);
               }
             }
           } else {
@@ -332,7 +332,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
                 old_value,
                 controller == hardware_midi::kDataIncrement ? 1 : -1);
             if (new_value != old_value) {
-              SetParameter(nrpn_parameter_number_, new_value);
+              SetParameter(nrpn_parameter_number_, new_value, 0);
             }
           }
         }
@@ -350,10 +350,10 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         system_settings_.portamento = value;
         break;
       case hardware_midi::kRelease:
-        SetParameter(PRM_ENV_RELEASE_2, value);
+        SetParameter(PRM_ENV_RELEASE_2, value, 0);
         break;
       case hardware_midi::kAttack:
-        SetParameter(PRM_ENV_ATTACK_2, value);
+        SetParameter(PRM_ENV_ATTACK_2, value, 0);
         break;
       case hardware_midi::kHarmonicIntensity:
         patch_.filter_resonance = value >> 1;
@@ -373,7 +373,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
     }
   }
   if (editing_controller) {
-    SetScaledParameter(controller, value);
+    SetScaledParameter(controller, value, 0);
   }
 }
 
@@ -458,19 +458,22 @@ void SynthesisEngine::Stop() {
 /* static */
 void SynthesisEngine::SetScaledParameter(
     uint8_t parameter_index,
-    uint8_t value) {
+    uint8_t value,
+    uint8_t user_initiated) {
   dirty_ = 1;
   const ParameterDefinition& parameter = (
       ParameterDefinitions::parameter_definition(parameter_index));
   SetParameter(
       parameter.id,
-      ParameterDefinitions::Scale(parameter, value));
+      ParameterDefinitions::Scale(parameter, value),
+      user_initiated);
 }
 
 /* static */
 void SynthesisEngine::SetParameter(
     uint8_t parameter_index,
-    uint8_t parameter_value) {
+    uint8_t parameter_value,
+    uint8_t user_initiated) {
   if (data_access_byte_[parameter_index + 1] == parameter_value) {
     return;
   }
@@ -487,7 +490,8 @@ void SynthesisEngine::SetParameter(
     // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
   }
-  midi_dispatcher.SendParameter(parameter_index, parameter_value);
+  midi_dispatcher.SendParameter(
+      parameter_index, parameter_value, user_initiated);
 }
 
 /* static */

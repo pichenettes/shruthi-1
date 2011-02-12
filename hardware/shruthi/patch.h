@@ -49,22 +49,6 @@ union ModulationMatrix {
   uint8_t raw_modulation_data[kModulationMatrixSize * 3];
 };
 
-enum MidiOutMode {
-  MIDI_OUT_OFF,
-  MIDI_OUT_SOFT_THRU,
-  MIDI_OUT_SEQUENCER,
-  MIDI_OUT_SPLIT,
-  MIDI_OUT_FULL,
-  MIDI_OUT_1_0,
-  MIDI_OUT_2_1,
-  MIDI_OUT_3_4,
-  MIDI_OUT_4_3,
-  MIDI_OUT_5_4,
-  MIDI_OUT_6_5,
-  MIDI_OUT_7_6,
-  MIDI_OUT_8_7,
-};
-
 struct OscillatorSettings {
   uint8_t shape;
   uint8_t parameter;

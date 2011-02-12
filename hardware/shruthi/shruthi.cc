@@ -231,7 +231,7 @@ void CvTask() {
     // scanner to spend more time scanning this pot.
     if ((pots_value[programmer_active_pot] - value > 8) ||
         (pots_value[programmer_active_pot] - value < -8)) {
-      engine.SetScaledParameter(programmer_active_pot, value >> 3);
+      engine.SetScaledParameter(programmer_active_pot, value >> 3, 1);
       currently_tweaked_pot = programmer_active_pot;
       pots_value[programmer_active_pot] = value;
     }
@@ -247,7 +247,7 @@ void CvTask() {
     if (current_cv <= 1) {
       value >>= 1;
       uint8_t offset = current_cv * 4;
-      engine.SetParameter(PRM_OSC_PARAMETER_1 + offset, value);
+      engine.SetParameter(PRM_OSC_PARAMETER_1 + offset, value, 1);
       ++current_cv;
     } else {
       engine.set_unregistered_modulation(0, value);

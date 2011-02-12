@@ -329,7 +329,7 @@ void Editor::RandomizeParameter(uint8_t subpage, uint8_t parameter_index) {
     value -= range;
   }
   value += parameter.min_value;
-  engine.SetParameter(parameter.id + subpage * 3, value);
+  engine.SetParameter(parameter.id + subpage * 3, value, 0);
 }
 
 /* static */
@@ -646,12 +646,7 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
       if (editor_mode_ == EDITOR_MODE_PATCH) {
         uint16_t n = edited_item_number();
         Storage::Load(engine.mutable_patch(), n);
-        uint8_t channel = (engine.system_settings().midi_channel - 1) & 0xf;
-        midi_dispatcher.Send3(0xb0 | channel, 0x20, n >> 7);
-        // We send a program change + an active sensing message that does
-        // strictly nothing. This way, we can use the already unrolled
-        // Send3 function.
-        midi_dispatcher.Send3(0xc0 | channel, n & 0x7f, 0xfe);
+        midi_dispatcher.ProgramChange(n);
         engine.TouchPatch(1);
         if (engine.system_settings().patch_restore_on_boot & 0x80) {
           engine.mutable_system_settings()->patch_restore_on_boot = \
@@ -791,7 +786,7 @@ void Editor::HandleSequencerNavigation(
             cursor_ = new_size - 1;
           }
           last_knob_ = 1;
-          engine.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size);
+          engine.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, 0);
         }
         break;
     }
@@ -808,7 +803,7 @@ void Editor::HandleStepSequencerInput(
     seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
         value >> 6);
   } else if (knob_index == 0) {
-    engine.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 6);
+    engine.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 6, 0);
     last_knob_ = 0;
   }
 }
@@ -1140,7 +1135,7 @@ void Editor::SetParameterValue(uint8_t id, uint8_t value) {
   } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
     subpage_ = value;
   } else {
-    engine.SetParameter(id + subpage_ * 3, value);
+    engine.SetParameter(id + subpage_ * 3, value, 1);
   }
 }
 

@@ -53,7 +53,7 @@ class InputArray {
     // No need to initialize anything - the first cycle of readouts will take
     // care of this.
     active_input_ = 0;
-    starting_up_ = 2;
+    starting_up_ = num_inputs * 2;
     Input::Init();
   }
   static void Lock(uint16_t threshold) {
@@ -95,9 +95,7 @@ class InputArray {
 
     // During the first cycle, do not raise any event - just record the values.
     if (starting_up_) {
-      if (active_input_ == 0) {
-        --starting_up_;
-      }
+      --starting_up_;
       e.event = EVENT_NONE;
       e.time = 0;
     }

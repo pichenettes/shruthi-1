@@ -31,6 +31,8 @@
 
 namespace hardware_shruthi {
 
+const uint8_t kDataEntryResendRate = 32;
+
 class MidiDispatcher : public hardware_midi::MidiDevice {
  public:
   enum {
@@ -159,11 +161,53 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
   }
   
   // ------ MIDI out handling --------------------------------------------------
-  static void NoteKilled(uint8_t note);
-  static void NoteTriggered(uint8_t note, uint8_t velocity);
-  static void Send(uint8_t status, uint8_t* data, uint8_t size);
-  static void Send3(uint8_t status, uint8_t a, uint8_t b);
-  static void SendParameter(uint8_t index, uint8_t value);
+  static inline void NoteKilled(uint8_t note) {
+    if (mode() == MIDI_OUT_SEQUENCER) {
+      Send3(0x90 | channel(), note, 0);
+    }
+  }
+  static inline void NoteTriggered(uint8_t note, uint8_t velocity) {
+    if (mode() == MIDI_OUT_SEQUENCER) {
+      Send3(0x90 | channel(), note, velocity);
+    }
+  }
+
+  static inline void SendParameter(
+      uint8_t index,
+      uint8_t value,
+      uint8_t user_initiated) {
+    // Do not forward changes of system settings!
+    if (index >= sizeof(Patch)) {
+      return;
+    }
+    if (mode() < MIDI_OUT_CTRL) {
+      return;
+    }
+    if (mode() == MIDI_OUT_CTRL && !user_initiated) {
+      return;
+    }
+    ++data_entry_counter_;
+    if (current_parameter_index_ != index || \
+        data_entry_counter_ >= 32) {
+      Send3(0xb0 | channel(), hardware_midi::kNrpnLsb, index);
+      current_parameter_index_ = index;
+      data_entry_counter_ = 0;
+    }
+    if (value & 0x80) {
+      Send3(0xb0 | channel(), hardware_midi::kDataEntryMsb, 1);
+    }
+  }
+
+  static inline void ProgramChange(uint16_t n) {
+    uint8_t channel = (engine.system_settings().midi_channel - 1) & 0xf;
+    if (mode() >= MIDI_OUT_CTRL) {
+      Send3(0xb0 | channel, 0x20, n >> 7);
+      // We send a program change + an active sensing message that does
+      // strictly nothing. This way, we can use the already unrolled
+      // Send3 function.
+      Send3(0xc0 | channel, n & 0x7f, 0xfe);
+    }
+  }
 
   static uint8_t readable() {
     return OutputBuffer::readable();
@@ -173,10 +217,10 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
     return OutputBuffer::ImmediateRead();
   }
   
+  static void Send3(uint8_t status, uint8_t a, uint8_t b);
+  
  private:
-  static uint8_t data_entry_counter_;
-  static uint8_t current_parameter_index_;
-  static uint8_t current_bank_;
+  static void Send(uint8_t status, uint8_t* data, uint8_t size);
   
   static void ProcessSysEx(uint8_t byte) {
     if (mode() >= MIDI_OUT_SPLIT) {
@@ -191,6 +235,11 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
         ? 0
         : engine.system_settings().midi_channel - 1;
   }
+  
+  static uint8_t data_entry_counter_;
+  static uint8_t current_parameter_index_;
+  static uint8_t current_bank_;
+  
   DISALLOW_COPY_AND_ASSIGN(MidiDispatcher);
 };
 
