@@ -49,26 +49,18 @@ class BufferedDisplay {
   BufferedDisplay() { }
 
   static void Init() {
-    for (uint8_t i = 0; i < lcd_buffer_size; ++i) {
-      local_[i] = ' ';
-      remote_[i] = '?';
-    }
+    memset(local_, ' ', lcd_buffer_size);
+    memset(remote_, '?', lcd_buffer_size);
     scan_position_last_write_ = 255;
-    blink_ = 0;
     cursor_position_ = 255;
+    blink_ = 0;
   }
 
   static void Print(uint8_t line, const char* text) {
     uint8_t row = width;
     uint8_t* destination = local_ + (line << Log2<width>::value);
     while (*text && row) {
-      uint8_t character = *text;
-      // Skip control characters.
-      if (character >= 8 && character < 32) {
-        *destination++ = ' ';
-      } else {
-        *destination++ = character;
-      }
+      *destination++ = *text;
       ++text;
       --row;
     }
@@ -87,7 +79,7 @@ class BufferedDisplay {
     return cursor_position_;
   }
 
-  static void set_status(uint8_t status) __attribute__((noinline)) {
+  static inline void set_status(uint8_t status) {
     status_ = status + 1;
   }
 
@@ -125,8 +117,7 @@ class BufferedDisplay {
       }
     }
     // Check whether the screen really has to be updated to show the character.
-    if (character != remote_[scan_position_] ||
-        scan_position_ == cursor_position_) {
+    if (character != remote_[scan_position_]) {
       // There is a character to transmit!
       // If the new character to transmit is just after the previous one, and on
       // the same line, we're good, we don't need to reposition the cursor.
@@ -143,7 +134,7 @@ class BufferedDisplay {
             scan_position_ & (width - 1));
         Lcd::WriteData(character);
       }
-      // We can now assume that remote display will be updated.
+      // We can now assume that the remote display will be updated.
       remote_[scan_position_] = character;
       scan_position_last_write_ = scan_position_;
     }

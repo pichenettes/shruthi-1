@@ -60,10 +60,10 @@ inline void TickSystemClock() {
     // 32-bits values are always loaded into contiguous registers. This code is
     // called from an ISR, so this means 4 contiguous registers are going to
     // be pushed/popped in the ISR. This costs 4 pairs of push/pops (16 cycles).
-    // On the other hand, this weir dimplementation only requires 2 adjacent
+    // On the other hand, this weird implementation only requires 2 adjacent
     // registers, and they are probably already used for something else in the
     // ISR. There's no free lunch, though: this code is less efficient than
-    // a ++. However, when it is called every 16th or 32th entry in an ISR, the
+    // a++. However, when it is called every 16th or 32th entry in an ISR, the
     // time saved by avoiding the extra push/pops makes it a better choice.
     //
     // Rule: when you *occasionnally* do something complicated from within an

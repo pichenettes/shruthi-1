@@ -71,7 +71,7 @@ class BufferedSoftwareSerialOutput {
     TxPin::set_mode(DIGITAL_OUTPUT);
     TxPin::High();
   }
-  static inline void Write(Value v) __attribute__((noinline)) {
+  static inline void Write(Value v) {
     OutputBuffer::Write(v);
   }
   static inline uint8_t writable() { return OutputBuffer::writable(); }
@@ -149,7 +149,7 @@ uint8_t BufferedSoftwareSerialOutput<TxPin, timer_rate, baud_rate,
 // Following code from NewSoftSerial, Copyright (c) 2006 David A. Mellis.
 template<typename TxPin, uint16_t baud_rate>
 struct SoftwareSerialOutput {
-  static void Write(uint8_t tx_byte) __attribute__((noinline)) {
+  static void Write(uint8_t tx_byte) {
     uint8_t oldSREG = SREG;
     cli();
 

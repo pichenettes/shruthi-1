@@ -170,7 +170,7 @@ class Hd44780Lcd {
       SlowData(SimpleResourcesManager::Lookup<uint8_t, uint8_t>(data, i));
     }
   }
-
+  
   static inline uint8_t writable() { return OutputBuffer::writable(); }
   static inline uint8_t busy() { return transmitting_; }
   static inline uint8_t blink_counter() { return blink_counter_; }
