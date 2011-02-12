@@ -51,9 +51,9 @@ class ExternalEeprom {
     bank_ = bank;
   }
 
-  static uint16_t Read(uint16_t size, uint8_t* data) {
+  static inline uint16_t Read(uint16_t size, uint8_t* data) {
     uint16_t read = 0;
-    while (size > 0) {
+    while (size != 0) {
       // Try to read as much as possible from the buffer from the previous op.
       while (Bus::readable() && size) {
         --size;
@@ -73,7 +73,7 @@ class ExternalEeprom {
     return size;
   }
 
-  static uint8_t SetAddress(uint16_t address) {
+  static inline uint8_t SetAddress(uint16_t address) {
     uint8_t header[2];
     if (auto_banking) {
       bank_ = (address / eeprom_size);
@@ -91,7 +91,10 @@ class ExternalEeprom {
     }
   }
   
-  static uint16_t Write(uint16_t address, const uint8_t* data, uint16_t size) {
+  static inline uint16_t Write(
+      uint16_t address,
+      const uint8_t* data,
+      uint16_t size) {
     uint16_t written = 0;
     while (size != 0) {
       uint8_t writable = block_size - (address % block_size);
@@ -110,7 +113,7 @@ class ExternalEeprom {
     return written;
   }
 
-  static uint8_t WriteWithinBlock(
+  static inline uint8_t WriteWithinBlock(
       uint16_t address,
       const uint8_t* data,
       uint8_t size) {
@@ -129,7 +132,7 @@ class ExternalEeprom {
     }
   }
 
-  static uint8_t Read() {
+  static inline uint8_t Read() {
     uint8_t data;
     if (Read(1, &data) == 1) {
       return data;
@@ -138,14 +141,14 @@ class ExternalEeprom {
     }
   }
 
-  static uint8_t Read(uint16_t address) {
+  static inline uint8_t Read(uint16_t address) {
     if (!SetAddress(address)) {
       return 0xff;
     }
     return Read();
   }
 
-  static uint8_t Read(uint16_t address, uint8_t size, uint8_t* data) {
+  static inline uint8_t Read(uint16_t address, uint8_t size, uint8_t* data) {
     if (!SetAddress(address)) {
       return 0;
     } else {
@@ -153,7 +156,7 @@ class ExternalEeprom {
     }
   }
   
-  static uint8_t Write(uint16_t address, uint8_t byte) {
+  static inline uint8_t Write(uint16_t address, uint8_t byte) {
     uint8_t data = byte;
     return Write(&data, 1);
   }

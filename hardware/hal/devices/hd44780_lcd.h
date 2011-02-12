@@ -128,7 +128,7 @@ class Hd44780Lcd {
     }
   }
   
-  static inline uint8_t WriteData(uint8_t c) {
+  static uint8_t WriteData(uint8_t c) {
     if (OutputBuffer::writable() < 2) {
       return 0;
     }
@@ -136,7 +136,7 @@ class Hd44780Lcd {
     OutputBuffer::Overwrite(LCD_DATA | (c & 0xf));
   }
 
-  static inline uint8_t WriteCommand(uint8_t c) {
+  static uint8_t WriteCommand(uint8_t c) {
     if (OutputBuffer::writable() < 2) {
       return 0;
     }
