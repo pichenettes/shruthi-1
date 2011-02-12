@@ -124,4 +124,4 @@ template<typename Encoder> int8_t RotaryEncoderBuffer<Encoder>::increment_;
 
 }  // namespace hardware_hal
 
-#endif  // HARDWARE_HAL_DEVICES_SHIFT_REGISTER_H_
+#endif  // HARDWARE_HAL_DEVICES_ROTARY_ENCODER_H_

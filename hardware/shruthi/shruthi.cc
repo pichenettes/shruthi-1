@@ -142,7 +142,6 @@ void UpdateDisplayTask() {
 }
 
 void InputTask() {
-  KeyEvent switch_event;
   Pots::Event pot_event;
   static uint8_t idle;
   static int8_t delta;
@@ -160,8 +159,9 @@ TASK_BEGIN_NEAR
     if (switches.idle_time() > (engine.system_settings().display_delay << 7)) {
       idle = 1;
     } else {
-      if (switches.released()) {
-        editor.HandleKeyEvent(switches.key_event());
+      KeyEvent e = switches.key_event();
+      if (e.id != KEY_NONE) {
+        editor.HandleKeyEvent(e);
       }
     }
 

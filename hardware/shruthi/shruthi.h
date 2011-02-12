@@ -35,6 +35,7 @@ enum KEYS {
   KEY_4,
   KEY_MODE,
   KEY_LOAD_SAVE,
+  KEY_NONE,
 };
 
 enum LEDS {

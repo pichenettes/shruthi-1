@@ -80,8 +80,9 @@ class SwitchArray {
     last_event_time_ = milliseconds();
   }
 
-  static KeyEvent key_event() {
+  static inline KeyEvent key_event() {
     KeyEvent e;
+    e.id = num_inputs;
     for (uint8_t i = 0; i < num_inputs; ++i) {
       if (switch_state_[i].state == 0x7f) {
         if (i == shift && inhibit_shift_release_) {
