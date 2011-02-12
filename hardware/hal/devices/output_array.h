@@ -70,6 +70,8 @@ class OutputArray {
   static inline void End() {
     Register::End();
   }
+  static inline void Clear() { memset(values_, 0, sizeof(values_)); }
+  
   static inline void ShiftOut() {
     Index c = 0;
     Index bit = 1;
@@ -79,10 +81,7 @@ class OutputArray {
       }
       bit <<= 1;
     }
-    ++cycle_;
-    if (cycle_ == ((1 << bit_depth) - 1)) {
-      cycle_ = 0;
-    }
+    cycle_ = (cycle_ + 1) & ((1 << bit_depth) - 1);
     Register::ShiftOut(c);
   }
   static inline void Write() {
@@ -106,97 +105,6 @@ template<typename Latch, typename Clock, typename Data,
          uint8_t size, uint8_t bit_depth, DataOrder order, bool safe>
 typename OutputArray<Latch, Clock, Data, size, bit_depth, order, safe>::Value
 OutputArray<Latch, Clock, Data, size, bit_depth, order, safe>::cycle_;
-
-
-// A specialization that packs the data by nibble - this is the configuration
-// used for the Shruthi-1 status LEDs.
-template<typename Latch, typename Clock, typename Data,
-         uint8_t size, DataOrder order, bool safe>
-class OutputArray<Latch, Clock, Data, size, 4, order, safe> {
- public:
-  typedef ShiftRegisterOutput<Latch, Clock, Data, size, order> Register;
-  typedef typename DataTypeForSize<4>::Type Value;
-  typedef typename DataTypeForSize<size>::Type Index;
-  OutputArray() { }
-  static inline void Init() {
-    if (safe) {
-      Clear();
-      cycle_ = 0;
-    }
-    Register::Init();
-  }
-  static inline void Clear() { memset(values_, 0, sizeof(values_)); }
-  static inline void set_value(Index output_index, Value intensity) {
-    if (output_index & 1) {
-      output_index >>= 1;
-      values_[output_index] = (intensity << 4) | (values_[output_index] & 0x0f);
-    } else {
-      output_index >>= 1;
-      values_[output_index] = intensity | (values_[output_index] & 0xf0);
-    }
-  }
-  static inline Value value(Index output_index) {
-    if (output_index & 1) {
-      return values_[output_index >> 1] >> 4;
-    } else {
-      return values_[output_index >> 1] & 0x0f;
-    }
-  }
-  static inline void ShiftOutByte(uint8_t v) {
-    Register::ShiftOut(v);
-  }
-  static inline void Begin() {
-    Register::Begin();
-  }
-  static inline void End() {
-    Register::End();
-  }
-  static inline void ShiftOut() {
-    Index c = 0;
-    Index bit = 1;
-    for (Index i = 0; i < size; ++i) {
-      Value x = values_[i >> 1];
-      uint8_t value = (x & 0xf);
-      if (value > cycle_ || value == 15) {
-        c |= bit;
-      }
-      bit <<= 1;
-      ++i;
-      if (i == size) {
-        break;
-      }
-      x >>= 4;
-      if (x > cycle_ || x == 15) {
-        c |= bit;
-      }
-      bit <<= 1;
-    }
-    ++cycle_;
-    cycle_ = (cycle_ & 15);
-    Register::ShiftOut(c);
-  }
-  static inline void Write() {
-    Begin();
-    ShiftOut();
-    End();
-  }
- private:
-  static Value values_[(size - 1) / 2 + 1];
-  static Value cycle_;
-
-  DISALLOW_COPY_AND_ASSIGN(OutputArray);
-};
-
-template<typename Latch, typename Clock, typename Data,
-         uint8_t size, DataOrder order, bool safe>
-typename OutputArray<Latch, Clock, Data, size, 4, order, safe>::Value
-OutputArray<Latch, Clock, Data, size, 4, order, safe>::values_[
-    (size - 1) / 2 + 1];
-
-template<typename Latch, typename Clock, typename Data,
-         uint8_t size, DataOrder order, bool safe>
-typename OutputArray<Latch, Clock, Data, size, 4, order, safe>::Value
-OutputArray<Latch, Clock, Data, size, 4, order, safe>::cycle_;
 
 
 // A specialization with only two states. In this case, we can write data to the

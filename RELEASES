@@ -33,6 +33,10 @@ more than 16kb of patch data.
 - A bank and program change message is sent whenever a preset is loaded.
 - Bank change messages are handled, to allow patches above 128 to be loaded.
 - Volume change messages (CC 7) are handled.
+- A new MIDI out mode has been added in which only user-initiated knobs
+changes are sent to the MIDI out. This mode is ideal for using the Shruthi with
+both its IN/OUT ports connected to the same device. The other modes are not
+suitable for operation since they can cause unwanted MIDI loops.
 
 SYNTHESIS
 
