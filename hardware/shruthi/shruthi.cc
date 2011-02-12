@@ -284,11 +284,10 @@ uint16_t previous_num_glitches;
 // a discontinuity occurred in the audio rendering. Even if the code is
 // optimized in such a way that it never occurs, I'd rather keep it here in
 // case new features are implemented and need performance monitoring.
-// This code uses 42 bytes.
+// This code uses 22 bytes.
 void AudioGlitchMonitoringTask() {
-  uint16_t num_glitches = audio_out.num_glitches();
-  if (num_glitches != previous_num_glitches) {
-    previous_num_glitches = num_glitches;
+  if (audio_out.num_glitches()) {
+    audio_out.ResetGlitchCounter();
     display.set_status('!');
   }
 }

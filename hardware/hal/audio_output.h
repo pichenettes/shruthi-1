@@ -78,10 +78,11 @@ class AudioOutput {
       }
     }
   }
-  static uint16_t num_glitches() { return num_glitches_; }
+  static inline uint8_t num_glitches() { return num_glitches_; }
+  static inline void ResetGlitchCounter() { num_glitches_ = 0; }
 
  private:
-  static uint16_t num_glitches_;
+  static uint8_t num_glitches_;
 
   DISALLOW_COPY_AND_ASSIGN(AudioOutput);
 };
@@ -89,8 +90,8 @@ class AudioOutput {
 /* static */
 template<typename OutputPort, uint8_t buffer_size_, uint8_t block_size,
          UnderrunPolicy underrun_policy>
-uint16_t AudioOutput<OutputPort, buffer_size_, block_size,
-                     underrun_policy>::num_glitches_ = 0;
+uint8_t AudioOutput<OutputPort, buffer_size_, block_size,
+                    underrun_policy>::num_glitches_ = 0;
 
 }  // namespace hardware_hal
 
