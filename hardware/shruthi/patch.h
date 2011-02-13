@@ -163,9 +163,6 @@ enum ModulationSource {
 };
 
 static const uint8_t kNumModulationSources = MOD_SRC_LAST;
-static const uint8_t kNumGlobalModulationSources = MOD_SRC_NOISE + 1;
-static const uint8_t kNumVoiceModulationSources = kNumModulationSources -
-    kNumGlobalModulationSources;
 
 enum ModulationDestination {
   MOD_DST_FILTER_CUTOFF = 0,

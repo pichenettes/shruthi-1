@@ -220,8 +220,8 @@ void CvTask() {
     if (current_cv >= kNumCvInputs) {
       current_cv = 0;
     }
-    engine.set_cv(
-        current_cv,
+    engine.set_modulation_source(
+        MOD_SRC_CV_1 + current_cv,
         analog_inputs.Read(kPinCvInput + current_cv) >> 2);
   } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
     analog_inputs.set_num_inputs(5);
@@ -250,7 +250,7 @@ void CvTask() {
       engine.SetParameter(PRM_OSC_PARAMETER_1 + offset, value, 1);
       ++current_cv;
     } else {
-      engine.set_unregistered_modulation(0, value);
+      engine.set_unregistered_modulation_source(0, value);
       current_cv = 0;
     }
   }

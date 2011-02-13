@@ -44,9 +44,6 @@ SubOscillator<1> sub_osc;
 TransientGenerator<1> transient_generator;
 
 /* <static> */
-uint8_t SynthesisEngine::modulation_sources_[kNumGlobalModulationSources];
-uint8_t SynthesisEngine::unregistered_modulation_sources_[1];
-
 uint8_t SynthesisEngine::data_access_byte_[1];
 Patch SynthesisEngine::patch_;
 SequencerSettings SynthesisEngine::sequencer_settings_;
@@ -268,8 +265,8 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
   uint8_t editing_controller = 0;
   if (controller >= hardware_midi::kAssignableCcA &&
       controller <= hardware_midi::kAssignableCcD) {
-    modulation_sources_[MOD_SRC_CC_A + controller -
-        hardware_midi::kAssignableCcA] = value << 1;
+    set_modulation_source(MOD_SRC_CC_A + controller -
+        hardware_midi::kAssignableCcA, value << 1);
   } else if (controller >= 20 && controller <= 31) {
     controller -= 20;  // CCs for oscillators and mixer.
     editing_controller = 1;
@@ -282,10 +279,10 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
   } else {
     switch (controller) {
       case hardware_midi::kModulationWheelMsb:
-        modulation_sources_[MOD_SRC_WHEEL] = value << 1;
+        set_modulation_source(MOD_SRC_WHEEL, value << 1);
         break;
       case hardware_midi::kModulationWheelJoystickMsb:
-        unregistered_modulation_sources_[0] = (value << 1);
+        set_unregistered_modulation_source(0, value << 1);
         break;
       case hardware_midi::kDataEntryMsb:
         data_entry_msb_ = value << 7;
@@ -380,19 +377,19 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
 /* static */
 void SynthesisEngine::PitchBend(uint8_t channel, uint16_t pitch_bend) {
   uint8_t value = pitch_bend >> 6;
-  modulation_sources_[MOD_SRC_PITCH_BEND] = value;
+  set_modulation_source(MOD_SRC_PITCH_BEND, value);
 }
 
 /* static */
 void SynthesisEngine::Aftertouch(uint8_t channel, uint8_t note,
                                  uint8_t velocity) {
                                    
-  modulation_sources_[MOD_SRC_AFTERTOUCH] = velocity << 1;
+  set_modulation_source(MOD_SRC_AFTERTOUCH, velocity << 1);
 }
 
 /* static */
 void SynthesisEngine::Aftertouch(uint8_t channel, uint8_t velocity) {
-  modulation_sources_[MOD_SRC_AFTERTOUCH] = velocity << 1;
+  set_modulation_source(MOD_SRC_AFTERTOUCH, velocity << 1);
 }
 
 /* static */
@@ -407,9 +404,10 @@ void SynthesisEngine::AllNotesOff(uint8_t channel) {
 
 /* static */
 void SynthesisEngine::ResetAllControllers(uint8_t channel) {
-  modulation_sources_[MOD_SRC_PITCH_BEND] = 128;
-  modulation_sources_[MOD_SRC_WHEEL] = 0;
-  unregistered_modulation_sources_[0] = 0;
+  set_modulation_source(MOD_SRC_PITCH_BEND, 128);
+  set_modulation_source(MOD_SRC_WHEEL, 0);
+  set_unregistered_modulation_source(0, 0);
+  set_modulation_source(MOD_SRC_OFFSET, 255);
   volume_ = 255;
 }
 
@@ -430,7 +428,6 @@ void SynthesisEngine::OmniModeOn(uint8_t channel) {
 void SynthesisEngine::Reset() {
   controller_.Reset();
   controller_.AllSoundOff();
-  memset(modulation_sources_, 0, kNumGlobalModulationSources);
   ResetAllControllers(0);
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     lfo_[i].Reset();
@@ -557,11 +554,10 @@ void SynthesisEngine::UpdateLfoRate(uint8_t i) {
 /* static */
 void SynthesisEngine::ProcessBlock() {
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    modulation_sources_[MOD_SRC_LFO_1 + i] = lfo_[i].Render(
-        sequencer_settings_);
+    set_modulation_source(MOD_SRC_LFO_1 + i, lfo_[i].Render(
+        sequencer_settings_));
   }
-  modulation_sources_[MOD_SRC_NOISE] = Random::state_msb();
-  modulation_sources_[MOD_SRC_OFFSET] = 255;
+  set_modulation_source(MOD_SRC_NOISE, Random::state_msb());
 
   // Update the arpeggiator / step sequencer.
   if (controller_.Control()) {
@@ -588,14 +584,18 @@ void SynthesisEngine::ProcessBlock() {
   // Read/shift the value of the step sequencer.
   uint8_t step = (controller_.step() + \
       sequencer_settings_.pattern_rotation) & 0x0f;
-  modulation_sources_[MOD_SRC_SEQ] = (
+  set_modulation_source(
+      MOD_SRC_SEQ,
       sequencer_settings_.steps[step].controller() << 4);
   step &= 0x7;
-  modulation_sources_[MOD_SRC_SEQ_1] = (
+  set_modulation_source(
+      MOD_SRC_SEQ_1,
       sequencer_settings_.steps[step].controller() << 4);
-  modulation_sources_[MOD_SRC_SEQ_2] = (
+  set_modulation_source(
+      MOD_SRC_SEQ_2,
       sequencer_settings_.steps[step + 8].controller() << 4);
-  modulation_sources_[MOD_SRC_STEP] = (
+  set_modulation_source(
+      MOD_SRC_STEP,
       controller_.has_arpeggiator_note() ? 255 : 0);
       
   // Update the modulation speed if some of the LFO FM parameters have changed.
@@ -627,7 +627,8 @@ uint8_t Voice::dead_;
 int16_t Voice::pitch_increment_;
 int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
-uint8_t Voice::modulation_sources_[kNumVoiceModulationSources];
+uint8_t Voice::modulation_sources_[kNumModulationSources];
+uint8_t Voice::unregistered_modulation_sources_[1];
 int8_t Voice::modulation_destinations_[kNumModulationDestinations];
 uint8_t Voice::osc1_phase_msb_;
 uint8_t Voice::last_note_;
@@ -687,10 +688,8 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     // doing the same things).
     engine.TriggerLfos();
     transient_generator.Trigger();
-    modulation_sources_[MOD_SRC_VELOCITY - kNumGlobalModulationSources] =
-        velocity << 1;
-    modulation_sources_[MOD_SRC_RANDOM - kNumGlobalModulationSources] =
-        Random::state_msb();
+    modulation_sources_[MOD_SRC_VELOCITY] = velocity << 1;
+    modulation_sources_[MOD_SRC_RANDOM] = Random::state_msb();
   }
   // At boot up, or when the note is not played legato and the portamento
   // is in auto mode, do not ramp up the pitch but jump straight to the target
@@ -736,34 +735,18 @@ inline void Voice::LoadSources() {
   
   // Rescale the value of each modulation sources. Envelopes are in the
   // 0-16383 range ; just like pitch. All are scaled to 0-255.
-  modulation_sources_[MOD_SRC_ENV_1 - kNumGlobalModulationSources] = 
-      ShiftRight6(envelope_[0].value());
-  modulation_sources_[MOD_SRC_ENV_2 - kNumGlobalModulationSources] = 
-      ShiftRight6(envelope_[1].value());
-  modulation_sources_[MOD_SRC_NOTE - kNumGlobalModulationSources] =
-      ShiftRight6(pitch_value_);
-  modulation_sources_[MOD_SRC_GATE - kNumGlobalModulationSources] =
-      envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
-  modulation_sources_[MOD_SRC_AUDIO - kNumGlobalModulationSources] = buffer_[0];
+  modulation_sources_[MOD_SRC_ENV_1] = ShiftRight6(envelope_[0].value());
+  modulation_sources_[MOD_SRC_ENV_2] = ShiftRight6(envelope_[1].value());
+  modulation_sources_[MOD_SRC_NOTE] = ShiftRight6(pitch_value_);
+  modulation_sources_[MOD_SRC_GATE] = envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
+  modulation_sources_[MOD_SRC_AUDIO] = buffer_[0];
   
   // Apply the modulation operators
   for (uint8_t i = 0; i < 2; ++i) {
     uint8_t x = engine.patch_.ops_[i].operands[0];
     uint8_t y = engine.patch_.ops_[i].operands[1];
-    if (x < kNumGlobalModulationSources) {
-      // Global sources, read from the engine.
-      x = engine.modulation_sources_[x];
-    } else {
-      // Voice specific sources, read from the voice.
-      x = modulation_sources_[x - kNumGlobalModulationSources];
-    }
-    if (y < kNumGlobalModulationSources) {
-      // Global sources, read from the engine.
-      y = engine.modulation_sources_[y];
-    } else {
-      // Voice specific sources, read from the voice.
-      y = modulation_sources_[y - kNumGlobalModulationSources];
-    }
+    x = modulation_sources_[x];
+    y = modulation_sources_[y];
     if (x > y) {
       ops[2] = x;  ops[5] = 255;
       ops[3] = y;  ops[6] = 0;
@@ -774,8 +757,7 @@ inline void Voice::LoadSources() {
     ops[0] = (x >> 1) + (y >> 1);
     ops[1] = MulScale8(x, y);
     ops[4] = x ^ y;
-    modulation_sources_[MOD_SRC_OP_1 - kNumGlobalModulationSources + i] = \
-        ops[engine.patch_.ops_[i].op];
+    modulation_sources_[MOD_SRC_OP_1 + i] = ops[engine.patch_.ops_[i].op];
   }
 
   modulation_destinations_[MOD_DST_VCA] = engine.volume_;
@@ -818,20 +800,14 @@ inline void Voice::ProcessModulationMatrix() {
     if (i == kModulationMatrixSize - 1) {
       amount = SignedMulScale8(
           amount,
-          engine.modulation_sources_[MOD_SRC_WHEEL]);
+          modulation_sources_[MOD_SRC_WHEEL]);
     }
     uint8_t source = engine.patch_.modulation_matrix.modulation[i].source;
     uint8_t destination =
         engine.patch_.modulation_matrix.modulation[i].destination;
     uint8_t source_value;
 
-    if (source < kNumGlobalModulationSources) {
-      // Global sources, read from the engine.
-      source_value = engine.modulation_sources_[source];
-    } else {
-      // Voice specific sources, read from the voice.
-      source_value = modulation_sources_[source - kNumGlobalModulationSources];
-    }
+    source_value = modulation_sources_[source];
     if (destination != MOD_DST_VCA) {
       int16_t modulation = dst_[destination];
       modulation += SignedUnsignedMul(amount, source_value);
@@ -870,18 +846,18 @@ inline void Voice::UpdateDestinations() {
   dst_[MOD_DST_FILTER_CUTOFF] = Clip(
       dst_[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
           engine.patch_.filter_env,
-          modulation_sources_[MOD_SRC_ENV_1 - kNumGlobalModulationSources]),
+          modulation_sources_[MOD_SRC_ENV_1]),
       0,
       16383);
   dst_[MOD_DST_FILTER_CUTOFF] = Clip(
       dst_[MOD_DST_FILTER_CUTOFF] + (
-          engine.unregistered_modulation_sources_[0] << 6),
+          unregistered_modulation_sources_[0] << 6),
       0,
       16383);
   dst_[MOD_DST_FILTER_CUTOFF] = Clip(
       dst_[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
           engine.patch_.filter_lfo,
-          engine.modulation_sources_[MOD_SRC_LFO_2]) -
+          modulation_sources_[MOD_SRC_LFO_2]) -
       UnsignedUnsignedMul(engine.patch_.filter_lfo, 128),
       0,
       16383);

@@ -93,11 +93,22 @@ class Voice {
     return modulation_destinations_[MOD_DST_CV_2];
   }
   static inline uint8_t modulation_source(uint8_t i) {
-    return modulation_sources_[i - kNumGlobalModulationSources];
+    return modulation_sources_[i];
   }
   static uint8_t modulation_destination(uint8_t i) {
     return modulation_destinations_[i];
   }
+  
+  static inline void set_modulation_source(uint8_t i, uint8_t value) {
+    modulation_sources_[i] = value;
+  }
+
+  static inline void set_unregistered_modulation_source(
+      uint8_t i,
+      uint8_t value) {
+    unregistered_modulation_sources_[i] = value;
+  }
+  
   static Envelope* mutable_envelope(uint8_t i) { return &envelope_[i]; }
   static void TriggerEnvelope(uint8_t stage);
   static void TriggerEnvelope(uint8_t index, uint8_t stage);
@@ -122,7 +133,8 @@ class Voice {
 
   // The voice-specific modulation sources are from MOD_SRC_ENV_1 to
   // MOD_SRC_GATE.
-  static uint8_t modulation_sources_[kNumVoiceModulationSources];
+  static uint8_t modulation_sources_[kNumModulationSources];
+  static uint8_t unregistered_modulation_sources_[1];
 
   // Value of all the stuff controlled by the modulators, scaled to the value
   // they will be used for. MOD_DST_FILTER_RESONANCE is the last entry
@@ -181,11 +193,15 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   static inline uint8_t GetParameter(uint8_t parameter_index) {
     return data_access_byte_[parameter_index + 1];
   }
-  static void set_cv(uint8_t cv, uint8_t value) {
-    modulation_sources_[MOD_SRC_CV_1 + cv] = value;
+  static void set_modulation_source(uint8_t index, uint8_t value) {
+    for (uint8_t i = 0; i < kNumVoices; ++i) {
+      voice_[i].set_modulation_source(index, value);
+    }
   }
-  static void set_unregistered_modulation(uint8_t index, uint8_t value) {
-    unregistered_modulation_sources_[index] = value;
+  static void set_unregistered_modulation_source(uint8_t index, uint8_t value) {
+    for (uint8_t i = 0; i < kNumVoices; ++i) {
+      voice_[i].set_unregistered_modulation_source(index, value);
+    }
   }
   static void ResetPatch();
   static void ResetSequencerSettings();
@@ -229,12 +245,9 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
 
   // These variables are sent to I/O pins, and are made accessible here.
   static inline uint8_t modulation_source(uint8_t i, uint8_t j) {
-    if (j < kNumGlobalModulationSources) {
-      return modulation_sources_[j];
-    } else {
-      return voice_[i].modulation_source(j);
-    }
+    return voice_[i].modulation_source(j);
   }
+
   static const Voice& voice(uint8_t i) { return voice_[i]; }
   
   static uint8_t dirty() {
@@ -244,10 +257,6 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
   }
   
  private:
-  // Value of global modulation parameters, scaled to 0-255;
-  static uint8_t modulation_sources_[kNumGlobalModulationSources];
-  static uint8_t unregistered_modulation_sources_[1];
-
   static uint8_t data_access_byte_[1];
   static Patch patch_;
   static SequencerSettings sequencer_settings_;
