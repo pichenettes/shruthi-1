@@ -338,7 +338,9 @@ void Editor::RandomizePatch() {
   for (uint8_t parameter = 0; parameter < 32; ++parameter) {
     RandomizeParameter(0, parameter);
   }
-  for (uint8_t slot = 0; slot < kModulationMatrixSize; ++slot) {
+  // Randomize the first 8th modulation slots. Keep the last one to avoid
+  // silent patches in which a bogus modulation source is routed to the VCA.
+  for (uint8_t slot = 0; slot < kModulationMatrixSize - 4; ++slot) {
     for (uint8_t parameter = 33; parameter < 36; ++parameter) {
       RandomizeParameter(slot, parameter);
     }
