@@ -38,13 +38,9 @@ class DebouncedSwitch {
   }
 
   // To be called at a rate < 1000 Hz.
-  static inline void Read() {
+  static inline uint8_t Read() {
     state_ = (state_ << 1) | Input::value();
-    if (raised()) {
-      debounced_value_ = 1;
-    } else if (lowered()) {
-      debounced_value_ = 0;
-    }
+    return state_;
   }
 
   static inline uint8_t lowered() { return state_ == 0x80; }
@@ -52,12 +48,10 @@ class DebouncedSwitch {
   static inline uint8_t high() { return state_ == 0xff; }
   static inline uint8_t low() { return state_ == 0x00; }
   static inline uint8_t state() { return state_; }
-  static inline uint8_t debounced_value() { return debounced_value_; }
   static inline uint8_t immediate_value() { return Input::value(); }
   
  private:
   static uint8_t state_;
-  static uint8_t debounced_value_;
 
   DISALLOW_COPY_AND_ASSIGN(DebouncedSwitch);
 };
@@ -65,10 +59,6 @@ class DebouncedSwitch {
 /* static */
 template<typename Input, bool pulled_up>
 uint8_t DebouncedSwitch<Input, pulled_up>::state_;
-
-/* static */
-template<typename Input, bool pulled_up>
-uint8_t DebouncedSwitch<Input, pulled_up>::debounced_value_;
 
 }  // namespace hardware_hal
 

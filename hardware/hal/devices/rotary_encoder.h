@@ -54,19 +54,16 @@ class RotaryEncoder {
 
   static inline int8_t Read() {
     int8_t increment = 0;
-    SwitchA::Read();
-    SwitchB::Read();
-    SwitchClick::Read();
-    if (SwitchA::lowered()) {
-      if ((SwitchB::state() & 0xf0) == 0x00) {
+    uint8_t a = SwitchA::Read();
+    uint8_t b = SwitchB::Read();
+    if (a == 0x80 && ((b & 0xf0) == 0x00)) {
         increment = 1;
-      }
-    }
-    if (SwitchB::lowered()) {
-      if ((SwitchA::state() & 0xf0) == 0x00) {
+    } else {
+      if (b == 0x80 && (a & 0xf0) == 0x00) {
         increment = -1;
       }
     }
+    SwitchClick::Read();
     return increment;
   }
 
@@ -124,4 +121,4 @@ template<typename Encoder> int8_t RotaryEncoderBuffer<Encoder>::increment_;
 
 }  // namespace hardware_hal
 
-#endif  // HARDWARE_HAL_DEVICES_ROTARY_ENCODER_H_
+#endif  // HARDWARE_HAL_DEVICES_SHIFT_REGISTER_H_

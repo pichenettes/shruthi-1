@@ -81,8 +81,9 @@ class Buffer : public Input, Output {
     }
   }
   static inline Value ImmediateRead() {
-    Value result = buffer_[read_ptr_];
-    read_ptr_ = (read_ptr_ + 1) & (size - 1);
+    uint8_t r = read_ptr_;
+    Value result = buffer_[r];
+    read_ptr_ = (r + 1) & (size - 1);
     return result;
   }
   static inline void Flush() {
