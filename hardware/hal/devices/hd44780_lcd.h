@@ -132,16 +132,14 @@ class Hd44780Lcd {
     if (OutputBuffer::writable() < 2) {
       return 0;
     }
-    OutputBuffer::Overwrite(LCD_DATA | (c >> 4));
-    OutputBuffer::Overwrite(LCD_DATA | (c & 0xf));
+    OutputBuffer::Overwrite2(LCD_DATA | (c >> 4), LCD_DATA | (c & 0xf));
   }
 
   static uint8_t WriteCommand(uint8_t c) {
     if (OutputBuffer::writable() < 2) {
       return 0;
     }
-    OutputBuffer::Overwrite(LCD_COMMAND | (c >> 4));
-    OutputBuffer::Overwrite(LCD_COMMAND | (c & 0x0f));
+    OutputBuffer::Overwrite2(LCD_COMMAND | (c >> 4), LCD_COMMAND | (c & 0x0f));
   }
   static inline uint8_t Write(uint8_t character) {
     WriteData(character);

@@ -54,9 +54,17 @@ class Buffer : public Input, Output {
     }
   }
   static inline void Overwrite(Value v) {
-    buffer_[write_ptr_] = v;
-    write_ptr_ = (write_ptr_ + 1) & (size - 1);
+    uint8_t w = write_ptr_;
+    buffer_[w] = v;
+    write_ptr_ = (w + 1) & (size - 1);
   }
+  static void Overwrite2(Value v1, Value v2) {
+    uint8_t w = write_ptr_;
+    buffer_[w] = v1;
+    buffer_[w + 1] = v2;
+    write_ptr_ = (w + 2) & (size - 1);
+  }
+  
   static inline uint8_t Requested() { return 0; }
   static inline Value Read() {
     while (!readable());

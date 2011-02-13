@@ -151,8 +151,8 @@ class I2cMaster {
     slarw_ = (address << 1) | TW_READ;
     received_ = 0;
     requested_ = requested;
-
     I2cStart::set();
+    
     return requested;
   }
 
