@@ -106,7 +106,7 @@ class SwitchArray {
     uint32_t now = milliseconds();
     T mask = 1 << (num_inputs - 1);
     for (uint8_t i = 0; i < num_inputs; ++i) {
-      switch_state_[i].state = switch_state_[i].state << 1;
+      switch_state_[i].state <<= 1;
       if (value & mask) {
          switch_state_[i].state |= 1;
       }
