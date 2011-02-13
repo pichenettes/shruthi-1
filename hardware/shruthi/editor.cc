@@ -693,8 +693,8 @@ void Editor::DisplayLoadSavePage() {
   line_buffer_[3] = ' ';
   memset(line_buffer_ + 12, ' ', kLcdWidth - 12);
   if (action_ == ACTION_SAVE) {
-    line_buffer_[kLcdWidth - 2] = 'k';
     line_buffer_[kLcdWidth - 3] = 'o';
+    line_buffer_[kLcdWidth - 2] = 'k';
     if (cursor_ >= kLcdWidth - 4) {
       line_buffer_[kLcdWidth - 4] = '[';
       line_buffer_[kLcdWidth - 1] = ']';
