@@ -612,8 +612,7 @@ void SynthesisEngine::ProcessBlock() {
     // key is released otherwise the note will never stops playing.
     for (uint8_t j = 0; j < kNumLfos; ++j) {
       if (lfo_[j].triggered() &&
-          patch_.lfo[j].retrigger_mode == LFO_MODE_MASTER &&
-          (j != 1 || voice_[i].mutable_envelope(j)->stage() <= RELEASE_1)) {
+          patch_.lfo[j].retrigger_mode == LFO_MODE_MASTER) {
         voice_[i].TriggerEnvelope(j, ATTACK);
       }
     }

@@ -45,15 +45,16 @@ class Lfo {
     uint8_t value;
 
     // Ramp up the intensity envelope.
-    if (!intensity_envelope_stage_) {
-      intensity_ += intensity_increment_;
-      if (intensity_ >= 16384) {
-        intensity_ = 16383;
-        intensity_envelope_stage_ = 1;
+    uint16_t i = intensity_;
+    if (static_cast<uint8_t>(i >> 8) != 0x3f) {
+      i += intensity_increment_;
+      if (static_cast<uint8_t>(i >> 8) >= 0x40) {
+        i = 16383;
       }
+      intensity_ = i;
     }
     
-    triggered_ = phase_ < previous_phase_;
+    triggered_ = phase_ < phase_increment_;
     
     // Compute the LFO value.
     switch (shape_) {
@@ -96,7 +97,6 @@ class Lfo {
         }
         break;
     }
-    previous_phase_ = phase_;
     phase_ += phase_increment_;
 
     // Apply the intensity envelope.
@@ -121,7 +121,6 @@ class Lfo {
       ResetPhase();
     }
     intensity_ = 0;
-    intensity_envelope_stage_ = 0;
   }
 
   void Update(uint8_t shape, uint16_t phase_increment,
@@ -137,13 +136,11 @@ class Lfo {
  private:
   // Phase increment.
   uint16_t phase_increment_;
-  uint8_t intensity_envelope_stage_;
   uint16_t intensity_increment_;
   uint16_t intensity_;
 
   // Current phase of the lfo.
   uint16_t phase_;
-  uint16_t previous_phase_;
 
   // Copy of the shape used by this lfo.
   uint8_t shape_;
