@@ -106,15 +106,6 @@ void VoiceController::Init(
 }
 
 /* static */
-uint16_t VoiceController::has_arpeggiator_note() {
-  if (sequencer_settings_->arp_pattern != kNumArpeggiatorPatterns) {
-    return pattern_mask_ & pattern_;
-  } else {
-    return sequencer_settings_->steps[pattern_step_].gate();
-  }
-}
-
-/* static */
 void VoiceController::Reset() {
   // If 4 beats has elapsed without event, the sequencer will restart from
   // the first step when a key is pressed. Otherwise, the pattern will continue

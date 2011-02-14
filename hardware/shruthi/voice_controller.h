@@ -64,7 +64,13 @@ class VoiceController {
   static inline void ExternalSync() { --midi_clock_counter_; }
   static inline uint8_t step() { return pattern_step_; }
   static inline uint8_t active() { return active_; }
-  static uint16_t has_arpeggiator_note();
+  static inline uint8_t has_arpeggiator_note() {
+    if (sequencer_settings_->arp_pattern != kNumArpeggiatorPatterns) {
+      return (pattern_mask_ & pattern_) ? 1 :0;
+    } else {
+      return sequencer_settings_->steps[pattern_step_].gate();
+    }
+  }
   // Returns 1 when the clock has advanced.
   static uint8_t Control();
   static uint16_t estimated_beat_duration() {

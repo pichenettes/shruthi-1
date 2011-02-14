@@ -332,15 +332,16 @@ static inline uint16_t Mul16Scale8(uint16_t a, uint16_t b) {
 // a couple of cycles. Note that this solution only works for operands with
 // a 14-bits resolution.
 static inline uint8_t ShiftRight6(uint16_t value) {
+  uint8_t b = value >> 8;
+  uint8_t a = value & 0xff;
   uint8_t result;
   asm(
-    "add %A1, %A1"       "\n\t"
-    "adc %B1, %B1"       "\n\t"
-    "add %A1, %A1"       "\n\t"
-    "adc %B1, %B1"       "\n\t"
-    "mov %0, %B1"   "\n\t"
+    "add %1, %1"       "\n\t"
+    "adc %2, %2"       "\n\t"
+    "add %1, %1"       "\n\t"
+    "adc %2, %2"       "\n\t"
     : "=r" (result)
-    : "a" (value)
+    : "a" (a), "0" (b)
   );
   return result;
 }
