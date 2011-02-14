@@ -69,7 +69,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   STR_RES_4CV_IN,
   STR_RES_LPF,
   STR_RES_ELP,
-  STR_RES_ADD
+  STR_RES___OFF
 };
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {

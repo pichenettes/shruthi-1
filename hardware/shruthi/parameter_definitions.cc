@@ -73,7 +73,7 @@ static const prog_char raw_parameter_definition[
 
   // Mix balance.
   PRM_OSC_OPTION_1,
-  0, OP_CV_LAST - 1,
+  0, OP_LAST - 1,
   UNIT_OPERATOR,
   STR_RES_OP_, STR_RES_OPERATOR,
 
@@ -349,7 +349,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_IN2, STR_RES_IN2,
 
   PRM_OP_OPERATOR,
-  0, OP_LAST - 1,
+  OP_CV_NONE, OP_CV_LAST - 1,
   UNIT_CV_OPERATOR,
   STR_RES_OUT, STR_RES_OUT,
   

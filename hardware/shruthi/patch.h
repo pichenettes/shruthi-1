@@ -341,6 +341,7 @@ enum Operator {
 };
 
 enum CvOperator {
+  OP_CV_NONE,
   OP_CV_SUM,
   OP_CV_PRODUCT,
   OP_CV_MAX,

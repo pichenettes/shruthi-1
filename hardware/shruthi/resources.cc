@@ -118,6 +118,7 @@ static const prog_char str_res__lf2[] PROGMEM = "lf2";
 static const prog_char str_res_in1[] PROGMEM = "in1";
 static const prog_char str_res_in2[] PROGMEM = "in2";
 static const prog_char str_res_out[] PROGMEM = "out";
+static const prog_char str_res___off[] PROGMEM = "off";
 static const prog_char str_res_add[] PROGMEM = "add";
 static const prog_char str_res_prd[] PROGMEM = "prd";
 static const prog_char str_res_max[] PROGMEM = "max";
@@ -263,6 +264,7 @@ static const prog_char str_res_monkey[] PROGMEM = "monkey";
 static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res___seq[] PROGMEM = "seq";
+static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
 static const prog_char str_res_split[] PROGMEM = "split";
 static const prog_char str_res_full[] PROGMEM = "full";
 static const prog_char str_res_1T_[] PROGMEM = "1~|";
@@ -455,6 +457,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_in1,
   str_res_in2,
   str_res_out,
+  str_res___off,
   str_res_add,
   str_res_prd,
   str_res_max,
@@ -600,6 +603,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res__off,
   str_res_thru,
   str_res___seq,
+  str_res_ctrl,
   str_res_split,
   str_res_full,
   str_res_1T_,

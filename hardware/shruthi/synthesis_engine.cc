@@ -730,7 +730,7 @@ void Voice::Release() {
 
 /* static */
 inline void Voice::LoadSources() {
-  static uint8_t ops[7];
+  static uint8_t ops[8];
   
   // Rescale the value of each modulation sources. Envelopes are in the
   // 0-16383 range ; just like pitch. All are scaled to 0-255.
@@ -742,21 +742,23 @@ inline void Voice::LoadSources() {
   
   // Apply the modulation operators
   for (uint8_t i = 0; i < 2; ++i) {
-    uint8_t x = engine.patch_.ops_[i].operands[0];
-    uint8_t y = engine.patch_.ops_[i].operands[1];
-    x = modulation_sources_[x];
-    y = modulation_sources_[y];
-    if (x > y) {
-      ops[2] = x;  ops[5] = 255;
-      ops[3] = y;  ops[6] = 0;
-    } else {
-      ops[2] = y;  ops[5] = 0;
-      ops[3] = x;  ops[6] = 255;
+    if (engine.patch_.ops_[i].op) {
+      uint8_t x = engine.patch_.ops_[i].operands[0];
+      uint8_t y = engine.patch_.ops_[i].operands[1];
+      x = modulation_sources_[x];
+      y = modulation_sources_[y];
+      if (x > y) {
+        ops[3] = x;  ops[6] = 255;
+        ops[4] = y;  ops[7] = 0;
+      } else {
+        ops[3] = y;  ops[6] = 0;
+        ops[4] = x;  ops[7] = 255;
+      }
+      ops[1] = (x >> 1) + (y >> 1);
+      ops[2] = MulScale8(x, y);
+      ops[5] = x ^ y;
+      modulation_sources_[MOD_SRC_OP_1 + i] = ops[engine.patch_.ops_[i].op];
     }
-    ops[0] = (x >> 1) + (y >> 1);
-    ops[1] = MulScale8(x, y);
-    ops[4] = x ^ y;
-    modulation_sources_[MOD_SRC_OP_1 + i] = ops[engine.patch_.ops_[i].op];
   }
 
   modulation_destinations_[MOD_DST_VCA] = engine.volume_;
