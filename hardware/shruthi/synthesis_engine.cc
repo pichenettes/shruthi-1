@@ -972,6 +972,7 @@ inline void Voice::ProcessBlock() {
     envelope_[i].Render();
   }
   
+  // Update the portamento envelope.
   pitch_value_ += pitch_increment_;
   if ((pitch_increment_ > 0) ^ (pitch_value_ < pitch_target_)) {
     pitch_value_ = pitch_target_;

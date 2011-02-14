@@ -114,10 +114,10 @@ class Voice {
   static void TriggerEnvelope(uint8_t index, uint8_t stage);
 
  private:
-  static void LoadSources();
-  static void ProcessModulationMatrix();
-  static void UpdateDestinations();
-  static void UpdatePhaseIncrements();
+  static inline void LoadSources() __attribute__((always_inline));
+  static inline void ProcessModulationMatrix() __attribute__((always_inline));
+  static inline void UpdateDestinations() __attribute__((always_inline));
+  static inline void UpdatePhaseIncrements() __attribute__((always_inline));
    
   // Envelope generators.
   static Envelope envelope_[kNumEnvelopes];
