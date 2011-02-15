@@ -852,7 +852,6 @@ inline void Voice::UpdateDestinations() {
   
   // Store in memory all the updated parameters.
   modulation_destinations_[MOD_DST_FILTER_CUTOFF] = ShiftRight6(cutoff);
-
   modulation_destinations_[MOD_DST_FILTER_RESONANCE] = ShiftRight6(
       dst_[MOD_DST_FILTER_RESONANCE]);
 
@@ -864,14 +863,6 @@ inline void Voice::UpdateDestinations() {
   osc_1.set_parameter(ShiftRight7(dst_[MOD_DST_PWM_1]));
   osc_2.set_parameter(ShiftRight7(dst_[MOD_DST_PWM_2]));
   
-  modulation_destinations_[MOD_DST_MIX_BALANCE] = ShiftRight6(
-      dst_[MOD_DST_MIX_BALANCE]);
-  
-  modulation_destinations_[MOD_DST_MIX_NOISE] = ShiftRight8(
-      dst_[MOD_DST_MIX_NOISE]);
-  modulation_destinations_[MOD_DST_MIX_SUB_OSC] = ShiftRight7(
-      dst_[MOD_DST_MIX_SUB_OSC]);
-  
   uint8_t velocity = ShiftRight7(dst_[MOD_DST_ATTACK]);
   if (velocity) {
     envelope_[0].SetVelocity(velocity);
@@ -880,7 +871,7 @@ inline void Voice::UpdateDestinations() {
 }
 
 /* static */
-inline void Voice::UpdatePhaseIncrements() {
+inline void Voice::RenderOscillators() {
   // Update the oscillator parameters.
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
     int16_t pitch = pitch_value_;
@@ -970,7 +961,7 @@ inline void Voice::ProcessBlock() {
   LoadSources();
   ProcessModulationMatrix();
   UpdateDestinations();
-  UpdatePhaseIncrements();
+  RenderOscillators();
   
   // Skip the oscillator rendering code is the VCA output has converged to
   // a small value.
@@ -981,7 +972,8 @@ inline void Voice::ProcessBlock() {
     return;
   }
   uint8_t op = engine.patch_.osc[0].option;
-
+  uint8_t mix_param = ShiftRight6(dst_[MOD_DST_MIX_BALANCE]);
+  
   // Mix oscillators.
   switch (op) {
     case OP_RING_MOD:
@@ -992,13 +984,13 @@ inline void Voice::ProcessBlock() {
         buffer_[i] = Mix(
           buffer_[i],
           ring_mod,
-          modulation_destinations_[MOD_DST_MIX_BALANCE]);
+          mix_param);
       }
       break;
     case OP_XOR:
       for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
         buffer_[i] ^= osc2_buffer_[i];
-        buffer_[i] ^= modulation_destinations_[MOD_DST_MIX_BALANCE];
+        buffer_[i] ^= mix_param;
       }
       break;
     case OP_FUZZ:
@@ -1009,7 +1001,7 @@ inline void Voice::ProcessBlock() {
             buffer_[i],
             ResourcesManager::Lookup<uint8_t, uint8_t>(
                 wav_res_distortion, buffer_[i]),
-            modulation_destinations_[MOD_DST_MIX_BALANCE]);
+            mix_param);
       }
       break;
     default:
@@ -1017,7 +1009,7 @@ inline void Voice::ProcessBlock() {
         buffer_[i] = Mix(
           buffer_[i],
           osc2_buffer_[i],
-          modulation_destinations_[MOD_DST_MIX_BALANCE]);
+          mix_param);
       }
       break;
   }
@@ -1030,17 +1022,13 @@ inline void Voice::ProcessBlock() {
   }
   
   // Mix-in sub oscillator or transient generator.
+  uint8_t sub_level = ShiftRight7(dst_[MOD_DST_MIX_SUB_OSC]);
   if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
     for (uint8_t i = 0; i < kAudioBlockSize; i += decimate) {
-      buffer_[i] = Mix(
-        buffer_[i],
-        sub_osc_buffer_[i],
-        modulation_destinations_[MOD_DST_MIX_SUB_OSC]);
+      buffer_[i] = Mix(buffer_[i], sub_osc_buffer_[i], sub_level);
     }
   } else {
-    transient_generator.Render(
-        buffer_,
-        modulation_destinations_[MOD_DST_MIX_SUB_OSC] << 1);
+    transient_generator.Render(buffer_, sub_level << 1);
   }
   
   // Apply optional bitcrushing.
@@ -1055,12 +1043,10 @@ inline void Voice::ProcessBlock() {
   
   // Mix with noise and output.
   uint8_t noise = Random::GetByte();
+  uint8_t noise_amount = ShiftRight8(dst_[MOD_DST_MIX_NOISE]);
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
     noise = (noise * 73) + 1;
-    audio_out.Overwrite(Mix(
-        buffer_[i],
-        noise,
-        modulation_destinations_[MOD_DST_MIX_NOISE]));
+    audio_out.Overwrite(Mix(buffer_[i], noise, noise_amount));
   }
 }
 

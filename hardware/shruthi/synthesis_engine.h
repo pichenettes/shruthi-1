@@ -117,7 +117,7 @@ class Voice {
   static inline void LoadSources() __attribute__((always_inline));
   static inline void ProcessModulationMatrix() __attribute__((always_inline));
   static inline void UpdateDestinations() __attribute__((always_inline));
-  static inline void UpdatePhaseIncrements() __attribute__((always_inline));
+  static inline void RenderOscillators() __attribute__((always_inline));
    
   // Envelope generators.
   static Envelope envelope_[kNumEnvelopes];
