@@ -238,9 +238,15 @@ class Oscillator {
     sync_state_ = sync_state;
     // A hack: when pulse width is set to 0, use a simple wavetable.
     if (shape_ == WAVEFORM_SQUARE) {
-      fn_ = fn_table_[shape_ + (parameter_ == 0 ? 1 : 0)];
+      uint8_t shape = shape_;
+      if (parameter_ == 0) {
+        RenderSimpleWavetable(buffer);
+      } else {
+        RenderBandlimitedPwm(buffer);
+      }
+    } else {
+      (*fn_)(buffer);
     }
-    (*fn_)(buffer);
   }
   
   static inline void set_parameter(uint8_t parameter) {
