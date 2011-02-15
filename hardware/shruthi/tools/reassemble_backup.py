@@ -133,7 +133,10 @@ def main(options, args):
   content = Parse(args[0])
   image = Assemble(content)
   f = file(options.output_file, 'wb')
-  WriteSyx(f, image)
+  if options.syx:
+    WriteSyx(f, image)
+  else:
+    f.write(''.join(map(chr, image[2048:])))
   f.close()
 
 
@@ -146,6 +149,21 @@ if __name__ == '__main__':
       default=None,
       help='Write output file to sysex file FILE',
       metavar='FILE')
+  parser.add_option(
+      '-s',
+      '--syx',
+      dest='syx',
+      action="store_true",
+      default=True,
+      help='Output to .syx format')
+  parser.add_option(
+      '-b',
+      '--bin',
+      dest='syx',
+      action="store_false",
+      default=False,
+      help='Output to .syx format')
+
   options, args = parser.parse_args()
   if len(args) != 1:
     logging.fatal('Specify a source and destination syx file')
