@@ -229,12 +229,10 @@ class Oscillator {
   }
   
   static inline void Render(
-      uint8_t parameter,
       uint8_t note,
       uint24_t increment,
       uint8_t* sync_state,
       uint8_t* buffer) {
-    parameter_ = parameter;
     note_ = note;
     phase_increment_ = increment;
     sync_state_ = sync_state;
@@ -245,7 +243,11 @@ class Oscillator {
     (*fn_)(buffer);
   }
   
-  static inline void UpdateSecondaryParameter(uint8_t secondary_parameter) {
+  static inline void set_parameter(uint8_t parameter) {
+    parameter_ = parameter;
+  }
+  
+  static inline void set_secondary_parameter(uint8_t secondary_parameter) {
     secondary_parameter_ = secondary_parameter;
   }
   

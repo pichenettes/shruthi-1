@@ -858,10 +858,11 @@ inline void Voice::UpdateDestinations() {
 
   modulation_destinations_[MOD_DST_CV_1] = ShiftRight6(dst_[MOD_DST_CV_1]);
   modulation_destinations_[MOD_DST_CV_2] = ShiftRight6(dst_[MOD_DST_CV_2]);
-  modulation_destinations_[MOD_DST_PWM_1] = ShiftRight7(dst_[MOD_DST_PWM_1]);
-  modulation_destinations_[MOD_DST_PWM_2] = ShiftRight7(dst_[MOD_DST_PWM_2]);
   modulation_destinations_[MOD_DST_LFO_1] = ShiftRight8(dst_[MOD_DST_LFO_1]);
   modulation_destinations_[MOD_DST_LFO_2] = ShiftRight8(dst_[MOD_DST_LFO_2]);
+  
+  osc_1.set_parameter(ShiftRight7(dst_[MOD_DST_PWM_1]));
+  osc_2.set_parameter(ShiftRight7(dst_[MOD_DST_PWM_2]));
   
   modulation_destinations_[MOD_DST_MIX_BALANCE] = ShiftRight6(
       dst_[MOD_DST_MIX_BALANCE]);
@@ -871,8 +872,11 @@ inline void Voice::UpdateDestinations() {
   modulation_destinations_[MOD_DST_MIX_SUB_OSC] = ShiftRight7(
       dst_[MOD_DST_MIX_SUB_OSC]);
   
-  envelope_[0].SetVelocity(ShiftRight7(dst_[MOD_DST_ATTACK]));
-  envelope_[1].SetVelocity(ShiftRight7(dst_[MOD_DST_ATTACK]));
+  uint8_t velocity = ShiftRight7(dst_[MOD_DST_ATTACK]);
+  if (velocity) {
+    envelope_[0].SetVelocity(velocity);
+    envelope_[1].SetVelocity(velocity);
+  }
 }
 
 /* static */
@@ -881,17 +885,19 @@ inline void Voice::UpdatePhaseIncrements() {
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
     int16_t pitch = pitch_value_;
     // -24 / +24 semitones by the range controller.
+    int8_t range = 0;
     if (engine.patch_.osc[i].shape == WAVEFORM_FM) {
       if (i == 0) {
-        osc_1.UpdateSecondaryParameter(engine.patch_.osc[i].range + 24);
+        osc_1.set_secondary_parameter(engine.patch_.osc[i].range + 24);
       } else {
-        osc_2.UpdateSecondaryParameter(engine.patch_.osc[i].range + 24);
+        osc_2.set_secondary_parameter(engine.patch_.osc[i].range + 24);
       }
     } else {
-      pitch += SignedUnsignedMul(engine.patch_.osc[i].range, 128);
+      range += engine.patch_.osc[i].range;
     }
+    range += engine.system_settings_.octave * 12;
     // -24 / +24 semitones by the main octave controller.
-    pitch += static_cast<int16_t>(engine.system_settings_.octave) * kOctave;
+    pitch += SignedUnsignedMul(range, 128);
     if (i == 1) {
       // 0 / +1 semitones by the detune option for oscillator 2.
       pitch += engine.patch_.osc[1].option;
@@ -926,25 +932,19 @@ inline void Voice::UpdatePhaseIncrements() {
     }
 
     // Now the oscillators can recompute all their internal variables!
-    int8_t midi_note = pitch >> 7;
+    int8_t midi_note = ShiftRight7(pitch);
     if (midi_note < 12) {
       midi_note = 12;
     }
     // phase_increment.fractional = 0;
     if (i == 0) {
-      osc_1.Render(
-          modulation_destinations_[MOD_DST_PWM_1],
-          midi_note,
-          increment,
-          sync_state_,
-          buffer_);
+      osc_1.Render(midi_note, increment, sync_state_, buffer_);
       increment = Lsr24(increment);
       if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
         sub_osc.Render(increment, sub_osc_buffer_);
       }
     } else {
       osc_2.Render(
-          modulation_destinations_[MOD_DST_PWM_2],
           midi_note,
           increment,
           engine.patch_.osc[0].option == OP_SYNC ? sync_state_ : no_sync_,
