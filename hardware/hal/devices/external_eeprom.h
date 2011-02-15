@@ -70,7 +70,7 @@ class ExternalEeprom {
         }
       }
     }
-    return size;
+    return read;
   }
 
   static inline uint8_t SetAddress(uint16_t address) {
