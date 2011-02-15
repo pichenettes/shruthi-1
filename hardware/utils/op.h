@@ -29,12 +29,27 @@ static inline int16_t Clip(int16_t value, int16_t min, int16_t max) {
   return value < min ? min : (value > max ? max : value);
 }
 
+static inline int16_t Clip14(int16_t value) {
+  uint8_t msb = static_cast<uint16_t>(value) >> 8;
+  if (msb & 0x80) {
+    return 0;
+  } if (msb & 0x40) {
+    return 16383;
+  }
+  return value;
+}
+
 static inline uint8_t AddClip(uint8_t value, uint8_t increment, uint8_t max) {
   value += increment;
   if (value > max) {
     value = max;
   }
   return value;
+}
+
+// Optimized for 0-16384 range.
+static inline uint8_t ShiftRight8(int16_t value) {
+  return static_cast<uint16_t>(value) >> 8;
 }
 
 #ifdef USE_OPTIMIZED_OP
@@ -346,6 +361,19 @@ static inline uint8_t ShiftRight6(uint16_t value) {
   return result;
 }
 
+static inline uint8_t ShiftRight7(uint16_t value) {
+  uint8_t b = value >> 8;
+  uint8_t a = value & 0xff;
+  uint8_t result;
+  asm(
+    "add %1, %1"       "\n\t"
+    "adc %2, %2"       "\n\t"
+    : "=r" (result)
+    : "a" (a), "0" (b)
+  );
+  return result;
+}
+
 #else
 
 static inline uint8_t Clip8(int16_t value) {
@@ -410,6 +438,10 @@ static inline uint16_t Mul16Scale8(uint16_t a, uint16_t b) {
 
 static inline uint8_t ShiftRight6(uint16_t value) {
   return value >> 6;
+}
+
+static inline uint8_t ShiftRight7(uint16_t value) {
+  return value >> 7;
 }
 
 #endif  // USE_OPTIMIZED_OP

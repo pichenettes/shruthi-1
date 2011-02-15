@@ -313,7 +313,7 @@ class Oscillator {
     uint8_t wave_index = balance_index & 0xf;
     data_.pw.wave[0] = waveform_table[WAV_RES_BANDLIMITED_SAW_1 + wave_index];
     wave_index = AddClip(wave_index, 1, kNumZonesHalfSampleRate);
-    data_.pw.wave[1] = waveform_table[WAV_RES_BANDLIMITED_SAW_1 + wave_index];    
+    data_.pw.wave[1] = waveform_table[WAV_RES_BANDLIMITED_SAW_1 + wave_index];
     data_.pw.shift = static_cast<uint16_t>(parameter_ + 128) << 8;
     // For higher pitched notes, simply use 128
     data_.pw.scale = 192 - (parameter_ >> 1);

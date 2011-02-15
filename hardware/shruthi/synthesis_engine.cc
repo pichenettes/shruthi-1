@@ -376,7 +376,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
 
 /* static */
 void SynthesisEngine::PitchBend(uint8_t channel, uint16_t pitch_bend) {
-  uint8_t value = pitch_bend >> 6;
+  uint8_t value = ShiftRight6(pitch_bend);
   set_modulation_source(MOD_SRC_PITCH_BEND, value);
 }
 
@@ -742,7 +742,7 @@ inline void Voice::LoadSources() {
   
   // Apply the modulation operators
   for (uint8_t i = 0; i < 2; ++i) {
-    if (engine.patch_.ops_[i].op) {
+    //if (engine.patch_.ops_[i].op) {
       uint8_t x = engine.patch_.ops_[i].operands[0];
       uint8_t y = engine.patch_.ops_[i].operands[1];
       x = modulation_sources_[x];
@@ -758,7 +758,7 @@ inline void Voice::LoadSources() {
       ops[2] = MulScale8(x, y);
       ops[5] = x ^ y;
       modulation_sources_[MOD_SRC_OP_1 + i] = ops[engine.patch_.ops_[i].op];
-    }
+    //}
   }
 
   modulation_destinations_[MOD_DST_VCA] = engine.volume_;
@@ -766,15 +766,20 @@ inline void Voice::LoadSources() {
   // Load and scale to 0-16383 the initial value of each modulated parameter.
   dst_[MOD_DST_FILTER_CUTOFF] = UnsignedUnsignedMul(
       engine.patch_.filter_cutoff, 128);
-  dst_[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
+
   dst_[MOD_DST_PWM_1] = UnsignedUnsignedMul(engine.patch_.osc[0].parameter, 128);
   dst_[MOD_DST_PWM_2] = UnsignedUnsignedMul(engine.patch_.osc[1].parameter, 128);
-  dst_[MOD_DST_VCO_1_2_COARSE] = dst_[MOD_DST_VCO_1_2_FINE] =
-      dst_[MOD_DST_VCO_2] = dst_[MOD_DST_VCO_1] = 8192;
-  dst_[MOD_DST_VCO_2] = dst_[MOD_DST_VCO_1] = 8192;
+
+  dst_[MOD_DST_VCO_1_2_COARSE] = dst_[MOD_DST_VCO_1_2_FINE] = 8192;
+  dst_[MOD_DST_VCO_1] = dst_[MOD_DST_VCO_2] = 8192;
+  dst_[MOD_DST_LFO_1] = dst_[MOD_DST_LFO_2] = 8192;
+
+  dst_[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
   dst_[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
   dst_[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
   dst_[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
+
+  dst_[MOD_DST_ATTACK] = 0;
   dst_[MOD_DST_CV_1] = 0;
   dst_[MOD_DST_CV_2] = 0;
   if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM) {
@@ -783,9 +788,6 @@ inline void Voice::LoadSources() {
     dst_[MOD_DST_CV_2] = UnsignedUnsignedMul(
         engine.patch_.filter_resonance_2, 128);
   }
-  dst_[MOD_DST_ATTACK] = 0;
-  dst_[MOD_DST_LFO_1] = 8192;
-  dst_[MOD_DST_LFO_2] = 8192;
 }
 
 /* static */
@@ -793,15 +795,14 @@ inline void Voice::ProcessModulationMatrix() {
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     int8_t amount = engine.patch_.modulation_matrix.modulation[i].amount;
-    if (!amount) {
+    // BRING ME BACK!!!
+    /*if (!amount) {
       continue;
-    }
+    }*/
 
     // The rate of the last modulation is adjusted by the wheel.
     if (i == kModulationMatrixSize - 1) {
-      amount = SignedMulScale8(
-          amount,
-          modulation_sources_[MOD_SRC_WHEEL]);
+      amount = SignedMulScale8(amount, modulation_sources_[MOD_SRC_WHEEL]);
     }
     uint8_t source = engine.patch_.modulation_matrix.modulation[i].source;
     uint8_t destination =
@@ -819,7 +820,7 @@ inline void Voice::ProcessModulationMatrix() {
           source == MOD_SRC_AUDIO) {
         modulation -= SignedUnsignedMul(amount, 128);
       }
-      dst_[destination] = Clip(modulation, 0, 16383);
+      dst_[destination] = Clip14(modulation);
     } else {
       // The VCA modulation is multiplicative, not additive. Yet another
       // Special case :(.
@@ -840,53 +841,38 @@ inline void Voice::UpdateDestinations() {
   // By default, the resonance tracks the note. Tracking works best when the
   // transistors are thermically coupled. You can disable tracking by applying
   // a negative modulation from NOTE to CUTOFF.
-  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst_[MOD_DST_FILTER_CUTOFF] + pitch_value_ - 8192,
-      0,
-      16383);
-  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst_[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
-          engine.patch_.filter_env,
-          modulation_sources_[MOD_SRC_ENV_1]),
-      0,
-      16383);
-  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst_[MOD_DST_FILTER_CUTOFF] + (
-          unregistered_modulation_sources_[0] << 6),
-      0,
-      16383);
-  dst_[MOD_DST_FILTER_CUTOFF] = Clip(
-      dst_[MOD_DST_FILTER_CUTOFF] + SignedUnsignedMul(
-          engine.patch_.filter_lfo,
-          modulation_sources_[MOD_SRC_LFO_2]) -
-      UnsignedUnsignedMul(engine.patch_.filter_lfo, 128),
-      0,
-      16383);
+  uint16_t cutoff = dst_[MOD_DST_FILTER_CUTOFF];
+  cutoff = Clip14(cutoff + pitch_value_ - 8192);
+  cutoff = Clip14(cutoff + SignedUnsignedMul(engine.patch_.filter_env,
+      modulation_sources_[MOD_SRC_ENV_1]));
+  cutoff = Clip14(cutoff + (unregistered_modulation_sources_[0] << 6));
+  cutoff = Clip14(cutoff + SignedUnsignedMul(engine.patch_.filter_lfo,
+      modulation_sources_[MOD_SRC_LFO_2]) -
+      UnsignedUnsignedMul(engine.patch_.filter_lfo, 128));
   
   // Store in memory all the updated parameters.
-  modulation_destinations_[MOD_DST_FILTER_CUTOFF] = ShiftRight6(
-      dst_[MOD_DST_FILTER_CUTOFF]);
+  modulation_destinations_[MOD_DST_FILTER_CUTOFF] = ShiftRight6(cutoff);
 
   modulation_destinations_[MOD_DST_FILTER_RESONANCE] = ShiftRight6(
       dst_[MOD_DST_FILTER_RESONANCE]);
 
-  modulation_destinations_[MOD_DST_CV_1] = ShiftRight6(
-        dst_[MOD_DST_CV_1]);
-  modulation_destinations_[MOD_DST_CV_2] = ShiftRight6(
-        dst_[MOD_DST_CV_2]);
-  modulation_destinations_[MOD_DST_PWM_1] = dst_[MOD_DST_PWM_1] >> 7;
-  modulation_destinations_[MOD_DST_PWM_2] = dst_[MOD_DST_PWM_2] >> 7;
-  modulation_destinations_[MOD_DST_LFO_1] = dst_[MOD_DST_LFO_1] >> 8;
-  modulation_destinations_[MOD_DST_LFO_2] = dst_[MOD_DST_LFO_2] >> 8;
+  modulation_destinations_[MOD_DST_CV_1] = ShiftRight6(dst_[MOD_DST_CV_1]);
+  modulation_destinations_[MOD_DST_CV_2] = ShiftRight6(dst_[MOD_DST_CV_2]);
+  modulation_destinations_[MOD_DST_PWM_1] = ShiftRight7(dst_[MOD_DST_PWM_1]);
+  modulation_destinations_[MOD_DST_PWM_2] = ShiftRight7(dst_[MOD_DST_PWM_2]);
+  modulation_destinations_[MOD_DST_LFO_1] = ShiftRight8(dst_[MOD_DST_LFO_1]);
+  modulation_destinations_[MOD_DST_LFO_2] = ShiftRight8(dst_[MOD_DST_LFO_2]);
   
   modulation_destinations_[MOD_DST_MIX_BALANCE] = ShiftRight6(
       dst_[MOD_DST_MIX_BALANCE]);
   
-  modulation_destinations_[MOD_DST_MIX_NOISE] = dst_[MOD_DST_MIX_NOISE] >> 8;
-  modulation_destinations_[MOD_DST_MIX_SUB_OSC] = dst_[MOD_DST_MIX_SUB_OSC] >> 7;
+  modulation_destinations_[MOD_DST_MIX_NOISE] = ShiftRight8(
+      dst_[MOD_DST_MIX_NOISE]);
+  modulation_destinations_[MOD_DST_MIX_SUB_OSC] = ShiftRight7(
+      dst_[MOD_DST_MIX_SUB_OSC]);
   
-  envelope_[0].SetVelocity(dst_[MOD_DST_ATTACK] >> 7);
-  envelope_[1].SetVelocity(dst_[MOD_DST_ATTACK] >> 7);
+  envelope_[0].SetVelocity(ShiftRight7(dst_[MOD_DST_ATTACK]));
+  envelope_[1].SetVelocity(ShiftRight7(dst_[MOD_DST_ATTACK]));
 }
 
 /* static */
