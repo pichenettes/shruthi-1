@@ -972,7 +972,8 @@ inline void Voice::ProcessBlock() {
     return;
   }
   uint8_t op = engine.patch_.osc[0].option;
-  uint8_t mix_param = ShiftRight6(dst_[MOD_DST_MIX_BALANCE]);
+  uint8_t osc_2_gain = ShiftRight6(dst_[MOD_DST_MIX_BALANCE]);
+  uint8_t osc_1_gain = ~osc_2_gain;
   
   // Mix oscillators.
   switch (op) {
@@ -981,16 +982,7 @@ inline void Voice::ProcessBlock() {
         uint8_t ring_mod = SignedSignedMulScale8(
             buffer_[i] + 128,
             osc2_buffer_[i] + 128) + 128;
-        buffer_[i] = Mix(
-          buffer_[i],
-          ring_mod,
-          mix_param);
-      }
-      break;
-    case OP_XOR:
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        buffer_[i] ^= osc2_buffer_[i];
-        buffer_[i] ^= mix_param;
+        buffer_[i] = Mix(buffer_[i], ring_mod, osc_1_gain, osc_2_gain);
       }
       break;
     case OP_FUZZ:
@@ -1001,15 +993,19 @@ inline void Voice::ProcessBlock() {
             buffer_[i],
             ResourcesManager::Lookup<uint8_t, uint8_t>(
                 wav_res_distortion, buffer_[i]),
-            mix_param);
+            osc_1_gain,
+            osc_2_gain);
+      }
+      break;
+    case OP_XOR:
+      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+        buffer_[i] ^= osc2_buffer_[i];
+        buffer_[i] ^= osc_2_gain;
       }
       break;
     default:
       for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        buffer_[i] = Mix(
-          buffer_[i],
-          osc2_buffer_[i],
-          mix_param);
+        buffer_[i] = Mix(buffer_[i], osc2_buffer_[i], osc_1_gain, osc_2_gain);
       }
       break;
   }
@@ -1022,31 +1018,34 @@ inline void Voice::ProcessBlock() {
   }
   
   // Mix-in sub oscillator or transient generator.
-  uint8_t sub_level = ShiftRight7(dst_[MOD_DST_MIX_SUB_OSC]);
+  uint8_t sub_gain = ShiftRight7(dst_[MOD_DST_MIX_SUB_OSC]);
   if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
+    uint8_t mix_gain = ~sub_gain;
     for (uint8_t i = 0; i < kAudioBlockSize; i += decimate) {
-      buffer_[i] = Mix(buffer_[i], sub_osc_buffer_[i], sub_level);
+      buffer_[i] = Mix(buffer_[i], sub_osc_buffer_[i], mix_gain, sub_gain);
     }
   } else {
-    transient_generator.Render(buffer_, sub_level << 1);
+    transient_generator.Render(buffer_, sub_gain << 1);
   }
   
   // Apply optional bitcrushing.
   if (decimate > 1) {
-    for (uint8_t i = 0; i < kAudioBlockSize; ) {
-      uint8_t value = buffer_[i++];
+    uint8_t* buffer = buffer_;
+    for (uint8_t i = 0; i < kAudioBlockSize; i += decimate) {
+      uint8_t value = *buffer++;
       for (uint8_t j = 1; j < decimate; ++j) {
-        buffer_[i++] = value;
+        *buffer++ = value;
       }
     }
   }
   
   // Mix with noise and output.
   uint8_t noise = Random::GetByte();
-  uint8_t noise_amount = ShiftRight8(dst_[MOD_DST_MIX_NOISE]);
+  uint8_t noise_gain = ShiftRight8(dst_[MOD_DST_MIX_NOISE]);
+  uint8_t mix_gain = ~noise_gain;
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
     noise = (noise * 73) + 1;
-    audio_out.Overwrite(Mix(buffer_[i], noise, noise_amount));
+    audio_out.Overwrite(Mix(buffer_[i], noise, mix_gain, noise_gain));
   }
 }
 
