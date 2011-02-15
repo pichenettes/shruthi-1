@@ -1,0 +1,7 @@
+Burnito is a firmware for the Shruthi-1 digital board with a very specific
+purpose: burn I2C eeproms with Shruthi-1 presets.
+
+This firmware contains a large 16kb blob in flash with the eeprom contents. At
+boot, it tries to recognize the size of the eeprom, and writes the relevant
+part of this blob to the eeprom. Afterwards, the data is read back from the
+eeprom and compared to the original.
