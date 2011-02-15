@@ -100,7 +100,7 @@ class Envelope {
     }
   }
   
-  void SetVelocity(uint8_t velocity) {
+  inline void SetVelocity(uint8_t velocity) {
     velocity_increment_ = 0;
     if (increment_ > 0 && velocity) {
       velocity = 80 - velocity;
