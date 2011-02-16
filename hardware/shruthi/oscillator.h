@@ -68,15 +68,15 @@ static inline uint8_t InterpolateSample(
   uint8_t work;
   asm(
     "movw r30, %A2"           "\n\t"  // copy base address to r30:r31
+    "mov %1, %A3"             "\n\t"  // move phaseL to working register
     "add r30, %B3"            "\n\t"  // increment table address by phaseH
     "adc r31, r1"             "\n\t"  // just carry
     "lpm %0, z+"              "\n\t"  // load sample[n]
     "lpm r1, z+"              "\n\t"  // load sample[n+1]
-    "mul %1, r1"             "\n\t"  // multiply second sample by phaseL
+    "mul %1, r1"              "\n\t"  // multiply second sample by phaseL
     "movw r30, r0"            "\n\t"  // result to accumulator
-    "com %1"                 "\n\t"  // 255 - phaseL -> phaseL
-    "mul %1, %0"             "\n\t"  // multiply first sample by phaseL
-    "com %1"                 "\n\t"  // 255 - phaseL -> phaseL
+    "com %1"                  "\n\t"  // 255 - phaseL -> phaseL
+    "mul %1, %0"              "\n\t"  // multiply first sample by phaseL
     "add r30, r0"             "\n\t"  // accumulate L
     "adc r31, r1"             "\n\t"  // accumulate H
     "eor r1, r1"              "\n\t"  // reset r1 after multiplication
@@ -100,6 +100,7 @@ static inline uint8_t InterpolateSampleRam(
   uint8_t work;
   asm(
     "movw r30, %A2"           "\n\t"  // copy base address to r30:r31
+    "mov %1, %A3"             "\n\t"  // move phaseL to working register
     "add r30, %B3"            "\n\t"  // increment table address by phaseH
     "adc r31, r1"             "\n\t"  // just carry
     "ld %0, z+"               "\n\t"  // load sample[n]
@@ -108,7 +109,6 @@ static inline uint8_t InterpolateSampleRam(
     "movw r30, r0"            "\n\t"  // result to accumulator
     "com %1"                  "\n\t"  // 255 - phaseL -> phaseL
     "mul %1, %0"              "\n\t"  // multiply first sample by phaseL
-    "com %1"                  "\n\t"  // 255 - phaseL -> phaseL
     "add r30, r0"             "\n\t"  // accumulate L
     "adc r31, r1"             "\n\t"  // accumulate H
     "eor r1, r1"              "\n\t"  // reset r1 after multiplication
