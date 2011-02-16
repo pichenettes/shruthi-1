@@ -216,6 +216,7 @@ uint8_t Editor::cursor_;
 uint8_t Editor::last_knob_;
 uint8_t Editor::subpage_;
 uint8_t Editor::action_;
+uint8_t Editor::load_save_target_;
 uint16_t Editor::current_patch_number_ = 0;
 uint16_t Editor::current_sequence_number_ = 0;
 
@@ -387,27 +388,30 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
     switch (event.id) {
       case KEY_1:
         display.set_status('x');
-        if (editor_mode_ == EDITOR_MODE_PATCH) {
+        if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
           engine.ResetPatch();
-        } else {
+        }
+        if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
           engine.ResetSequence();
         }
         break;
 
       case KEY_2:
         display.set_status('?');
-        if (editor_mode_ == EDITOR_MODE_PATCH) {
+        if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
           RandomizePatch();
-        } else {
+        }
+        if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
           RandomizeSequence();
         }
         break;
 
       case KEY_3:
         display.set_status('>');
-        if (editor_mode_ == EDITOR_MODE_PATCH) {
+        if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
           Storage::SysExDump(engine.mutable_patch());
-        } else {
+        }
+        if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
           Storage::SysExDump(engine.mutable_sequencer_settings());
         }
         break;
@@ -462,6 +466,17 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       confirm_save_system_settings.callback = &SaveSystemSettings;
       Confirm(confirm_save_system_settings);
     } else if (current_page_ != PAGE_PERFORMANCE) {
+      if (engine.system_settings().sequence_patch_coupling) {
+        editor_mode_ = EDITOR_MODE_PATCH;
+      }
+      if (editor_mode_ == EDITOR_MODE_PATCH) {
+        load_save_target_ = LOAD_SAVE_TARGET_PATCH;
+      } else {
+        load_save_target_ = LOAD_SAVE_TARGET_SEQUENCE;
+      }
+      if (engine.system_settings().sequence_patch_coupling) {
+        load_save_target_ = LOAD_SAVE_TARGET_BOTH;
+      }
       ToggleLoadSaveAction();
     }
   } else {
@@ -531,10 +546,11 @@ void Editor::Refresh() {
 
 /* static */
 void Editor::RestoreEditBuffer() {
-  if (editor_mode_ == EDITOR_MODE_PATCH) {
+  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
     Storage::Restore(engine.mutable_patch());
     engine.TouchPatch(1);
-  } else {
+  }
+  if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
     Storage::Restore(engine.mutable_sequencer_settings());
     engine.TouchSequence();
   }
@@ -543,9 +559,10 @@ void Editor::RestoreEditBuffer() {
 /* static */
 void Editor::ToggleLoadSaveAction() {
   if (current_page_ != PAGE_LOAD_SAVE) {
-    if (editor_mode_ == EDITOR_MODE_PATCH) {
+    if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
       Storage::Backup(engine.mutable_patch());
-    } else {
+    }
+    if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
       Storage::Backup(engine.mutable_sequencer_settings());
     }
     action_ = ACTION_LOAD;
@@ -611,9 +628,10 @@ void Editor::HandleLoadSaveClick() {
       display_mode_ = DISPLAY_MODE_OVERVIEW;
     }
     if (cursor_ >= kLcdWidth - 4) {
-      if (editor_mode_ == EDITOR_MODE_PATCH) {
+      if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
         Storage::Write(engine.mutable_patch(), current_patch_number_);
-      } else {
+      }
+      if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
         Storage::Write(engine.mutable_sequencer_settings(),
                        current_sequence_number_);
       }
@@ -645,17 +663,17 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
   } else {
     set_edited_item_number(edited_item_number() + increment);
     if (action_ == ACTION_LOAD) {
-      if (editor_mode_ == EDITOR_MODE_PATCH) {
+      if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
         uint16_t n = edited_item_number();
         Storage::Load(engine.mutable_patch(), n);
         midi_dispatcher.ProgramChange(n);
         engine.TouchPatch(1);
-        if (engine.system_settings().patch_restore_on_boot & 0x80) {
-          engine.mutable_system_settings()->patch_restore_on_boot = \
-              0x80 | (n & 0x7f);
+        if (engine.system_settings().patch_restore_on_boot & 0x8000) {
+          engine.mutable_system_settings()->patch_restore_on_boot = n | 0x8000;
           engine.system_settings().EepromSave();
-        }
-      } else {
+        } 
+      }
+      if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
         Storage::Load(engine.mutable_sequencer_settings(),
                       edited_item_number());
         engine.TouchSequence();

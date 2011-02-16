@@ -40,6 +40,12 @@ enum EditorMode {
   EDITOR_MODE_PERFORMANCE,
 };
 
+enum LoadSaveTarget {
+  LOAD_SAVE_TARGET_PATCH = 1,
+  LOAD_SAVE_TARGET_SEQUENCE = 2,
+  LOAD_SAVE_TARGET_BOTH = 3
+};
+
 enum DisplayMode {
   // Show the parameter names.
   DISPLAY_MODE_OVERVIEW = 0,
@@ -275,6 +281,8 @@ class Editor {
 
   static ParameterPage current_page_;
   static ParameterPage last_visited_page_[kNumGroups];
+  
+  static uint8_t load_save_target_;
   static uint8_t last_visited_group_[3];
   static uint8_t display_mode_;
   static uint8_t editor_mode_;

@@ -372,15 +372,16 @@ void Init() {
   // If the encoder is pressed at startup, toggle the "Boot on patch page"
   // flag.
   if (encoder.immediate_value() == 0) {
-    engine.mutable_system_settings()->patch_restore_on_boot ^= 0x80;
+    engine.mutable_system_settings()->patch_restore_on_boot ^= 0x8000;
     engine.system_settings().EepromSave();
   }
+  engine.mutable_system_settings()->sequence_patch_coupling = 1;
   
   // When booting on the patch page, jump to the patch page and restore the
   // previously loaded patch.
-  if (engine.system_settings().patch_restore_on_boot & 0x80) {
+  if (engine.system_settings().patch_restore_on_boot & 0x8000) {
     editor.BootOnPatchBrowsePage(
-        engine.system_settings().patch_restore_on_boot & 0x7f);
+        engine.system_settings().patch_restore_on_boot & 0x7fff);
   } else {
     editor.DisplaySplashScreen(STR_RES_V + 1);
   }

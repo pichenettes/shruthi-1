@@ -41,9 +41,9 @@ class SystemSettings {
   uint8_t expansion_cv_mode;
   uint8_t display_snap;
 
-  uint8_t padding[2];
-  uint8_t patch_restore_on_boot;
-
+  uint16_t patch_restore_on_boot;
+  uint8_t sequence_patch_coupling;
+  
   void EepromSave() const;
   uint8_t EepromLoad();
 };
