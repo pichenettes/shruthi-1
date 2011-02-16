@@ -57,6 +57,8 @@ detuning effects between the oscillators, especially in the lowest notes.
 perspective, and as a result, is faster.
 - As a result of the audio engine rewrite, the vowel oscillator can now be used
 with the noise and sub generators.
+- The crossfading between wavetable zone is more subtle on the square
+oscillator, when parameter is non-zero.
 - To make more room for upcoming feature, the waves wavetable has been
 downsampled to 128 samples/waveform instead of 256.
 - New mixing mode (>>4, >>8) allows the oscillators signal to be
