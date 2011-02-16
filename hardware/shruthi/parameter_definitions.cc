@@ -52,7 +52,7 @@ static const prog_char raw_parameter_definition[
 
   // Osc 2.
   PRM_OSC_SHAPE_2,
-  WAVEFORM_NONE, WAVEFORM_LAST - 1,
+  WAVEFORM_NONE, WAVEFORM_LAST - 2,
   UNIT_WAVEFORM,
   STR_RES_SHAPE, STR_RES_SHAPE,
 
