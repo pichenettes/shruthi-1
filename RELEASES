@@ -36,7 +36,8 @@ more than 16kb of patch data.
 - A new MIDI out mode has been added in which only user-initiated knobs
 changes are sent to the MIDI out. This mode is ideal for using the Shruthi with
 both its IN/OUT ports connected to the same device. The other modes are not
-suitable for operation since they can cause unwanted MIDI loops.
+suitable for operation in this configuration since they can cause unwanted MIDI
+loops.
 
 SYNTHESIS
 
@@ -57,23 +58,23 @@ detuning effects between the oscillators, especially in the lowest notes.
 perspective, and as a result, is faster.
 - As a result of the audio engine rewrite, the vowel oscillator can now be used
 with the noise and sub generators.
-- The crossfading between wavetable zone is more subtle on the square
-oscillator, when parameter is non-zero.
-- To make more room for upcoming feature, the waves wavetable has been
+- The crossfading between wavetable zones is more subtle on the pulse
+oscillator (square with a parameter > 0).
+- To make more room for upcoming features, the waves wavetable has been
 downsampled to 128 samples/waveform instead of 256.
-- New mixing mode (>>4, >>8) allows the oscillators signal to be
-bitcrushed (sample rate reduction with a S&H).
+- New mixing modes (>>4, >>8) allow the oscillators signal to be
+bitcrushed (sample rate reduction with a S&H) before being sent to the filter.
 - A new feature ("operators") allows 2 pairs of modulation sources to be
 combined through a variety of mathematical operations (addition, multiplication,
 comparison) to yield two new complex modulation sources.
 
 CODE
 
-- Code size optimization saved 460 bytes.
+- Various code size optimizations saved 1kb.
 - The modulation matrix processing code has been simplified.
+- Changed compilation flags to achieve smaller code size.
 - A menu in the UI and code infrastructure is ready to provide filter-board
 specific menus and parameters in future firmware revisions.
-- Changed compilation flags to achieve smaller code size.
 
 
 v0.91 --------------------------------------------------------------------------
