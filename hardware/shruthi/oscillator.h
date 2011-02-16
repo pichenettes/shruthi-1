@@ -379,10 +379,9 @@ class Oscillator {
     uint8_t gain_1 = ~gain_2;
     uint8_t wave_index = balance_index & 0xf;
     
-    uint16_t offset = wave_index << 8;
-    offset >>= 1;
-
+    uint16_t offset = wave_index << 7;
     offset += wave_index;
+
     const prog_uint8_t* base_address = waveform_table[
         WAV_RES_WAVETABLE_1 + shape_ - WAVEFORM_WAVETABLE_1];
     const prog_uint8_t* wave_1 = base_address + offset;
