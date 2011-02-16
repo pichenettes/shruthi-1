@@ -137,17 +137,12 @@ static inline uint8_t InterpolateSampleRam(
 
 static inline uint8_t InterpolateTwoTables(
     const prog_uint8_t* table_a, const prog_uint8_t* table_b,
-    uint16_t phase, uint8_t balance) __attribute__((always_inline));
-
-static inline uint8_t InterpolateTwoTables(
-    const prog_uint8_t* table_a, const prog_uint8_t* table_b,
-    uint16_t phase, uint8_t balance) {
+    uint16_t phase, uint8_t gain_a, uint8_t gain_b) {
   return Mix(
       InterpolateSample(table_a, phase),
       InterpolateSample(table_b, phase),
-      balance);
+      gain_a, gain_b);
 }
-
 
 static const uint8_t kVowelControlRateDecimation = 4;
 static const uint8_t kNumZonesFullSampleRate = 6;
@@ -287,7 +282,8 @@ class Oscillator {
   // ------- Band-limited PWM --------------------------------------------------
   static void RenderBandlimitedPwm(uint8_t* buffer) {
     uint8_t balance_index = Swap4(note_ - 12);
-    uint8_t balance = balance_index & 0xf0;
+    uint8_t gain_2 = balance_index & 0xf0;
+    uint8_t gain_1 = ~gain_2;
 
     uint8_t wave_index = balance_index & 0xf;
     const prog_uint8_t* wave_1 = waveform_table[
@@ -307,7 +303,9 @@ class Oscillator {
     while (size) {
       UpdatePhase();
       UpdatePhase();
-      uint8_t a = InterpolateTwoTables(wave_1, wave_2, phase_.integral, balance);
+      uint8_t a = InterpolateTwoTables(
+          wave_1, wave_2,
+          phase_.integral, gain_1, gain_2);
       
       a = MulScale8(a, scale);
       // This was used in the previous version, doesn't sound much worse
@@ -315,10 +313,8 @@ class Oscillator {
       // correctness.
       // uint8_t b = InterpolateSample(wave_1, phase_.integral + shift);
       uint8_t b = InterpolateTwoTables(
-          wave_1,
-          wave_2,
-          phase_.integral + shift,
-          balance);
+          wave_1, wave_2,
+          phase_.integral + shift, gain_1, gain_2);
       b = MulScale8(b, scale);
       a = a - b + 128;
       *buffer++ = a;
@@ -332,7 +328,8 @@ class Oscillator {
 
   static void RenderSimpleWavetable(uint8_t* buffer) {
     uint8_t balance_index = Swap4(note_ - 12);
-    uint8_t balance = balance_index & 0xf0;
+    uint8_t gain_2 = balance_index & 0xf0;
+    uint8_t gain_1 = ~gain_2;
 
     uint8_t wave_index = balance_index & 0xf;
     uint8_t base_resource_id = shape_ == WAVEFORM_SAW ?
@@ -349,7 +346,7 @@ class Oscillator {
       UpdatePhase();
       uint8_t sample = InterpolateTwoTables(
           wave_1, wave_2,
-          phase_.integral, balance);
+          phase_.integral, gain_1, gain_2);
       // To produce pulse width-modulated variants, we shift (saw) or set to
       // a constant (triangle) a portion of the waveform within an increasingly
       // large fraction of the period. Note that this is pure waveshapping - the
@@ -378,7 +375,8 @@ class Oscillator {
   // The position is freely determined by the parameter
   static void RenderSweepingWavetable(uint8_t* buffer) {
     uint8_t balance_index = Swap4(parameter_ << 1);
-    uint8_t balance = balance_index & 0xf0;
+    uint8_t gain_2 = balance_index & 0xf0;
+    uint8_t gain_1 = ~gain_2;
     uint8_t wave_index = balance_index & 0xf;
     
     uint16_t offset = wave_index << 8;
@@ -398,7 +396,7 @@ class Oscillator {
       UpdatePhase();
       uint16_t phase = phase_.integral;
       phase >>= 1;
-      *buffer++ = InterpolateTwoTables(wave_1, wave_2, phase, balance);
+      *buffer++ = InterpolateTwoTables(wave_1, wave_2, phase, gain_1, gain_2);
     }
   }
   
@@ -406,7 +404,8 @@ class Oscillator {
   static void RenderSweepingWavetableRam(uint8_t* buffer) {
     uint8_t balance_index = Swap4(parameter_);
     uint8_t wave_index = balance_index & 0xf;
-    balance_index = balance_index & 0xf0;
+    uint8_t gain_2 = balance_index & 0xf0;
+    uint8_t gain_1 = ~gain_2;
     
     uint16_t offset = wave_index << 7;
     offset += wave_index;
@@ -424,7 +423,7 @@ class Oscillator {
       *buffer++ = Mix(
           InterpolateSampleRam(wave_1, phase),
           InterpolateSampleRam(wave_2, phase),
-          balance_index);
+          gain_1, gain_2);
     }
   }
 
