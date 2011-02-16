@@ -65,22 +65,23 @@ static inline uint8_t InterpolateSample(
     const prog_uint8_t* table,
     uint16_t phase) {
   uint8_t result;
+  uint8_t work;
   asm(
-    "movw r30, %A1"           "\n\t"  // copy base address to r30:r31
-    "add r30, %B2"            "\n\t"  // increment table address by phaseH
+    "movw r30, %A2"           "\n\t"  // copy base address to r30:r31
+    "add r30, %B3"            "\n\t"  // increment table address by phaseH
     "adc r31, r1"             "\n\t"  // just carry
     "lpm %0, z+"              "\n\t"  // load sample[n]
     "lpm r1, z+"              "\n\t"  // load sample[n+1]
-    "mul %A2, r1"             "\n\t"  // multiply second sample by phaseL
+    "mul %1, r1"             "\n\t"  // multiply second sample by phaseL
     "movw r30, r0"            "\n\t"  // result to accumulator
-    "com %A2"                 "\n\t"  // 255 - phaseL -> phaseL
-    "mul %A2, %0"             "\n\t"  // multiply first sample by phaseL
-    "com %A2"                 "\n\t"  // 255 - phaseL -> phaseL
+    "com %1"                 "\n\t"  // 255 - phaseL -> phaseL
+    "mul %1, %0"             "\n\t"  // multiply first sample by phaseL
+    "com %1"                 "\n\t"  // 255 - phaseL -> phaseL
     "add r30, r0"             "\n\t"  // accumulate L
     "adc r31, r1"             "\n\t"  // accumulate H
     "eor r1, r1"              "\n\t"  // reset r1 after multiplication
     "mov %0, r31"             "\n\t"  // use sum H as output
-    : "=r" (result)
+    : "=r" (result), "=r" (work)
     : "a" (table), "a" (phase)
     : "r30", "r31"
   );
@@ -96,22 +97,23 @@ static inline uint8_t InterpolateSampleRam(
     const uint8_t* table,
     uint16_t phase) {
   uint8_t result;
+  uint8_t work;
   asm(
-    "movw r30, %A1"           "\n\t"  // copy base address to r30:r31
-    "add r30, %B2"            "\n\t"  // increment table address by phaseH
+    "movw r30, %A2"           "\n\t"  // copy base address to r30:r31
+    "add r30, %B3"            "\n\t"  // increment table address by phaseH
     "adc r31, r1"             "\n\t"  // just carry
     "ld %0, z+"               "\n\t"  // load sample[n]
     "ld r1, z+"               "\n\t"  // load sample[n+1]
-    "mul %A2, r1"             "\n\t"  // multiply second sample by phaseL
+    "mul %1, r1"              "\n\t"  // multiply second sample by phaseL
     "movw r30, r0"            "\n\t"  // result to accumulator
-    "com %A2"                 "\n\t"  // 255 - phaseL -> phaseL
-    "mul %A2, %0"             "\n\t"  // multiply first sample by phaseL
-    "com %A2"                 "\n\t"  // 255 - phaseL -> phaseL
+    "com %1"                  "\n\t"  // 255 - phaseL -> phaseL
+    "mul %1, %0"              "\n\t"  // multiply first sample by phaseL
+    "com %1"                  "\n\t"  // 255 - phaseL -> phaseL
     "add r30, r0"             "\n\t"  // accumulate L
     "adc r31, r1"             "\n\t"  // accumulate H
     "eor r1, r1"              "\n\t"  // reset r1 after multiplication
     "mov %0, r31"             "\n\t"  // use sum H as output
-    : "=r" (result)
+    : "=r" (result), "=r" (work)
     : "a" (table), "a" (phase)
     : "r30", "r31"
   );
@@ -151,32 +153,6 @@ static const uint8_t kVowelControlRateDecimation = 4;
 static const uint8_t kNumZonesFullSampleRate = 6;
 static const uint8_t kNumZonesHalfSampleRate = 5;
 
-struct BandlimitedPwmOscillatorState {
-  const prog_uint8_t* wave[2];
-  uint8_t balance;
-  uint16_t shift;
-  uint8_t scale;
-};
-
-// Interpolates between two 256-samples wavetables.
-struct SawTriangleOscillatorState {
-  const prog_uint8_t* wave[2];
-  uint8_t balance;
-};
-
-struct SweepingWavetableOscillatorState {
-  const prog_uint8_t* wave[2];
-  uint8_t balance;
-};
-
-struct CzOscillatorState {
-  uint16_t formant_phase;
-};
-
-struct FmOscillatorState {
-  uint16_t modulator_phase;
-};
-
 struct VowelSynthesizerState {
   uint16_t formant_increment[3];
   uint16_t formant_phase[3];
@@ -190,7 +166,6 @@ struct FilteredNoiseState {
 };
 
 struct QuadSawPadState {
-  uint16_t phase_increment[3];
   uint16_t phase[3];
 };
 
@@ -200,15 +175,11 @@ struct CrushedSineState {
 };
 
 union OscillatorState {
-  BandlimitedPwmOscillatorState pw;
-  SawTriangleOscillatorState st;
-  CzOscillatorState cz;
-  FmOscillatorState fm;
   VowelSynthesizerState vw;
   FilteredNoiseState no;
   QuadSawPadState qs;
   CrushedSineState cr;
-  SweepingWavetableOscillatorState sw;
+  uint16_t secondary_phase;
 };
 
 typedef void (*OscRenderFn)(uint8_t* buffer);
@@ -316,33 +287,39 @@ class Oscillator {
   // ------- Band-limited PWM --------------------------------------------------
   static void RenderBandlimitedPwm(uint8_t* buffer) {
     uint8_t balance_index = Swap4(note_ - 12);
-    data_.pw.balance = balance_index & 0xf0;
+    uint8_t balance = balance_index & 0xf0;
 
     uint8_t wave_index = balance_index & 0xf;
-    data_.pw.wave[0] = waveform_table[WAV_RES_BANDLIMITED_SAW_1 + wave_index];
+    const prog_uint8_t* wave_1 = waveform_table[
+        WAV_RES_BANDLIMITED_SAW_1 + wave_index];
     wave_index = AddClip(wave_index, 1, kNumZonesHalfSampleRate);
-    data_.pw.wave[1] = waveform_table[WAV_RES_BANDLIMITED_SAW_1 + wave_index];
-    data_.pw.shift = static_cast<uint16_t>(parameter_ + 128) << 8;
+    const prog_uint8_t* wave_2 = waveform_table[
+        WAV_RES_BANDLIMITED_SAW_1 + wave_index];
+    
+    uint16_t shift = static_cast<uint16_t>(parameter_ + 128) << 8;
     // For higher pitched notes, simply use 128
-    data_.pw.scale = 192 - (parameter_ >> 1);
+    uint8_t scale = 192 - (parameter_ >> 1);
     if (note_ > 64) {
-      data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
-      data_.pw.scale = Mix(data_.pw.scale, 104, (note_ - 64) << 2);
+      scale = Mix(scale, 102, (note_ - 64) << 2);
+      scale = Mix(scale, 102, (note_ - 64) << 2);
     }
     uint8_t size = kAudioBlockSize;
     while (size) {
       UpdatePhase();
       UpdatePhase();
-      uint8_t a = InterpolateTwoTables(
-          data_.pw.wave[0],
-          data_.pw.wave[1],
-          phase_.integral,
-          data_.pw.balance);
-      a = MulScale8(a, data_.pw.scale);
-      uint8_t b = InterpolateSample(
-          data_.pw.wave[0],
-          phase_.integral + data_.pw.shift);
-      b = MulScale8(b, data_.pw.scale);
+      uint8_t a = InterpolateTwoTables(wave_1, wave_2, phase_.integral, balance);
+      
+      a = MulScale8(a, scale);
+      // This was used in the previous version, doesn't sound much worse
+      // and could save 100 bytes. Using the crossfaded version for sake of
+      // correctness.
+      // uint8_t b = InterpolateSample(wave_1, phase_.integral + shift);
+      uint8_t b = InterpolateTwoTables(
+          wave_1,
+          wave_2,
+          phase_.integral + shift,
+          balance);
+      b = MulScale8(b, scale);
       a = a - b + 128;
       *buffer++ = a;
       *buffer++ = a;
@@ -355,7 +332,7 @@ class Oscillator {
 
   static void RenderSimpleWavetable(uint8_t* buffer) {
     uint8_t balance_index = Swap4(note_ - 12);
-    data_.st.balance = balance_index & 0xf0;
+    uint8_t balance = balance_index & 0xf0;
 
     uint8_t wave_index = balance_index & 0xf;
     uint8_t base_resource_id = shape_ == WAVEFORM_SAW ?
@@ -363,16 +340,16 @@ class Oscillator {
         (shape_ == WAVEFORM_SQUARE ? WAV_RES_BANDLIMITED_SQUARE_0  : 
         WAV_RES_BANDLIMITED_TRIANGLE_0);
 
-    data_.st.wave[0] = waveform_table[base_resource_id + wave_index];
+    const prog_uint8_t* wave_1 = waveform_table[base_resource_id + wave_index];
     wave_index = AddClip(wave_index, 1, kNumZonesFullSampleRate);
-    data_.st.wave[1] = waveform_table[base_resource_id + wave_index];
+    const prog_uint8_t* wave_2 = waveform_table[base_resource_id + wave_index];
     
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
       uint8_t sample = InterpolateTwoTables(
-          data_.st.wave[0], data_.st.wave[1],
-          phase_.integral, data_.st.balance);
+          wave_1, wave_2,
+          phase_.integral, balance);
       // To produce pulse width-modulated variants, we shift (saw) or set to
       // a constant (triangle) a portion of the waveform within an increasingly
       // large fraction of the period. Note that this is pure waveshapping - the
@@ -401,7 +378,7 @@ class Oscillator {
   // The position is freely determined by the parameter
   static void RenderSweepingWavetable(uint8_t* buffer) {
     uint8_t balance_index = Swap4(parameter_ << 1);
-    data_.sw.balance = balance_index & 0xf0;
+    uint8_t balance = balance_index & 0xf0;
     uint8_t wave_index = balance_index & 0xf;
     
     uint16_t offset = wave_index << 8;
@@ -410,10 +387,10 @@ class Oscillator {
     offset += wave_index;
     const prog_uint8_t* base_address = waveform_table[
         WAV_RES_WAVETABLE_1 + shape_ - WAVEFORM_WAVETABLE_1];
-    data_.sw.wave[0] = base_address + offset;
-    data_.sw.wave[1] = data_.sw.wave[0];
+    const prog_uint8_t* wave_1 = base_address + offset;
+    const prog_uint8_t* wave_2 = wave_1;
     if (offset < kWavetableSize - 129) {
-      data_.sw.wave[1] += 129;
+      wave_2 += 129;
     }
     
     uint8_t size = kAudioBlockSize;
@@ -421,9 +398,7 @@ class Oscillator {
       UpdatePhase();
       uint16_t phase = phase_.integral;
       phase >>= 1;
-      *buffer++ = InterpolateTwoTables(
-          data_.st.wave[0], data_.st.wave[1],
-          phase, data_.st.balance);
+      *buffer++ = InterpolateTwoTables(wave_1, wave_2, phase, balance);
     }
   }
   
@@ -435,11 +410,10 @@ class Oscillator {
     
     uint16_t offset = wave_index << 7;
     offset += wave_index;
-    const uint8_t* table[2];
-    data_.sw.wave[0] = user_wavetable + offset;
-    data_.sw.wave[1] = data_.sw.wave[0];
+    const uint8_t* wave_1 = user_wavetable + offset;
+    const uint8_t* wave_2 = wave_1;
     if (offset < kUserWavetableSize - 129) {
-      data_.sw.wave[1] += 129;
+      wave_2 += 129;
     }
     
     uint8_t size = kAudioBlockSize;
@@ -448,8 +422,8 @@ class Oscillator {
       uint16_t phase = phase_.integral;
       phase >>= 1;
       *buffer++ = Mix(
-          InterpolateSampleRam(data_.sw.wave[0], phase),
-          InterpolateSampleRam(data_.sw.wave[1], phase),
+          InterpolateSampleRam(wave_1, phase),
+          InterpolateSampleRam(wave_2, phase),
           balance_index);
     }
   }
@@ -476,12 +450,12 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        data_.cz.formant_phase = 0;
+        data_.secondary_phase = 0;
       }
-      data_.cz.formant_phase += increment;
+      data_.secondary_phase += increment;
       uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
-          data_.cz.formant_phase);
+          data_.secondary_phase);
       if (phase_.integral < 0x4000) {
         *buffer++ = result;
       } else if (phase_.integral < 0x8000) {
@@ -497,12 +471,12 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        data_.cz.formant_phase = 0;
+        data_.secondary_phase = 0;
       }
-      data_.cz.formant_phase += increment;
+      data_.secondary_phase += increment;
       uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
-          data_.cz.formant_phase);
+          data_.secondary_phase);
       *buffer++ = MulScale8(result, ~(phase_.integral >> 8));
     }
   }
@@ -512,12 +486,12 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        data_.cz.formant_phase = 0;
+        data_.secondary_phase = 0;
       }
-      data_.cz.formant_phase += increment;
+      data_.secondary_phase += increment;
       uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
-          data_.cz.formant_phase);
+          data_.secondary_phase);
       uint8_t triangle =  (phase_.integral & 0x8000) ?
             ~static_cast<uint8_t>(phase_.integral >> 7) :
             phase_.integral >> 7;
@@ -530,12 +504,12 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        data_.cz.formant_phase = 0;
+        data_.secondary_phase = 0;
       }
-      data_.cz.formant_phase += increment;
+      data_.secondary_phase += increment;
       uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
-          data_.cz.formant_phase);
+          data_.secondary_phase);
       *buffer++ = phase_.integral < 0x8000 ? result : 128;
     }
   }
@@ -563,9 +537,9 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
-      data_.fm.modulator_phase += increment;
+      data_.secondary_phase += increment;
       uint8_t modulator = ReadSample(waveform_table[WAV_RES_SINE],
-                                     data_.fm.modulator_phase);
+                                     data_.secondary_phase);
       uint16_t modulation = modulator * parameter_;
       *buffer++ = InterpolateSample(waveform_table[WAV_RES_SINE],
           phase_.integral + modulation);
@@ -795,9 +769,7 @@ class SubOscillator {
     pulse_width_ = shape == 0 ? 0x80 : 0x40;
   }
   
-  static inline void Render(
-      uint24_t increment,
-      uint8_t* buffer) {
+  static inline void Render(uint24_t increment, uint8_t* buffer) {
     if (shift_) {
       increment = Lsr24(increment);
     }

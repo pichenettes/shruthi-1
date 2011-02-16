@@ -585,7 +585,7 @@ void Editor::set_edited_item_number(int16_t value) {
     current_patch_number_ = value;
   } else {
     if (value >= Storage::size<SequencerSettings>()) {
-      value = Storage::size<SequencerSettings>();
+      value = Storage::size<SequencerSettings>() - 1;
     }
     current_sequence_number_ = value;
   }
