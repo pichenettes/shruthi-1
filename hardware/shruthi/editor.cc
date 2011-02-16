@@ -689,7 +689,7 @@ void Editor::DisplayLoadSavePage() {
       line_buffer_,
       8);
   ResourcesManager::LoadStringResource(
-      STR_RES_PATCH + editor_mode_,
+      STR_RES_PATCH + load_save_target_ - 1,
       line_buffer_ + 8,
       kLcdWidth - 8);
   AlignLeft(line_buffer_, 8);

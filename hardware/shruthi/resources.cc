@@ -203,6 +203,7 @@ static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_patch[] PROGMEM = "patch";
 static const prog_char str_res_sequence[] PROGMEM = "sequence";
+static const prog_char str_res_combo[] PROGMEM = "combo";
 static const prog_char str_res_save_midi_kbd[] PROGMEM = "save midi/kbd";
 static const prog_char str_res_settings_[] PROGMEM = "settings?";
 static const prog_char str_res_start_full_midi[] PROGMEM = "start full midi";
@@ -542,6 +543,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_assign_parameter,
   str_res_patch,
   str_res_sequence,
+  str_res_combo,
   str_res_save_midi_kbd,
   str_res_settings_,
   str_res_start_full_midi,

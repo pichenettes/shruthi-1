@@ -204,6 +204,7 @@ touch a knob to
 assign parameter
 patch
 sequence
+combo
 save midi/kbd
 settings?
 start full midi
