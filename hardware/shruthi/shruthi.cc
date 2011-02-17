@@ -375,6 +375,8 @@ void Init() {
     engine.mutable_system_settings()->patch_restore_on_boot ^= 0x8000;
     engine.system_settings().EepromSave();
   }
+  
+  // For now this cannot be edited through the UI.
   engine.mutable_system_settings()->sequence_patch_coupling = 0;
   
   // When booting on the patch page, jump to the patch page and restore the

@@ -82,7 +82,7 @@ static inline uint8_t InterpolateSample(
     "eor r1, r1"              "\n\t"  // reset r1 after multiplication
     "mov %0, r31"             "\n\t"  // use sum H as output
     : "=r" (result), "=r" (work)
-    : "a" (table), "a" (phase)
+    : "r" (table), "r" (phase)
     : "r30", "r31"
   );
   return result;
@@ -114,7 +114,7 @@ static inline uint8_t InterpolateSampleRam(
     "eor r1, r1"              "\n\t"  // reset r1 after multiplication
     "mov %0, r31"             "\n\t"  // use sum H as output
     : "=r" (result), "=r" (work)
-    : "a" (table), "a" (phase)
+    : "r" (table), "r" (phase)
     : "r30", "r31"
   );
   return result;
@@ -536,8 +536,8 @@ class Oscillator {
     while (size--) {
       UpdatePhase();
       data_.secondary_phase += increment;
-      uint8_t modulator = ReadSample(waveform_table[WAV_RES_SINE],
-                                     data_.secondary_phase);
+      uint8_t modulator = InterpolateSample(waveform_table[WAV_RES_SINE],
+          data_.secondary_phase);
       uint16_t modulation = modulator * parameter_;
       *buffer++ = InterpolateSample(waveform_table[WAV_RES_SINE],
           phase_.integral + modulation);
@@ -671,10 +671,11 @@ class Oscillator {
       data_.qs.phase[0] += increments[0];
       data_.qs.phase[1] += increments[1];
       data_.qs.phase[2] += increments[2];
-      *buffer = (phase_.integral >> 10);
-      *buffer += (data_.qs.phase[0] >> 10);
-      *buffer += (data_.qs.phase[1] >> 10);
-      *buffer++ += (data_.qs.phase[2] >> 10);
+      uint8_t value = (phase_.integral >> 10);
+      value += (data_.qs.phase[0] >> 10);
+      value += (data_.qs.phase[1] >> 10);
+      value += (data_.qs.phase[2] >> 10);
+      *buffer++ = value;
     }
   }
 
