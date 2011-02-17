@@ -88,6 +88,32 @@ static inline uint8_t InterpolateSample(
   return result;
 }
 
+static inline uint8_t InterpolateSampleCretin(
+    const prog_uint8_t* table,
+    uint16_t phase) {
+  uint8_t result;
+  asm(
+    "movw r30, %A1"           "\n\t"  // copy base address to r30:r31
+    "add r30, %B2"            "\n\t"  // increment table address by phaseH
+    "adc r31, r1"             "\n\t"  // just carry
+    "lpm %0, z+"              "\n\t"  // load sample[n]
+    "lpm r1, z+"              "\n\t"  // load sample[n+1]
+    "mul %0, r1"             "\n\t"  // multiply second sample by phaseL
+    "movw r30, r0"            "\n\t"  // result to accumulator
+    "com %0"                 "\n\t"  // 255 - phaseL -> phaseL
+    "mul %0, %0"             "\n\t"  // multiply first sample by phaseL
+    "com %0"                 "\n\t"  // 255 - phaseL -> phaseL
+    "add r30, r0"             "\n\t"  // accumulate L
+    "adc r31, r1"             "\n\t"  // accumulate H
+    "eor r1, r1"              "\n\t"  // reset r1 after multiplication
+    "mov %0, r31"             "\n\t"  // use sum H as output
+    : "=r" (result)
+    : "a" (table), "a" (phase)
+    : "r30", "r31"
+  );
+  return result;
+}
+
 static inline uint8_t InterpolateSampleRam(
     const uint8_t* table,
     uint16_t phase) __attribute__((always_inline));
@@ -451,7 +477,7 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSample(
+      uint8_t result = InterpolateSampleCretin(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
       if (phase_.integral < 0x4000) {
@@ -472,7 +498,7 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSample(
+      uint8_t result = InterpolateSampleCretin(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
       *buffer++ = MulScale8(result, ~(phase_.integral >> 8));
@@ -487,7 +513,7 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSample(
+      uint8_t result = InterpolateSampleCretin(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
       uint8_t triangle =  (phase_.integral & 0x8000) ?
@@ -505,7 +531,7 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSample(
+      uint8_t result = InterpolateSampleCretin(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
       *buffer++ = phase_.integral < 0x8000 ? result : 128;
