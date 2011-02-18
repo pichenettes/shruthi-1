@@ -742,10 +742,9 @@ inline void Voice::LoadSources() {
   
   // Apply the modulation operators
   for (uint8_t i = 0; i < 2; ++i) {
-    // BRING ME BACK!!!!
-    /*if (!engine.patch_.ops_[i].op) {
+    if (!engine.patch_.ops_[i].op) {
       continue;
-    }*/
+    }
     uint8_t x = engine.patch_.ops_[i].operands[0];
     uint8_t y = engine.patch_.ops_[i].operands[1];
     x = modulation_sources_[x];
@@ -797,10 +796,9 @@ inline void Voice::ProcessModulationMatrix() {
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     int8_t amount = engine.patch_.modulation_matrix.modulation[i].amount;
-    // BRING ME BACK!!!
-    /*if (!amount) {
+    if (!amount) {
       continue;
-    }*/
+    }
 
     // The rate of the last modulation is adjusted by the wheel.
     if (i == kModulationMatrixSize - 1) {
