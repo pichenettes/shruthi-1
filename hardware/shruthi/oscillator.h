@@ -68,9 +68,9 @@ static inline uint8_t InterpolateSample(
   uint8_t work;
   asm(
     "movw r30, %A2"           "\n\t"  // copy base address to r30:r31
-    "mov %1, %A3"             "\n\t"  // move phaseL to working register
     "add r30, %B3"            "\n\t"  // increment table address by phaseH
     "adc r31, r1"             "\n\t"  // just carry
+    "mov %1, %A3"             "\n\t"  // move phaseL to working register
     "lpm %0, z+"              "\n\t"  // load sample[n]
     "lpm r1, z+"              "\n\t"  // load sample[n+1]
     "mul %1, r1"              "\n\t"  // multiply second sample by phaseL
@@ -88,32 +88,6 @@ static inline uint8_t InterpolateSample(
   return result;
 }
 
-static inline uint8_t InterpolateSampleCretin(
-    const prog_uint8_t* table,
-    uint16_t phase) {
-  uint8_t result;
-  asm(
-    "movw r30, %A1"           "\n\t"  // copy base address to r30:r31
-    "add r30, %B2"            "\n\t"  // increment table address by phaseH
-    "adc r31, r1"             "\n\t"  // just carry
-    "lpm %0, z+"              "\n\t"  // load sample[n]
-    "lpm r1, z+"              "\n\t"  // load sample[n+1]
-    "mul %0, r1"             "\n\t"  // multiply second sample by phaseL
-    "movw r30, r0"            "\n\t"  // result to accumulator
-    "com %0"                 "\n\t"  // 255 - phaseL -> phaseL
-    "mul %0, %0"             "\n\t"  // multiply first sample by phaseL
-    "com %0"                 "\n\t"  // 255 - phaseL -> phaseL
-    "add r30, r0"             "\n\t"  // accumulate L
-    "adc r31, r1"             "\n\t"  // accumulate H
-    "eor r1, r1"              "\n\t"  // reset r1 after multiplication
-    "mov %0, r31"             "\n\t"  // use sum H as output
-    : "=r" (result)
-    : "a" (table), "a" (phase)
-    : "r30", "r31"
-  );
-  return result;
-}
-
 static inline uint8_t InterpolateSampleRam(
     const uint8_t* table,
     uint16_t phase) __attribute__((always_inline));
@@ -126,9 +100,9 @@ static inline uint8_t InterpolateSampleRam(
   uint8_t work;
   asm(
     "movw r30, %A2"           "\n\t"  // copy base address to r30:r31
-    "mov %1, %A3"             "\n\t"  // move phaseL to working register
     "add r30, %B3"            "\n\t"  // increment table address by phaseH
     "adc r31, r1"             "\n\t"  // just carry
+    "mov %1, %A3"             "\n\t"  // move phaseL to working register
     "ld %0, z+"               "\n\t"  // load sample[n]
     "ld r1, z+"               "\n\t"  // load sample[n+1]
     "mul %1, r1"              "\n\t"  // multiply second sample by phaseL
@@ -464,29 +438,33 @@ class Oscillator {
       UpdatePhase();
       uint8_t phase = phase_.integral >> 8;
       uint8_t clipped_phase = phase < 0x20 ? phase << 3 : 0xff;
-      *buffer++ = InterpolateSample(waveform_table[WAV_RES_SINE],
+      // Interpolation causes more aliasing here.
+      *buffer++ = ReadSample(waveform_table[WAV_RES_SINE],
           Mix16(phase, clipped_phase, parameter_ << 1));
     }
   }
   
   static void RenderCzPulseReso(uint8_t* buffer) {
-    uint16_t increment = UpdateCz();
+    uint16_t increment = UpdateCz() << 1;
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        data_.secondary_phase = 0;
+        data_.secondary_phase = 32768;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSampleCretin(
+      uint8_t result = ReadSample(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
+      result >>= 1;
+      result += 128;   
       if (phase_.integral < 0x4000) {
-        *buffer++ = result;
+        *buffer = result;
       } else if (phase_.integral < 0x8000) {
-        *buffer++ = MulScale8(result, ~(phase_.integral - 0x4000) >> 6);
+        *buffer = MulScale8(result, ~(phase_.integral - 0x4000) >> 6);
       } else {
-        *buffer++ = 0;
+        *buffer = 0;
       }
+      ++buffer;
     }
   }
   
@@ -498,7 +476,7 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSampleCretin(
+      uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
       *buffer++ = MulScale8(result, ~(phase_.integral >> 8));
@@ -513,7 +491,7 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSampleCretin(
+      uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
       uint8_t triangle =  (phase_.integral & 0x8000) ?
@@ -531,7 +509,7 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSampleCretin(
+      uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
       *buffer++ = phase_.integral < 0x8000 ? result : 128;
@@ -664,8 +642,9 @@ class Oscillator {
         data_.vw.formant_phase[2] = 0;
       }
       uint8_t x = SignedClip8(4 * result) + 128;
-      *buffer++ = x;
-      *buffer++ = x;
+      *buffer = x;
+      *buffer = x;
+      buffer += 2;
       size -= 2;
     }
   }
