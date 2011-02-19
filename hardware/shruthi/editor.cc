@@ -114,7 +114,7 @@ PageDefinition Editor::page_definition_[] = {
 
   /* PAGE_FILTER_MULTIMODE */ { PAGE_FILTER_FILTER, GROUP_FILTER,
     PAGE_OSC_OSC_MIX, PAGE_MOD_ENV_1,
-    STR_RES_FILTER_2, PARAMETER_EDITOR, 58, LED_3_MASK },
+    STR_RES_FILTER_2, PARAMETER_EDITOR, 62, LED_3_MASK },
 
   /* PAGE_MOD_ENV_1 */ { PAGE_MOD_ENV_2, GROUP_MOD_SOURCES,
     PAGE_FILTER_MULTIMODE, PAGE_MOD_ENV_2,
@@ -231,6 +231,7 @@ uint8_t Editor::locked_[kNumEditingPots];
 /* static */
 void Editor::Init() {
   line_buffer_[kLcdWidth] = '\0';
+  ConfigureFilterMenu();
 }
 
 void Editor::ConfigureFilterMenu() {
