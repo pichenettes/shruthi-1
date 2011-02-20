@@ -15,8 +15,11 @@ include hardware/shruthi/makefile
 
 FIRMWARE      = $(BUILD_DIR)shruthi1.hex
 BOOTLOADER    = $(BUILD_ROOT)muboot/muboot.hex
-EEPROM        = hardware/shruthi/data/factory_data/eeprom_content.hex
+EEPROM        = hardware/shruthi/data/factory_data/internal_eeprom.hex
 
 upload_all:	$(FIRMWARE) $(BOOTLOADER)
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
 			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i -U eeprom:w:$(EEPROM):i
+
+backup:	$(EEPROM)
+		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -U eeprom:r:$(EEPROM):i
