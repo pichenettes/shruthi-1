@@ -58,20 +58,10 @@ MEMORY_LAYOUT = [
   (1,  16, 'settings'),
   (16, 92, 'patch'),
   (16, 32, 'sequence'),
-  (1,  48, 'padding'),
+  (1,  48, 'padding')] + [
   (64, 92, 'patch'),
   (64, 32, 'sequence'),
-  (1,  256, 'padding'),
-  (64, 92, 'patch'),
-  (64, 32, 'sequence'),
-  (1,  256, 'padding'),
-  (64, 92, 'patch'),
-  (64, 32, 'sequence'),
-  (1,  256, 'padding'),
-  (64, 92, 'patch'),
-  (64, 32, 'sequence'),
-  (1,  256, 'padding')
-]
+  (1,  256, 'padding')] * 7
 
 
 PARSERS = {

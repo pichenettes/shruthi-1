@@ -54,20 +54,10 @@ MEMORY_LAYOUT = [
   (1,  16, 'settings', lambda x, y: 'settings', HexDump),
   (16, 92, 'patch', lambda x, y: y[68:76], HexDump),
   (16, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
-  (1,  48, 'padding', lambda x, y: 'internal_padding', HexDump),
+  (1,  48, 'padding', lambda x, y: 'internal_padding', HexDump)] + [
   (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
   (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
-  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
-  (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
-  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
-  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
-  (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
-  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
-  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
-  (64, 92, 'patch', lambda x, y: y[68:76], HexDump),
-  (64, 32, 'sequence', lambda x, y: 'sequence_%d' % (x + 1), FormatSequence),
-  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump),
-]
+  (1,  256, 'padding', lambda x, y: 'eeprom_padding', HexDump)] * 7
 
 
 def Denibblize(nibblized_data):
@@ -111,6 +101,7 @@ def ExtractSyxData(syx_content):
 def Parse(data):
   content = {}
   offset = 0
+  
   for entries, size, kind, name_extractor, formatter in MEMORY_LAYOUT:
     extracted_items = content.setdefault(kind, [])
     for entry in range(entries):
