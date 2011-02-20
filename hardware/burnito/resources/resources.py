@@ -55,11 +55,20 @@ includes = """
 """
 create_specialized_manager = False
 
-bytes = file('hardware/shruthi/data/factory_data/factory_data.bin', 'rb').read()
+bytes = file('hardware/shruthi/data/factory_data/factory_data_large.bin', 'rb').read()
 bytes = map(ord, bytes)
-eeprom_blobs = [
-    ('eeprom_content', bytes)
-]
+
+if len(bytes) < 32767:
+  eeprom_blobs = [
+      ('eeprom_content', bytes),
+      ('eeprom_content_tail', [])
+  ]
+else:
+  eeprom_blobs = [
+      ('eeprom_content', bytes[:32767]),
+      ('eeprom_content_tail', bytes[32767:])
+  ]
+
 resources = [
   (eeprom_blobs, 'blob', 'BLOB_RES', 'prog_uint8_t', int, True)
 ]

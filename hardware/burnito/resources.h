@@ -37,8 +37,11 @@ typedef uint8_t ResourceId;
 extern const prog_uint8_t* blob_table[];
 
 extern const prog_uint8_t blob_res_eeprom_content[] PROGMEM;
+extern const prog_uint8_t blob_res_eeprom_content_tail[] PROGMEM;
 #define BLOB_RES_EEPROM_CONTENT 0
-#define BLOB_RES_EEPROM_CONTENT_SIZE 16384
+#define BLOB_RES_EEPROM_CONTENT_SIZE 32767
+#define BLOB_RES_EEPROM_CONTENT_TAIL 1
+#define BLOB_RES_EEPROM_CONTENT_TAIL_SIZE 24577
 
 }  // namespace hardware_burnito
 

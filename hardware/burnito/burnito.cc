@@ -58,6 +58,9 @@ TIMER_0_TICK {
 
 static uint8_t num_banks;
 
+static const uint16_t kTotalSize = BLOB_RES_EEPROM_CONTENT_SIZE + \
+    BLOB_RES_EEPROM_CONTENT_TAIL_SIZE;
+
 void DetectEepromSize() {
   external_eeprom.Init();
   uint16_t address = kMaxNumBanks * kBankSize - 2;
@@ -110,7 +113,7 @@ uint8_t Copy() {
       address += kBlockSize;
       status_leds.Write((1 << (progress + 1)) - 1);
       progress = (progress + 1) & 7;
-      if (address == BLOB_RES_EEPROM_CONTENT_SIZE) {
+      if (address == kTotalSize) {
         break;
       }
     }
@@ -139,7 +142,7 @@ uint8_t Verify() {
       address += kBlockSize;
       status_leds.Write((1 << (progress + 1)) - 1);
       progress = (progress + 1) & 7;
-      if (address == BLOB_RES_EEPROM_CONTENT_SIZE) {
+      if (address == kTotalSize) {
         break;
       }
     }
