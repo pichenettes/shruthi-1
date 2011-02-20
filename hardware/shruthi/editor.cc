@@ -630,11 +630,10 @@ void Editor::HandleLoadSaveClick() {
     }
     if (cursor_ >= kLcdWidth - 4) {
       if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-        Storage::Write(engine.mutable_patch(), current_patch_number_);
+        Storage::WritePatch(current_patch_number_);
       }
       if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-        Storage::Write(engine.mutable_sequencer_settings(),
-                       current_sequence_number_);
+        Storage::WriteSequence(current_sequence_number_);
       }
       action_ = ACTION_LOAD;
     }
@@ -666,7 +665,7 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
     if (action_ == ACTION_LOAD) {
       if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
         uint16_t n = edited_item_number();
-        Storage::Load(engine.mutable_patch(), n);
+        Storage::LoadPatch(n);
         midi_dispatcher.ProgramChange(n);
         engine.TouchPatch(1);
         if (engine.system_settings().patch_restore_on_boot & 0x8000) {
@@ -675,8 +674,7 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
         } 
       }
       if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-        Storage::Load(engine.mutable_sequencer_settings(),
-                      edited_item_number());
+        Storage::LoadSequence(edited_item_number());
         engine.TouchSequence();
       }
     }

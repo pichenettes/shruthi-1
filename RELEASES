@@ -22,11 +22,16 @@ cutoff, param1/param2 for pedals and joystick.
 a 512kb eeprom is used, the last 64kb block is not used (this is due to the
 fact that 16-bit arithmetic is used to compute addresses, and that the
 address space includes the 16kb of the internal eeprom).
+- Patches / sequences loading and saving can now be linked together (loading
+patch 15 simultaneously loads sequence 15...). Since it is not clear how this
+feature will be exposed in the UI, it is for now dormant.
 
 MIDI
 
 - SysEx Patch request command (0x11 0x00). Upon reception of this command, the
 Shruthi dumps the currently edited patch. Might be useful for an editor!
+- SysEx Patch write command (0x21 0x00 0xnn 0xnn). Upon reception of this
+command, the Shruthi writes the current patch to a target memory.
 - Support for NRPN increment/decrement.
 - The SysEx backup protocol has been extended to support backing up / restoring
 more than 16kb of patch data.

@@ -86,12 +86,34 @@ static const prog_char sysex_rx_header[] PROGMEM = {
   // - 0x01: patch transfer
   // - 0x02: sequence transfer
   // - 0x03: waveform transfer
-  // - 0x11: path transfer request
+  // - 0x11: patch transfer request
+  // - 0x12: sequence transfer request
+  // - 0x21: patch write request
+  // - 0x22: sequence write request
   // - 0x4n: big dump, n-th 16kb of addressable space
   // * Argument byte:
   // Not used for 0x01-0x03, but used for block numbering for 0x4n.
 };
 
+/* static */
+void Storage::WritePatch(uint16_t slot) {
+  Write(engine.mutable_patch(), slot);
+}
+
+/* static */
+void Storage::WriteSequence(uint16_t slot) {
+  Write(engine.mutable_sequencer_settings(), slot);
+}
+
+/* static */
+void Storage::LoadPatch(uint16_t slot) {
+  Load(engine.mutable_patch(), slot);
+}
+
+/* static */
+void Storage::LoadSequence(uint16_t slot) {
+  Load(engine.mutable_sequencer_settings(), slot);
+}
 
 /* static */
 void Storage::SysExDumpBuffer(
@@ -177,8 +199,14 @@ void Storage::SysExParseCommand() {
       sysex_rx_expected_size_ = kUserWavetableSize;
       break;
     
-    case 0x11:  // Patch request
+    case 0x11:  // Patch or sequence request
+    case 0x12:
       sysex_rx_expected_size_ = 0;
+      break;
+
+    case 0x21:  // Patch or sequence write request
+    case 0x22:
+      sysex_rx_expected_size_ = 2;
       break;
         
     case 0x40:
@@ -213,6 +241,18 @@ void Storage::SysExAcceptBuffer() {
     
     case 0x11:
       Storage::SysExDump(engine.mutable_patch());
+      break;
+
+    case 0x12:
+      Storage::SysExDump(engine.mutable_sequencer_settings());
+      break;
+
+    case 0x21:
+      WritePatch((sysex_rx_buffer_[0] << 8) | (sysex_rx_buffer_[1]));
+      break;
+
+    case 0x22:
+      WriteSequence((sysex_rx_buffer_[0] << 8) | (sysex_rx_buffer_[1]));
       break;
     
     case 0x40:  // Raw data dump

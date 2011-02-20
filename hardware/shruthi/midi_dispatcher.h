@@ -97,7 +97,7 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
   static void ProgramChange(uint8_t channel, uint8_t program) {
     uint16_t n = program + (current_bank_ << 7);
     if (n < Storage::size<Patch>()) {
-      Storage::Load(engine.mutable_patch(), n);
+      Storage::LoadPatch(n);
       // Do not force a SysEx sync because the slave in the polychain will also
       // receive the program change anyway!
       engine.TouchPatch(0);

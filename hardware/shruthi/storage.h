@@ -91,6 +91,7 @@ class Storage {
 
   template<typename T>
   static void SysExDump(T* ptr) {
+    ptr->PrepareForWrite();
     SysExDumpBuffer(
         ptr->saved_data(),
         StorageConfiguration<T>::sysex_object_id,
@@ -104,13 +105,30 @@ class Storage {
 
   template<typename T>
   static void Backup(T* ptr) {
+    ptr->PrepareForWrite();
     memcpy(undo_buffer_, ptr->saved_data(), StorageConfiguration<T>::size);
   }
   template<typename T>
   static void Restore(T* ptr) {
-    memcpy(ptr->saved_data(), undo_buffer_, StorageConfiguration<T>::size);
+    AcceptData(ptr, undo_buffer_);
   }
   
+  static void WritePatch(uint16_t slot);
+  static void WriteSequence(uint16_t slot);
+  static void LoadPatch(uint16_t slot);
+  static void LoadSequence(uint16_t slot);
+  
+  template<typename T>
+  static uint8_t AcceptData(T* ptr, uint8_t* data) {
+    uint8_t success = ptr->CheckBuffer(data);
+    if (success) {
+      memcpy(ptr->saved_data(), data, StorageConfiguration<T>::size);
+      ptr->Update();
+    }
+    return success;
+  }
+   
+ private:
   template<typename T>
   static void Write(T* ptr, uint16_t slot) {
     ptr->PrepareForWrite();
@@ -144,17 +162,6 @@ class Storage {
   }
   
   template<typename T>
-  static uint8_t AcceptData(T* ptr, uint8_t* data) {
-    uint8_t success = ptr->CheckBuffer(data);
-    if (success) {
-      memcpy(ptr->saved_data(), data, StorageConfiguration<T>::size);
-      ptr->Update();
-    }
-    return success;
-  }
-   
- private:
-  template<typename T>
   static uint8_t* address(uint16_t slot) {
     if (slot < StorageConfiguration<T>::num_internal) {
       return (uint8_t*)(
@@ -170,8 +177,7 @@ class Storage {
       return (uint8_t*)(base + StorageConfiguration<T>::size * slot);
     }
   }
-
- private:
+  
   static void WriteExternal(const uint8_t* data, uint16_t address, uint8_t size);
   static void ReadExternal(uint8_t* data, uint16_t address, uint8_t size);
   static void SysExParseCommand();
