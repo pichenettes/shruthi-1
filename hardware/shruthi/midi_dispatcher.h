@@ -196,6 +196,7 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
     if (value & 0x80) {
       Send3(0xb0 | channel(), hardware_midi::kDataEntryMsb, 1);
     }
+    Send3(0xb0 | channel(), hardware_midi::kDataEntryLsb, value & 0x7f);
   }
 
   static inline void ProgramChange(uint16_t n) {
