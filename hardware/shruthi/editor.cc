@@ -467,9 +467,6 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       confirm_save_system_settings.callback = &SaveSystemSettings;
       Confirm(confirm_save_system_settings);
     } else if (current_page_ != PAGE_PERFORMANCE) {
-      if (engine.system_settings().sequence_patch_coupling) {
-        editor_mode_ = EDITOR_MODE_PATCH;
-      }
       if (editor_mode_ == EDITOR_MODE_PATCH) {
         load_save_target_ = LOAD_SAVE_TARGET_PATCH;
       } else {
@@ -1301,12 +1298,18 @@ void Editor::DisplayConfirmPage() {
 
 /* static */
 void Editor::BootOnPatchBrowsePage(uint8_t index) {
-  ToggleLoadSaveAction();
+  if (engine.system_settings().sequence_patch_coupling) {
+    load_save_target_ = LOAD_SAVE_TARGET_BOTH;
+  } else {
+    load_save_target_ = LOAD_SAVE_TARGET_PATCH;
+  }
   if (index >= Storage::size<Patch>()) {
     index = Storage::size<Patch>() - 1;
   } 
   current_patch_number_ = index;
+  ToggleLoadSaveAction();
   HandleLoadSaveIncrement(0);
+  Refresh();
 }
 
 }  // namespace hardware_shruthi
