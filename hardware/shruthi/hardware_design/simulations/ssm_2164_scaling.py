@@ -1,5 +1,22 @@
 import numpy
 
+"""
+Solution with 5k trimmer:
+
+R_input = 47 * k
+R_bias = 47 * k
+R_feedback = 22.0 * k
+
+R_divide_ground = 47.0 * k
+R_divide_output = 2.2 * k
+
+
+With 2.0k trimmer:
+R_divide_ground = 68.0 * k
+R_divide_output = 5.6 * k
+
+"""
+
 k = 1.0e3
 m = 1e-3
 u = 1e-6
@@ -31,8 +48,7 @@ def Divide(x, a, b):
 
 
 def CvScaler(x):
-  return Divide(
-      -R_feedback * (x / R_input + vee / R_bias),
+  return Divide(-R_feedback * (x / R_input + vee / R_bias), 
       R_divide_ground,
       R_divide_output)
   
@@ -41,12 +57,14 @@ vcc = 5.0
 vee = -5.0
 gnd = 0.0
 
-R_input = 33 * k
-R_bias = 66.0 * k
-R_feedback = 5.6 * k
+R_input = 48 * k
+R_bias = 47 * k 
+R_feedback = 22.0 * k
 
-R_divide_ground = 2.0 * k
-R_divide_output = 6.8 * k
+R_divide_ground = 68.0 * k
+R_divide_output = 5.6 * k
 
 print SSM2164CvToFreq(CvScaler(0)), cutoff_min
 print SSM2164CvToFreq(CvScaler(5)), cutoff_max
+
+ideal_gain = (2.168-0.04425) / 5
