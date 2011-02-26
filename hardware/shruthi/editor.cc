@@ -426,6 +426,14 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
           Confirm(confirm_midi_backup);
         }
         break;
+        
+      case KEY_MODE:
+        {
+          engine.mutable_system_settings()->sequence_patch_coupling ^= 1;
+          current_page_ = 0;
+          ToggleLoadSaveAction();
+        }
+        break;
     }
   } else if (event.hold_time >= 6) {
     switch (event.id) {
@@ -467,14 +475,6 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       confirm_save_system_settings.callback = &SaveSystemSettings;
       Confirm(confirm_save_system_settings);
     } else if (current_page_ != PAGE_PERFORMANCE) {
-      if (editor_mode_ == EDITOR_MODE_PATCH) {
-        load_save_target_ = LOAD_SAVE_TARGET_PATCH;
-      } else {
-        load_save_target_ = LOAD_SAVE_TARGET_SEQUENCE;
-      }
-      if (engine.system_settings().sequence_patch_coupling) {
-        load_save_target_ = LOAD_SAVE_TARGET_BOTH;
-      }
       ToggleLoadSaveAction();
     }
   } else {
@@ -556,6 +556,15 @@ void Editor::RestoreEditBuffer() {
 
 /* static */
 void Editor::ToggleLoadSaveAction() {
+  if (editor_mode_ == EDITOR_MODE_PATCH) {
+    load_save_target_ = LOAD_SAVE_TARGET_PATCH;
+  } else {
+    load_save_target_ = LOAD_SAVE_TARGET_SEQUENCE;
+  }
+  if (engine.system_settings().sequence_patch_coupling) {
+    load_save_target_ = LOAD_SAVE_TARGET_BOTH;
+  }
+  
   if (current_page_ != PAGE_LOAD_SAVE) {
     if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
       Storage::Backup(engine.mutable_patch());
@@ -581,7 +590,7 @@ void Editor::ToggleLoadSaveAction() {
 
 /* static */
 uint16_t Editor::edited_item_number() {
-  if (editor_mode_ == EDITOR_MODE_PATCH) {
+  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
     return current_patch_number_;
   } else {
     return current_sequence_number_;
@@ -593,7 +602,7 @@ void Editor::set_edited_item_number(int16_t value) {
   if (value < 0) {
     value = 0;
   }
-  if (editor_mode_ == EDITOR_MODE_PATCH) {
+  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
     if (value >= Storage::size<Patch>()) {
       value = Storage::size<Patch>() - 1;
     }
@@ -608,7 +617,7 @@ void Editor::set_edited_item_number(int16_t value) {
 
 /* static */
 uint8_t Editor::is_cursor_at_valid_position() {
-  uint16_t allowed_cursor_positions = editor_mode_ == EDITOR_MODE_PATCH
+  uint16_t allowed_cursor_positions = load_save_target_ & LOAD_SAVE_TARGET_PATCH
       ? 0x0ff7 : 0x0007;
   return ((1 << cursor_) & allowed_cursor_positions) != 0;
 }
@@ -649,7 +658,7 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
       if (cursor_ <= 2) {
         set_edited_item_number(edited_item_number() + increment);
       } else if (cursor_ >= 4 && cursor_ < 4 + kPatchNameSize &&
-                 editor_mode_ == EDITOR_MODE_PATCH) {
+                 load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
         uint8_t value = engine.patch().name[cursor_ - 4];
         value += increment;
         if (value >= 32 && value <= 128) {
@@ -693,7 +702,7 @@ void Editor::DisplayLoadSavePage() {
   line_buffer_[7] = ':';
   display.Print(0, line_buffer_);
 
-  if (editor_mode_ == EDITOR_MODE_PATCH) {
+  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
     UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
     AlignRight(line_buffer_, 3);
     memcpy(line_buffer_ + 4, engine.patch().name, kPatchNameSize);
@@ -1298,15 +1307,11 @@ void Editor::DisplayConfirmPage() {
 
 /* static */
 void Editor::BootOnPatchBrowsePage(uint8_t index) {
-  if (engine.system_settings().sequence_patch_coupling) {
-    load_save_target_ = LOAD_SAVE_TARGET_BOTH;
-  } else {
-    load_save_target_ = LOAD_SAVE_TARGET_PATCH;
-  }
   if (index >= Storage::size<Patch>()) {
     index = Storage::size<Patch>() - 1;
   } 
   current_patch_number_ = index;
+  current_page_ = 0;
   ToggleLoadSaveAction();
   HandleLoadSaveIncrement(0);
   Refresh();
