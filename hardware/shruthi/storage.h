@@ -54,6 +54,7 @@ template<> class StorageConfiguration<Patch> {
     offset_external = 0,
     size = PATCH_SIZE,
     sysex_object_id = 0x01,
+    undo_buffer_offset = 0,
   };
 };
 
@@ -67,7 +68,8 @@ template<> class StorageConfiguration<SequencerSettings> {
     offset_external = StorageConfiguration<Patch>::offset_external + \
         StorageConfiguration<Patch>::num_external * PATCH_SIZE,
     size = sizeof(SequenceStep) * kNumSteps,
-    sysex_object_id = 0x02,  
+    sysex_object_id = 0x02,
+    undo_buffer_offset = PATCH_SIZE,
   };
 };
 
@@ -106,11 +108,14 @@ class Storage {
   template<typename T>
   static void Backup(T* ptr) {
     ptr->PrepareForWrite();
-    memcpy(undo_buffer_, ptr->saved_data(), StorageConfiguration<T>::size);
+    memcpy(
+        undo_buffer_ + StorageConfiguration<T>::undo_buffer_offset,
+        ptr->saved_data(),
+        StorageConfiguration<T>::size);
   }
   template<typename T>
   static void Restore(T* ptr) {
-    AcceptData(ptr, undo_buffer_);
+    AcceptData(ptr, undo_buffer_ + StorageConfiguration<T>::undo_buffer_offset);
   }
   
   static void WritePatch(uint16_t slot);
@@ -187,7 +192,7 @@ class Storage {
       uint8_t command,
       uint8_t argument,
       uint8_t size);
-  static uint8_t undo_buffer_[sizeof(Patch)];
+  static uint8_t undo_buffer_[128];
   static uint8_t load_buffer_[sizeof(Patch)];
   static uint8_t sysex_rx_buffer_[129];
   static uint8_t* sysex_rx_destination_;

@@ -100,7 +100,7 @@ class SwitchArray {
     }
     return e;
   }
-
+  
   static uint8_t Read() {
     T value = Register::Read();
     uint32_t now = milliseconds();

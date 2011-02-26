@@ -56,7 +56,7 @@ uint8_t Storage::sysex_rx_buffer_[129];
 uint8_t* Storage::sysex_rx_destination_;
 
 /* static */
-uint8_t Storage::undo_buffer_[sizeof(Patch)];
+uint8_t Storage::undo_buffer_[128];
 
 /* static */
 uint16_t Storage::sysex_rx_bytes_received_;
