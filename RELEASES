@@ -12,6 +12,9 @@ are now on the same page as the oscillator 1 settings.
 - Holding the load/save switch (S6) pressed down while rotating the encoder
 allows the values to be incremented/decremented by steps of 10.
 Useful for browsing patches!
+- Patches / sequences loading and saving can now be linked together (loading
+patch 15 simultaneously loads sequence 15...). This can be enabled/disabled by
+pressing S6+S5 in the load/save page.
 
 SYSTEM
 
@@ -22,9 +25,6 @@ cutoff, param1/param2 for pedals and joystick.
 a 512kb eeprom is used, the last 64kb block is not used (this is due to the
 fact that 16-bit arithmetic is used to compute addresses, and that the
 address space includes the 16kb of the internal eeprom).
-- Patches / sequences loading and saving can now be linked together (loading
-patch 15 simultaneously loads sequence 15...). Since it is not clear how this
-feature will be exposed in the UI, it is for now dormant.
 
 MIDI
 

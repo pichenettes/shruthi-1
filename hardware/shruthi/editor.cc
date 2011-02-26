@@ -474,16 +474,17 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       confirm_save_system_settings.return_group = GROUP_SYS;
       confirm_save_system_settings.callback = &SaveSystemSettings;
       Confirm(confirm_save_system_settings);
-    } else if (current_page_ != PAGE_PERFORMANCE) {
+    } else {
       ToggleLoadSaveAction();
     }
   } else {
     uint8_t id = event.id;
     if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
       JumpToPageGroup(id + GROUP_SEQUENCER_ARPEGGIATOR);
-    } else {
-      editor_mode_ = EDITOR_MODE_PATCH;
+    } else if (editor_mode_ == EDITOR_MODE_PATCH) {
       JumpToPageGroup(id + GROUP_OSC);
+    } else {
+      JumpToPageGroup(GROUP_PERFORMANCE);
     }
   }
   Refresh();
@@ -556,10 +557,10 @@ void Editor::RestoreEditBuffer() {
 
 /* static */
 void Editor::ToggleLoadSaveAction() {
-  if (editor_mode_ == EDITOR_MODE_PATCH) {
-    load_save_target_ = LOAD_SAVE_TARGET_PATCH;
-  } else {
+  if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
     load_save_target_ = LOAD_SAVE_TARGET_SEQUENCE;
+  } else {
+    load_save_target_ = LOAD_SAVE_TARGET_PATCH;
   }
   if (engine.system_settings().sequence_patch_coupling) {
     load_save_target_ = LOAD_SAVE_TARGET_BOTH;
