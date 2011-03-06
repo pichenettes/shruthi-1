@@ -637,10 +637,10 @@ void Editor::HandleLoadSaveClick() {
     }
     if (cursor_ >= kLcdWidth - 4) {
       if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-        Storage::WritePatch(current_patch_number_);
+        Storage::WritePatch(edited_item_number());
       }
       if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-        Storage::WriteSequence(current_sequence_number_);
+        Storage::WriteSequence(edited_item_number());
       }
       action_ = ACTION_LOAD;
     }
