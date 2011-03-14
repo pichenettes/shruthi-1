@@ -43,7 +43,7 @@ vee = -5.0
 gnd = 0.0
 
 R_input = 33 * k
-R_bias = 66.0 * k
+R_bias = 78.0 * k
 R_feedback = 5.6 * k
 
 R_divide_ground = 2.0 * k
