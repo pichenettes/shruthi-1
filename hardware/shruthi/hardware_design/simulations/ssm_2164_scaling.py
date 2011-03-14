@@ -48,21 +48,16 @@ def Divide(x, a, b):
 
 
 def CvScaler(x):
-  return Divide(-R_feedback * (x / R_input + vee / R_bias), 
-      R_divide_ground,
-      R_divide_output)
+  return -R_feedback * (x / R_input + vee / R_bias)
   
 
 vcc = 5.0
 vee = -5.0
 gnd = 0.0
 
-R_input = 48 * k
-R_bias = 47 * k 
-R_feedback = 22.0 * k
-
-R_divide_ground = 68.0 * k
-R_divide_output = 5.6 * k
+R_input = 35.3 * k
+R_bias = 34.6 * k 
+R_feedback = 15.0 * k
 
 print SSM2164CvToFreq(CvScaler(0)), cutoff_min
 print SSM2164CvToFreq(CvScaler(5)), cutoff_max
