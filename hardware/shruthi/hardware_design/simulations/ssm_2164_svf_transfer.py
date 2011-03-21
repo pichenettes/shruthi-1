@@ -6,7 +6,8 @@ w = 2 * numpy.pi * f
 
 Rg = 33000.0
 Ri = 33000.0
-Rb = 22000.0
+Rq = 15000.0
+# Rb = 22000.0
 R = 33000.0
 C = 220e-12
 
@@ -15,22 +16,22 @@ def transfer(f_cv, q_cv, w, output):
   s = 1j * w
   
   alpha = -1 / (R * C * s) * 10 ** (-1.5 * f_cv)
-  beta = Rb / R * 10 ** (-1.5 * q_cv)
+  # beta = Rb / R * 10 ** (-1.5 * q_cv)
+  beta = (10 ** (-1.5 * q_cv)) * Rg / Rq
 
   g = Rg / Ri
-  q = 1 / (2 + g) * 1.0 / beta
+  # q = 1 / (2 + g) * 1.0 / beta
+  q = 1.0 / beta
   wc = 1 / (R * C) * (10 ** (-1.5 * f_cv))
 
-  print g, q, wc
-  
   lp = -g / (s ** 2 / wc ** 2 + s / w * 1 / q + 1)
   bp = lp / alpha
   hp = bp / alpha
   
   return [lp, bp, hp][output]
 
+
 if __name__ == '__main__':
-  main()
   num_freqs = 5
   num_q = 4
 
