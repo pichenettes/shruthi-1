@@ -556,6 +556,16 @@ void Editor::RestoreEditBuffer() {
 }
 
 /* static */
+void Editor::BackupEditBuffer() {
+  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
+    Storage::Backup(engine.mutable_patch());
+  }
+  if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
+    Storage::Backup(engine.mutable_sequencer_settings());
+  }
+}
+
+/* static */
 void Editor::ToggleLoadSaveAction() {
   if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
     load_save_target_ = LOAD_SAVE_TARGET_SEQUENCE;
@@ -567,16 +577,10 @@ void Editor::ToggleLoadSaveAction() {
   }
   
   if (current_page_ != PAGE_LOAD_SAVE) {
-    if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-      Storage::Backup(engine.mutable_patch());
-    }
-    if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-      Storage::Backup(engine.mutable_sequencer_settings());
-    }
+    BackupEditBuffer();
     action_ = ACTION_LOAD;
   } else {
     if (action_ != ACTION_SAVE) {
-      RestoreEditBuffer();
       action_ = ACTION_SAVE;
     } else {
       action_ = ACTION_COMPARE;
