@@ -258,6 +258,7 @@ class Editor {
   static void HandleLoadSaveIncrement(int8_t increment);
   static void HandleLoadSaveClick();
   
+  static void BackupEditBuffer();
   static void RestoreEditBuffer();
   static uint16_t edited_item_number();
   static void set_edited_item_number(int16_t value);
