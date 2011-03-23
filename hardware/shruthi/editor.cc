@@ -230,6 +230,8 @@ uint8_t Editor::locked_[kNumEditingPots];
 
 /* static */
 void Editor::Init() {
+  ParameterDefinitions::Init();
+  
   line_buffer_[kLcdWidth] = '\0';
   ConfigureFilterMenu();
 }

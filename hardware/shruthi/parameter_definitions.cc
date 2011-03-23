@@ -416,6 +416,33 @@ const ParameterDefinition& ParameterDefinitions::parameter_definition(
 }
 
 /* static */
+uint8_t ParameterDefinitions::offset_to_id_map_[128];
+
+/* static */
+void ParameterDefinitions::Init() {
+  uint8_t i = 0;
+  memset(offset_to_id_map_, 0xff, 128);
+  for (uint16_t offset = 0;
+       offset < sizeof(raw_parameter_definition);
+       offset += sizeof(ParameterDefinition), ++i) {
+    uint8_t prm = ResourcesManager::Lookup<uint8_t, uint16_t>(
+        raw_parameter_definition,
+        offset);
+    if (prm != PRM_MOD_ROW && prm != PRM_OP_ROW) {
+      offset_to_id_map_[prm] = i;
+    }
+  }
+}
+
+/* static */
+uint8_t ParameterDefinitions::MemoryOffsetToId(uint8_t i) {
+  while (offset_to_id_map_[i] == 0xff && i <= 128) {
+    i -= 3;
+  }
+  return offset_to_id_map_[i];
+}
+
+/* static */
 uint8_t ParameterDefinitions::Scale(
     const ParameterDefinition& parameter,
     uint8_t value_7bits) {

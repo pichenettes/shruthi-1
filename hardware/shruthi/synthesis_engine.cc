@@ -297,16 +297,8 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         if (nrpn_parameter_number_ != 255) {
           dirty_ = 1;
           // Finds the parameter definition id matching this parameter id.
-          uint8_t parameter_definition_id = nrpn_parameter_number_;
-          if (parameter_definition_id >= PRM_SEQ_MODE) {
-            parameter_definition_id -= PRM_SEQ_MODE;
-            parameter_definition_id += PRM_MOD_ROW + 1;
-          } else if (parameter_definition_id >= PRM_MOD_SOURCE) {
-            while (parameter_definition_id > PRM_MOD_AMOUNT) {
-              parameter_definition_id -= 3;
-            }
-            ++parameter_definition_id;
-          }
+          uint8_t parameter_definition_id = \
+              ParameterDefinitions::MemoryOffsetToId(nrpn_parameter_number_);
           const ParameterDefinition& p = (
               ParameterDefinitions::parameter_definition(
                   parameter_definition_id));

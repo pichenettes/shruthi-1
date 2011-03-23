@@ -71,16 +71,18 @@ struct ParameterDefinition {
 class ParameterDefinitions {
  public:
   ParameterDefinitions() { }
+  static void Init();
   static const ParameterDefinition& parameter_definition(uint8_t index);
   static uint8_t Scale(const ParameterDefinition& parameter, uint8_t value);
   static uint8_t Increment(
       const ParameterDefinition& parameter,
       uint8_t value,
       int8_t increment);
-  
+  static uint8_t MemoryOffsetToId(uint8_t i);
  private:
   static ParameterDefinition parameter_definition_;
   static uint8_t parameter_definition_index_;
+  static uint8_t offset_to_id_map_[128];
   
   DISALLOW_COPY_AND_ASSIGN(ParameterDefinitions);
 };
