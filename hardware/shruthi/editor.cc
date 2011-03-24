@@ -696,6 +696,12 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
 
 /* static */
 void Editor::DisplayLoadSavePage() {
+  if (display_mode_ == DISPLAY_MODE_EDIT_TEMPORARY
+      && action_ != ACTION_SAVE
+      && engine.system_settings().display_delay) {
+    DisplayEditDetailsPage();
+    return;
+  }
   ResourcesManager::LoadStringResource(
       STR_RES_BROWSE + action_,
       line_buffer_,
