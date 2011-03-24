@@ -96,24 +96,31 @@ if __name__ == '__main__':
       help='Store additional technical gibberish')
 
   options, args = parser.parse_args()
-  if len(args) != 1:
-    logging.fatal('Specify one, and only one wavetable .bin file!')
+  if len(args) < 1:
+    logging.fatal('Specify at least one wavetable .bin file!')
     sys.exit(1)
 
-  data = file(args[0]).read()
-  if not data or len(data) < 129 * 8:
-    logging.fatal('Error while loading .hex file')
-    sys.exit(2)
+  for f in args[1:]:
+    data = map(ord, file(f).read())
+    assert len(data) == 2048
+    if not data or len(data) < 129 * 8:
+      logging.fatal('Error while loading .bin file')
+      sys.exit(2)
 
-  output_file = options.output_file
-  if not output_file:
-    if '.bin' in args[0]:
-      output_file = args[0].replace('.bin', '.mid')
-    else:
-      output_file = args[0] + '.mid'
+    packed_data = []
+    for i in xrange(0, 16, 2):
+      cycle = data[i * 128:(i + 1)*128]
+      packed_data += cycle + [cycle[0]]
 
-  CreateMidifile(
-      args[0],
-      data[:129 * 8],
-      output_file,
-      options)
+    output_file = options.output_file
+    if not output_file:
+      if '.bin' in f:
+        output_file = f.replace('.bin', '.mid')
+      else:
+        output_file = f + '.mid'
+
+    CreateMidifile(
+        f,
+        ''.join(map(chr, packed_data)),
+        output_file,
+        options)

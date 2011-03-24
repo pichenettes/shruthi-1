@@ -92,7 +92,7 @@ static const prog_char sysex_rx_header[] PROGMEM = {
   // - 0x22: sequence write request
   // - 0x4n: big dump, n-th 16kb of addressable space
   // * Argument byte:
-  // Not used for 0x01-0x03, but used for block numbering for 0x4n.
+  // Not used for 0x01-0x22, but used for block numbering for 0x4n.
 };
 
 /* static */
