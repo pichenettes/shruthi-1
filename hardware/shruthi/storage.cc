@@ -148,6 +148,7 @@ void Storage::SysExBulkDump() {
   uint8_t block_id = 0;
   uint8_t progress_leds = 1;
   uint16_t delay;
+
   for (uint16_t start = 0;
        start < addressable_space_size();
        start += kSysExBulkDumpBlockSize) {
@@ -240,10 +241,12 @@ void Storage::SysExAcceptBuffer() {
       break;
     
     case 0x11:
+      Delay(100);
       Storage::SysExDump(engine.mutable_patch());
       break;
 
     case 0x12:
+      Delay(100);
       Storage::SysExDump(engine.mutable_sequencer_settings());
       break;
 
