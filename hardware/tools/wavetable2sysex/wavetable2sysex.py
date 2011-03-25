@@ -51,12 +51,16 @@ def CreateMidifile(
       m.AddTrack().AddEvent(0, midifile.TextEvent(comment))
   t = m.AddTrack()
   t.AddEvent(0, midifile.TempoEvent(120.0))
-  t.AddEvent(1, midifile.SysExEvent(
+  event = midifile.SysExEvent(
       options.manufacturer_id,
       options.device_id,
-      options.update_command + midifile.Nibblize(data)))
+      options.update_command + midifile.Nibblize(data))
+  t.AddEvent(1, event)
   f = file(output_file, 'wb')
-  m.Write(f, format=1)
+  if options.syx:
+    f.write(''.join(event.raw_message))
+  else:
+    m.Write(f, format=1)
   f.close()
 
 
@@ -88,6 +92,13 @@ if __name__ == '__main__':
       default='\x03\x00',
       help='Wavetable transfer SysEx command')
   parser.add_option(
+      '-s',
+      '--syx',
+      dest='syx',
+      action='store_true',
+      default=False,
+      help='Produces a .syx file instead of a MIDI file')
+  parser.add_option(
       '-c',
       '--comments',
       dest='write_comments',
@@ -99,25 +110,24 @@ if __name__ == '__main__':
   if len(args) < 1:
     logging.fatal('Specify at least one wavetable .bin file!')
     sys.exit(1)
-
-  for f in args[1:]:
+  for f in args:
     data = map(ord, file(f).read())
     assert len(data) == 2048
-    if not data or len(data) < 129 * 8:
+    if not data:
       logging.fatal('Error while loading .bin file')
       sys.exit(2)
-
     packed_data = []
     for i in xrange(0, 16, 2):
       cycle = data[i * 128:(i + 1)*128]
       packed_data += cycle + [cycle[0]]
 
     output_file = options.output_file
+    extension = '.syx' if options.syx else '.mid'
     if not output_file:
       if '.bin' in f:
-        output_file = f.replace('.bin', '.mid')
+        output_file = f.replace('.bin', extension)
       else:
-        output_file = f + '.mid'
+        output_file = f + extension
 
     CreateMidifile(
         f,
