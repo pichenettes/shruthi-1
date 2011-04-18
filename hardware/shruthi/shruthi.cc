@@ -224,8 +224,8 @@ void CvTask() {
         MOD_SRC_CV_1 + current_cv,
         analog_inputs.Read(kPinCvInput + current_cv) >> 2);
   } else if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
-    analog_inputs.set_num_inputs(5);
-    int16_t value = analog_inputs.Read(kPinCvInput);
+    analog_inputs.set_num_inputs(4);
+    int16_t value = analog_inputs.Sync(kPinCvInput);
     // Read the pot selected on the multiplexer. If it has been touched, 
     // change the corresponding parameter in the editor, and instruct the
     // scanner to spend more time scanning this pot.

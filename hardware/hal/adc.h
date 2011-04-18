@@ -109,6 +109,17 @@ class AdcInputScanner {
     return state_[pin];
   }
   
+  static uint8_t current_pin() {
+    return current_pin_;
+  }
+  
+  static int16_t Sync(uint8_t pin) {
+    Adc::Wait();
+    int16_t value = Adc::Read(pin);
+    Adc::StartConversion(current_pin_);
+    return value;
+  }
+  
   static void Scan() {
     Adc::Wait();
     state_[current_pin_] = Adc::ReadOut();
