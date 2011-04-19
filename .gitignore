@@ -25,5 +25,4 @@
 *.aux
 
 # OS X crap
-.DS_Store?
-
+.DS_Stor?
