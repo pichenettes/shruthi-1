@@ -183,11 +183,11 @@ class SynthesisEngine : public hardware_midi::MidiDevice {
 
   // Patch manipulation stuff.
   static void SetParameter(
-      uint8_t parameter_index,
+      uint8_t struct_parameter_index,
       uint8_t parameter_value,
       uint8_t user_initiated);
   static void SetScaledParameter(
-      uint8_t parameter_index,
+      uint8_t ui_parameter_index,
       uint8_t value,
       uint8_t user_initiated);
   static inline uint8_t GetParameter(uint8_t parameter_index) {

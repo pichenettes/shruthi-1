@@ -446,7 +446,7 @@ void SynthesisEngine::Stop() {
 
 /* static */
 void SynthesisEngine::SetScaledParameter(
-    uint8_t parameter_index,
+    uint8_t ui_parameter_index,
     uint8_t value,
     uint8_t user_initiated) {
   dirty_ = 1;
@@ -460,7 +460,7 @@ void SynthesisEngine::SetScaledParameter(
 
 /* static */
 void SynthesisEngine::SetParameter(
-    uint8_t parameter_index,
+    uint8_t struct_parameter_index,
     uint8_t parameter_value,
     uint8_t user_initiated) {
   if (data_access_byte_[parameter_index + 1] == parameter_value) {
