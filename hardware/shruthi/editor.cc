@@ -43,34 +43,34 @@ Editor editor;
 
 static const prog_uint16_t units_definitions[UNIT_LAST]
     PROGMEM = {
-  0,
-  0,
-  0,
-  STR_RES_OFF,
-  STR_RES_NONE,
-  STR_RES_SQ1,
-  STR_RES_SUM,
-  STR_RES_TRI,
-  0,
-  0,
-  STR_RES_LFO_1,
-  STR_RES_CUTOFF,
-  STR_RES_3,
-  STR_RES_EQUAL,
-  0,
-  STR_RES__OFF,
-  STR_RES_STP,
-  STR_RES_T,
-  STR_RES_SWING,
-  0,
-  STR_RES_FREE,
-  0,
-  STR_RES__LPF,
-  STR_RES_4CV_IN,
-  STR_RES_LPF,
-  STR_RES_ELP,
-  STR_RES___OFF
-};
+  0,              // UNIT_RAW_UINT8
+  0,              // UNIT_UINT8
+  0,              // UNIT_INT8
+  STR_RES_OFF,    // UNIT_BOOLEAN
+  STR_RES_NONE,   // UNIT_WAVEFORM
+  STR_RES_SQ1,    // UNIT_SUB_OSC_WAVEFORM
+  STR_RES_SUM,    // UNIT_OPERATOR
+  STR_RES_TRI,    // UNIT_LFO_WAVEFORM
+  0,              // UNIT_LFO_RATE
+  0,              // UNIT_INDEX
+  STR_RES_LFO_1,  // UNIT_MODULATION_SOURCE
+  STR_RES_CUTOFF, // UNIT_MODULATION_DESTINATION
+  STR_RES_3,      // UNIT_ARPEGGIO_DIRECTION
+  STR_RES_EQUAL,  // UNIT_RAGA
+  0,              // UNIT_TEMPO_WITH_EXTERNAL_CLOCK
+  STR_RES__OFF,   // UNIT_MIDI_MODE
+  STR_RES_STP,    // UNIT_SEQUENCER_MODE
+  STR_RES_T,      // UNIT_SEQUENCER_WARP
+  STR_RES_SWING,  // UNIT_GROOVE_TEMPLATE
+  0,              // UNIT_ARPEGGIO_PATTERN
+  STR_RES_FREE,   // UNIT_LFO_RETRIGGER_MODE
+  0,              // UNIT_SPLIT_POINT
+  STR_RES__LPF,   // UNIT_FILTER_BOARD
+  STR_RES_4CV_IN, // UNIT_CV_MODE
+  STR_RES_LPF,    // UNIT_FILTER_1_MODE
+  STR_RES_ELP,    // UNIT_FILTER_2_MODE
+  STR_RES___OFF   // UNIT_CV_OPERATOR
+};  // UNIT_LAST
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
   0x03, 0x04, 0x05, '?'  // Up, Down, UpDown, Random

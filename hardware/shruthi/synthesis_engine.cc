@@ -451,7 +451,7 @@ void SynthesisEngine::SetScaledParameter(
     uint8_t user_initiated) {
   dirty_ = 1;
   const ParameterDefinition& parameter = (
-      ParameterDefinitions::parameter_definition(parameter_index));
+      ParameterDefinitions::parameter_definition(ui_parameter_index));
   SetParameter(
       parameter.id,
       ParameterDefinitions::Scale(parameter, value),
@@ -463,24 +463,24 @@ void SynthesisEngine::SetParameter(
     uint8_t struct_parameter_index,
     uint8_t parameter_value,
     uint8_t user_initiated) {
-  if (data_access_byte_[parameter_index + 1] == parameter_value) {
+  if (data_access_byte_[struct_parameter_index + 1] == parameter_value) {
     return;
   }
-  data_access_byte_[parameter_index + 1] = parameter_value;
-  if (parameter_index >= PRM_ENV_ATTACK_1 &&
-      parameter_index <= PRM_LFO_RETRIGGER_2) {
+  data_access_byte_[struct_parameter_index + 1] = parameter_value;
+  if (struct_parameter_index >= PRM_ENV_ATTACK_1 &&
+      struct_parameter_index <= PRM_LFO_RETRIGGER_2) {
     UpdateModulationRates();
-  } else if ((parameter_index <= PRM_OSC_SHAPE_2) ||
-             (parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
+  } else if ((struct_parameter_index <= PRM_OSC_SHAPE_2) ||
+             (struct_parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
     UpdateOscillatorAlgorithms();
-  } else if (parameter_index >= PRM_SEQ_MODE &&
-             parameter_index < PRM_SYS_OCTAVE) {
+  } else if (struct_parameter_index >= PRM_SEQ_MODE &&
+             struct_parameter_index < PRM_SYS_OCTAVE) {
     // A copy of those parameters is stored by the note dispatcher/arpeggiator,
     // so any parameter change must be forwarded to it.
     controller_.TouchSequence();
   }
   midi_dispatcher.SendParameter(
-      parameter_index, parameter_value, user_initiated);
+      struct_parameter_index, parameter_value, user_initiated);
 }
 
 /* static */
