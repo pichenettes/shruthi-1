@@ -21,7 +21,6 @@ BUILD_ROOT     = build/
 BUILD_DIR      = $(BUILD_ROOT)$(TARGET)/
 PROGRAMMER     = avrispmkII
 
-MCU_NAME       = 644
 MCU            = atmega$(MCU_NAME)p
 DMCU           = m$(MCU_NAME)p
 MCU_DEFINE     = ATMEGA$(MCU_NAME)P

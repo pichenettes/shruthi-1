@@ -111,7 +111,7 @@ struct SerialInput : public Input {
        return;
     }
     // This will discard data if the buffer is full.
-    Buffer<SerialInput<SerialPort> >::NonBlockingWrite(ImmediateRead());
+    RingBuffer<SerialInput<SerialPort> >::NonBlockingWrite(ImmediateRead());
   }
 };
 
@@ -143,7 +143,7 @@ struct SerialOutput : public Output {
 
   // Called in data emission interrupt.
   static inline Value Requested() {
-    Value v = Buffer<SerialOutput<SerialPort> >::NonBlockingRead();
+    Value v = RingBuffer<SerialOutput<SerialPort> >::NonBlockingRead();
     if (v >= 0) {
       Overwrite(v);
     }
@@ -163,7 +163,7 @@ struct SerialImplementation<SerialPort, DISABLED, POLLED> {
 };
 template<typename SerialPort>
 struct SerialImplementation<SerialPort, DISABLED, BUFFERED> {
-  typedef Buffer<SerialOutput<SerialPort> > OutputBuffer;
+  typedef RingBuffer<SerialOutput<SerialPort> > OutputBuffer;
   typedef InputOutput<DisabledInput, OutputBuffer > IO;
 };
 template<typename SerialPort>
@@ -176,23 +176,23 @@ struct SerialImplementation<SerialPort, POLLED, POLLED> {
 };
 template<typename SerialPort>
 struct SerialImplementation<SerialPort, POLLED, BUFFERED> {
-  typedef Buffer<SerialOutput<SerialPort> > OutputBuffer;
+  typedef RingBuffer<SerialOutput<SerialPort> > OutputBuffer;
   typedef InputOutput<SerialInput<SerialPort>, OutputBuffer> IO;
 };
 template<typename SerialPort>
 struct SerialImplementation<SerialPort, BUFFERED, DISABLED> {
-  typedef Buffer<SerialInput<SerialPort> > InputBuffer;
+  typedef RingBuffer<SerialInput<SerialPort> > InputBuffer;
   typedef InputOutput<InputBuffer, DisabledOutput> IO;
 };
 template<typename SerialPort>
 struct SerialImplementation<SerialPort, BUFFERED, POLLED> {
-  typedef Buffer<SerialInput<SerialPort> > InputBuffer;
+  typedef RingBuffer<SerialInput<SerialPort> > InputBuffer;
   typedef InputOutput<InputBuffer, SerialOutput<SerialPort> > IO;
 };
 template<typename SerialPort>
 struct SerialImplementation<SerialPort, BUFFERED, BUFFERED> {
-  typedef Buffer<SerialInput<SerialPort> > InputBuffer;
-  typedef Buffer<SerialOutput<SerialPort> > OutputBuffer;
+  typedef RingBuffer<SerialInput<SerialPort> > InputBuffer;
+  typedef RingBuffer<SerialOutput<SerialPort> > OutputBuffer;
   typedef InputOutput<InputBuffer, OutputBuffer> IO;
 };
 

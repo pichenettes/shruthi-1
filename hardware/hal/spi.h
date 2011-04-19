@@ -17,7 +17,8 @@
 //
 // Fast SPI communication (using the hardware implementation). This will take
 // ownership of the pins 11 (data output),  12 (data input) and 13 (clock), +
-// a user-definable pin for slave selection (10 is recommended, or 10, or... 10)
+// a user-definable pin for slave selection. Pin 10 should be kept as an output
+// pin, since the SPI master/slave mode is based upon the value of this pin.
 //
 // This is a fairly basic implementation:
 // - nothing is buffered, since the overhead of managing a circular buffer is
@@ -33,10 +34,6 @@
 #include "hardware/hal/gpio.h"
 
 namespace hardware_hal {
-
-const uint8_t kSpiDataOutPin = 11;
-const uint8_t kSpiDataInPin = 12;
-const uint8_t kSpiClockPin = 13;
 
 IORegister(SPSR);
 typedef BitInRegister<SPSRRegister, SPI2X> DoubleSpeed;
@@ -56,9 +53,10 @@ class Spi {
     Clock::set_mode(DIGITAL_OUTPUT);
     DataIn::set_mode(DIGITAL_INPUT);
     DataOut::set_mode(DIGITAL_OUTPUT);
+    GlobalSlaveSelect::set_mode(DIGITAL_OUTPUT);  // I'm a master!
     SlaveSelect::set_mode(DIGITAL_OUTPUT);
-
     SlaveSelect::High();
+    GlobalSlaveSelect::High();
 
     // SPI enabled, configured as master.
     uint8_t configuration = _BV(SPE) | _BV(MSTR);
@@ -106,6 +104,7 @@ class Spi {
 
  private:
   typedef Gpio<slave_select_pin> SlaveSelect;
+  typedef Gpio<kSpiSlaveSelectPin> GlobalSlaveSelect;
   typedef Gpio<kSpiDataOutPin> DataOut;
   typedef Gpio<kSpiDataInPin> DataIn;
   typedef Gpio<kSpiClockPin> Clock;

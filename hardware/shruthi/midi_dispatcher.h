@@ -39,7 +39,7 @@ class MidiDispatcher : public hardware_midi::MidiDevice {
     buffer_size = 128,
     data_size = 8,
   };
-  typedef hardware_hal::Buffer<MidiDispatcher> OutputBuffer;
+  typedef hardware_hal::RingBuffer<MidiDispatcher> OutputBuffer;
   typedef hardware_hal::DataTypeForSize<data_size>::Type Value;
   MidiDispatcher() { }
 

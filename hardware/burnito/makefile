@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+MCU_NAME       = 644
 TARGET         = burnito
 PACKAGES       = hardware/base hardware/hal hardware/hal/i2c hardware/hal/devices hardware/utils hardware/burnito
 RESOURCES      = hardware/burnito/resources

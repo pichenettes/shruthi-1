@@ -45,7 +45,7 @@ class AudioOutput {
   };
   typedef AudioOutput<OutputPort, buffer_size_, block_size, underrun_policy> Me;
   typedef typename DataTypeForSize<data_size>::Type Value;
-  typedef Buffer<Me> OutputBuffer;
+  typedef RingBuffer<Me> OutputBuffer;
 
   static inline void Init() {
     OutputPort::Init();

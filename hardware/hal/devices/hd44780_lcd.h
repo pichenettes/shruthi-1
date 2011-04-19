@@ -81,7 +81,7 @@ class Hd44780Lcd {
   };
   typedef Hd44780Lcd<RsPin, EnablePin, ParallelPort, width, height> Me;
   typedef typename DataTypeForSize<data_size>::Type Value;
-  typedef Buffer<Me> OutputBuffer;
+  typedef RingBuffer<Me> OutputBuffer;
 
   Hd44780Lcd() { }
 

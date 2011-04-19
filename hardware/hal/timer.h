@@ -87,25 +87,17 @@ struct TimerImpl {
     // Sets the mode registers.
     *StatusRegisterA::ptr() = (*StatusRegisterA::ptr() & 0xfc) | mode;
   }
-  // Timer 0 (or Timer 1 in fast PWM mode):
-  // value | 0 / 1 in fast mode | 1 / 0 in accurate mode
-  // ---------------------------------------------------
-  // 1     | 62.5 kHz           | 31.2 kHz
-  // 2     | 7.81 kHz           | 3.91 kHz
-  // 3     | 976 Hz             | 488 Hz
-  // 4     | 244 Hz             | 122 Hz
-  // 5     | 61 Hz              | 30 Hz
-  //
-  // Timer 2
-  // value | accurate  | fast
-  // ----------------------------
-  // 1     | 31.2 kHz  | 62.5 kHz
-  // 2     | 3.91 kHz  | 7.81 kHz
-  // 3     | 976 Hz    | 1.95 kHz
-  // 4     | 488 Hz    | 976 Hz
-  // 5     | 244 Hz    | 488 Hz
-  // 6     | 122 Hz    | 244 Hz
-  // 7     | 30 Hz     | 60 Hz
+
+  // These are the values for MCUs clocked at 20 MHz
+  // 
+  // Timer speed
+  // value | fast        | accurate
+  // --------------------------------------
+  // 1     | 78.125 kHz  | 39.062 kHz
+  // 2     | 9.765 kHz   | 4.882 kHz
+  // 3     | 1220.7 Hz   | 610.3 Hz
+  // 4     | 305.2 Hz    | 152.6 Hz
+  // 5     | 76.3 Hz     | 38.1 Hz
   static inline void set_prescaler(uint8_t prescaler) {
     *StatusRegisterB::ptr() = (*StatusRegisterB::ptr() & 0xf8) | prescaler;
   }

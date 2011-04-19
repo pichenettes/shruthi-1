@@ -66,7 +66,7 @@ class Dac {
     if (gain == 1) {
       command |= 0x20;
     }
-    DacInterface::Write(command, value & 0xf0);
+    DacInterface::WriteWord(command, value & 0xf0);
   }
 
  private:

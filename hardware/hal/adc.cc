@@ -22,7 +22,7 @@
 namespace hardware_hal {
 
 /* static */
-uint8_t Adc::reference_ = ADC_DEFAULT << 6;
+uint8_t Adc::admux_value_ = ADC_DEFAULT << 6;
 
 /* static */
 uint8_t AdcInputScanner::current_pin_;

@@ -30,13 +30,16 @@ namespace hardware_hal {
 // Audio rendering... A buffer is created for each Owner - for example,
 // Buffer<AudioClient> represents the audio buffer used by AudioClient.
 template<typename Owner>
-class Buffer : public Input, Output {
+class RingBuffer : public Input, Output {
  public:
   typedef typename Owner::Value Value;
   enum {
     size = Owner::buffer_size,
     data_size = Owner::data_size
   };
+  
+  RingBuffer() { }
+  
   static inline uint8_t capacity() { return size; }
   static inline void Write(Value v) {
     while (!writable());
@@ -94,13 +97,13 @@ class Buffer : public Input, Output {
   static volatile uint8_t read_ptr_;
   static volatile uint8_t write_ptr_;
 
-  DISALLOW_COPY_AND_ASSIGN(Buffer);
+  DISALLOW_COPY_AND_ASSIGN(RingBuffer);
 };
 
 // Static variables created for each buffer.
-template<typename T> volatile uint8_t Buffer<T>::read_ptr_ = 0;
-template<typename T> volatile uint8_t Buffer<T>::write_ptr_ = 0;
-template<typename T> typename T::Value Buffer<T>::buffer_[];
+template<typename T> volatile uint8_t RingBuffer<T>::read_ptr_ = 0;
+template<typename T> volatile uint8_t RingBuffer<T>::write_ptr_ = 0;
+template<typename T> typename T::Value RingBuffer<T>::buffer_[];
 
 }  // namespace hardware_hal
 

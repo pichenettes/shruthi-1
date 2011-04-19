@@ -32,6 +32,11 @@ enum AdcReference {
   ADC_INTERNAL = 3
 };
 
+enum AdcAlignment {
+  ADC_RIGHT_ALIGNED = 0,
+  ADC_LEFT_ALIGNED = 1
+};
+
 IORegister(ADCSRA);
 
 typedef BitInRegister<ADCSRARegister, ADSC> AdcConvert;
@@ -49,7 +54,13 @@ class Adc {
     ADCSRA = (ADCSRA & ~0x07) | (factor & 0x07);
   }
   static inline void set_reference(AdcReference reference) {
-    reference_ = reference << 6;
+    admux_value_ = (admux_value_ & 0x3f) | (reference << 6);
+  }
+  static inline void set_alignemnt(AdcAlignment alignment) {
+    admux_value_ &= 0xc0;
+    if (alignment == ADC_LEFT_ALIGNED) {
+      admux_value_ |= 0x20;
+    }
   }
   static inline void Enable() {
     AdcEnabled::set();
@@ -57,7 +68,6 @@ class Adc {
   static inline void Disable() {
     AdcEnabled::clear();
   }
-  // TODO(pichenettes): add function to modify sampling rate.
   static inline int16_t Read(uint8_t pin) {
     StartConversion(pin);
     Wait();
@@ -65,7 +75,7 @@ class Adc {
   }
   
   static inline void StartConversion(uint8_t pin) {
-    ADMUX = reference_ | (pin & 0x07);
+    ADMUX = admux_value_ | (pin & 0x07);
     AdcConvert::set();
   }
   static inline void Wait() {
@@ -76,9 +86,13 @@ class Adc {
     uint8_t high = ADCH;
     return (high << 8) | low;
   }
+  // Only works when the ADC is left aligned
+  static inline uint8_t ReadOut8() {
+    return ADCH;
+  }
 
  private:
-  static uint8_t reference_;
+  static uint8_t admux_value_;
  
   DISALLOW_COPY_AND_ASSIGN(Adc);
 };

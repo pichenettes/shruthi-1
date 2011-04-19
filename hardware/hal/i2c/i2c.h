@@ -250,8 +250,8 @@ class I2cMaster {
   }
 
 public:
-  typedef Buffer<I2cInput<input_buffer_size> > Input;
-  typedef Buffer<I2cOutput<output_buffer_size> > Output;
+  typedef RingBuffer<I2cInput<input_buffer_size> > Input;
+  typedef RingBuffer<I2cOutput<output_buffer_size> > Output;
 
 private:
   static volatile uint8_t state_;

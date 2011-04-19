@@ -57,7 +57,7 @@ template<typename TxPin, uint16_t timer_rate, uint16_t baud_rate,
 class BufferedSoftwareSerialOutput {
   typedef BufferedSoftwareSerialOutput<TxPin, timer_rate,
                                        baud_rate, buffer_size_> Me;
-  typedef Buffer<Me> OutputBuffer;
+  typedef RingBuffer<Me> OutputBuffer;
  public:
   typedef uint8_t Value;
   enum {

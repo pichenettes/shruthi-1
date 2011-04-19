@@ -174,6 +174,11 @@ SetupGpio(21, PortC, NoPwmChannel, 5);
 SetupGpio(22, PortC, NoPwmChannel, 6);
 SetupGpio(23, PortC, NoPwmChannel, 7);
 
+const uint8_t kSpiSlaveSelectPin = 4;
+const uint8_t kSpiDataOutPin = 5;
+const uint8_t kSpiDataInPin = 6;
+const uint8_t kSpiClockPin = 7;
+
 #else
 
 // Pin definitions for ATmega168p and ATmega328p
@@ -197,6 +202,11 @@ SetupGpio(16, PortC, NoPwmChannel, 2);
 SetupGpio(17, PortC, NoPwmChannel, 3);
 SetupGpio(18, PortC, NoPwmChannel, 4);
 SetupGpio(19, PortC, NoPwmChannel, 5);
+
+const uint8_t kSpiSlaveSelectPin = 10;
+const uint8_t kSpiDataOutPin = 11;
+const uint8_t kSpiDataInPin = 12;
+const uint8_t kSpiClockPin = 13;
 
 #endif  // ATMEGA328P
 
