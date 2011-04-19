@@ -260,6 +260,7 @@ typedef SerialPort<
     kSerialOutputBufferSize,
     kSerialInputBufferSize> SerialPort0;
 
+#ifndef ATMEGA328P
 
 IORegister(UBRR1H);
 IORegister(UBRR1L);
@@ -280,6 +281,7 @@ typedef SerialPort<
     kSerialOutputBufferSize,
     kSerialInputBufferSize> SerialPort1;
 
+#endif  // ATMEGA328P
 
 }  // namespace hardware_hal
 

@@ -144,6 +144,9 @@ struct NumberedGpio { };
 template<bool safe> struct NumberedGpio<n, safe> { \
   typedef GpioImpl<port, timer, bit, safe> Impl; };
 
+#ifndef ATMEGA328P
+
+// Pin definitions for ATmega644p and ATmega1284p
 SetupGpio(0,  PortB, NoPwmChannel, 0);
 SetupGpio(1,  PortB, NoPwmChannel, 1);
 SetupGpio(2,  PortB, NoPwmChannel, 2);
@@ -170,6 +173,32 @@ SetupGpio(20, PortC, NoPwmChannel, 4);
 SetupGpio(21, PortC, NoPwmChannel, 5);
 SetupGpio(22, PortC, NoPwmChannel, 6);
 SetupGpio(23, PortC, NoPwmChannel, 7);
+
+#else
+
+// Pin definitions for ATmega168p and ATmega328p
+SetupGpio(0, PortD, NoPwmChannel, 0);
+SetupGpio(1, PortD, NoPwmChannel, 1);
+SetupGpio(2, PortD, NoPwmChannel, 2);
+SetupGpio(3, PortD, PwmChannel2B, 3);
+SetupGpio(4, PortD, NoPwmChannel, 4);
+SetupGpio(5, PortD, PwmChannel0B, 5);
+SetupGpio(6, PortD, PwmChannel0A, 6);
+SetupGpio(7, PortD, NoPwmChannel, 7);
+SetupGpio(8, PortB, NoPwmChannel, 0);
+SetupGpio(9, PortB, PwmChannel1A, 1);
+SetupGpio(10, PortB, PwmChannel1B, 2);
+SetupGpio(11, PortB, PwmChannel2A, 3);
+SetupGpio(12, PortB, NoPwmChannel, 4);
+SetupGpio(13, PortB, NoPwmChannel, 5);
+SetupGpio(14, PortC, NoPwmChannel, 0);
+SetupGpio(15, PortC, NoPwmChannel, 1);
+SetupGpio(16, PortC, NoPwmChannel, 2);
+SetupGpio(17, PortC, NoPwmChannel, 3);
+SetupGpio(18, PortC, NoPwmChannel, 4);
+SetupGpio(19, PortC, NoPwmChannel, 5);
+
+#endif  // ATMEGA328P
 
 // Two specializations of the numbered pin template, one which clears the timer
 // for each access to the PWM pins, as does the original Arduino wire lib,

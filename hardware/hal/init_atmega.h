@@ -43,7 +43,10 @@ inline void InitAtmega(bool init_timers) {
 
   // Neuter the UARTs.
   UCSR0B = 0;
+
+#ifndef ATMEGA328P
   UCSR1B = 0;
+#endif  // ATMEGA328P
 }
 
 }  // hardware_hal
