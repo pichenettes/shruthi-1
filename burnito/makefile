@@ -18,13 +18,4 @@ RESOURCES      = hardware/burnito/resources
 
 include avrlib/makefile.mk
 
-# ------------------------------------------------------------------------------
-# Resources
-# ------------------------------------------------------------------------------
-
-RESOURCE_COMPILER = avrlib/tools/resources_compiler.py
-
-resources:	$(wildcard $(RESOURCES)/*.py) 
-		python $(RESOURCE_COMPILER) $(RESOURCES)/resources.py
-
 include $(DEP_FILE)
