@@ -11,11 +11,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
-include hardware/shruthi/makefile
+include shruthi/makefile
 
 FIRMWARE      = $(BUILD_DIR)shruthi1.hex
 BOOTLOADER    = $(BUILD_ROOT)muboot/muboot.hex
-EEPROM        = hardware/shruthi/data/factory_data/internal_eeprom.hex
+EEPROM        = shruthi/data/factory_data/internal_eeprom.hex
 
 upload_all:	$(FIRMWARE) $(BOOTLOADER)
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
@@ -23,7 +23,7 @@ upload_all:	$(FIRMWARE) $(BOOTLOADER)
 
 bake:	$(FIRMWARE) $(BOOTLOADER)
 		echo "sck 10\nquit\n" | $(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -tuF
-		make -f hardware/bootloader/makefile fuses
+		make -f bootloader/makefile fuses
 		echo "sck 1\nquit\n" | $(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -tuF
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
 			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i -U eeprom:w:$(EEPROM):i

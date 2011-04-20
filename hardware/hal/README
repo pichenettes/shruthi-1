@@ -1,3 +1,0 @@
-Hal stands for "Hardware access library". It provides an abstraction layer on top of all the features offered by the ATMega644p, with a focus on efficiency (speed and code size) and non-blocking operation.
-
-Naive examples based on the classes in this directory are given in hardware/hal/examples

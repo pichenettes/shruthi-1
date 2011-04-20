@@ -11,7 +11,7 @@ The firmware is released under a GPL3.0 license. It includes a
 reimplementation of the formant synthesis algorithm used in Peter Knight's
 Cantarino speech synthesizer.
 
-The PCB layouts and schematics (in /hardware/shruthi/hardware_design/pcb)
+The PCB layouts and schematics (in /hardware/shruthi/design/pcb)
 are released under a Creative Commons cc-by-nc-sa 3.0 license.
 
 Documentation, analyses, simulations and 3D models are released under a
