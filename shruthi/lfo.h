@@ -156,4 +156,4 @@ class Lfo {
 
 }  // namespace shruthi
 
-#endif // SHRUTHI_OSCILLATOR_H_
+#endif // SHRUTHI_LFO_H_

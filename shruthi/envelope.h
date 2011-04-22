@@ -130,4 +130,4 @@ class Envelope {
 
 }  // namespace shruthi
 
-#endif // SHRUTHI_OSCILLATOR_H_
+#endif // SHRUTHI_ENVELOPE_H_
