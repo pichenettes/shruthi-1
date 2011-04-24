@@ -44,19 +44,20 @@ static uint8_t cycle = 0;
 TIMER_2_TICK {
   if (cycle & 1) {
     audio_out.EmitSample();
-    // This wait is only here to be on the safe side, since the conversion was
-    // started 12us ago, and took 10us. It is thus complete except at warm up.
-    adc.Wait();
+  }
+  // This wait is only here to be on the safe side, since the conversion was
+  // started 12us ago, and took 10us. It is thus complete except at warm up.
+  adc.Wait();
+  if (cycle & 1) {
     input_buffer.Overwrite(adc.ReadOut8());
     adc.StartConversion(scanned_cv + 1);
   } else {
-    adc.Wait();
     fx_engine.set_cv(scanned_cv, adc.ReadOut8());
+    adc.StartConversion(0);
     ++scanned_cv;
     if (scanned_cv == kNumScannedCv) {
       scanned_cv = 0;
     }
-    adc.StartConversion(0);
   }
   ++cycle;
 }
