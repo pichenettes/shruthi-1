@@ -159,44 +159,11 @@ for zone in range(num_zones):
                        Scale(saw[quadrature])))
 
 
-def LoadWavetable(x):
-  # Load the data and split/pad single cycle waveforms.
-  array = numpy.array(map(ord, list(file(x).read())))
-  cycle = 128
-  num_cycles = len(array) / cycle
-  assert num_cycles == 16
-  wavetable = numpy.zeros((num_cycles, cycle + 1))
-  for i in xrange(num_cycles):
-    for j in xrange(cycle):
-      wavetable[i, j] = array[i * cycle + j]
-    wavetable[i, cycle] = wavetable[i, 0]
-  
-  return wavetable.ravel()
-
-
 waveforms.extend(bl_pulse_tables)
 waveforms.extend(bl_square_tables)
 waveforms.extend(bl_saw_tables)
 waveforms.extend(bl_tri_tables)
 
-waveforms.extend([
-  ('wavetable_1',
-   LoadWavetable('shruthi/data/wavetables/waves.bin')),
-  ('wavetable_2',
-   LoadWavetable('shruthi/data/wavetables/tampura.bin')),
-  ('wavetable_3',
-   LoadWavetable('shruthi/data/wavetables/digital.bin')),
-  ('wavetable_4',
-   LoadWavetable('shruthi/data/wavetables/metallic.bin')),
-  ('wavetable_5',
-   LoadWavetable('shruthi/data/wavetables/bowed.bin')),
-  ('wavetable_6',
-   LoadWavetable('shruthi/data/wavetables/slap.bin')),
-  ('wavetable_7',
-   LoadWavetable('shruthi/data/wavetables/organ.bin')),
-  ('wavetable_8',
-   LoadWavetable('shruthi/data/wavetables/male.bin')),
-])
 
 """----------------------------------------------------------------------------
 Vowel data (formant amplitudes)
@@ -272,3 +239,33 @@ signal_range = ((numpy.arange(0, 256) / 128.0 - 1.0))
 fuzz = numpy.tanh(6.0 * signal_range) * 128.0 + 128.0
 
 waveforms.append(('distortion', Scale(fuzz, dither=0)))
+
+
+"""----------------------------------------------------------------------------
+Wavetables
+-----------------------------------------------------------------------------"""
+
+wavetables = [
+16, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14,
+16, 16, 17, 17, 17, 18, 18, 19, 20, 20, 21, 22, 22, 22, 23, 23, 24, 24,
+16, 3, 47, 25, 26, 27, 27, 87, 87, 28, 28, 29, 30, 31, 32, 33, 34, 34,
+16, 35, 36, 37, 38, 39, 40, 41, 41, 42, 42, 43, 44, 44, 44, 45, 46, 46,
+8, 47, 48, 49, 49, 50, 51, 52, 53, 53, 0, 0, 0, 0, 0, 0, 0, 0,
+8, 54, 55, 56, 56, 57, 57, 57, 57, 57, 0, 0, 0, 0, 0, 0, 0, 0,
+16, 3, 58, 58, 120, 59, 59, 60, 61, 62, 63, 64, 65, 65, 66, 67, 68, 68,
+16, 75, 69, 70, 71, 72, 73, 74, 75, 76, 81, 77, 78, 80, 79, 80, 81, 81,
+4, 82, 82, 82, 83, 82, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+8, 87, 84, 87, 116, 85, 86, 86, 87, 87, 0, 0, 0, 0, 0, 0, 0, 0,
+16, 88, 89, 90, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91,
+4, 92, 92, 93, 94, 82, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+16, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 110,
+16, 111, 111, 111, 113, 112, 111, 113, 113, 112, 112, 113, 113, 113, 112, 112, 113, 113,
+16, 120, 120, 114, 114, 115, 115, 115, 115, 115, 115, 115, 115, 115, 115, 115, 115, 115,
+4, 93, 116, 117, 118, 119, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+8, 120, 120, 120, 120, 120, 120, 116, 121, 121, 0, 0, 0, 0, 0, 0, 0, 0,
+8, 122, 123, 124, 125, 126, 127, 127, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+]
+
+waveforms.extend([
+    ('waves', map(ord, file('shruthi/data/waves.bin', 'rb').read())),
+    ('wavetables', wavetables)])

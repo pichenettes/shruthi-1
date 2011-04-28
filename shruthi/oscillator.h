@@ -183,20 +183,12 @@ class Oscillator {
  public:
   Oscillator() { }
 
-  // Called whenever the parameters of the oscillator change. Can be used
-  // to pre-compute parameters, set tables, etc.
-  static inline void SetupAlgorithm() {
-  }
-  
   static inline void Render(
       uint8_t shape,
       uint8_t note,
       uint24_t increment,
       uint8_t* sync_state,
       uint8_t* buffer) {
-    if (shape > WAVEFORM_VOWEL) {
-      shape = WAVEFORM_VOWEL;
-    }
     shape_ = shape;
     note_ = note;
     phase_increment_ = increment;
@@ -210,7 +202,8 @@ class Oscillator {
         RenderBandlimitedPwm(buffer);
       }
     } else {
-      OscRenderFn fn = fn_table_[shape];
+      OscRenderFn fn = fn_table_[
+          shape > WAVEFORM_VOWEL ? WAVEFORM_WAVETABLE_1 : shape];
       (*fn)(buffer);
     }
   }
@@ -370,24 +363,34 @@ class Oscillator {
   }
   
   // ------- Interpolation between two waveforms from two wavetables -----------
-  // The position is freely determined by the parameter
-  static void RenderSweepingWavetable(uint8_t* buffer) {
-    uint8_t balance_index = Swap4(parameter_ << 1);
-    uint8_t gain_2 = balance_index & 0xf0;
+  static void RenderInterpolatedWavetable(uint8_t* buffer) {
+    uint8_t index = shape_ >= WAVEFORM_WAVETABLE_9 ? 
+        shape_ - WAVEFORM_WAVETABLE_9 + 8 :
+        shape_ - WAVEFORM_WAVETABLE_1;
+    
+    // Which wavetable should we play?.
+    const prog_uint8_t* wavetable_definition = 
+        wav_res_wavetables + UnsignedUnsignedMul(index, 18);
+    // Get a 8:8 value with the wave index in the first byte, and the
+    // balance amount in the second byte.
+    uint8_t num_steps = ResourcesManager::Lookup<uint8_t, uint8_t>(
+        wavetable_definition,
+        0);
+    uint16_t pointer = UnsignedUnsignedMul(parameter_ << 1, num_steps);
+    uint16_t wave_index_1 = ResourcesManager::Lookup<uint8_t, uint8_t>(
+        wavetable_definition,
+        1 + (pointer >> 8));
+    uint16_t wave_index_2 = ResourcesManager::Lookup<uint8_t, uint8_t>(
+        wavetable_definition,
+        2 + (pointer >> 8));
+    uint8_t gain_2 = pointer & 0xff;
     uint8_t gain_1 = ~gain_2;
-    uint8_t wave_index = balance_index & 0xf;
-    
-    uint16_t offset = wave_index << 7;
-    offset += wave_index;
-
-    const prog_uint8_t* base_address = waveform_table[
-        WAV_RES_WAVETABLE_1 + shape_ - WAVEFORM_WAVETABLE_1];
-    const prog_uint8_t* wave_1 = base_address + offset;
-    const prog_uint8_t* wave_2 = wave_1;
-    if (offset < kWavetableSize - 129) {
-      wave_2 += 129;
-    }
-    
+    const prog_uint8_t* wave_1 = wav_res_waves + UnsignedUnsignedMul(
+        wave_index_1,
+        129);
+    const prog_uint8_t* wave_2 = wav_res_waves + UnsignedUnsignedMul(
+        wave_index_2,
+        129);
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
@@ -395,8 +398,7 @@ class Oscillator {
       phase >>= 1;
       *buffer++ = InterpolateTwoTables(wave_1, wave_2, phase, gain_1, gain_2);
     }
-  }
-  
+  }  
   // The position is freely determined by the parameter
   static void RenderSweepingWavetableRam(uint8_t* buffer) {
     uint8_t balance_index = Swap4(parameter_);
@@ -735,14 +737,14 @@ template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
   
   &Osc::RenderFm,
   
-  &Osc::RenderSweepingWavetable,
-  &Osc::RenderSweepingWavetable,
-  &Osc::RenderSweepingWavetable,
-  &Osc::RenderSweepingWavetable,
-  &Osc::RenderSweepingWavetable,
-  &Osc::RenderSweepingWavetable,
-  &Osc::RenderSweepingWavetable,
-  &Osc::RenderSweepingWavetable,
+  &Osc::RenderInterpolatedWavetable,
+  &Osc::RenderInterpolatedWavetable,
+  &Osc::RenderInterpolatedWavetable,
+  &Osc::RenderInterpolatedWavetable,
+  &Osc::RenderInterpolatedWavetable,
+  &Osc::RenderInterpolatedWavetable,
+  &Osc::RenderInterpolatedWavetable,
+  &Osc::RenderInterpolatedWavetable,
   &Osc::RenderSweepingWavetableRam,
   
   &Osc::Render8BitLand,
@@ -750,7 +752,9 @@ template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
   &Osc::RenderDirtyPwm,
   &Osc::RenderFilteredNoise,
   
-  &Osc::RenderVowel
+  &Osc::RenderVowel,
+  
+  &Osc::RenderInterpolatedWavetable,
 };
 
 template<int id>

@@ -336,6 +336,16 @@ crush
 pwm
  noise
 vowel
+belish
+polatd
+cello
+clpswp
+female
+fmtvoc
+frmnt2
+res3hp
+electp
+vibes
 
  lpf
 ssm
