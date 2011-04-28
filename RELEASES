@@ -1,4 +1,12 @@
-v0.92 (work in progress) -------------------------------------------------------
+v0.93 (work in progress) -------------------------------------------------------
+
+CODE
+
+- Removed some cruft left after the oscillators rendering rewrite of v0.92.
+Saved 110 bytes of code.
+
+
+v0.92 --------------------------------------------------------------------------
 
 UI
 

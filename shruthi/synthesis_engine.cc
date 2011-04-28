@@ -177,7 +177,6 @@ void SynthesisEngine::ResetPatch() {
 /* static */
 void SynthesisEngine::TouchPatch(uint8_t cascade) {
   UpdateModulationRates();
-  UpdateOscillatorAlgorithms();
   dirty_ = 1;
   if (cascade) {
     if (system_settings_.midi_out_mode >= MIDI_OUT_2_1) {
@@ -470,9 +469,6 @@ void SynthesisEngine::SetParameter(
   if (struct_parameter_index >= PRM_ENV_ATTACK_1 &&
       struct_parameter_index <= PRM_LFO_RETRIGGER_2) {
     UpdateModulationRates();
-  } else if ((struct_parameter_index <= PRM_OSC_SHAPE_2) ||
-             (struct_parameter_index == PRM_MIX_SUB_OSC_SHAPE)) {
-    UpdateOscillatorAlgorithms();
   } else if (struct_parameter_index >= PRM_SEQ_MODE &&
              struct_parameter_index < PRM_SYS_OCTAVE) {
     // A copy of those parameters is stored by the note dispatcher/arpeggiator,
@@ -481,14 +477,6 @@ void SynthesisEngine::SetParameter(
   }
   midi_dispatcher.SendParameter(
       struct_parameter_index, parameter_value, user_initiated);
-}
-
-/* static */
-void SynthesisEngine::UpdateOscillatorAlgorithms() {
-  osc_1.SetupAlgorithm(patch_.osc[0].shape);
-  osc_2.SetupAlgorithm(patch_.osc[1].shape);
-  sub_osc.SetupAlgorithm(patch_.mix_sub_osc_shape);
-  transient_generator.SetupAlgorithm(patch_.mix_sub_osc_shape);
 }
 
 /* static */
@@ -921,13 +909,22 @@ inline void Voice::RenderOscillators() {
     }
     // phase_increment.fractional = 0;
     if (i == 0) {
-      osc_1.Render(midi_note, increment, sync_state_, buffer_);
+      osc_1.Render(
+          engine.patch_.osc[0].shape,
+          midi_note,
+          increment,
+          sync_state_,
+          buffer_);
       increment = Lsr24(increment);
       if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
-        sub_osc.Render(increment, sub_osc_buffer_);
+        sub_osc.Render(
+            engine.patch_.mix_sub_osc_shape,
+            increment,
+            sub_osc_buffer_);
       }
     } else {
       osc_2.Render(
+          engine.patch_.osc[1].shape,
           midi_note,
           increment,
           engine.patch_.osc[0].option == OP_SYNC ? sync_state_ : no_sync_,
@@ -1017,7 +1014,10 @@ inline void Voice::ProcessBlock() {
       buffer_[i] = Mix(buffer_[i], sub_osc_buffer_[i], mix_gain, sub_gain);
     }
   } else {
-    transient_generator.Render(buffer_, sub_gain << 1);
+    transient_generator.Render(
+        engine.patch_.mix_sub_osc_shape,
+        buffer_,
+        sub_gain << 1);
   }
   
   // Apply optional bitcrushing.

@@ -35,22 +35,17 @@ class TransientGenerator {
  public:
   TransientGenerator() { }
 
-  // Called whenever the parameters of the oscillator change. Can be used
-  // to pre-compute parameters, set tables, etc.
-  static inline void SetupAlgorithm(uint8_t shape) {
+  static inline void Render(uint8_t shape, uint8_t* buffer, uint8_t amount) {
     if (shape < WAVEFORM_SUB_OSC_CLICK)  {
       return;  // Not my business... handled by the sub oscillator!
     }
     if (shape > WAVEFORM_SUB_OSC_POP) {
       shape = WAVEFORM_SUB_OSC_POP;
     }
-    fn_ = fn_table_[shape - WAVEFORM_SUB_OSC_CLICK];
-  }
-  
-  static inline void Render(uint8_t* buffer, uint8_t amount) {
+    RenderFn fn = fn_table_[shape - WAVEFORM_SUB_OSC_CLICK];
     uint8_t size = kAudioBlockSize;
     while (counter_ && size--) {
-      uint8_t value = (*fn_)();
+      uint8_t value = (*fn)();
       uint8_t amplitude = MulScale8(gain_, amount);
       *buffer++ = Mix(*buffer, value, amplitude);
     }
@@ -99,7 +94,6 @@ class TransientGenerator {
   static uint8_t decimate_;
   static uint8_t gain_;
   static uint8_t counter_;
-  static RenderFn fn_;
   static RenderFn fn_table_[];
   
   DISALLOW_COPY_AND_ASSIGN(TransientGenerator);
@@ -118,7 +112,6 @@ template<int id> uint8_t TransientGenerator<id>::counter_;
 template<int id> uint8_t TransientGenerator<id>::rng_state_;
 template<int id> uint8_t TransientGenerator<id>::decimate_;
 template<int id> uint8_t TransientGenerator<id>::gain_;
-template<int id> RenderFn TransientGenerator<id>::fn_;
 /* </static> */
 
 }  // namespace shruthi

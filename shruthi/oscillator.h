@@ -185,19 +185,19 @@ class Oscillator {
 
   // Called whenever the parameters of the oscillator change. Can be used
   // to pre-compute parameters, set tables, etc.
-  static inline void SetupAlgorithm(uint8_t shape) {
-    if (shape > WAVEFORM_VOWEL) {
-      shape = WAVEFORM_VOWEL;
-    }
-    shape_ = shape;
-    fn_ = fn_table_[shape];
+  static inline void SetupAlgorithm() {
   }
   
   static inline void Render(
+      uint8_t shape,
       uint8_t note,
       uint24_t increment,
       uint8_t* sync_state,
       uint8_t* buffer) {
+    if (shape > WAVEFORM_VOWEL) {
+      shape = WAVEFORM_VOWEL;
+    }
+    shape_ = shape;
     note_ = note;
     phase_increment_ = increment;
     sync_state_ = sync_state;
@@ -210,7 +210,8 @@ class Oscillator {
         RenderBandlimitedPwm(buffer);
       }
     } else {
-      (*fn_)(buffer);
+      OscRenderFn fn = fn_table_[shape];
+      (*fn)(buffer);
     }
   }
   
@@ -242,9 +243,7 @@ class Oscillator {
   // Union of state data used by each algorithm.
   static OscillatorState data_;
 
-  // A pair of pointers to the update/render functions. update function might be
-  // NULL.
-  static OscRenderFn fn_;
+  // A pointer to the render function.
   static OscRenderFn fn_table_[];
   
   // A flag set to true when sync is enabled ; and a table to record the
@@ -719,7 +718,6 @@ template<int id> uint8_t* Oscillator<id>::sync_state_;
 
 template<int id> OscillatorState Oscillator<id>::data_;
 
-template<int id> OscRenderFn Oscillator<id>::fn_;
 template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
   &Osc::RenderSilence,
 
@@ -762,26 +760,24 @@ class SubOscillator {
 
   // Called whenever the parameters of the oscillator change. Can be used
   // to pre-compute parameters, set tables, etc.
-  static inline void SetupAlgorithm(uint8_t shape) {
-    shift_ = 0;
-    if (shape >= 3) {
-      shift_ = 1;
-      shape -= 3;
-    }
-    is_square_ = shape != 1;
-    pulse_width_ = shape == 0 ? 0x80 : 0x40;
+  static inline void SetupAlgorithm() {
   }
   
-  static inline void Render(uint24_t increment, uint8_t* buffer) {
-    if (shift_) {
+  static inline void Render(
+      uint8_t shape,
+      uint24_t increment,
+      uint8_t* buffer) {
+    if (shape >= 3) {
       increment = Lsr24(increment);
+      shape -= 3;
     }
+    uint8_t pulse_width = shape == 0 ? 0x80 : 0x40;
     uint8_t size = kAudioBlockSize;
     while (size--) {
       phase_ = Add24(phase_, increment);
-      if (is_square_) {
+      if (shape != 1) {
         *buffer++ = \
-            static_cast<uint8_t>(phase_.integral >> 8) < pulse_width_ ? 0 : 255;
+            static_cast<uint8_t>(phase_.integral >> 8) < pulse_width ? 0 : 255;
       } else {
         uint8_t tri = phase_.integral >> 7;
         *buffer++ = phase_.integral & 0x8000 ? tri : ~tri;
@@ -793,18 +789,11 @@ class SubOscillator {
   // Current phase of the oscillator.
   static uint24_t phase_;
 
-  static uint8_t shift_;
-  static uint8_t pulse_width_;
-  static uint8_t is_square_;
-
   DISALLOW_COPY_AND_ASSIGN(SubOscillator);
 };
 
 /* <static> */
 template<int id> uint24_t SubOscillator<id>::phase_;
-template<int id> uint8_t SubOscillator<id>::shift_;
-template<int id> uint8_t SubOscillator<id>::pulse_width_;
-template<int id> uint8_t SubOscillator<id>::is_square_;
 
 /* </static> */
 

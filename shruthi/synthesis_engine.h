@@ -283,9 +283,6 @@ class SynthesisEngine : public midi::MidiDevice {
   static void UpdateModulationRates();
   static void UpdateLfoRate(uint8_t i);
 
-  // Called whenever a parameter related to oscillators is called.
-  static void UpdateOscillatorAlgorithms();
-
   DISALLOW_COPY_AND_ASSIGN(SynthesisEngine);
 };
 
