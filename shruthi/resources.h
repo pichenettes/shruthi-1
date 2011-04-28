@@ -303,7 +303,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_COMPARE 185  // compare
 #define STR_RES_ 186  // ----
 #define STR_RES_V 187  // v
-#define STR_RES_MUTABLE____V0_92 188  // mutable    v0.92
+#define STR_RES_MUTABLE____V0_93 188  // mutable    v0.93
 #define STR_RES_INSTRUMENTS_671 189  // instruments -1
 #define STR_RES_EXTERN 190  // extern
 #define STR_RES_X2_EXT 191  // x2 ext
