@@ -17,6 +17,10 @@ TARGET         = dsp
 PACKAGES       = avrlib avrlib/devices dsp
 RESOURCES      = dsp/resources
 
+LFUSE          = FF
+HFUSE          = D7
+EFUSE          = FD
+
 include avrlib/makefile.mk
 
 include $(DEP_FILE)
