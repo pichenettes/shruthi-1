@@ -49,22 +49,14 @@ AnalogInputs analog_inputs;
 
 // LED array.
 OutputArray<
-    Gpio<kPinLatch>,
-    Gpio<kPinClk>,
-    Gpio<kPinData>, kNumLeds, 4, MSB_FIRST, false> leds;
+  IOEnableLine, IOClockLine, IOOutputLine, kNumLeds, 4, MSB_FIRST, false> leds;
 
 // Switches array
 SwitchArray<
-  Gpio<kPinLatch>,
-  Gpio<kPinClk>,
-  Gpio<kPinDigitalInput>,
-  kNumSwitches,
-  KEY_LOAD_SAVE> switches;
+  IOEnableLine, IOClockLine, IOInputLine, kNumSwitches, KEY_LOAD_SAVE> switches;
 
 RotaryEncoderBuffer<RotaryEncoder<
-    Gpio<kPinEncoderA>,
-    Gpio<kPinEncoderB>,
-    Gpio<kPinEncoderClick> > > encoder;
+  EncoderALine, EncoderBLine, EncoderClickLine> > encoder;
 
 PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
 PwmOutput<kPinVcfResonanceOut> vcf_resonance_out;

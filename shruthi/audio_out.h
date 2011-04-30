@@ -23,6 +23,7 @@
 #include "avrlib/base.h"
 #include "avrlib/audio_output.h"
 #include "avrlib/gpio.h"
+#include "shruthi/hardware_config.h"
 #include "shruthi/shruthi.h"
 
 using avrlib::AudioOutput;

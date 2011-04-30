@@ -23,8 +23,8 @@
 using namespace dsp;
 using namespace avrlib;
 
-Gpio<kPinLed1> led_1;
-Gpio<kPinLed1> led_2;
+Gpio<PortD, 2> led_1;
+Gpio<PortD, 3> led_2;
 
 struct InputBufferSpecs {
   typedef uint8_t Value;

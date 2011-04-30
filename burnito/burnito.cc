@@ -33,11 +33,14 @@ static const uint16_t kMaxNumBanks = 7;
 static const uint8_t kBlockSize = 64;
 
 typedef Hd44780Lcd<
-    Gpio<18>,
-    Gpio<19>,
+    Gpio<PortC, 2>,
+    Gpio<PortC, 3>,
     ParallelPort<PortC, PARALLEL_NIBBLE_HIGH> > Lcd;
 
-ShiftRegisterOutput<Gpio<10>, Gpio<7>, Gpio<5>, 8, MSB_FIRST> status_leds;
+ShiftRegisterOutput<
+    Gpio<PortD, 2>,
+    Gpio<PortB, 7>,
+    Gpio<PortB, 5>, 8, MSB_FIRST> status_leds;
 
 Lcd lcd;
 BufferedDisplay<Lcd> display;

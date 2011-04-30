@@ -79,37 +79,6 @@ static const uint8_t kControlRate = 40;
 static const uint8_t kAudioBlockSize = kControlRate;
 static const uint8_t kAudioBufferSize = 128;
 
-// ---- Wirings ----------------------------------------------------------------
-
-// Encoder
-static const uint8_t kPinEncoderA = 1;
-static const uint8_t kPinEncoderB = 0;
-static const uint8_t kPinEncoderClick = 2;
-
-// Shift registers / muxes.
-static const uint8_t kPinDigitalInput = 6;
-static const uint8_t kPinClk = 7;
-static const uint8_t kPinData = 5;
-static const uint8_t kPinLcdRs = 18;
-static const uint8_t kPinLcdEnable = 19;
-static const uint8_t kPinLatch = 10;
-static const uint8_t kMidiRxPin = 8;
-
-
-// PWM/audio output.
-static const uint8_t kPinVcoOut = 12;
-static const uint8_t kPinVcaOut = 13;
-static const uint8_t kPinVcfCutoffOut = 14;
-static const uint8_t kPinVcfResonanceOut = 15;
-static const uint8_t kPinCv1Out = 3;
-static const uint8_t kPinCv2Out = 4;
-
-static const uint8_t kPinAnalogInput = 0;
-static const uint8_t kPinCvInput = 4;
-
-#define MidiPort SerialPort0
-#define LcdNibble PARALLEL_NIBBLE_HIGH
-
 // ---- LCD display type -------------------------------------------------------
 
 static const uint8_t kLcdWidth = 16;

@@ -39,12 +39,6 @@ static const uint8_t kAudioBufferSize = 128;
 
 static const uint8_t kNumScannedCv = 5;
 
-// ---- Wirings ----------------------------------------------------------------
-
-static const uint8_t kPinDacSlaveSelect = 10;
-static const uint8_t kPinLed1 = 2;
-static const uint8_t kPinLed2 = 3;
-
 }  // namespace dsp
 
 #endif // DSP_DSP_H_

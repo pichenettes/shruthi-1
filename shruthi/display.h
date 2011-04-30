@@ -20,28 +20,18 @@
 #ifndef SHRUTHI_DISPLAY_H_
 #define SHRUTHI_DISPLAY_H_
 
-#include "avrlib/base.h"
 #include "avrlib/devices/buffered_display.h"
 #include "avrlib/devices/hd44780_lcd.h"
-#include "avrlib/gpio.h"
-#include "avrlib/parallel_io.h"
+
+#include "shruthi/hardware_config.h"
 #include "shruthi/shruthi.h"
 
 using avrlib::BufferedDisplay;
-using avrlib::Gpio;
 using avrlib::Hd44780Lcd;
-using avrlib::PARALLEL_NIBBLE_HIGH;
-using avrlib::PARALLEL_NIBBLE_LOW;
-using avrlib::ParallelPort;
-using avrlib::PortC;
 
 namespace shruthi {
 
-typedef Hd44780Lcd<
-    Gpio<kPinLcdRs>,
-    Gpio<kPinLcdEnable>,
-    ParallelPort<PortC, LcdNibble> > Lcd;
-
+typedef Hd44780Lcd<LcdRsLine, LcdEnableLine, LcdDataBus> Lcd;
 extern Lcd lcd;
 extern BufferedDisplay<Lcd> display;
 

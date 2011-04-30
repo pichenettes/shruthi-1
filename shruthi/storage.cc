@@ -40,9 +40,9 @@ ExternalEeprom<kMaxNumBanks * kBankSize> external_eeprom;
 // We directly address the facade LEDs to show a progress bar of the data
 // dump.
 typedef ShiftRegisterOutput<
-    Gpio<kPinLatch>,
-    Gpio<kPinClk>,
-    Gpio<kPinData>,
+    IOEnableLine,
+    IOClockLine,
+    IOOutputLine,
     kNumLeds,
     MSB_FIRST> ProgressBar;
 
