@@ -1,22 +1,5 @@
 import numpy
 
-"""
-Solution with 5k trimmer:
-
-R_input = 47 * k
-R_bias = 47 * k
-R_feedback = 22.0 * k
-
-R_divide_ground = 47.0 * k
-R_divide_output = 2.2 * k
-
-
-With 2.0k trimmer:
-R_divide_ground = 68.0 * k
-R_divide_output = 5.6 * k
-
-"""
-
 k = 1.0e3
 m = 1e-3
 u = 1e-6
@@ -55,8 +38,8 @@ vcc = 5.0
 vee = -5.0
 gnd = 0.0
 
-R_input = 35.3 * k
-R_bias = 34.6 * k 
+R_input = 33.0 * k + 2.3 * k  # Second term from trimmer
+R_bias = 33.0 * k + 1.6 * k  # Second term from trimmer
 R_feedback = 15.0 * k
 
 print SSM2164CvToFreq(CvScaler(0)), cutoff_min

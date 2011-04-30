@@ -31,10 +31,13 @@ def transfer(f_cv, q_cv, w, output):
   return [lp, bp, hp][output]
 
 
+params = {'text.usetex': True}
+pylab.rcParams.update(params)
+
 if __name__ == '__main__':
   num_freqs = 5
   num_q = 4
-
+  pylab.figure(figsize=(16, 12))
   for mode in xrange(3):
     for row, q_cv in enumerate(numpy.linspace(0, 2.0, num_q)):
       pylab.subplot(num_q, 3, mode + row * 3 + 1)
@@ -42,5 +45,9 @@ if __name__ == '__main__':
       for f_index, f_cv in enumerate(numpy.linspace(0.5, 2.0, num_freqs)):
         t[f_index, :] = transfer(f_cv, q_cv, w, mode)
       pylab.semilogx(f, 20 * numpy.log10(abs(t)).T)
-
-  pylab.show()
+      if mode == 0:
+        pylab.ylabel(('$|H(2\pi j f)| (dB)$'))
+      if row == num_q - 1:
+        pylab.xlabel(('$f (Hz)$'))
+  F = pylab.gcf()
+  pylab.savefig('curves.pdf', dpi=300)
