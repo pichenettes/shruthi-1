@@ -766,8 +766,7 @@ inline void Voice::LoadSources() {
   if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM) {
     dst_[MOD_DST_CV_1] = UnsignedUnsignedMul(
         engine.patch_.filter_cutoff_2, 128);
-    dst_[MOD_DST_CV_2] = UnsignedUnsignedMul(
-        engine.patch_.filter_resonance_2, 128);
+    dst_[MOD_DST_CV_2] = engine.patch_.filter_resonance_2 << 8;
   }
 }
 

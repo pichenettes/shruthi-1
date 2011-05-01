@@ -366,7 +366,7 @@ enum SecondaryFilterMode {
   FILTER_MODE_PARALLEL_HP,
   FILTER_MODE_SERIAL_LP,
   FILTER_MODE_SERIAL_BP,
-  FILTER_MODE_SERIAL_HP
+  FILTER_MODE_SERIAL_HP,
 };
 
 }  // namespace shruthi

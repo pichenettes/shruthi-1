@@ -79,7 +79,11 @@ static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
 static const prog_char str_res_oscillator_2[] PROGMEM = "oscillator 2";
 static const prog_char str_res_mixer[] PROGMEM = "mixer";
 static const prog_char str_res_filter[] PROGMEM = "filter";
-static const prog_char str_res_filter_2[] PROGMEM = "filter 2";
+static const prog_char str_res_filterS[] PROGMEM = "filter+";
+static const prog_char str_res_mode_1[] PROGMEM = "mode 1";
+static const prog_char str_res_mode_2[] PROGMEM = "mode 2";
+static const prog_char str_res_md1[] PROGMEM = "md1";
+static const prog_char str_res_md2[] PROGMEM = "md2";
 static const prog_char str_res_envelope_1[] PROGMEM = "envelope 1";
 static const prog_char str_res_envelope_2[] PROGMEM = "envelope 2";
 static const prog_char str_res_sequencer[] PROGMEM = "sequencer";
@@ -92,12 +96,12 @@ static const prog_char str_res_performance[] PROGMEM = "performance";
 static const prog_char str_res_lpf[] PROGMEM = "lpf";
 static const prog_char str_res_bpf[] PROGMEM = "bpf";
 static const prog_char str_res_hpf[] PROGMEM = "hpf";
-static const prog_char str_res_elp[] PROGMEM = "=lp";
-static const prog_char str_res_ebp[] PROGMEM = "=bp";
-static const prog_char str_res_ehp[] PROGMEM = "=hp";
-static const prog_char str_res_lp[] PROGMEM = ":lp";
-static const prog_char str_res_bp[] PROGMEM = ":bp";
-static const prog_char str_res_hp[] PROGMEM = ":hp";
+static const prog_char str_res_Slp[] PROGMEM = "+lp";
+static const prog_char str_res_Sbp[] PROGMEM = "+bp";
+static const prog_char str_res_Shp[] PROGMEM = "+hp";
+static const prog_char str_res_glp[] PROGMEM = ">lp";
+static const prog_char str_res_gbp[] PROGMEM = ">bp";
+static const prog_char str_res_ghp[] PROGMEM = ">hp";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
 static const prog_char str_res_pw1[] PROGMEM = "pw1";
@@ -429,7 +433,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_oscillator_2,
   str_res_mixer,
   str_res_filter,
-  str_res_filter_2,
+  str_res_filterS,
+  str_res_mode_1,
+  str_res_mode_2,
+  str_res_md1,
+  str_res_md2,
   str_res_envelope_1,
   str_res_envelope_2,
   str_res_sequencer,
@@ -442,12 +450,12 @@ PROGMEM const prog_char* string_table[] = {
   str_res_lpf,
   str_res_bpf,
   str_res_hpf,
-  str_res_elp,
-  str_res_ebp,
-  str_res_ehp,
-  str_res_lp,
-  str_res_bp,
-  str_res_hp,
+  str_res_Slp,
+  str_res_Sbp,
+  str_res_Shp,
+  str_res_glp,
+  str_res_gbp,
+  str_res_ghp,
   str_res_cut,
   str_res_vca,
   str_res_pw1,

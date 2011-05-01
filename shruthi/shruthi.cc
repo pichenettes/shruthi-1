@@ -116,6 +116,9 @@ void UpdateLedsTask() {
   if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
     leds.ShiftOutByte(programmer_active_pot);
   }
+  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_SVF) {
+    leds.ShiftOutByte(engine.filter_routing_byte());
+  }
   leds.ShiftOut();
   leds.End();
 }

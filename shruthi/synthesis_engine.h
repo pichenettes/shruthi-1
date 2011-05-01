@@ -256,6 +256,32 @@ class SynthesisEngine : public midi::MidiDevice {
     return value;
   }
   
+  static inline uint8_t filter_routing_byte() {
+    uint8_t byte = 0;
+    if (patch_.filter_1_mode_ == FILTER_MODE_BP) {
+      byte = 2;
+    } else if (patch_.filter_1_mode_ == FILTER_MODE_HP) {
+      byte = 4;
+    }
+    if (patch_.filter_2_mode_ >= FILTER_MODE_SERIAL_LP && 
+        patch_.filter_2_mode_ <= FILTER_MODE_SERIAL_HP) {
+      byte |= 1;  // Do not mix filter 1 to the output.
+    }
+    uint8_t filter_2_mode = patch_.filter_2_mode_;
+    if (filter_2_mode >= 3) {
+      filter_2_mode -= 3;
+    }
+    if (filter_2_mode == FILTER_MODE_BP) {
+      byte |= (2 << 3);
+    } else if (filter_2_mode == FILTER_MODE_HP) {
+      byte |= (4 << 3);
+    }
+    if (patch_.filter_2_mode_ < FILTER_MODE_SERIAL_LP) {
+      byte |= (1 << 3);  // Do not mix filter 1 to the output.
+    }
+    return byte;
+  }
+  
  private:
   static uint8_t data_access_byte_[1];
   static Patch patch_;

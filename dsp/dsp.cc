@@ -38,11 +38,11 @@ RingBuffer<InputBufferSpecs> input_buffer;
 Adc adc;
 
 static uint8_t scanned_cv = 0;
-static uint8_t cycle = 0;
+static uint16_t cycle = 0;
 
 // Called at 78kHz, 12us
 TIMER_2_TICK {
-  if (cycle & 1) {
+  /*if (cycle & 1) {
     audio_out.EmitSample();
   }
   // This wait is only here to be on the safe side, since the conversion was
@@ -58,8 +58,10 @@ TIMER_2_TICK {
     if (scanned_cv == kNumScannedCv) {
       scanned_cv = 0;
     }
-  }
+  }*/
   ++cycle;
+  led_1.set_value(cycle > 0x8000);
+  led_2.set_value(cycle < 0x8000);
 }
 
 void Init() {
@@ -92,7 +94,7 @@ void Init() {
 int main(void) {
   Init();
   while (1) {
-    if (audio_out.writable_block() &&
+   /* if (audio_out.writable_block() &&
         input_buffer.readable() == kAudioBufferSize) {
       uint8_t* data;
       data = fx_engine.mutable_buffer();
@@ -104,6 +106,6 @@ int main(void) {
       for (uint8_t i = 0; i < kAudioBufferSize; ++i) {
         audio_out.Overwrite(*data++);
       }
-    }
+    }*/
   }
 }

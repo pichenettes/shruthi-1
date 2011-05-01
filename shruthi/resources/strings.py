@@ -74,7 +74,11 @@ oscillator 1
 oscillator 2
 mixer
 filter
-filter 2
+filter+
+mode 1
+mode 2
+md1
+md2
 envelope 1
 envelope 2
 sequencer
@@ -87,12 +91,12 @@ performance
 lpf
 bpf
 hpf
-=lp
-=bp
-=hp
-:lp
-:bp
-:hp
++lp
++bp
++hp
+>lp
+>bp
+>hp
 
 cut
 vca
