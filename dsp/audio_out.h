@@ -29,8 +29,10 @@ using avrlib::AudioOutput;
 
 namespace dsp {
 
+typedef SpiMaster<SpiSS, MSB_FIRST, 2> DacInterface;
+
 extern avrlib::AudioOutput<
-    avrlib::Dac<SpiSS>,
+    avrlib::Dac<DacInterface>,
     kAudioBufferSize,
     kAudioBlockSize> audio_out;
 

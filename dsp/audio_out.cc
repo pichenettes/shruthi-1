@@ -22,7 +22,7 @@
 namespace dsp {
 
 extern avrlib::AudioOutput<
-    avrlib::Dac<SpiSS>,
+    avrlib::Dac<DacInterface>,
     kAudioBufferSize,
     kAudioBlockSize> audio_out;
 
