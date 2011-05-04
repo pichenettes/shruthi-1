@@ -14,43 +14,50 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "avrlib/adc.h"
-#include "avrlib/gpio.h"
 #include "avrlib/boot.h"
+#include "avrlib/gpio.h"
+#include "avrlib/op.h"
 #include "avrlib/ring_buffer.h"
-#include "dsp/audio_out.h"
+#include "avrlib/spi.h"
+#include "dsp/buffers.h"
 #include "dsp/fx_engine.h"
 
 using namespace dsp;
 using namespace avrlib;
 
-Gpio<PortD, 2> led_1;
-Gpio<PortD, 3> led_2;
-
-struct InputBufferSpecs {
-  typedef uint8_t Value;
-  enum {
-    buffer_size = kAudioBufferSize,
-    data_size = 8,
-  };
-};
-RingBuffer<InputBufferSpecs> input_buffer;
+Gpio<PortD, 2> led_in;
+Gpio<PortD, 3> led_out;
 
 Adc adc;
+SpiMaster<NumberedGpio<10>, MSB_FIRST, 2> dac_interface;
 
 static uint8_t scanned_cv = 0;
-static uint16_t cycle = 0;
+static uint8_t cycle = 0;
+static uint8_t byte_a, byte_b;
+static uint8_t z;
 
 // Called at 78kHz, 12us
 TIMER_2_TICK {
-  /*if (cycle & 1) {
-    audio_out.EmitSample();
-  }
   // This wait is only here to be on the safe side, since the conversion was
   // started 12us ago, and took 10us. It is thus complete except at warm up.
   adc.Wait();
   if (cycle & 1) {
-    input_buffer.Overwrite(adc.ReadOut8());
+    uint8_t value = adc.ReadOut8();
+    input_buffer.Overwrite(value);
     adc.StartConversion(scanned_cv + 1);
+    dac_interface.Strobe();
+    led_in.set_value(value > 192);
+    dac_interface.Overwrite(byte_a);
+    Word x;
+    x.value = SignedUnsignedMul(
+        output_buffer.ImmediateRead() + 128,
+        fx_engine.vca()) + 32768;
+    led_out.set_value(x.bytes[1] > 192);
+    x.bytes[0] = Swap4(x.bytes[0]);
+    x.bytes[1] = Swap4(x.bytes[1]);
+    byte_a = (x.bytes[1] & 0x0f) | 0x70;
+    dac_interface.Overwrite(byte_b);
+    byte_b = (x.bytes[1] & 0xf0) | (x.bytes[0] & 0x0f);
   } else {
     fx_engine.set_cv(scanned_cv, adc.ReadOut8());
     adc.StartConversion(0);
@@ -58,17 +65,16 @@ TIMER_2_TICK {
     if (scanned_cv == kNumScannedCv) {
       scanned_cv = 0;
     }
-  }*/
+  }
   ++cycle;
-  led_1.set_value(cycle > 0x8000);
-  led_2.set_value(cycle < 0x8000);
 }
 
 void Init() {
   sei();
   // Kill the UART.
   UCSR0B = 0;
-  
+  dac_interface.Init();
+  dac_interface.WriteWord(0, 0);
   // Prescaler = 16, ADC clocked at 1.25 MHz.
   // ADC conversion time = 10us
   adc.set_prescaler(4);  
@@ -79,33 +85,27 @@ void Init() {
   adc.StartConversion(0);
   adc.Wait();
   
-  audio_out.Init();
-  
   Timer<2>::set_prescaler(1);
   Timer<2>::set_mode(TIMER_FAST_PWM);
   Timer<2>::Start();
   
-  led_1.set_mode(DIGITAL_OUTPUT);
-  led_2.set_mode(DIGITAL_OUTPUT);
-  led_1.Low();
-  led_2.Low();
+  led_in.set_mode(DIGITAL_OUTPUT);
+  led_out.set_mode(DIGITAL_OUTPUT);
+  led_in.Low();
+  led_out.Low();
 }
 
 int main(void) {
+  // Sample some junk.
+  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    input_buffer.Overwrite(128);
+    output_buffer.Overwrite(128);
+  }
   Init();
   while (1) {
-   /* if (audio_out.writable_block() &&
-        input_buffer.readable() == kAudioBufferSize) {
-      uint8_t* data;
-      data = fx_engine.mutable_buffer();
-      for (uint8_t i = 0; i < kAudioBufferSize; ++i) {
-        *data++ = input_buffer.ImmediateRead();
-      }
+    while (output_buffer.writable() >= kAudioBlockSize &&
+           input_buffer.readable() >= kAudioBlockSize) {
       fx_engine.ProcessBlock();
-      data = fx_engine.mutable_buffer();
-      for (uint8_t i = 0; i < kAudioBufferSize; ++i) {
-        audio_out.Overwrite(*data++);
-      }
-    }*/
+    }
   }
 }

@@ -15,16 +15,12 @@
 
 #include "dsp/fx_engine.h"
 
+#include "dsp/buffers.h"
+
 namespace dsp {
 
 /* <static> */
-uint8_t FxEngine::data_access_byte_[1];
-uint8_t FxEngine::cv_1_;
-uint8_t FxEngine::cv_2_;
-uint8_t FxEngine::resonance_;
-uint8_t FxEngine::cutoff_;
-uint8_t FxEngine::vca_;
-uint8_t FxEngine::buffer_[kAudioBlockSize];
+uint8_t FxEngine::cv_[CV_LAST];
 /* </static> */
 
 /* extern */
@@ -32,12 +28,14 @@ FxEngine fx_engine;
 
 /* static */
 void FxEngine::Init() {
-  
 }
 
 /* static */
 void FxEngine::ProcessBlock() {
-  
+  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    uint8_t sample = input_buffer.ImmediateRead();
+    output_buffer.Overwrite(sample);
+  }
 }
 
 }  // namespace dsp

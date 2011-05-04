@@ -17,13 +17,14 @@
 //
 // Instance of the audio out class, configured for the Shruthi-1 DSP project.
 
-#include "dsp/audio_out.h"
+#include "dsp/buffers.h"
 
 namespace dsp {
 
-extern avrlib::AudioOutput<
-    avrlib::Dac<DacInterface>,
-    kAudioBufferSize,
-    kAudioBlockSize> audio_out;
+/* extern */
+RingBuffer<OutputBufferSpecs> output_buffer;
+
+/* extern */
+RingBuffer<InputBufferSpecs> input_buffer;
 
 }  // namespace dsp

@@ -24,6 +24,15 @@
 #include "dsp/dsp.h"
 
 namespace dsp {
+  
+enum ControlVoltage {
+  CV_1,
+  CV_2,
+  CV_RESONANCE,
+  CV_CUTOFF,
+  CV_VCA,
+  CV_LAST
+};
 
 class FxEngine {
  public:
@@ -31,23 +40,22 @@ class FxEngine {
   static void Init();
   
   inline void set_cv(uint8_t cv_index, uint8_t value) {
-    data_access_byte_[cv_index + 1] = value;
+    cv_[cv_index] = value;
+  }
+  
+  uint8_t cv(uint8_t cv_index) const {
+    return cv_[cv_index];
+  }
+  
+  uint8_t vca() const {
+    return cv_[CV_VCA];
   }
   
   void ProcessBlock();
   
-  uint8_t* mutable_buffer() { return buffer_; }
-
  private:
-  static uint8_t data_access_byte_[1];
-  static uint8_t cv_1_;
-  static uint8_t cv_2_;
-  static uint8_t resonance_;
-  static uint8_t cutoff_;
-  static uint8_t vca_;
+  static uint8_t cv_[CV_LAST];
   
-  static uint8_t buffer_[kAudioBlockSize];
-
   DISALLOW_COPY_AND_ASSIGN(FxEngine);
 };
 

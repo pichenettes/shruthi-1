@@ -17,25 +17,35 @@
 //
 // Instance of the audio out class, configured for the Shruthi-1 DSP project.
 
-#ifndef DSP_AUDIO_OUT_H_
-#define DSP_AUDIO_OUT_H_
+#ifndef DSP_BUFFERS_H_
+#define DSP_BUFFERS_H_
 
 #include "avrlib/base.h"
+#include "avrlib/ring_buffer.h"
 #include "dsp/dsp.h"
-#include "avrlib/audio_output.h"
-#include "avrlib/devices/mcp492x.h"
-
-using avrlib::AudioOutput;
 
 namespace dsp {
 
-typedef SpiMaster<SpiSS, MSB_FIRST, 2> DacInterface;
+using namespace avrlib;
 
-extern avrlib::AudioOutput<
-    avrlib::Dac<DacInterface>,
-    kAudioBufferSize,
-    kAudioBlockSize> audio_out;
+struct OutputBufferSpecs {
+  typedef uint8_t Value;
+  enum {
+    buffer_size = kAudioBufferSize,
+    data_size = 8,
+  };
+};
+extern RingBuffer<OutputBufferSpecs> output_buffer;
+
+struct InputBufferSpecs {
+  typedef uint8_t Value;
+  enum {
+    buffer_size = kAudioBufferSize,
+    data_size = 8,
+  };
+};
+extern RingBuffer<InputBufferSpecs> input_buffer;
 
 }  // namespace dsp
 
-#endif // DSP_AUDIO_OUT_H_
+#endif // DSP_BUFFERS_H_

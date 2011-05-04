@@ -34,7 +34,7 @@ namespace dsp {
 static const uint16_t kSampleRate = 39062;
 
 // The latency is 1ms, with a buffer storing 2ms of audio.
-static const uint8_t kAudioBlockSize = 32;
+static const uint8_t kAudioBlockSize = 40;
 static const uint8_t kAudioBufferSize = 128;
 
 static const uint8_t kNumScannedCv = 5;
