@@ -24,8 +24,6 @@
 
 #include <avr/pgmspace.h>
 
-#define USE_OPTIMIZED_OP
-
 namespace shruthi {
 
 enum KEYS {
