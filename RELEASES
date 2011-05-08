@@ -1,9 +1,27 @@
 v0.93 (work in progress) -------------------------------------------------------
 
+SYNTHESIS
+
+- A menu has been added to control the routing of the dual SVF filter board.
+- The wavetable synthesis code has been rewritten to allow interpolation
+between waveforms which are not contiguous in memory. This allows the definition
+of wavetables which are a subset, or a permutation, or a mix of the existing
+wavetables. 10 such wavetables have been added to oscillator 1, approximating
+classic Waldorf Microwave wavetables.
+
+MIDI
+
+- Upon reception of a program change, the active patch number is updated (in
+v0.92, the patch was loaded but the patch number was not changed).
+
 CODE
 
 - Removed some cruft left after the oscillators rendering rewrite of v0.92.
 Saved 110 bytes of code.
+- The classes and functions in the 'hal' directory are now an independent
+project called AVRil.
+- I/O pins are now referenced by port/bit rather than by an Arduino-style pin
+number.
 
 
 v0.92 --------------------------------------------------------------------------

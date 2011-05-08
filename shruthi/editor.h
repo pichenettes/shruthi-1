@@ -205,6 +205,10 @@ class Editor {
 
   static void BootOnPatchBrowsePage(uint8_t patch_index);
 
+  static void set_current_patch_number(uint16_t patch_number) {
+    current_patch_number_ = patch_number;
+  }
+
  private:
   // This hides or shows the second filter page, with settings for
   // upcoming multimode filters.
