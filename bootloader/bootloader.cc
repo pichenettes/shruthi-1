@@ -32,8 +32,8 @@
 
 using namespace avrlib;
 
-ShiftRegisterInput<Gpio<10>, Gpio<7>, Gpio<6>, 8, LSB_FIRST> switches;
-ShiftRegisterOutput<Gpio<10>, Gpio<7>, Gpio<5>, 8, MSB_FIRST> status_leds;
+ShiftRegisterInput<NumberedGpio<10>, NumberedGpio<7>, NumberedGpio<6>, 8, LSB_FIRST> switches;
+ShiftRegisterOutput<NumberedGpio<10>, NumberedGpio<7>, NumberedGpio<5>, 8, MSB_FIRST> status_leds;
 Serial<SerialPort0, 31250, POLLED, DISABLED> midi;
 
 uint16_t page = 0;
