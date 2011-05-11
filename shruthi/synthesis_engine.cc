@@ -272,8 +272,11 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
   } else if (controller >= 14 && controller <= 15) {
     controller -= 2; // CCs for Cutoff and resonance.
     editing_controller = 1;
+  } else if (controller >= 12 && controller <= 13) {
+    controller = controller - 12 + 66;  // CCs for cutoff2 and resonance2.
+    editing_controller = 1;
   } else if (controller >= 102 && controller <= 119) {
-    controller -= (102 - 14); // CCs for filter mods, envelopes and LFOs.
+    controller = controller - 102 + 14; // CCs for filter mods, envelopes and LFOs.
     editing_controller = 1;
   } else {
     switch (controller) {
