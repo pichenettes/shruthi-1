@@ -24,8 +24,6 @@
 
 #include <avr/pgmspace.h>
 
-#define USE_OPTIMIZED_OP
-
 namespace dsp {
 
 // Rate of the main timer. For now, 1 sample is generated per tick, but we might
@@ -35,7 +33,7 @@ static const uint16_t kSampleRate = 39062;
 
 // The latency is 1ms, with a buffer storing 2ms of audio.
 static const uint8_t kAudioBlockSize = 40;
-static const uint8_t kAudioBufferSize = 128;
+static const uint16_t kAudioBufferSize = 128;
 
 static const uint8_t kNumScannedCv = 5;
 

@@ -55,6 +55,12 @@ class FxEngine {
   
  private:
   static uint8_t cv_[CV_LAST];
+  static uint8_t filter_mode_;
+
+  // Internal state of the SVF.
+  static int16_t svf_lp_;
+  static int16_t svf_bp_;
+  static int16_t svf_hp_;
   
   DISALLOW_COPY_AND_ASSIGN(FxEngine);
 };

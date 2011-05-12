@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "dsp/dsp.h"
+
 #include "avrlib/adc.h"
 #include "avrlib/boot.h"
 #include "avrlib/gpio.h"
@@ -34,13 +36,12 @@ SpiMaster<NumberedGpio<10>, MSB_FIRST, 2> dac_interface;
 static uint8_t scanned_cv = 0;
 static uint8_t cycle = 0;
 static uint8_t byte_a, byte_b;
-static uint8_t z;
 
 // Called at 78kHz, 12us
 TIMER_2_TICK {
   // This wait is only here to be on the safe side, since the conversion was
   // started 12us ago, and took 10us. It is thus complete except at warm up.
-  adc.Wait();
+  // adc.Wait();
   if (cycle & 1) {
     uint8_t value = adc.ReadOut8();
     input_buffer.Overwrite(value);
@@ -49,10 +50,13 @@ TIMER_2_TICK {
     led_in.set_value(value > 192);
     dac_interface.Overwrite(byte_a);
     Word x;
+    // Apply VCA to output.
     x.value = SignedUnsignedMul(
         output_buffer.ImmediateRead() + 128,
         fx_engine.vca()) + 32768;
     led_out.set_value(x.bytes[1] > 192);
+    
+    // Convert to 12 bits and write to DAC
     x.bytes[0] = Swap4(x.bytes[0]);
     x.bytes[1] = Swap4(x.bytes[1]);
     byte_a = (x.bytes[1] & 0x0f) | 0x70;
@@ -102,10 +106,15 @@ int main(void) {
     output_buffer.Overwrite(128);
   }
   Init();
+  
+  NumberedGpio<1> tx;
+  tx.set_mode(DIGITAL_OUTPUT);
   while (1) {
     while (output_buffer.writable() >= kAudioBlockSize &&
            input_buffer.readable() >= kAudioBlockSize) {
+      tx.High();
       fx_engine.ProcessBlock();
+      tx.Low();
     }
   }
 }

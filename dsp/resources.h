@@ -34,11 +34,22 @@ namespace dsp {
 
 typedef uint8_t ResourceId;
 
-extern const prog_uint8_t* lut_table[];
+extern const prog_uint8_t* waveshaper_table[];
 
-extern const prog_uint8_t lut_res_distortion[] PROGMEM;
-#define LUT_RES_DISTORTION 0
-#define LUT_RES_DISTORTION_SIZE 256
+extern const prog_uint16_t* lut_table[];
+
+extern const prog_uint8_t waveshaper_res_distortion[] PROGMEM;
+extern const prog_uint16_t lut_res_integrator_step[] PROGMEM;
+extern const prog_uint16_t lut_res_damp_factor[] PROGMEM;
+extern const prog_uint16_t lut_res_damp_stability_bound[] PROGMEM;
+#define WAVESHAPER_RES_DISTORTION 0
+#define WAVESHAPER_RES_DISTORTION_SIZE 256
+#define LUT_RES_INTEGRATOR_STEP 0
+#define LUT_RES_INTEGRATOR_STEP_SIZE 256
+#define LUT_RES_DAMP_FACTOR 1
+#define LUT_RES_DAMP_FACTOR_SIZE 256
+#define LUT_RES_DAMP_STABILITY_BOUND 2
+#define LUT_RES_DAMP_STABILITY_BOUND_SIZE 256
 
 }  // namespace dsp
 
