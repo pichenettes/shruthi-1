@@ -596,7 +596,7 @@ class Oscillator {
             ((data_.vw.formant_phase[i] >> 8) & 0xf0) |
               data_.vw.formant_amplitude[i]);
       }
-      result = SignedMulScale8(result, ~(phase_.integral >> 8));
+      result = SignedUnsignedMulScale8(result, ~(phase_.integral >> 8));
       phase_.integral += phase_increment_.integral;
       int16_t phase_noise = int8_t(Random::state_msb()) *
           int8_t(data_.vw.noise_modulation);

@@ -88,6 +88,12 @@ keyboard
 midi
 system
 performance
+param. 1
+param. 2
+pr1
+pr2
+fx.
+fx prog.
 lpf
 bpf
 hpf
@@ -145,6 +151,23 @@ reso
  attack
  lfo 1
  lfo 2
+
+ none
+distrt
+crushr
+combfl
+ringmd
+delay
+fb dly
+dubdly
+1/4 dl
+1/3 dl
+1/2 dl
+3/4 dl
+1/1 dl
+flange
+spacer
+weirdo
 
 lf1
 lf2
@@ -354,6 +377,7 @@ vibes
  lpf
 ssm
 svf
+dsp
 
 4cv in
 prgm

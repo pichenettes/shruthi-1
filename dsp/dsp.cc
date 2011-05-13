@@ -20,6 +20,7 @@
 #include "avrlib/gpio.h"
 #include "avrlib/op.h"
 #include "avrlib/ring_buffer.h"
+#include "avrlib/serial.h"
 #include "avrlib/spi.h"
 #include "dsp/buffers.h"
 #include "dsp/fx_engine.h"
@@ -30,6 +31,8 @@ using namespace avrlib;
 Gpio<PortD, 2> led_in;
 Gpio<PortD, 3> led_out;
 
+Serial<SerialPort0, 115200, BUFFERED, DISABLED> cv_io;
+
 Adc adc;
 SpiMaster<NumberedGpio<10>, MSB_FIRST, 2> dac_interface;
 
@@ -37,7 +40,8 @@ static uint8_t scanned_cv = 0;
 static uint8_t cycle = 0;
 static uint8_t byte_a, byte_b;
 
-// Called at 78kHz, 12us
+#ifdef USE_ANALOG_CV
+
 TIMER_2_TICK {
   // This wait is only here to be on the safe side, since the conversion was
   // started 12us ago, and took 10us. It is thus complete except at warm up.
@@ -50,10 +54,9 @@ TIMER_2_TICK {
     led_in.set_value(value > 192);
     dac_interface.Overwrite(byte_a);
     Word x;
-    // Apply VCA to output.
     x.value = SignedUnsignedMul(
-        output_buffer.ImmediateRead() + 128,
-        fx_engine.vca()) + 32768;
+        output_buffer.ImmediateRead(),
+        255) + 32768;
     led_out.set_value(x.bytes[1] > 192);
     
     // Convert to 12 bits and write to DAC
@@ -73,30 +76,122 @@ TIMER_2_TICK {
   ++cycle;
 }
 
+#define TIMER_RATE TIMER_FAST_PWM
+
+#else
+
+TIMER_2_TICK {
+  uint8_t value = adc.ReadOut8();
+  input_buffer.Overwrite(value);
+  adc.StartConversion(0);
+  dac_interface.Strobe();
+  led_in.set_value(value > 192);
+  dac_interface.Overwrite(byte_a);
+  Word x;
+  value = output_buffer.ImmediateRead();
+  x.value = SignedUnsignedMul(value, 16) + 2048;
+  // Convert to 12 bits and write to DAC
+  led_out.set_value(x.bytes[1] > 10);
+  byte_a = x.bytes[1] | 0x70;
+  dac_interface.Overwrite(byte_b);
+  byte_b = x.bytes[0];
+}
+
+#define TIMER_RATE TIMER_PWM_PHASE_CORRECT
+
+#endif  // USE_ANALOG_CV
+
 void Init() {
   sei();
   // Kill the UART.
   UCSR0B = 0;
   dac_interface.Init();
+  cv_io.Init();
   dac_interface.WriteWord(0, 0);
   // Prescaler = 16, ADC clocked at 1.25 MHz.
   // ADC conversion time = 10us
   adc.set_prescaler(4);  
   adc.set_alignemnt(ADC_LEFT_ALIGNED);
   adc.Enable();
+  fx_engine.Init();
   
   // ADC warm-up.
   adc.StartConversion(0);
   adc.Wait();
   
   Timer<2>::set_prescaler(1);
-  Timer<2>::set_mode(TIMER_FAST_PWM);
+  Timer<2>::set_mode(TIMER_RATE);
   Timer<2>::Start();
   
   led_in.set_mode(DIGITAL_OUTPUT);
   led_out.set_mode(DIGITAL_OUTPUT);
   led_in.Low();
   led_out.Low();
+}
+
+void FillAudioBuffer() {
+  while (output_buffer.writable() >= kAudioBlockSize &&
+         input_buffer.readable() >= kAudioBlockSize) {
+    NumberedGpio<1> tx;
+    tx.set_mode(DIGITAL_OUTPUT);  
+    tx.High();
+    fx_engine.ProcessBlock();
+    tx.Low();
+  }
+}
+
+static uint8_t cv_io_round_robin = 0xff;
+static uint8_t cv_io_byte = 0;
+
+void ParseCvIo() {
+  if (cv_io.readable()) {
+    uint8_t value = cv_io.ImmediateRead();
+    // We are in sync with the transmit cycle.
+    if (cv_io_round_robin != 0xff) {
+      
+      if (cv_io_byte == 0) {
+        switch (cv_io_round_robin) {
+          case 0:
+            if (value != 0xff) {
+              // WTF? We have lost sync.
+              cv_io_round_robin = 0xff;
+            }
+            break;
+          case 1:
+            fx_engine.set_mode_byte(value);
+            break;
+          case 2:
+            // TEMPO!
+            break;
+          case 3:
+            fx_engine.set_cv(CV_RESONANCE, value << 1);
+            break;
+          case 4:
+            fx_engine.set_cv(CV_1, value << 1);
+            break;
+          case 5:
+            fx_engine.set_cv(CV_2, value << 1);
+            break;
+        }
+      } else {
+        fx_engine.set_cv(CV_CUTOFF + (cv_io_round_robin & 1), value << 1);
+      }
+      cv_io_byte = (cv_io_byte + 1) & 1;
+      if (!cv_io_byte) {
+        ++cv_io_round_robin;
+        if (cv_io_round_robin == 6) {
+          cv_io_round_robin = 0;
+        }
+      } 
+    } else {
+      // We are not in sync yet, but we have identified the beginning of a
+      // transmission sequence.
+      if (value == 0xff) {
+        cv_io_round_robin = 0;
+        cv_io_byte = 1;
+      }
+    }
+  }
 }
 
 int main(void) {
@@ -106,15 +201,8 @@ int main(void) {
     output_buffer.Overwrite(128);
   }
   Init();
-  
-  NumberedGpio<1> tx;
-  tx.set_mode(DIGITAL_OUTPUT);
   while (1) {
-    while (output_buffer.writable() >= kAudioBlockSize &&
-           input_buffer.readable() >= kAudioBlockSize) {
-      tx.High();
-      fx_engine.ProcessBlock();
-      tx.Low();
-    }
+    FillAudioBuffer();
+    ParseCvIo();
   }
 }

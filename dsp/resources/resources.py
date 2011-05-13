@@ -86,7 +86,9 @@ def Scale(array, min=1, max=254, center=True, dither=2):
 
 signal_range = ((numpy.arange(0, 256) / 128.0 - 1.0))
 fuzz = numpy.tanh(6.0 * signal_range) * 128.0 + 128.0
+fold = numpy.sin(numpy.pi * signal_range)
 waveshapers.append(('distortion', Scale(fuzz, dither=0)))
+waveshapers.append(('fold', Scale(fold, dither=0)))
 
 """----------------------------------------------------------------------------
 Lookup tables for SVF
@@ -94,11 +96,11 @@ Lookup tables for SVF
 
 luts = []
 
-sr = 20000000 / 512.0
+sr = 20000000 / 512.0 / 2
 resolution = 15  # bits
 
 cv = numpy.arange(0, 256.0)
-cutoff = sr / 2 * 2 ** (-(128 - cv / 2.0) /12.0)
+cutoff = sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0)
 step = 2.0 * numpy.sin(numpy.pi * cutoff / (2 * sr))
 integrator_step = numpy.round(step * (1 << resolution))
 integrator_step = numpy.minimum(integrator_step, 65535)
@@ -115,6 +117,24 @@ damp_stability_bound = numpy.minimum(damp_stability_bound, 65535)
 luts.append(('integrator_step', integrator_step))
 luts.append(('damp_factor', damp_factor))
 luts.append(('damp_stability_bound', damp_stability_bound))
+
+"""----------------------------------------------------------------------------
+Lookup tables for comb filter
+-----------------------------------------------------------------------------"""
+sr = 20000000 / 512.0
+cutoff = sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0)
+
+delays = numpy.round(numpy.minimum(1024, sr / cutoff))
+luts.append(('comb_delays', delays))
+
+"""----------------------------------------------------------------------------
+Lookup tables for ring modulator
+-----------------------------------------------------------------------------"""
+
+sine = -numpy.sin(numpy.arange(257) / float(256) * 2 * numpy.pi) * 127.5 + 127.5
+waveshapers.append(('sine', Scale(sine)))
+increments = 65536 * (cutoff / 2) / sr
+luts.append(('phase_increment', increments))
 
 resources = [
   (waveshapers, 'waveshaper', 'WAVESHAPER_RES', 'prog_uint8_t', int, True),

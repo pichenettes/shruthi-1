@@ -784,7 +784,8 @@ inline void Voice::ProcessModulationMatrix() {
 
     // The rate of the last modulation is adjusted by the wheel.
     if (i == kModulationMatrixSize - 1) {
-      amount = SignedMulScale8(amount, modulation_sources_[MOD_SRC_WHEEL]);
+      amount = SignedUnsignedMulScale8(
+          amount, modulation_sources_[MOD_SRC_WHEEL]);
     }
     uint8_t source = engine.patch_.modulation_matrix.modulation[i].source;
     uint8_t destination =

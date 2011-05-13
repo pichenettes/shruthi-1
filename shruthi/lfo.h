@@ -99,7 +99,7 @@ class Lfo {
     phase_ += phase_increment_;
 
     // Apply the intensity envelope.
-    return SignedMulScale8(
+    return SignedUnsignedMulScale8(
         static_cast<int8_t>(value) - 128,
         avrlib::ShiftRight6(intensity_)
     ) + 128;

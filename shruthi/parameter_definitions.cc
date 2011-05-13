@@ -28,7 +28,7 @@
 namespace shruthi {
 
 static const prog_char raw_parameter_definition[
-    70 * sizeof(ParameterDefinition)] PROGMEM = {
+    74 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_LAST - 1,
@@ -313,7 +313,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_SNAP, STR_RES_SNAP,
 
   PRM_SYS_EXPANSION_FILTER_BOARD,
-  FILTER_BOARD_LPF, FILTER_BOARD_SVF,
+  FILTER_BOARD_LPF, FILTER_BOARD_DSP,
   UNIT_FILTER_BOARD,
   STR_RES_FILTER, STR_RES_FILTER,
   
@@ -394,6 +394,27 @@ static const prog_char raw_parameter_definition[
   FILTER_MODE_PARALLEL_LP, FILTER_MODE_SERIAL_HP,
   UNIT_FILTER_2_MODE,
   STR_RES_MD2, STR_RES_MODE_2,
+  
+  // Settings for digital filter board.
+  PRM_FILTER_MODE_1,
+  FILTER_MODE_LP, FILTER_MODE_HP,
+  UNIT_FILTER_1_MODE,
+  STR_RES_MODE, STR_RES_MODE,
+  
+  PRM_FX_PROGRAM,
+  0, 15,
+  UNIT_FX_PROGRAM,
+  STR_RES_FX_, STR_RES_FX_PROG_,
+  
+  PRM_FX_PARAM_1,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_PR1, STR_RES_PARAM__1,
+
+  PRM_FX_PARAM_2,
+  0, 63,
+  UNIT_UINT8,
+  STR_RES_PR2, STR_RES_PARAM__2,
 };
 
 /* static */

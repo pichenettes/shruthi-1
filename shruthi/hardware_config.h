@@ -34,9 +34,11 @@ using avrlib::PortB;
 using avrlib::PortC;
 using avrlib::PortD;
 using avrlib::SerialPort0;
+using avrlib::SerialPort1;
 
 // MIDI
 typedef SerialPort0 MidiPort;
+typedef SerialPort1 CvTxPort;
 
 // LCD
 typedef Gpio<PortC, 2> LcdRsLine;

@@ -24,7 +24,7 @@
 #include "dsp/dsp.h"
 
 namespace dsp {
-  
+
 enum ControlVoltage {
   CV_1,
   CV_2,
@@ -34,33 +34,79 @@ enum ControlVoltage {
   CV_LAST
 };
 
+typedef void (*RenderFn)();
+
+struct FxState {
+  uint8_t bitcrusher_sample_counter;
+  int8_t bitcrusher_held_sample;
+  
+  int8_t delay_line[1024];
+  uint16_t delay_ptr;
+  
+  uint16_t ringmod_phase;
+};
+
 class FxEngine {
  public:
   FxEngine() { }
   static void Init();
   
-  inline void set_cv(uint8_t cv_index, uint8_t value) {
+  static void set_cv(uint8_t cv_index, uint8_t value) {
     cv_[cv_index] = value;
   }
   
-  uint8_t cv(uint8_t cv_index) const {
+  static uint8_t cv(uint8_t cv_index) {
     return cv_[cv_index];
   }
+
+  static uint8_t filtered_cv(uint8_t cv_index) {
+#ifdef USE_ANALOG_CV
+    return cv_sum_[cv_index] >> 4;
+#else
+    return cv_[cv_index];
+#endif  // USE_ANALOG_CV
+  }
   
-  uint8_t vca() const {
+  static uint8_t vca() {
     return cv_[CV_VCA];
   }
   
-  void ProcessBlock();
+  static void set_mode(uint8_t filter_mode) {
+    filter_mode_ = filter_mode;
+  }
+  static void set_fx_program(uint8_t fx_program) {
+    fx_program_ = fx_program;
+  }
+  static void set_mode_byte(uint8_t mode_byte) {
+    filter_mode_ = mode_byte >> 4;
+    fx_program_ = mode_byte & 0x0f;
+  }
+  
+  static void ProcessBlock();
+  
+  static void RenderNone() { }
+  static void RenderDistortion();
+  static void RenderCrush();
+  static void RenderComb();
+  static void RenderRingMod();
+  static void RenderDelay();
+  static void RenderFlanger();
   
  private:
   static uint8_t cv_[CV_LAST];
+  static uint8_t cv_history_[CV_LAST * 16];
+  static uint16_t cv_sum_[CV_LAST];
+  static uint8_t cv_ptr_;
+    
   static uint8_t filter_mode_;
+  static uint8_t fx_program_;
+  static int8_t samples_[kAudioBlockSize];
 
   // Internal state of the SVF.
-  static int16_t svf_lp_;
-  static int16_t svf_bp_;
-  static int16_t svf_hp_;
+  static int16_t state_[3];
+  static RenderFn render_fn_[16];
+  
+  static FxState fx_state_;
   
   DISALLOW_COPY_AND_ASSIGN(FxEngine);
 };

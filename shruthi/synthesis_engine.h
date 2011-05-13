@@ -256,6 +256,10 @@ class SynthesisEngine : public midi::MidiDevice {
     return value;
   }
   
+  static inline uint8_t fx_control_byte() {
+    return (patch_.filter_1_mode_ << 4) | patch_.filter_2_mode_;
+  }
+  
   static inline uint8_t filter_routing_byte() {
     uint8_t byte = 0;
     if (patch_.filter_1_mode_ == FILTER_MODE_BP) {

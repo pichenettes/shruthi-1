@@ -52,6 +52,7 @@ enum FilterBoard {
   FILTER_BOARD_LPF,
   FILTER_BOARD_SSM,
   FILTER_BOARD_SVF,
+  FILTER_BOARD_DSP,
 };
 
 enum CvMode {

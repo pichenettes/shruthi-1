@@ -241,7 +241,11 @@ enum PatchParameter {
   PRM_OP_OP1 = 94,
   PRM_OP_OP2 = 95,
   PRM_OP_OPERATOR = 96,
-  PRM_OP_ROW = 97
+  PRM_OP_ROW = 97,
+  
+  PRM_FX_PROGRAM = PRM_FILTER_MODE_2,
+  PRM_FX_PARAM_1 = PRM_FILTER_CUTOFF_2,
+  PRM_FX_PARAM_2 = PRM_FILTER_RESONANCE_2,
 };
 
 enum OscillatorAlgorithm {

@@ -39,6 +39,7 @@ using namespace shruthi;
 
 // Midi input.
 Serial<MidiPort, 31250, BUFFERED, POLLED> midi_io;
+Serial<CvTxPort, 115200, DISABLED, POLLED> cv_io;
 
 // Input event handlers.
 typedef AdcInputScanner AnalogInputs;
@@ -258,10 +259,31 @@ void MidiTask() {
   // flush the data at a faster rate in the audio sample interrupt.
 }
 
+uint8_t cv_io_round_robin = 0;
 void AudioRenderingTask() {
   // Run only when there's a block of 40 samples to fill...
   if (audio_out.writable_block()) {
     engine.ProcessBlock();
+    if (engine.system_settings().expansion_filter_board == FILTER_BOARD_DSP) {
+      // Shove two bytes to the serial output used for transmitting CVs to the
+      // digital filter board.
+      if (cv_io_round_robin == 0) {
+        cv_io.Overwrite(0xff);
+      } else if (cv_io_round_robin == 1) {
+        cv_io.Overwrite(engine.fx_control_byte());
+      } else if (cv_io_round_robin == 2) {
+        cv_io.Overwrite(0x00);
+      } else {
+        cv_io.Overwrite(engine.voice(0).modulation_destination(
+            MOD_DST_FILTER_RESONANCE + cv_io_round_robin - 3) >> 1);
+      }
+      cv_io.Overwrite(engine.voice(0).modulation_destination(
+          MOD_DST_FILTER_CUTOFF + (cv_io_round_robin & 1)) >> 1);
+      cv_io_round_robin = (cv_io_round_robin + 1);
+      if (cv_io_round_robin == 6) {
+        cv_io_round_robin = 0;
+      }
+    }
     vcf_cutoff_out.Write(engine.voice(0).cutoff());
     vcf_resonance_out.Write(engine.voice(0).resonance());
     vca_out.Write(engine.voice(0).vca());
@@ -333,6 +355,7 @@ void Init() {
   
   audio_out.Init();
   midi_io.Init();
+  cv_io.Init();
   pots.Init();
   switches.Init();
   encoder.Init();
