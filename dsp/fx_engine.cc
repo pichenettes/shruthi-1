@@ -41,6 +41,7 @@ RenderFn FxEngine::render_fn_[16] = {
   &FxEngine::RenderDistortion,
   &FxEngine::RenderCrush,
   &FxEngine::RenderComb,
+  &FxEngine::RenderComb,
   &FxEngine::RenderRingMod,
   &FxEngine::RenderDelay,
   &FxEngine::RenderDelay,
@@ -49,7 +50,6 @@ RenderFn FxEngine::render_fn_[16] = {
   &FxEngine::RenderDelay,
   &FxEngine::RenderDelay,
   &FxEngine::RenderDelay,
-  &FxEngine::RenderFlanger,
   &FxEngine::RenderFlanger,
   &FxEngine::RenderFlanger
 };
@@ -229,7 +229,11 @@ void FxEngine::RenderComb() {
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
     // Feedback signal to delay line.
     int16_t fb = samples_[i];
-    fb -= SignedUnsignedMulScale8(*read_ptr, feedback);
+    if (fx_program_ == 3) {
+      fb += SignedUnsignedMulScale8(*read_ptr, feedback);
+    } else {
+      fb -= SignedUnsignedMulScale8(*read_ptr, feedback);
+    }
     *write_ptr = SignedClip8(fb);
     // Read delayed signal and mix with original.
     int16_t out = *read_ptr;

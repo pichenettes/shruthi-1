@@ -164,17 +164,17 @@ void ParseCvIo() {
             // TEMPO!
             break;
           case 3:
-            fx_engine.set_cv(CV_RESONANCE, value << 1);
+            fx_engine.set_cv(CV_RESONANCE, value);
             break;
           case 4:
-            fx_engine.set_cv(CV_1, value << 1);
+            fx_engine.set_cv(CV_1, value);
             break;
           case 5:
-            fx_engine.set_cv(CV_2, value << 1);
+            fx_engine.set_cv(CV_2, value);
             break;
         }
       } else {
-        fx_engine.set_cv(CV_CUTOFF + (cv_io_round_robin & 1), value << 1);
+        fx_engine.set_cv(CV_CUTOFF + (cv_io_round_robin & 1), value);
       }
       cv_io_byte = (cv_io_byte + 1) & 1;
       if (!cv_io_byte) {

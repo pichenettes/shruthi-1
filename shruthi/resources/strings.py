@@ -155,19 +155,19 @@ reso
  none
 distrt
 crushr
-combfl
++combf
+-combf
 ringmd
 delay
 fb dly
 dubdly
-1/4 dl
-1/3 dl
-1/2 dl
-3/4 dl
-1/1 dl
+/32 dl
+/16 dl
+/12 dl
+/8 dly
+3/16dl
 flange
 spacer
-weirdo
 
 lf1
 lf2

@@ -264,6 +264,7 @@ void AudioRenderingTask() {
   // Run only when there's a block of 40 samples to fill...
   if (audio_out.writable_block()) {
     engine.ProcessBlock();
+    uint8_t v;
     if (engine.system_settings().expansion_filter_board == FILTER_BOARD_DSP) {
       // Shove two bytes to the serial output used for transmitting CVs to the
       // digital filter board.
@@ -274,11 +275,19 @@ void AudioRenderingTask() {
       } else if (cv_io_round_robin == 2) {
         cv_io.Overwrite(0x00);
       } else {
-        cv_io.Overwrite(engine.voice(0).modulation_destination(
-            MOD_DST_FILTER_RESONANCE + cv_io_round_robin - 3) >> 1);
+        v = engine.voice(0).modulation_destination(
+            MOD_DST_FILTER_RESONANCE + cv_io_round_robin - 3);
+        if (v == 0xff) {
+          v = 0xfe;
+        }
+        cv_io.Overwrite(v);
       }
-      cv_io.Overwrite(engine.voice(0).modulation_destination(
-          MOD_DST_FILTER_CUTOFF + (cv_io_round_robin & 1)) >> 1);
+      v = engine.voice(0).modulation_destination(
+          MOD_DST_FILTER_CUTOFF + (cv_io_round_robin & 1));
+      if (v == 0xff) {
+        v = 0xfe;
+      }
+      cv_io.Overwrite(v);
       cv_io_round_robin = (cv_io_round_robin + 1);
       if (cv_io_round_robin == 6) {
         cv_io_round_robin = 0;
