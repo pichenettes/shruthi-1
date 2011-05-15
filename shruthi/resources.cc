@@ -170,8 +170,8 @@ static const prog_char str_res_3_16dl[] PROGMEM = "3/16dl";
 static const prog_char str_res_looper[] PROGMEM = "looper";
 static const prog_char str_res_pitch[] PROGMEM = "pitch";
 static const prog_char str_res_lgf[] PROGMEM = "l>f";
-static const prog_char str_res_fgl[] PROGMEM = "f>l";
 static const prog_char str_res_hgf[] PROGMEM = "h>f";
+static const prog_char str_res_fgl[] PROGMEM = "f>l";
 static const prog_char str_res_fgh[] PROGMEM = "f>h";
 static const prog_char str_res_gfx[] PROGMEM = ">fx";
 static const prog_char str_res_lf1[] PROGMEM = "lf1";
@@ -552,8 +552,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_looper,
   str_res_pitch,
   str_res_lgf,
-  str_res_fgl,
   str_res_hgf,
+  str_res_fgl,
   str_res_fgh,
   str_res_gfx,
   str_res_lf1,

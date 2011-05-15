@@ -56,11 +56,12 @@ create_specialized_manager = False
 
 import numpy
 
+luts = []
+waveforms = []
+
 """----------------------------------------------------------------------------
 Waveshaper/distorsion
 -----------------------------------------------------------------------------"""
-
-luts = []
 
 def Dither(x, order=0, type=numpy.uint8):
   for i in xrange(order):
@@ -93,12 +94,26 @@ luts.append(('fold', Scale(fold, min=1, max=4094, type=numpy.uint16, dither=0)))
 """----------------------------------------------------------------------------
 Lookup tables for LPF
 -----------------------------------------------------------------------------"""
-
 sr = 20000000 / 512.0
 cv = numpy.arange(0, 256.0)
-cutoff = sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0)
-vcf_ota_gain = numpy.round(65535 * 2 * cutoff / sr)
-luts.append(('vcf_ota_gain', vcf_ota_gain))
+cutoff = numpy.minimum(sr / 2, 1.5 * sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0))
+# The correct scale for cutoff is the following:
+# omega = 2 * numpy.pi * cutoff / sr
+# s = numpy.sin(omega)
+# c = numpy.cos(omega)
+# t = numpy.tan((omega - numpy.pi) / 4)
+# alpha = 1 + t / (s - c * t)
+# integrator_gain = numpy.round(65535 * alpha)
+
+# However, we use the lazier scale here because it has two nice properties:
+# - The self-oscillation sine wave is correctly tuned
+# - With cutoff set to its maximum the filter behaves as a pass-through, rather
+#   than a low-pass with fc at nyquist.
+integrator_gain = numpy.round(65535 * cutoff / sr * 2)
+luts.append(('integrator_gain', integrator_gain))
+
+resonance_curve = 256.0 * ((cv / 256.0) ** 0.4)
+waveforms.append(('resonance_response', resonance_curve))
 
 """----------------------------------------------------------------------------
 Lookup tables for comb filter
@@ -112,7 +127,6 @@ luts.append(('comb_delays', delays))
 """----------------------------------------------------------------------------
 Lookup tables for ring modulator
 -----------------------------------------------------------------------------"""
-waveforms = []
 sine = -numpy.sin(numpy.arange(257) / float(256) * 2 * numpy.pi) * 127.5 + 127.5
 waveforms.append(('sine', Scale(sine)))
 increments = 65536 * (cutoff / 2) / sr
@@ -122,11 +136,12 @@ luts.append(('phase_increment', increments))
 Lookup tables for delays
 -----------------------------------------------------------------------------"""
 
-durations = sr * (0.1 + 0.9 * (cv / 256.0)) ** 2
+minimum_delay = 0.05 ** 0.5
+durations = sr * (minimum_delay + (1 - minimum_delay) * (cv / 256.0)) ** 2
 decimation = numpy.ceil(durations / 1279)
 filter_gain = numpy.ceil(255 / decimation)
 delay_line_size = numpy.round(durations / decimation)
-luts.append(('delay_line_size', delay_line_size))
+luts.append(('delay_duration', delay_line_size))
 luts.append(('delay_decimation', decimation))
 luts.append(('delay_filter_gain', filter_gain))
 luts.append(('delay_phase_scaling', 65536.0 / decimation))
@@ -137,13 +152,10 @@ durations = sr * 3.0 * whole_note_duration / 16.0
 decimation = numpy.ceil(durations / 1279)
 delay_line_size = numpy.round(durations / decimation)
 filter_gain = numpy.ceil(255 / decimation)
-print durations[80]
-print delay_line_size[80], decimation[80]
-luts.append(('tap_delay_line_size', delay_line_size))
+luts.append(('tap_delay_duration', delay_line_size))
 luts.append(('tap_delay_decimation', decimation))
 luts.append(('tap_delay_filter_gain', filter_gain))
   
-
 """----------------------------------------------------------------------------
 Lookup tables for pitch shifting ratio
 -----------------------------------------------------------------------------"""

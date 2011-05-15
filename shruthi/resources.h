@@ -260,8 +260,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_LOOPER 142  // looper
 #define STR_RES_PITCH 143  // pitch
 #define STR_RES_LGF 144  // l>f
-#define STR_RES_FGL 145  // f>l
-#define STR_RES_HGF 146  // h>f
+#define STR_RES_HGF 145  // h>f
+#define STR_RES_FGL 146  // f>l
 #define STR_RES_FGH 147  // f>h
 #define STR_RES_GFX 148  // >fx
 #define STR_RES_LF1 149  // lf1

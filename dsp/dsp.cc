@@ -16,10 +16,7 @@
 #include "dsp/dsp.h"
 
 #include "avrlib/adc.h"
-#include "avrlib/boot.h"
 #include "avrlib/gpio.h"
-#include "avrlib/op.h"
-#include "avrlib/ring_buffer.h"
 #include "avrlib/serial.h"
 #include "avrlib/spi.h"
 #include "dsp/buffers.h"
@@ -36,35 +33,29 @@ Serial<SerialPort0, 115200, BUFFERED, DISABLED> cv_io;
 Adc adc;
 SpiMaster<NumberedGpio<10>, MSB_FIRST, 2> dac_interface;
 
-static uint8_t scanned_cv = 0;
-static uint8_t cycle = 0;
-static uint8_t byte_a, byte_b;
+static uint8_t dac_word[2];
 
 #ifdef USE_ANALOG_CV
-
+//
+//      /\
+//    / ! \    This code is deprecated and ugly.
+//  /______\
+// 
+static uint8_t scanned_cv = 0;
+static uint8_t cycle = 0;
 TIMER_2_TICK {
-  // This wait is only here to be on the safe side, since the conversion was
-  // started 12us ago, and took 10us. It is thus complete except at warm up.
-  // adc.Wait();
   if (cycle & 1) {
     uint8_t value = adc.ReadOut8();
     input_buffer.Overwrite(value);
     adc.StartConversion(scanned_cv + 1);
     dac_interface.Strobe();
     led_in.set_value(value > 192);
-    dac_interface.Overwrite(byte_a);
+    dac_interface.Overwrite(dac_word[0]);
     Word x;
-    x.value = SignedUnsignedMul(
-        output_buffer.ImmediateRead(),
-        255) + 32768;
-    led_out.set_value(x.bytes[1] > 192);
-    
-    // Convert to 12 bits and write to DAC
-    x.bytes[0] = Swap4(x.bytes[0]);
-    x.bytes[1] = Swap4(x.bytes[1]);
-    byte_a = (x.bytes[1] & 0x0f) | 0x70;
-    dac_interface.Overwrite(byte_b);
-    byte_b = (x.bytes[1] & 0xf0) | (x.bytes[0] & 0x0f);
+    x.value = output_buffer.ImmediateRead();
+    dac_word[0] = x.bytes[1] | 0x70;
+    dac_interface.Overwrite(dac_word[1]);
+    dac_word[1] = x.bytes[0];
   } else {
     fx_engine.set_cv(scanned_cv, adc.ReadOut8());
     adc.StartConversion(0);
@@ -86,14 +77,19 @@ TIMER_2_TICK {
   adc.StartConversion(0);
   dac_interface.Strobe();
   led_in.set_value(value > 192);
-  dac_interface.Overwrite(byte_a);
+  dac_interface.Overwrite(dac_word[0]);
+  // Writing a byte to the DAC takes 10 CPU cycles (we are working at the
+  // fastes SPI speed allowed). While the next lines are running, the hardware
+  // SPI unit is shifting out the first byte.
   Word x;
   x.value = output_buffer.ImmediateRead();
   // Convert to 12 bits and write to DAC
-  led_out.set_value(x.bytes[1] > 10);
-  byte_a = x.bytes[1] | 0x70;
-  dac_interface.Overwrite(byte_b);
-  byte_b = x.bytes[0];
+  led_out.set_value(x.bytes[1] > 8);
+  dac_word[0] = x.bytes[1] | 0x70;
+  // At this stage, we can assume that the first byte has been written, so we
+  // shift the second one without checking the transmission status byte.
+  dac_interface.Overwrite(dac_word[1]);
+  dac_word[1] = x.bytes[0];
 }
 
 #define TIMER_RATE TIMER_PWM_PHASE_CORRECT
@@ -107,6 +103,10 @@ void Init() {
   dac_interface.Init();
   cv_io.Init();
   dac_interface.WriteWord(0, 0);
+  
+  led_in.set_mode(DIGITAL_OUTPUT);
+  led_out.set_mode(DIGITAL_OUTPUT);
+  
   // Prescaler = 16, ADC clocked at 1.25 MHz.
   // ADC conversion time = 10us
   adc.set_prescaler(4);  
@@ -121,22 +121,6 @@ void Init() {
   Timer<2>::set_prescaler(1);
   Timer<2>::set_mode(TIMER_RATE);
   Timer<2>::Start();
-  
-  led_in.set_mode(DIGITAL_OUTPUT);
-  led_out.set_mode(DIGITAL_OUTPUT);
-  led_in.Low();
-  led_out.Low();
-}
-
-void FillAudioBuffer() {
-  while (output_buffer.writable() >= kAudioBlockSize &&
-         input_buffer.readable() >= kAudioBlockSize) {
-    NumberedGpio<1> tx;
-    tx.set_mode(DIGITAL_OUTPUT);  
-    tx.High();
-    fx_engine.ProcessBlock();
-    tx.Low();
-  }
 }
 
 static uint8_t cv_io_round_robin = 0xff;
@@ -193,12 +177,19 @@ void ParseCvIo() {
   }
 }
 
-int main(void) {
-  // Sample some junk.
-  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-    input_buffer.Overwrite(128);
-    output_buffer.Overwrite(128);
+void FillAudioBuffer() {
+  while (output_buffer.writable() >= kAudioBlockSize &&
+         input_buffer.readable() >= kAudioBlockSize) {
+    // We use the TX pin on the board to time the audio processing code.
+    NumberedGpio<1> tx;
+    tx.set_mode(DIGITAL_OUTPUT);  
+    tx.High();
+    fx_engine.ProcessBlock();
+    tx.Low();
   }
+}
+
+int main(void) {
   Init();
   while (1) {
     FillAudioBuffer();

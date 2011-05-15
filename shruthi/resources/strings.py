@@ -170,8 +170,8 @@ looper
 pitch
 
 l>f
-f>l
 h>f
+f>l
 f>h
 >fx
 

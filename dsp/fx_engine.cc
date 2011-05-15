@@ -15,6 +15,7 @@
 
 #include "dsp/fx_engine.h"
 
+#include "avrlib/gpio.h"
 #include "avrlib/op.h"
 #include "avrlib/resources_manager.h"
 
@@ -25,57 +26,7 @@ namespace dsp {
 
 using namespace avrlib;
 
-#define SubClip16(a, b) asm( \
-    "sub %A0, %A1"    "\n\t" \
-    "sbc %B0, %B1"    "\n\t" \
-    "brvc .+4"        "\n\t" \
-    "ldi %A0, 1"      "\n\t" \
-    "ldi %B0, 128"    "\n\t" \
-    : "+a" (a) \
-    : "a" (b))
-
-#define AddClip16(a, b) asm( \
-    "add %A0, %A1"    "\n\t" \
-    "adc %B0, %B1"    "\n\t" \
-    "brvc .+4"        "\n\t" \
-    "ldi %A0, 255"    "\n\t" \
-    "ldi %B0, 127"    "\n\t" \
-    : "+a" (a) \
-    : "a" (b))
-
 #define Clip12(a) if (a > 2047) a = 2047; if (a < -2047) a = -2047; 
-
-static inline uint8_t InterpolateSampleRam(
-    const uint8_t* table,
-    uint16_t phase) __attribute__((always_inline));
-
-
-static inline uint8_t InterpolateSampleRam(
-    const uint8_t* table,
-    uint16_t phase) {
-  uint8_t result;
-  uint8_t work;
-  asm(
-    "movw r30, %A2"           "\n\t"  // copy base address to r30:r31
-    "add r30, %B3"            "\n\t"  // increment table address by phaseH
-    "adc r31, r1"             "\n\t"  // just carry
-    "mov %1, %A3"             "\n\t"  // move phaseL to working register
-    "ld %0, z+"               "\n\t"  // load sample[n]
-    "ld r1, z+"               "\n\t"  // load sample[n+1]
-    "mul %1, r1"              "\n\t"  // multiply second sample by phaseL
-    "movw r30, r0"            "\n\t"  // result to accumulator
-    "com %1"                  "\n\t"  // 255 - phaseL -> phaseL
-    "mul %1, %0"              "\n\t"  // multiply first sample by phaseL
-    "add r30, r0"             "\n\t"  // accumulate L
-    "adc r31, r1"             "\n\t"  // accumulate H
-    "eor r1, r1"              "\n\t"  // reset r1 after multiplication
-    "mov %0, r31"             "\n\t"  // use sum H as output
-    : "=r" (result), "=r" (work)
-    : "r" (table), "r" (phase)
-    : "r30", "r31"
-  );
-  return result;
-}
 
 enum FxProgram {
   FX_DISTORTION,
@@ -107,7 +58,7 @@ uint8_t FxEngine::tempo_;
 FxState FxEngine::fx_state_;
 
 int16_t FxEngine::samples_[kAudioBlockSize];
-int16_t FxEngine::pole_[2];
+int16_t FxEngine::pole_[3];
 RenderFn FxEngine::render_fn_[16] = {
   &FxEngine::RenderDistortion,
   &FxEngine::RenderCrush,
@@ -131,18 +82,13 @@ RenderFn FxEngine::render_fn_[16] = {
 /* extern */
 FxEngine fx_engine;
 
-enum SvfNodes {
-  LP,
-  BP,
-  HP
-};
-
 /* static */
 void FxEngine::Init() {
   filter_mode_ = 0;
   fx_program_ = 1;
   pole_[0] = 0;
   pole_[1] = 0;
+  pole_[2] = 0;
   cv_ptr_ = 0;
   memset(&cv_sum_, 0, sizeof(cv_sum_));
   memset(&cv_history_, 0, sizeof(cv_history_));
@@ -150,8 +96,7 @@ void FxEngine::Init() {
 }
 
 /* static */
-void FxEngine::ProcessBlock() {
-  // Smooth CVs.
+void FxEngine::SmoothCv() {
 #ifdef USE_ANALOG_CV
   uint8_t* history = cv_history_ + cv_ptr_;
   for (uint8_t i = 0; i < CV_LAST; ++i) {
@@ -162,95 +107,79 @@ void FxEngine::ProcessBlock() {
   }
   cv_ptr_ = (cv_ptr_ + 1) & 15;
 #endif  // USE_ANALOG_CV
-  
-  // Compute the filter variables.
+}
+
+/* static */
+void FxEngine::RenderDcf() {
   uint8_t cutoff = cv(CV_CUTOFF);
-  uint8_t resonance = filtered_cv(CV_RESONANCE);
-  uint8_t vca = filtered_cv(CV_VCA);
-  uint8_t input_gain = 16;
-  
-  uint16_t vcf_ota_gain = ResourcesManager<>::Lookup<int16_t, uint8_t>(
-      lut_res_vcf_ota_gain, cutoff);
-  uint8_t max_resonance = 255 - (vcf_ota_gain >> 8);
-  if (resonance > max_resonance) {
-    resonance = max_resonance;
+  uint8_t resonance = ResourcesManager<>::Lookup<int16_t, uint8_t>(
+      waveform_res_resonance_response, filtered_cv(CV_RESONANCE));
+  uint8_t dcf_gain = 255 - MulScale8(resonance, 208);
+  uint16_t integrator_gain = ResourcesManager<>::Lookup<int16_t, uint8_t>(
+      lut_res_integrator_gain, cutoff);
+  uint8_t resonance_compensation = 96 - MulScale8(integrator_gain >> 8, 96);
+  if (resonance > resonance_compensation) {
+    resonance -= resonance_compensation;
+  } else {
+    resonance = 0;
   }
-  if (resonance > 128) {
-    input_gain = 16 - MulScale8(resonance, 12);
-  }
+  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    int16_t feedback = SignedUnsignedMul168Scale8(
+        pole_[0] - pole_[1], resonance) << 2;
   
-  if (filter_mode_ & 1) {
-    // VCA > FX > Filter
-    for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-      uint8_t sample_8bits = input_buffer.ImmediateRead();
-      int16_t sample = SignedUnsignedMul(sample_8bits + 128, 16);
-      samples_[i] = SignedUnsignedMul168Scale8(sample, vca);
+    int16_t in = samples_[i];
+    pole_[0] += SignedUnsignedMul16Scale16(
+        in - pole_[0] + feedback, integrator_gain);
+    pole_[1] += SignedUnsignedMul16Scale16(
+        pole_[0] - pole_[1], integrator_gain);
+    pole_[2] += SignedUnsignedMul16Scale16(
+        pole_[1] - pole_[2], integrator_gain);
+    
+    // What analogue taught me: you only need to do clipping on the first pole.
+    if (pole_[0] > 8191) {
+      pole_[0] = 8191;
     }
+    if (pole_[0] < -8191) {
+      pole_[0] = -8191;
+    }
+  
+    int16_t out = pole_[2];
+    if (filter_mode_ & 1) {
+      out = in - out;
+    }
+    out = SignedUnsignedMul168Scale8(out, dcf_gain);
+    Clip12(out);
+    samples_[i] = out;
+  }
+}
+
+/* static */
+void FxEngine::RenderDca() {
+  uint8_t dca_gain = filtered_cv(CV_VCA);
+  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    samples_[i] = SignedUnsignedMul168Scale8(samples_[i], dca_gain);
+  }
+}
+
+/* static */
+void FxEngine::ProcessBlock() {
+  SmoothCv();
+  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    samples_[i] = SignedUnsignedMul(input_buffer.ImmediateRead() + 128, 16);
+  }
+  if (filter_mode_ >= 2) {
+    RenderDca();
     render_fn_[fx_program_]();
-    // Filter the samples through the digital filter.
-    for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-      int16_t input;
-      int16_t output;
-    
-      int16_t feedback = pole_[0];
-      SubClip16(feedback, pole_[1]);
-      feedback = SignedUnsignedMul168Scale8(feedback, resonance);
-      feedback += feedback;
-    
-      input = samples_[i];
-      SubClip16(input, pole_[0]);
-      AddClip16(input, feedback);
-      output = SignedUnsignedMul16Scale16(input, vcf_ota_gain);
-      AddClip16(pole_[0], output);
-    
-      input = pole_[0];
-      SubClip16(input, pole_[1]);
-      output = SignedUnsignedMul16Scale16(input, vcf_ota_gain);
-      AddClip16(pole_[1], output);
-    
-      output = pole_[1];
-      Clip12(output);
-      output_buffer.Overwrite(output + 2048);
+    if (filter_mode_ != 4) {
+      RenderDcf();
     }
   } else {
-    // Filter > VCA > FX
-    if (filter_mode_ != 4) {
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        int16_t input;
-        int16_t output;
-    
-        int16_t feedback = pole_[0];
-        SubClip16(feedback, pole_[1]);
-        feedback = SignedUnsignedMul168Scale8(feedback, resonance);
-        feedback += feedback;
-    
-        uint8_t sample_8bits = input_buffer.ImmediateRead();
-        input = SignedUnsignedMul(sample_8bits + 128, 16);
-        SubClip16(input, pole_[0]);
-        AddClip16(input, feedback);
-        output = SignedUnsignedMul16Scale16(input, vcf_ota_gain);
-        AddClip16(pole_[0], output);
-    
-        input = pole_[0];
-        SubClip16(input, pole_[1]);
-        output = SignedUnsignedMul16Scale16(input, vcf_ota_gain);
-        AddClip16(pole_[1], output);
-    
-        output = pole_[1];
-        Clip12(output);
-        samples_[i] = SignedUnsignedMul168Scale8(output, vca);
-      }
-    } else {
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        uint8_t sample_8bits = input_buffer.ImmediateRead();
-        int16_t sample = SignedUnsignedMul(sample_8bits + 128, 16);
-        samples_[i] = SignedUnsignedMul168Scale8(sample, vca);
-      }
-    }
+    RenderDcf();
+    RenderDca();
     render_fn_[fx_program_]();
-    for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-      output_buffer.Overwrite(samples_[i] + 2048);
-    }
+  }
+  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    output_buffer.Overwrite(samples_[i] + 2048);
   }
 }
 
@@ -363,7 +292,7 @@ void FxEngine::RenderDelay() {
     filter_gain = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
         lut_res_delay_filter_gain, delay);
     delay_duration = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
-        lut_res_delay_line_size, delay); 
+        lut_res_delay_duration, delay); 
     
   } else {
     uint16_t tempo = tempo_;
@@ -381,12 +310,12 @@ void FxEngine::RenderDelay() {
       tempo = UnsignedUnsignedMul(tempo, 3) >> 1;
     }
     tempo -= 40;
-    decimate = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+    decimate = ResourcesManager<>::Lookup<uint16_t, uint16_t>(
         lut_res_tap_delay_decimation, tempo);
-    filter_gain = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+    filter_gain = ResourcesManager<>::Lookup<uint16_t, uint16_t>(
         lut_res_tap_delay_filter_gain, tempo);
-    delay_duration = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
-        lut_res_tap_delay_line_size, tempo);
+    delay_duration = ResourcesManager<>::Lookup<uint16_t, uint16_t>(
+        lut_res_tap_delay_duration, tempo);
     feedback = filtered_cv(CV_1);
   }
   
@@ -416,13 +345,11 @@ void FxEngine::RenderDelay() {
       ++fx_state_.delay_ptr;
     }
     // Low-pass filter the input sample.
-    int16_t x = samples_[i] >> 4;
-    SubClip16(x, fx_state_.delay_input_sample);
+    int16_t x = (samples_[i] >> 4) - fx_state_.delay_input_sample;
     fx_state_.delay_input_sample += SignedUnsignedMul168Scale8(x, filter_gain);
     
     // Low-pass filter the output sample.
-    x = fx_state_.delay_delayed_sample;
-    SubClip16(x, fx_state_.delay_output_sample);
+    x = fx_state_.delay_delayed_sample - fx_state_.delay_output_sample;
     fx_state_.delay_output_sample += SignedUnsignedMul168Scale8(x, filter_gain);
     
     ++fx_state_.delay_sample_counter;
@@ -452,7 +379,7 @@ void FxEngine::RenderCrushDelay() {
   uint8_t decimate = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
       lut_res_delay_decimation, delay);
   uint16_t delay_duration = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
-      lut_res_delay_line_size, delay); 
+      lut_res_delay_duration, delay); 
   
   int8_t* end = &fx_state_.delay_line[delay_line_size];
   int8_t* write_ptr = &fx_state_.delay_line[fx_state_.delay_ptr];
@@ -506,7 +433,7 @@ void FxEngine::LooperRecord() {
   uint8_t decimate = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
       lut_res_delay_decimation, fx_state_.loop_pitch_ref);
   uint16_t loop_duration = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
-      lut_res_delay_line_size, fx_state_.loop_pitch_ref);
+      lut_res_delay_duration, fx_state_.loop_pitch_ref);
   uint8_t filter_gain = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
       lut_res_delay_filter_gain, fx_state_.loop_pitch_ref);
   
@@ -526,8 +453,7 @@ void FxEngine::LooperRecord() {
       ++fx_state_.loop_ptr;
     }
     // Low-pass filter the input sample.
-    int16_t x = samples_[i] >> 4;
-    SubClip16(x, fx_state_.delay_input_sample);
+    int16_t x = (samples_[i] >> 4) - fx_state_.delay_input_sample;
     fx_state_.delay_input_sample += SignedUnsignedMul168Scale8(x, filter_gain);
     ++fx_state_.delay_sample_counter;
   }

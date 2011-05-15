@@ -38,42 +38,45 @@ extern const prog_uint8_t* waveform_table[];
 
 extern const prog_uint16_t* lut_table[];
 
+extern const prog_uint8_t waveform_res_resonance_response[] PROGMEM;
 extern const prog_uint8_t waveform_res_sine[] PROGMEM;
 extern const prog_uint16_t lut_res_distortion[] PROGMEM;
 extern const prog_uint16_t lut_res_fold[] PROGMEM;
-extern const prog_uint16_t lut_res_vcf_ota_gain[] PROGMEM;
+extern const prog_uint16_t lut_res_integrator_gain[] PROGMEM;
 extern const prog_uint16_t lut_res_comb_delays[] PROGMEM;
 extern const prog_uint16_t lut_res_phase_increment[] PROGMEM;
-extern const prog_uint16_t lut_res_delay_line_size[] PROGMEM;
+extern const prog_uint16_t lut_res_delay_duration[] PROGMEM;
 extern const prog_uint16_t lut_res_delay_decimation[] PROGMEM;
 extern const prog_uint16_t lut_res_delay_filter_gain[] PROGMEM;
 extern const prog_uint16_t lut_res_delay_phase_scaling[] PROGMEM;
-extern const prog_uint16_t lut_res_tap_delay_line_size[] PROGMEM;
+extern const prog_uint16_t lut_res_tap_delay_duration[] PROGMEM;
 extern const prog_uint16_t lut_res_tap_delay_decimation[] PROGMEM;
 extern const prog_uint16_t lut_res_tap_delay_filter_gain[] PROGMEM;
 extern const prog_uint16_t lut_res_pitch_ratio[] PROGMEM;
-#define WAVEFORM_RES_SINE 0
+#define WAVEFORM_RES_RESONANCE_RESPONSE 0
+#define WAVEFORM_RES_RESONANCE_RESPONSE_SIZE 256
+#define WAVEFORM_RES_SINE 1
 #define WAVEFORM_RES_SINE_SIZE 257
 #define LUT_RES_DISTORTION 0
 #define LUT_RES_DISTORTION_SIZE 4096
 #define LUT_RES_FOLD 1
 #define LUT_RES_FOLD_SIZE 4096
-#define LUT_RES_VCF_OTA_GAIN 2
-#define LUT_RES_VCF_OTA_GAIN_SIZE 256
+#define LUT_RES_INTEGRATOR_GAIN 2
+#define LUT_RES_INTEGRATOR_GAIN_SIZE 256
 #define LUT_RES_COMB_DELAYS 3
 #define LUT_RES_COMB_DELAYS_SIZE 256
 #define LUT_RES_PHASE_INCREMENT 4
 #define LUT_RES_PHASE_INCREMENT_SIZE 256
-#define LUT_RES_DELAY_LINE_SIZE 5
-#define LUT_RES_DELAY_LINE_SIZE_SIZE 256
+#define LUT_RES_DELAY_DURATION 5
+#define LUT_RES_DELAY_DURATION_SIZE 256
 #define LUT_RES_DELAY_DECIMATION 6
 #define LUT_RES_DELAY_DECIMATION_SIZE 256
 #define LUT_RES_DELAY_FILTER_GAIN 7
 #define LUT_RES_DELAY_FILTER_GAIN_SIZE 256
 #define LUT_RES_DELAY_PHASE_SCALING 8
 #define LUT_RES_DELAY_PHASE_SCALING_SIZE 256
-#define LUT_RES_TAP_DELAY_LINE_SIZE 9
-#define LUT_RES_TAP_DELAY_LINE_SIZE_SIZE 681
+#define LUT_RES_TAP_DELAY_DURATION 9
+#define LUT_RES_TAP_DELAY_DURATION_SIZE 681
 #define LUT_RES_TAP_DELAY_DECIMATION 10
 #define LUT_RES_TAP_DELAY_DECIMATION_SIZE 681
 #define LUT_RES_TAP_DELAY_FILTER_GAIN 11

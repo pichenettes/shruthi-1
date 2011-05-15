@@ -102,6 +102,8 @@ class FxEngine {
   static void ProcessBlock();
   
  private:
+  static void RenderDca();
+  static void RenderDcf();
   static void RenderDistortion();
   static void RenderCrush();
   static void RenderComb();
@@ -110,6 +112,7 @@ class FxEngine {
   static void RenderCrushDelay();
   static void RenderLooper();
   static void RenderPitchShifter();
+  static void SmoothCv();
   
   static void LooperRecord();
   static void LooperReplay();
@@ -125,7 +128,7 @@ class FxEngine {
   static int16_t samples_[kAudioBlockSize];
 
   // Internal state of the low-pass filter.
-  static int16_t pole_[2];
+  static int16_t pole_[3];
   static RenderFn render_fn_[16];
   
   static FxState fx_state_;
