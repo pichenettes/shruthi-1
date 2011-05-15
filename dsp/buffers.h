@@ -29,10 +29,10 @@ namespace dsp {
 using namespace avrlib;
 
 struct OutputBufferSpecs {
-  typedef uint8_t Value;
+  typedef uint16_t Value;
   enum {
     buffer_size = kAudioBufferSize,
-    data_size = 8,
+    data_size = 16,
   };
 };
 extern RingBuffer<OutputBufferSpecs> output_buffer;

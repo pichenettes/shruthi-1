@@ -153,22 +153,27 @@ static const prog_char str_res__cv_2[] PROGMEM = "cv 2";
 static const prog_char str_res__attack[] PROGMEM = "attack";
 static const prog_char str_res__lfo_1[] PROGMEM = "lfo 1";
 static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
-static const prog_char str_res__none[] PROGMEM = "none";
 static const prog_char str_res_distrt[] PROGMEM = "distrt";
 static const prog_char str_res_crushr[] PROGMEM = "crushr";
-static const prog_char str_res_combfl[] PROGMEM = "combfl";
+static const prog_char str_res_Scmbfl[] PROGMEM = "+cmbfl";
+static const prog_char str_res_cmbfl[] PROGMEM = "-cmbfl";
 static const prog_char str_res_ringmd[] PROGMEM = "ringmd";
 static const prog_char str_res_delay[] PROGMEM = "delay";
 static const prog_char str_res_fb_dly[] PROGMEM = "fb dly";
 static const prog_char str_res_dubdly[] PROGMEM = "dubdly";
-static const prog_char str_res_1_4_dl[] PROGMEM = "1/4 dl";
-static const prog_char str_res_1_3_dl[] PROGMEM = "1/3 dl";
-static const prog_char str_res_1_2_dl[] PROGMEM = "1/2 dl";
-static const prog_char str_res_3_4_dl[] PROGMEM = "3/4 dl";
-static const prog_char str_res_1_1_dl[] PROGMEM = "1/1 dl";
-static const prog_char str_res_flange[] PROGMEM = "flange";
-static const prog_char str_res_spacer[] PROGMEM = "spacer";
-static const prog_char str_res_weirdo[] PROGMEM = "weirdo";
+static const prog_char str_res__fbdly[] PROGMEM = "!fbdly";
+static const prog_char str_res__dbdly[] PROGMEM = "!dbdly";
+static const prog_char str_res__16_dl[] PROGMEM = "/16 dl";
+static const prog_char str_res__12_dl[] PROGMEM = "/12 dl";
+static const prog_char str_res__8_dly[] PROGMEM = "/8 dly";
+static const prog_char str_res_3_16dl[] PROGMEM = "3/16dl";
+static const prog_char str_res_looper[] PROGMEM = "looper";
+static const prog_char str_res_pitch[] PROGMEM = "pitch";
+static const prog_char str_res_lgf[] PROGMEM = "l>f";
+static const prog_char str_res_fgl[] PROGMEM = "f>l";
+static const prog_char str_res_hgf[] PROGMEM = "h>f";
+static const prog_char str_res_fgh[] PROGMEM = "f>h";
+static const prog_char str_res_gfx[] PROGMEM = ">fx";
 static const prog_char str_res_lf1[] PROGMEM = "lf1";
 static const prog_char str_res_lf2[] PROGMEM = "lf2";
 static const prog_char str_res_seq[] PROGMEM = "seq";
@@ -530,22 +535,27 @@ PROGMEM const prog_char* string_table[] = {
   str_res__attack,
   str_res__lfo_1,
   str_res__lfo_2,
-  str_res__none,
   str_res_distrt,
   str_res_crushr,
-  str_res_combfl,
+  str_res_Scmbfl,
+  str_res_cmbfl,
   str_res_ringmd,
   str_res_delay,
   str_res_fb_dly,
   str_res_dubdly,
-  str_res_1_4_dl,
-  str_res_1_3_dl,
-  str_res_1_2_dl,
-  str_res_3_4_dl,
-  str_res_1_1_dl,
-  str_res_flange,
-  str_res_spacer,
-  str_res_weirdo,
+  str_res__fbdly,
+  str_res__dbdly,
+  str_res__16_dl,
+  str_res__12_dl,
+  str_res__8_dly,
+  str_res_3_16dl,
+  str_res_looper,
+  str_res_pitch,
+  str_res_lgf,
+  str_res_fgl,
+  str_res_hgf,
+  str_res_fgh,
+  str_res_gfx,
   str_res_lf1,
   str_res_lf2,
   str_res_seq,

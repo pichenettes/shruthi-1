@@ -88,8 +88,7 @@ TIMER_2_TICK {
   led_in.set_value(value > 192);
   dac_interface.Overwrite(byte_a);
   Word x;
-  value = output_buffer.ImmediateRead();
-  x.value = SignedUnsignedMul(value, 16) + 2048;
+  x.value = output_buffer.ImmediateRead();
   // Convert to 12 bits and write to DAC
   led_out.set_value(x.bytes[1] > 10);
   byte_a = x.bytes[1] | 0x70;
@@ -144,7 +143,7 @@ static uint8_t cv_io_round_robin = 0xff;
 static uint8_t cv_io_byte = 0;
 
 void ParseCvIo() {
-  if (cv_io.readable()) {
+  while (cv_io.readable()) {
     uint8_t value = cv_io.ImmediateRead();
     // We are in sync with the transmit cycle.
     if (cv_io_round_robin != 0xff) {

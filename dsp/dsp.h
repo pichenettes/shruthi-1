@@ -31,7 +31,7 @@ namespace dsp {
 // (20kHz or 16kHz).
 static const uint16_t kSampleRate = 39062;
 
-// The latency is 1ms, with a buffer storing 2ms of audio.
+// The latency is 1ms, with a buffer storing 3ms of audio.
 static const uint8_t kAudioBlockSize = 40;
 static const uint16_t kAudioBufferSize = 128;
 

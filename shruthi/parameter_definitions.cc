@@ -397,8 +397,8 @@ static const prog_char raw_parameter_definition[
   
   // Settings for digital filter board.
   PRM_FILTER_MODE_1,
-  FILTER_MODE_LP, FILTER_MODE_HP,
-  UNIT_FILTER_1_MODE,
+  0, 4,
+  UNIT_FILTER_FX_MODE,
   STR_RES_MODE, STR_RES_MODE,
   
   PRM_FX_PROGRAM,

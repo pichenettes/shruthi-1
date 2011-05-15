@@ -25,6 +25,8 @@
 
 namespace dsp {
 
+static const uint16_t delay_line_size = 1280;
+
 enum ControlVoltage {
   CV_1,
   CV_2,
@@ -38,12 +40,24 @@ typedef void (*RenderFn)();
 
 struct FxState {
   uint8_t bitcrusher_sample_counter;
-  int8_t bitcrusher_held_sample;
+  int16_t bitcrusher_held_sample;
   
-  int8_t delay_line[1024];
+  int8_t delay_line[delay_line_size + 1];
   uint16_t delay_ptr;
   
   uint16_t ringmod_phase;
+  uint8_t delay_sample_counter;
+  int16_t delay_delayed_sample;
+  int16_t delay_output_sample;
+  int16_t delay_input_sample;
+  
+  uint16_t loop_ptr;
+  uint16_t loop_start;
+  uint16_t loop_duration;
+  uint8_t loop_pitch_ref;
+  uint8_t loop_decimate;
+  uint24_t loop_phase;
+  uint24_t loop_phase_increment;
 };
 
 class FxEngine {
@@ -84,15 +98,19 @@ class FxEngine {
   
   static void ProcessBlock();
   
-  static void RenderNone() { }
+ private:
   static void RenderDistortion();
   static void RenderCrush();
   static void RenderComb();
   static void RenderRingMod();
   static void RenderDelay();
-  static void RenderFlanger();
+  static void RenderCrushDelay();
+  static void RenderLooper();
+  static void RenderPitchShifter();
   
- private:
+  static void LooperRecord();
+  static void LooperReplay();
+
   static uint8_t cv_[CV_LAST];
   static uint8_t cv_history_[CV_LAST * 16];
   static uint16_t cv_sum_[CV_LAST];
@@ -100,10 +118,10 @@ class FxEngine {
     
   static uint8_t filter_mode_;
   static uint8_t fx_program_;
-  static int8_t samples_[kAudioBlockSize];
+  static int16_t samples_[kAudioBlockSize];
 
-  // Internal state of the SVF.
-  static int16_t state_[3];
+  // Internal state of the low-pass filter.
+  static int16_t pole_[2];
   static RenderFn render_fn_[16];
   
   static FxState fx_state_;

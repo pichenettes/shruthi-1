@@ -152,22 +152,28 @@ reso
  lfo 1
  lfo 2
 
- none
 distrt
 crushr
-+combf
--combf
++cmbfl
+-cmbfl
 ringmd
 delay
 fb dly
 dubdly
-/32 dl
+!fbdly
+!dbdly
 /16 dl
 /12 dl
 /8 dly
 3/16dl
-flange
-spacer
+looper
+pitch
+
+l>f
+f>l
+h>f
+f>h
+>fx
 
 lf1
 lf2

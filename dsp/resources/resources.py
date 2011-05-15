@@ -60,7 +60,7 @@ import numpy
 Waveshaper/distorsion
 -----------------------------------------------------------------------------"""
 
-waveshapers = []
+luts = []
 
 def Dither(x, order=0, type=numpy.uint8):
   for i in xrange(order):
@@ -75,48 +75,32 @@ def Dither(x, order=0, type=numpy.uint8):
   return x.astype(type)
 
 
-def Scale(array, min=1, max=254, center=True, dither=2):
+def Scale(array, min=1, max=254, center=True, dither=2, type=numpy.uint16):
   if center:
     array -= array.mean()
   mx = numpy.abs(array).max()
   array = (array + mx) / (2 * mx)
   array = array * (max - min) + min
-  return Dither(array, order=dither)
+  return Dither(array, order=dither, type=type)
 
 
-signal_range = ((numpy.arange(0, 256) / 128.0 - 1.0))
-fuzz = numpy.tanh(6.0 * signal_range) * 128.0 + 128.0
-fold = numpy.sin(numpy.pi * signal_range)
-waveshapers.append(('distortion', Scale(fuzz, dither=0)))
-waveshapers.append(('fold', Scale(fold, dither=0)))
+signal_range = ((numpy.arange(0, 4096) / 2047.0 - 1.0))
+fuzz = numpy.tanh(9.0 * signal_range)
+fold = numpy.sin(numpy.pi * fuzz)
+luts.append(('distortion', Scale(fuzz, min=1, max=4094, type=numpy.uint16, dither=0)))
+luts.append(('fold', Scale(fold, min=1, max=4094, type=numpy.uint16, dither=0)))
 
 """----------------------------------------------------------------------------
-Lookup tables for SVF
+Lookup tables for LPF
 -----------------------------------------------------------------------------"""
 
-luts = []
-
-sr = 20000000 / 512.0 / 2
-resolution = 15  # bits
-
+sr = 20000000 / 512.0
 cv = numpy.arange(0, 256.0)
 cutoff = sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0)
-step = 2.0 * numpy.sin(numpy.pi * cutoff / (2 * sr))
-integrator_step = numpy.round(step * (1 << resolution))
-integrator_step = numpy.minimum(integrator_step, 65535)
 
-resonance = numpy.maximum(numpy.minimum((cv - 8) / 240.0, 1.0), 0.0)
-damp_factor = numpy.round(2.0 * (1.0 - resonance ** 0.25) * (1 << resolution))
-damp_factor = numpy.minimum(damp_factor, 65535)
+vcf_ota_gain = numpy.round(65535 * 2 * cutoff / sr)
 
-damp_stability_bound = numpy.round(
-    numpy.minimum(2.0, 2.0 / step - step * 0.5) * (1 << resolution))
-damp_stability_bound[damp_stability_bound == 65536] = 65535
-damp_stability_bound = numpy.minimum(damp_stability_bound, 65535)
-
-luts.append(('integrator_step', integrator_step))
-luts.append(('damp_factor', damp_factor))
-luts.append(('damp_stability_bound', damp_stability_bound))
+luts.append(('vcf_ota_gain', vcf_ota_gain))
 
 """----------------------------------------------------------------------------
 Lookup tables for comb filter
@@ -130,13 +114,34 @@ luts.append(('comb_delays', delays))
 """----------------------------------------------------------------------------
 Lookup tables for ring modulator
 -----------------------------------------------------------------------------"""
-
+waveforms = []
 sine = -numpy.sin(numpy.arange(257) / float(256) * 2 * numpy.pi) * 127.5 + 127.5
-waveshapers.append(('sine', Scale(sine)))
+waveforms.append(('sine', Scale(sine)))
 increments = 65536 * (cutoff / 2) / sr
 luts.append(('phase_increment', increments))
 
+"""----------------------------------------------------------------------------
+Lookup tables for delays
+-----------------------------------------------------------------------------"""
+
+durations = sr * (0.1 + 0.9 * (cv / 256.0)) ** 2
+decimation = numpy.ceil(durations / 1279)
+filter_gain = numpy.ceil(255 / decimation)
+delay_line_size = numpy.round(durations / decimation)
+luts.append(('delay_line_size', delay_line_size))
+luts.append(('delay_decimation', decimation))
+luts.append(('delay_filter_gain', filter_gain))
+luts.append(('delay_phase_scaling', 65536.0 / decimation))
+
+
+"""----------------------------------------------------------------------------
+Lookup tables for pitch shifting ratio
+-----------------------------------------------------------------------------"""
+
+ratio = numpy.round(256.0 * 2 ** ((cv - 128.0) / 24.0))
+luts.append(('pitch_ratio', ratio))
+
 resources = [
-  (waveshapers, 'waveshaper', 'WAVESHAPER_RES', 'prog_uint8_t', int, True),
+  (waveforms, 'waveform', 'WAVEFORM_RES', 'prog_uint8_t', int, True),
   (luts, 'lut', 'LUT_RES', 'prog_uint16_t', int, True)
 ]
