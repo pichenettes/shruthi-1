@@ -160,7 +160,7 @@ void ParseCvIo() {
             fx_engine.set_mode_byte(value);
             break;
           case 2:
-            // TEMPO!
+            fx_engine.set_tempo(value);
             break;
           case 3:
             fx_engine.set_cv(CV_RESONANCE, value);

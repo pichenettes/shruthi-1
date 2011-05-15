@@ -85,6 +85,9 @@ class FxEngine {
     return cv_[CV_VCA];
   }
   
+  static void set_tempo(uint8_t tempo) {
+    tempo_ = tempo;
+  }
   static void set_mode(uint8_t filter_mode) {
     filter_mode_ = filter_mode;
   }
@@ -115,6 +118,7 @@ class FxEngine {
   static uint8_t cv_history_[CV_LAST * 16];
   static uint16_t cv_sum_[CV_LAST];
   static uint8_t cv_ptr_;
+  static uint8_t tempo_;
     
   static uint8_t filter_mode_;
   static uint8_t fx_program_;

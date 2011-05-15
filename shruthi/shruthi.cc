@@ -273,7 +273,7 @@ void AudioRenderingTask() {
       } else if (cv_io_round_robin == 1) {
         cv_io.Overwrite(engine.fx_control_byte());
       } else if (cv_io_round_robin == 2) {
-        cv_io.Overwrite(0x00);
+        cv_io.Overwrite(engine.sequencer_settings().seq_tempo);
       } else {
         v = engine.voice(0).modulation_destination(
             MOD_DST_FILTER_RESONANCE + cv_io_round_robin - 3);

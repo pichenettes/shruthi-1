@@ -48,6 +48,9 @@ extern const prog_uint16_t lut_res_delay_line_size[] PROGMEM;
 extern const prog_uint16_t lut_res_delay_decimation[] PROGMEM;
 extern const prog_uint16_t lut_res_delay_filter_gain[] PROGMEM;
 extern const prog_uint16_t lut_res_delay_phase_scaling[] PROGMEM;
+extern const prog_uint16_t lut_res_tap_delay_line_size[] PROGMEM;
+extern const prog_uint16_t lut_res_tap_delay_decimation[] PROGMEM;
+extern const prog_uint16_t lut_res_tap_delay_filter_gain[] PROGMEM;
 extern const prog_uint16_t lut_res_pitch_ratio[] PROGMEM;
 #define WAVEFORM_RES_SINE 0
 #define WAVEFORM_RES_SINE_SIZE 257
@@ -69,7 +72,13 @@ extern const prog_uint16_t lut_res_pitch_ratio[] PROGMEM;
 #define LUT_RES_DELAY_FILTER_GAIN_SIZE 256
 #define LUT_RES_DELAY_PHASE_SCALING 8
 #define LUT_RES_DELAY_PHASE_SCALING_SIZE 256
-#define LUT_RES_PITCH_RATIO 9
+#define LUT_RES_TAP_DELAY_LINE_SIZE 9
+#define LUT_RES_TAP_DELAY_LINE_SIZE_SIZE 681
+#define LUT_RES_TAP_DELAY_DECIMATION 10
+#define LUT_RES_TAP_DELAY_DECIMATION_SIZE 681
+#define LUT_RES_TAP_DELAY_FILTER_GAIN 11
+#define LUT_RES_TAP_DELAY_FILTER_GAIN_SIZE 681
+#define LUT_RES_PITCH_RATIO 12
 #define LUT_RES_PITCH_RATIO_SIZE 256
 
 }  // namespace dsp

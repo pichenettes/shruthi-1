@@ -103,6 +103,7 @@ uint8_t FxEngine::cv_history_[CV_LAST * 16];
 uint16_t FxEngine::cv_sum_[CV_LAST];
 uint8_t FxEngine::filter_mode_;
 uint8_t FxEngine::fx_program_;
+uint8_t FxEngine::tempo_;
 FxState FxEngine::fx_state_;
 
 int16_t FxEngine::samples_[kAudioBlockSize];
@@ -327,7 +328,6 @@ void FxEngine::RenderComb() {
 
 /* static */
 void FxEngine::RenderRingMod() {
-  // RINGMOD     Freq        Amount
   uint16_t phase_increment = ResourcesManager<>::Lookup<int16_t, uint8_t>(
       lut_res_phase_increment, filtered_cv(CV_1));
   uint8_t wet = filtered_cv(CV_2);
@@ -346,24 +346,49 @@ void FxEngine::RenderRingMod() {
 
 /* static */
 void FxEngine::RenderDelay() {
-  uint8_t delay = 0;
   uint8_t feedback = 0;
-  uint8_t amount = 0;
+  uint8_t amount = filtered_cv(CV_2);
+  uint8_t decimate;
+  uint8_t filter_gain;
+  uint16_t delay_duration;
   if (fx_program_ >= FX_DELAY && fx_program_ <= FX_DELAY_DUB) {
-    delay = filtered_cv(CV_1);
+    uint8_t delay = filtered_cv(CV_1);
     if (fx_program_ == FX_DELAY_FB) {
       feedback = 85;
     } else if (fx_program_ == FX_DELAY_DUB) {
       feedback = 224;
     }
-    amount = filtered_cv(CV_2);
+    decimate = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+        lut_res_delay_decimation, delay);
+    filter_gain = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+        lut_res_delay_filter_gain, delay);
+    delay_duration = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+        lut_res_delay_line_size, delay); 
+    
+  } else {
+    uint16_t tempo = tempo_;
+    if (tempo > 240) {
+      tempo = 240;
+    }
+    if (tempo < 40) {
+      tempo = 40;
+    }
+    if (fx_program_ == FX_DELAY_16) {
+      tempo = UnsignedUnsignedMul(tempo, 3);
+    } else if (fx_program_ == FX_DELAY_12) {
+      tempo = UnsignedUnsignedMul(tempo, 9) >> 2;
+    } else if (fx_program_ == FX_DELAY_8) {
+      tempo = UnsignedUnsignedMul(tempo, 3) >> 1;
+    }
+    tempo -= 40;
+    decimate = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+        lut_res_tap_delay_decimation, tempo);
+    filter_gain = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+        lut_res_tap_delay_filter_gain, tempo);
+    delay_duration = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+        lut_res_tap_delay_line_size, tempo);
+    feedback = filtered_cv(CV_1);
   }
-  uint8_t decimate = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
-      lut_res_delay_decimation, delay);
-  uint8_t filter_gain = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
-      lut_res_delay_filter_gain, delay);
-  uint16_t delay_duration = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
-      lut_res_delay_line_size, delay); 
   
   int8_t* end = &fx_state_.delay_line[delay_line_size];
   int8_t* write_ptr = &fx_state_.delay_line[fx_state_.delay_ptr];
@@ -545,7 +570,7 @@ void FxEngine::LooperReplay() {
     samples_[i] = (Mix16(x, y, fx_state_.loop_phase.fractional) >> 4) - 2048;
     fx_state_.loop_phase = \
         Add24(fx_state_.loop_phase, fx_state_.loop_phase_increment);
-    while (fx_state_.loop_phase.integral >= fx_state_.loop_duration) {
+    if (fx_state_.loop_phase.integral >= fx_state_.loop_duration) {
       fx_state_.loop_phase.integral -= fx_state_.loop_duration;
     }
   }

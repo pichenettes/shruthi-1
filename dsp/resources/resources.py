@@ -97,9 +97,7 @@ Lookup tables for LPF
 sr = 20000000 / 512.0
 cv = numpy.arange(0, 256.0)
 cutoff = sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0)
-
 vcf_ota_gain = numpy.round(65535 * 2 * cutoff / sr)
-
 luts.append(('vcf_ota_gain', vcf_ota_gain))
 
 """----------------------------------------------------------------------------
@@ -133,6 +131,18 @@ luts.append(('delay_decimation', decimation))
 luts.append(('delay_filter_gain', filter_gain))
 luts.append(('delay_phase_scaling', 65536.0 / decimation))
 
+tempo = numpy.arange(40.0, 721.0)
+whole_note_duration = 240.0 / tempo
+durations = sr * 3.0 * whole_note_duration / 16.0
+decimation = numpy.ceil(durations / 1279)
+delay_line_size = numpy.round(durations / decimation)
+filter_gain = numpy.ceil(255 / decimation)
+print durations[80]
+print delay_line_size[80], decimation[80]
+luts.append(('tap_delay_line_size', delay_line_size))
+luts.append(('tap_delay_decimation', decimation))
+luts.append(('tap_delay_filter_gain', filter_gain))
+  
 
 """----------------------------------------------------------------------------
 Lookup tables for pitch shifting ratio
