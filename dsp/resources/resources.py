@@ -60,9 +60,8 @@ luts = []
 waveforms = []
 
 """----------------------------------------------------------------------------
-Waveshaper/distorsion
+Waveshaper/distortion
 -----------------------------------------------------------------------------"""
-
 def Dither(x, order=0, type=numpy.uint8):
   for i in xrange(order):
     x = numpy.hstack((numpy.zeros(1,), numpy.cumsum(x)))
@@ -107,8 +106,8 @@ cutoff = numpy.minimum(sr / 2, 1.5 * sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0))
 
 # However, we use the lazier scale here because it has two nice properties:
 # - The self-oscillation sine wave is correctly tuned
-# - With cutoff set to its maximum the filter behaves as a pass-through, rather
-#   than a low-pass with fc at nyquist.
+# - With cutoff set to its maximum the filter behaves as the identity operator,
+#   rather than a low-pass with fc at nyquist.
 integrator_gain = numpy.round(65535 * cutoff / sr * 2)
 luts.append(('integrator_gain', integrator_gain))
 
@@ -135,7 +134,6 @@ luts.append(('phase_increment', increments))
 """----------------------------------------------------------------------------
 Lookup tables for delays
 -----------------------------------------------------------------------------"""
-
 minimum_delay = 0.05 ** 0.5
 durations = sr * (minimum_delay + (1 - minimum_delay) * (cv / 256.0)) ** 2
 decimation = numpy.ceil(durations / 1279)
@@ -157,10 +155,9 @@ luts.append(('tap_delay_decimation', decimation))
 luts.append(('tap_delay_filter_gain', filter_gain))
   
 """----------------------------------------------------------------------------
-Lookup tables for pitch shifting ratio
+Lookup tables for looper pitch shifting ratio
 -----------------------------------------------------------------------------"""
-
-ratio = numpy.round(256.0 * 2 ** ((cv - 128.0) / 24.0))
+ratio = numpy.round(256.0 * 2 ** ((cv - 128.0) / 48.0))
 luts.append(('pitch_ratio', ratio))
 
 resources = [
