@@ -55,9 +55,10 @@ struct FxState {
   uint16_t loop_start;
   uint16_t loop_duration;
   uint8_t loop_pitch_ref;
-  uint8_t loop_decimate;
   uint24_t loop_phase;
-  uint24_t loop_phase_increment;
+  
+  uint16_t ps_write_ptr;
+  uint24_t ps_phase;
 };
 
 class FxEngine {

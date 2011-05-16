@@ -204,7 +204,7 @@ void FxEngine::RenderDistortion() {
 /* static */
 void FxEngine::RenderCrush() {
   uint8_t decimate = (filtered_cv(CV_1) >> 2) + 1;
-  uint8_t num_bits = 12 - (ShiftRight4(filtered_cv(CV_2)) >> 1);
+  uint8_t num_bits = 12 - MulScale8(filtered_cv(CV_2), 12);
   int16_t mask = -2048;
   while (--num_bits) {
     mask >>= 1;
@@ -486,8 +486,9 @@ void FxEngine::LooperReplay() {
     phase_increment = 1;
   }
   
-  fx_state_.loop_phase_increment.integral = phase_increment >> 8;
-  fx_state_.loop_phase_increment.fractional = phase_increment & 0xff;
+  uint24_t loop_phase_increment;
+  loop_phase_increment.integral = phase_increment >> 8;
+  loop_phase_increment.fractional = phase_increment & 0xff;
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
     uint16_t read_ptr = fx_state_.loop_start + fx_state_.loop_phase.integral;
     read_ptr &= 1023;
@@ -495,7 +496,7 @@ void FxEngine::LooperReplay() {
     uint8_t y = fx_state_.delay_line[read_ptr + 1];
     samples_[i] = (Mix16(x, y, fx_state_.loop_phase.fractional) >> 4) - 2048;
     fx_state_.loop_phase = \
-        Add24(fx_state_.loop_phase, fx_state_.loop_phase_increment);
+        Add24(fx_state_.loop_phase, loop_phase_increment);
     if (fx_state_.loop_phase.integral >= fx_state_.loop_duration) {
       fx_state_.loop_phase.integral -= fx_state_.loop_duration;
     }
@@ -504,6 +505,82 @@ void FxEngine::LooperReplay() {
 
 /* static */
 void FxEngine::RenderPitchShifter() {
+  uint16_t phase_increment = ResourcesManager<>::Lookup<uint16_t, uint8_t>(
+        lut_res_pitch_ratio, filtered_cv(CV_1));
+  
+  uint16_t buffer_duration = 1024;
+  uint16_t half_buffer_duration = buffer_duration >> 1;
+  
+  int8_t* write_ptr = &fx_state_.delay_line[fx_state_.ps_write_ptr];
+  int8_t* end = &fx_state_.delay_line[buffer_duration];
+  
+  uint24_t ps_phase_increment;
+  ps_phase_increment.integral = phase_increment >> 8;
+  ps_phase_increment.fractional = phase_increment & 0xff;
+  
+  uint8_t wet = filtered_cv(CV_2);
+  uint8_t dry = ~wet;
+  
+  for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+    // Write the sample to the delay line.
+    uint8_t s = (samples_[i] >> 4) + 128;
+    *write_ptr++ = s;
+    if (write_ptr >= end) {
+      *end = s;
+      write_ptr -= buffer_duration;
+    }
+    
+    // Read samples at two locations: at the read pointer, and at the read
+    // pointer shifted by half the buffer duration.
+    int8_t* read_ptr = &fx_state_.delay_line[fx_state_.ps_phase.integral];
+    uint8_t a = read_ptr[0];
+    // Ideally, we should do this:
+    // uint8_t a = Mix(read_ptr[0], read_ptr[1], fx_state_.ps_phase.fractional);
+    
+    read_ptr += half_buffer_duration;
+    if (read_ptr >= end) {
+      read_ptr -= buffer_duration;
+    } 
+    uint8_t b = read_ptr[0];
+    // Ideally, we should do this:
+    // uint8_t b = Mix(read_ptr[0], read_ptr[1], fx_state_.ps_phase.fractional);
+
+    // Among the two samples, the one who is the farthest apart from the
+    // discontinuity created at the write head location should be given a
+    // highest weight. The extreme case is when one of the read heads is at
+    // the same position at the write head: this read head should be given
+    // a null weight.
+    //
+    //                                       ___
+    //                                ___---    ---___
+    //                          ___---                ---___
+    //   ___             ___---                             ---
+    //      ---______---                                  
+    //  |---------W----R1-------------------------R2-----------|
+    //  W, R1, R2: position of the write, read1 and read2 heads.
+    //  Plotted here is the weight of a read head given the position of W.
+    //
+    uint16_t distance = (read_ptr - write_ptr + buffer_duration);
+    if (distance >= buffer_duration) {
+      distance -= buffer_duration;
+    }
+    if (distance >= half_buffer_duration) {
+      distance = buffer_duration - distance - 1;
+    }
+    uint8_t crossfade = distance >> 1;
+    int16_t pitch_shift = UnsignedUnsignedMul(Mix(a, b, crossfade), 16) - 2048;
+    samples_[i] = SignedUnsignedMul168Scale8(samples_[i], dry);
+    samples_[i] += SignedUnsignedMul168Scale8(pitch_shift, wet);
+    
+    fx_state_.ps_phase = Add24(fx_state_.ps_phase, ps_phase_increment);
+    if (fx_state_.ps_phase.integral >= buffer_duration) {
+      fx_state_.ps_phase.integral -= buffer_duration;
+    }
+  }
+  fx_state_.ps_write_ptr = (fx_state_.ps_write_ptr + kAudioBlockSize);
+  if (fx_state_.ps_write_ptr >= buffer_duration) {
+    fx_state_.ps_write_ptr -= buffer_duration;
+  }
 }
 
 

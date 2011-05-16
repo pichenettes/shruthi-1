@@ -79,8 +79,8 @@ TIMER_2_TICK {
   led_in.set_value(value > 192);
   dac_interface.Overwrite(dac_word[0]);
   // Writing a byte to the DAC takes 10 CPU cycles (we are working at the
-  // fastes SPI speed allowed). While the next lines are running, the hardware
-  // SPI unit is shifting out the first byte.
+  // fastest SPI speed allowed). While the next statements are running, the
+  // hardware SPI unit is shifting out the first byte.
   Word x;
   x.value = output_buffer.ImmediateRead();
   // Convert to 12 bits and write to DAC
