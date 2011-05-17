@@ -82,7 +82,7 @@ class Lfo {
       case LFO_WAVEFORM_STEP_SEQUENCER:
         {
           uint8_t phase_to_step = phase_ >> 8;
-          phase_to_step = MulScale8(phase_to_step, sequence.pattern_size);
+          phase_to_step = U8U8MulShift8(phase_to_step, sequence.pattern_size);
           value = sequence.steps[phase_to_step].controller() << 4;
         }
         break;
@@ -91,7 +91,7 @@ class Lfo {
         {
           uint8_t shape_offset = shape_ - LFO_WAVEFORM_WAVE_1 + 16;
           value = ResourcesManager::Lookup<uint8_t, uint8_t>(
-              wav_res_waves + UnsignedUnsignedMul(shape_offset, 129),
+              wav_res_waves + U8U8Mul(shape_offset, 129),
               phase_ >> 9);
         }
         break;
@@ -99,9 +99,9 @@ class Lfo {
     phase_ += phase_increment_;
 
     // Apply the intensity envelope.
-    return SignedUnsignedMulScale8(
+    return S8U8MulShift8(
         static_cast<int8_t>(value) - 128,
-        avrlib::ShiftRight6(intensity_)
+        avrlib::U14Shr6(intensity_)
     ) + 128;
   }
 

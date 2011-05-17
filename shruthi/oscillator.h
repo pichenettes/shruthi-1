@@ -94,14 +94,14 @@ static inline uint8_t InterpolateSampleRam(
 static inline uint8_t InterpolateSampleRam(
     const uint8_t* table,
     uint16_t phase) {
-  return Mix(table[phase >> 8], table[1 + (phase >> 8)], phase & 0xff);
+  return U8Mix(table[phase >> 8], table[1 + (phase >> 8)], phase & 0xff);
 }
 #endif  // USE_OPTIMIZED_OP
 
 static inline uint8_t InterpolateTwoTables(
     const prog_uint8_t* table_a, const prog_uint8_t* table_b,
     uint16_t phase, uint8_t gain_a, uint8_t gain_b) {
-  return Mix(
+  return U8Mix(
       InterpolateSample(table_a, phase),
       InterpolateSample(table_b, phase),
       gain_a, gain_b);
@@ -209,7 +209,7 @@ class Oscillator {
 
   static inline uint8_t UpdatePhase() __attribute__((always_inline)) {
     if (id == 1) {
-      uint24c_t phi = Add24Carry(phase_, phase_increment_);
+      uint24c_t phi = U24AddC(phase_, phase_increment_);
       *sync_state_++ = phi.carry;
       phase_.fractional = phi.fractional;
       phase_.integral = phi.integral;
@@ -219,7 +219,7 @@ class Oscillator {
         phase_.integral = 0;
         phase_.fractional = 0;
       }
-      uint24c_t phi = Add24Carry(phase_, phase_increment_);
+      uint24c_t phi = U24AddC(phase_, phase_increment_);
       phase_.fractional = phi.fractional;
       phase_.integral = phi.integral;
       return phi.carry;
@@ -236,14 +236,14 @@ class Oscillator {
 
   // ------- Band-limited PWM --------------------------------------------------
   static void RenderBandlimitedPwm(uint8_t* buffer) {
-    uint8_t balance_index = Swap4(note_ - 12);
+    uint8_t balance_index = U8Swap4(note_ - 12);
     uint8_t gain_2 = balance_index & 0xf0;
     uint8_t gain_1 = ~gain_2;
 
     uint8_t wave_index = balance_index & 0xf;
     const prog_uint8_t* wave_1 = waveform_table[
         WAV_RES_BANDLIMITED_SAW_1 + wave_index];
-    wave_index = AddClip(wave_index, 1, kNumZonesHalfSampleRate);
+    wave_index = U8AddClip(wave_index, 1, kNumZonesHalfSampleRate);
     const prog_uint8_t* wave_2 = waveform_table[
         WAV_RES_BANDLIMITED_SAW_1 + wave_index];
     
@@ -251,8 +251,8 @@ class Oscillator {
     // For higher pitched notes, simply use 128
     uint8_t scale = 192 - (parameter_ >> 1);
     if (note_ > 64) {
-      scale = Mix(scale, 102, (note_ - 64) << 2);
-      scale = Mix(scale, 102, (note_ - 64) << 2);
+      scale = U8Mix(scale, 102, (note_ - 64) << 2);
+      scale = U8Mix(scale, 102, (note_ - 64) << 2);
     }
     uint8_t size = kAudioBlockSize;
     while (size) {
@@ -262,7 +262,7 @@ class Oscillator {
           wave_1, wave_2,
           phase_.integral, gain_1, gain_2);
       
-      a = MulScale8(a, scale);
+      a = U8U8MulShift8(a, scale);
       // This was used in the previous version, doesn't sound much worse
       // and could save 100 bytes. Using the crossfaded version for sake of
       // correctness.
@@ -270,7 +270,7 @@ class Oscillator {
       uint8_t b = InterpolateTwoTables(
           wave_1, wave_2,
           phase_.integral + shift, gain_1, gain_2);
-      b = MulScale8(b, scale);
+      b = U8U8MulShift8(b, scale);
       a = a - b + 128;
       *buffer++ = a;
       *buffer++ = a;
@@ -282,7 +282,7 @@ class Oscillator {
   // The position is determined by the note pitch, to prevent aliasing.
 
   static void RenderSimpleWavetable(uint8_t* buffer) {
-    uint8_t balance_index = Swap4(note_ - 12);
+    uint8_t balance_index = U8Swap4(note_ - 12);
     uint8_t gain_2 = balance_index & 0xf0;
     uint8_t gain_1 = ~gain_2;
 
@@ -293,7 +293,7 @@ class Oscillator {
         WAV_RES_BANDLIMITED_TRIANGLE_0);
 
     const prog_uint8_t* wave_1 = waveform_table[base_resource_id + wave_index];
-    wave_index = AddClip(wave_index, 1, kNumZonesFullSampleRate);
+    wave_index = U8AddClip(wave_index, 1, kNumZonesFullSampleRate);
     const prog_uint8_t* wave_2 = waveform_table[base_resource_id + wave_index];
     
     uint8_t size = kAudioBlockSize;
@@ -334,13 +334,13 @@ class Oscillator {
     
     // Which wavetable should we play?.
     const prog_uint8_t* wavetable_definition = 
-        wav_res_wavetables + UnsignedUnsignedMul(index, 18);
+        wav_res_wavetables + U8U8Mul(index, 18);
     // Get a 8:8 value with the wave index in the first byte, and the
     // balance amount in the second byte.
     uint8_t num_steps = ResourcesManager::Lookup<uint8_t, uint8_t>(
         wavetable_definition,
         0);
-    uint16_t pointer = UnsignedUnsignedMul(parameter_ << 1, num_steps);
+    uint16_t pointer = U8U8Mul(parameter_ << 1, num_steps);
     uint16_t wave_index_1 = ResourcesManager::Lookup<uint8_t, uint8_t>(
         wavetable_definition,
         1 + (pointer >> 8));
@@ -349,10 +349,10 @@ class Oscillator {
         2 + (pointer >> 8));
     uint8_t gain_2 = pointer & 0xff;
     uint8_t gain_1 = ~gain_2;
-    const prog_uint8_t* wave_1 = wav_res_waves + UnsignedUnsignedMul(
+    const prog_uint8_t* wave_1 = wav_res_waves + U8U8Mul(
         wave_index_1,
         129);
-    const prog_uint8_t* wave_2 = wav_res_waves + UnsignedUnsignedMul(
+    const prog_uint8_t* wave_2 = wav_res_waves + U8U8Mul(
         wave_index_2,
         129);
     uint8_t size = kAudioBlockSize;
@@ -365,7 +365,7 @@ class Oscillator {
   }  
   // The position is freely determined by the parameter
   static void RenderSweepingWavetableRam(uint8_t* buffer) {
-    uint8_t balance_index = Swap4(parameter_);
+    uint8_t balance_index = U8Swap4(parameter_);
     uint8_t wave_index = balance_index & 0xf;
     uint8_t gain_2 = balance_index & 0xf0;
     uint8_t gain_1 = ~gain_2;
@@ -383,7 +383,7 @@ class Oscillator {
       UpdatePhase();
       uint16_t phase = phase_.integral;
       phase >>= 1;
-      *buffer++ = Mix(
+      *buffer++ = U8Mix(
           InterpolateSampleRam(wave_1, phase),
           InterpolateSampleRam(wave_2, phase),
           gain_1, gain_2);
@@ -404,7 +404,7 @@ class Oscillator {
       uint8_t clipped_phase = phase < 0x20 ? phase << 3 : 0xff;
       // Interpolation causes more aliasing here.
       *buffer++ = ReadSample(waveform_table[WAV_RES_SINE],
-          Mix16(phase, clipped_phase, parameter_ << 1));
+          U8MixU16(phase, clipped_phase, parameter_ << 1));
     }
   }
   
@@ -424,7 +424,7 @@ class Oscillator {
       if (phase_.integral < 0x4000) {
         *buffer = result;
       } else if (phase_.integral < 0x8000) {
-        *buffer = MulScale8(result, ~(phase_.integral - 0x4000) >> 6);
+        *buffer = U8U8MulShift8(result, ~(phase_.integral - 0x4000) >> 6);
       } else {
         *buffer = 0;
       }
@@ -443,7 +443,7 @@ class Oscillator {
       uint8_t result = InterpolateSample(
           waveform_table[WAV_RES_SINE],
           data_.secondary_phase);
-      *buffer++ = MulScale8(result, ~(phase_.integral >> 8));
+      *buffer++ = U8U8MulShift8(result, ~(phase_.integral >> 8));
     }
   }
   
@@ -461,7 +461,7 @@ class Oscillator {
       uint8_t triangle =  (phase_.integral & 0x8000) ?
             ~static_cast<uint8_t>(phase_.integral >> 7) :
             phase_.integral >> 7;
-      *buffer++ = MulScale8(result, triangle);
+      *buffer++ = U8U8MulShift8(result, triangle);
     }
   }
 
@@ -554,12 +554,12 @@ class Oscillator {
     data_.vw.update++;
     if (data_.vw.update == kVowelControlRateDecimation) {
       data_.vw.update = 0;
-      uint8_t offset_1 = ShiftRight4(parameter_);
+      uint8_t offset_1 = U8Shr4(parameter_);
       offset_1 = (offset_1 << 2) + offset_1;  // offset_1 * 5
       uint8_t offset_2 = offset_1 + 5;
       uint8_t balance = parameter_ & 15;
       for (uint8_t i = 0; i < 3; ++i) {
-        data_.vw.formant_increment[i] = UnscaledMix4(
+        data_.vw.formant_increment[i] = U8U4MixU12(
             ResourcesManager::Lookup<uint8_t, uint8_t>(
                 waveform_table[WAV_RES_VOWEL_DATA], offset_1 + i),
             ResourcesManager::Lookup<uint8_t, uint8_t>(
@@ -575,12 +575,12 @@ class Oscillator {
             waveform_table[WAV_RES_VOWEL_DATA],
             offset_2 + 3 + i);
 
-        data_.vw.formant_amplitude[2 * i + 1] = Mix4(
+        data_.vw.formant_amplitude[2 * i + 1] = U8U4MixU8(
             amplitude_a & 0x0f,
             amplitude_b & 0x0f, balance);
-        amplitude_a = ShiftRight4(amplitude_a);
-        amplitude_b = ShiftRight4(amplitude_b);
-        data_.vw.formant_amplitude[2 * i] = Mix4(
+        amplitude_a = U8Shr4(amplitude_a);
+        amplitude_b = U8Shr4(amplitude_b);
+        data_.vw.formant_amplitude[2 * i] = U8U4MixU8(
             amplitude_a,
             amplitude_b, balance);
       }
@@ -596,7 +596,7 @@ class Oscillator {
             ((data_.vw.formant_phase[i] >> 8) & 0xf0) |
               data_.vw.formant_amplitude[i]);
       }
-      result = SignedUnsignedMulScale8(result, ~(phase_.integral >> 8));
+      result = S8U8MulShift8(result, ~(phase_.integral >> 8));
       phase_.integral += phase_increment_.integral;
       int16_t phase_noise = int8_t(Random::state_msb()) *
           int8_t(data_.vw.noise_modulation);
@@ -605,7 +605,7 @@ class Oscillator {
         data_.vw.formant_phase[1] = 0;
         data_.vw.formant_phase[2] = 0;
       }
-      uint8_t x = SignedClip8(4 * result) + 128;
+      uint8_t x = S16ClipS8(4 * result) + 128;
       *buffer = x;
       *buffer = x;
       buffer += 2;
@@ -656,7 +656,7 @@ class Oscillator {
       // This trick is used to avoid having a DC component (no innovation) when
       // the parameter is set to its minimal or maximal value.
       uint8_t offset = parameter_ == 127 ? 0 : 2;
-      data_.no.lp_noise_sample = Mix(
+      data_.no.lp_noise_sample = U8Mix(
           data_.no.lp_noise_sample,
           innovation,
           offset + (parameter_ << 2));
@@ -736,13 +736,13 @@ class SubOscillator {
       uint24_t increment,
       uint8_t* buffer) {
     if (shape >= 3) {
-      increment = Lsr24(increment);
+      increment = U24Lsr(increment);
       shape -= 3;
     }
     uint8_t pulse_width = shape == 0 ? 0x80 : 0x40;
     uint8_t size = kAudioBlockSize;
     while (size--) {
-      phase_ = Add24(phase_, increment);
+      phase_ = U24Add(phase_, increment);
       if (shape != 1) {
         *buffer++ = \
             static_cast<uint8_t>(phase_.integral >> 8) < pulse_width ? 0 : 255;

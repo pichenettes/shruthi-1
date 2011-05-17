@@ -132,11 +132,11 @@ void Storage::SysExDumpBuffer(
   uint8_t checksum = 0;
   for (uint8_t i = 0; i < size; ++i) {
     checksum += data[i];
-    midi_output.Write(ShiftRight4(data[i]));
+    midi_output.Write(U8Shr4(data[i]));
     midi_output.Write(data[i] & 0x0f);
   }
 
-  midi_output.Write(ShiftRight4(checksum));
+  midi_output.Write(U8Shr4(checksum));
   midi_output.Write(checksum & 0x0f);
 
   midi_output.Write(0xf7);  // </SysEx>
@@ -328,7 +328,7 @@ void Storage::SysExReceive(uint8_t sysex_rx_byte) {
             sysex_rx_checksum_ += sysex_rx_destination_[i];
           }
         } else {
-          sysex_rx_destination_[i] = ShiftLeft4(sysex_rx_byte);
+          sysex_rx_destination_[i] = U8Shl4(sysex_rx_byte);
         }
         sysex_rx_bytes_received_++;
         if (sysex_rx_bytes_received_ >= (1 + sysex_rx_expected_size_) * 2) {

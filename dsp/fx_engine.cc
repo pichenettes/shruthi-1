@@ -26,8 +26,6 @@ namespace dsp {
 
 using namespace avrlib;
 
-#define Clip12(a) if (a > 2047) a = 2047; if (a < -2047) a = -2047; 
-
 enum FxProgram {
   FX_DISTORTION,
   FX_CRUSH,
@@ -114,25 +112,25 @@ void FxEngine::RenderDcf() {
   uint8_t cutoff = cv(CV_CUTOFF);
   uint8_t resonance = ResourcesManager<>::Lookup<int16_t, uint8_t>(
       waveform_res_resonance_response, filtered_cv(CV_RESONANCE));
-  uint8_t dcf_gain = 255 - MulScale8(resonance, 208);
+  uint8_t dcf_gain = 255 - U8U8MulShift8(resonance, 208);
   uint16_t integrator_gain = ResourcesManager<>::Lookup<int16_t, uint8_t>(
       lut_res_integrator_gain, cutoff);
-  uint8_t resonance_compensation = 96 - MulScale8(integrator_gain >> 8, 96);
+  uint8_t resonance_compensation = 96 - U8U8MulShift8(integrator_gain >> 8, 96);
   if (resonance > resonance_compensation) {
     resonance -= resonance_compensation;
   } else {
     resonance = 0;
   }
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-    int16_t feedback = SignedUnsignedMul168Scale8(
+    int16_t feedback = S16U8MulShift8(
         pole_[0] - pole_[1], resonance) << 2;
   
     int16_t in = samples_[i];
-    pole_[0] += SignedUnsignedMul16Scale16(
+    pole_[0] += S16U16MulShift16(
         in - pole_[0] + feedback, integrator_gain);
-    pole_[1] += SignedUnsignedMul16Scale16(
+    pole_[1] += S16U16MulShift16(
         pole_[0] - pole_[1], integrator_gain);
-    pole_[2] += SignedUnsignedMul16Scale16(
+    pole_[2] += S16U16MulShift16(
         pole_[1] - pole_[2], integrator_gain);
     
     // What analogue taught me: you only need to do clipping on the first pole.
@@ -147,9 +145,8 @@ void FxEngine::RenderDcf() {
     if (filter_mode_ & 1) {
       out = in - out;
     }
-    out = SignedUnsignedMul168Scale8(out, dcf_gain);
-    Clip12(out);
-    samples_[i] = out;
+    out = S16U8MulShift8(out, dcf_gain);
+    samples_[i] = Clip(out, -2047, 2047);
   }
 }
 
@@ -157,7 +154,7 @@ void FxEngine::RenderDcf() {
 void FxEngine::RenderDca() {
   uint8_t dca_gain = filtered_cv(CV_VCA);
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-    samples_[i] = SignedUnsignedMul168Scale8(samples_[i], dca_gain);
+    samples_[i] = S16U8MulShift8(samples_[i], dca_gain);
   }
 }
 
@@ -165,7 +162,7 @@ void FxEngine::RenderDca() {
 void FxEngine::ProcessBlock() {
   SmoothCv();
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-    samples_[i] = SignedUnsignedMul(input_buffer.ImmediateRead() + 128, 16);
+    samples_[i] = S8U8Mul(input_buffer.ImmediateRead() + 128, 16);
   }
   if (filter_mode_ >= 2) {
     RenderDca();
@@ -192,19 +189,19 @@ void FxEngine::RenderDistortion() {
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
     int16_t fold = ResourcesManager<>::Lookup<uint16_t, uint16_t>(
         lut_res_fold, samples_[i] + 2048) - 2048;
-    int16_t folded = SignedUnsignedMul168Scale8(samples_[i], fold_dry);
-    folded += SignedUnsignedMul168Scale8(fold, fold_wet);
+    int16_t folded = S16U8MulShift8(samples_[i], fold_dry);
+    folded += S16U8MulShift8(fold, fold_wet);
     int16_t fuzz = ResourcesManager<>::Lookup<uint16_t, uint16_t>(
         lut_res_distortion, folded + 2048) - 2048;
-    samples_[i] = SignedUnsignedMul168Scale8(folded, fuzz_dry);
-    samples_[i] += SignedUnsignedMul168Scale8(fuzz, fuzz_wet);
+    samples_[i] = S16U8MulShift8(folded, fuzz_dry);
+    samples_[i] += S16U8MulShift8(fuzz, fuzz_wet);
   }
 }
 
 /* static */
 void FxEngine::RenderCrush() {
   uint8_t decimate = (filtered_cv(CV_1) >> 2) + 1;
-  uint8_t num_bits = 12 - MulScale8(filtered_cv(CV_2), 12);
+  uint8_t num_bits = 12 - U8U8MulShift8(filtered_cv(CV_2), 12);
   int16_t mask = -2048;
   while (--num_bits) {
     mask >>= 1;
@@ -233,16 +230,15 @@ void FxEngine::RenderComb() {
     // Feedback signal to delay line.
     int16_t fb = (samples_[i] >> 4);
     if (fx_program_ == FX_COMB_POSITIVE) {
-      fb += SignedUnsignedMulScale8(*read_ptr, feedback);
+      fb += S8U8MulShift8(*read_ptr, feedback);
     } else {
-      fb -= SignedUnsignedMulScale8(*read_ptr, feedback);
+      fb -= S8U8MulShift8(*read_ptr, feedback);
     }
-    *write_ptr = SignedClip8(fb);
+    *write_ptr = S16ClipS8(fb);
     // Read delayed signal and mix with original.
-    int16_t out = SignedUnsignedMul(*read_ptr, 16);
+    int16_t out = S8U8Mul(*read_ptr, 16);
     out += samples_[i];
-    Clip12(out);
-    samples_[i] = out;
+    samples_[i] = Clip(out, -2047, 2047);
     ++read_ptr;
     ++write_ptr;
     if (read_ptr >= end) {
@@ -267,9 +263,9 @@ void FxEngine::RenderRingMod() {
     int8_t sample_8bits = samples_[i] >> 4;
     int8_t sine = 128 + \
         InterpolateSample(waveform_res_sine, fx_state_.ringmod_phase);
-    int16_t ringmod = SignedSignedMul168Scale8(samples_[i], sine);
-    samples_[i] = SignedUnsignedMul168Scale8(samples_[i], dry);
-    samples_[i] += SignedUnsignedMul168Scale8(ringmod, wet);
+    int16_t ringmod = S16S8MulShift8(samples_[i], sine);
+    samples_[i] = S16U8MulShift8(samples_[i], dry);
+    samples_[i] += S16U8MulShift8(ringmod, wet);
   }
 }
 
@@ -303,11 +299,11 @@ void FxEngine::RenderDelay() {
       tempo = 40;
     }
     if (fx_program_ == FX_DELAY_16) {
-      tempo = UnsignedUnsignedMul(tempo, 3);
+      tempo = U8U8Mul(tempo, 3);
     } else if (fx_program_ == FX_DELAY_12) {
-      tempo = UnsignedUnsignedMul(tempo, 9) >> 2;
+      tempo = U8U8Mul(tempo, 9) >> 2;
     } else if (fx_program_ == FX_DELAY_8) {
-      tempo = UnsignedUnsignedMul(tempo, 3) >> 1;
+      tempo = U8U8Mul(tempo, 3) >> 1;
     }
     tempo -= 40;
     decimate = ResourcesManager<>::Lookup<uint16_t, uint16_t>(
@@ -331,9 +327,9 @@ void FxEngine::RenderDelay() {
       fx_state_.delay_sample_counter = 0;
       // Read the delayed sample and write back to the delay line.
       int16_t fb = fx_state_.delay_input_sample;
-      fb += SignedUnsignedMulScale8(*read_ptr, feedback);
-      *write_ptr = SignedClip8(fb);
-      fx_state_.delay_delayed_sample = SignedUnsignedMul(*read_ptr, 16);
+      fb += S8U8MulShift8(*read_ptr, feedback);
+      *write_ptr = S16ClipS8(fb);
+      fx_state_.delay_delayed_sample = S8U8Mul(*read_ptr, 16);
       ++read_ptr;
       ++write_ptr;
       if (read_ptr >= end) {
@@ -346,17 +342,16 @@ void FxEngine::RenderDelay() {
     }
     // Low-pass filter the input sample.
     int16_t x = (samples_[i] >> 4) - fx_state_.delay_input_sample;
-    fx_state_.delay_input_sample += SignedUnsignedMul168Scale8(x, filter_gain);
+    fx_state_.delay_input_sample += S16U8MulShift8(x, filter_gain);
     
     // Low-pass filter the output sample.
     x = fx_state_.delay_delayed_sample - fx_state_.delay_output_sample;
-    fx_state_.delay_output_sample += SignedUnsignedMul168Scale8(x, filter_gain);
+    fx_state_.delay_output_sample += S16U8MulShift8(x, filter_gain);
     
     ++fx_state_.delay_sample_counter;
     int16_t out = samples_[i];
-    out += SignedUnsignedMul168Scale8(fx_state_.delay_output_sample, amount);
-    Clip12(out);
-    samples_[i] = out;
+    out += S16U8MulShift8(fx_state_.delay_output_sample, amount);
+    samples_[i] = Clip(out, -2047, 2047);
   }
   while (fx_state_.delay_ptr > delay_line_size) {
     fx_state_.delay_ptr -= delay_line_size;
@@ -393,9 +388,9 @@ void FxEngine::RenderCrushDelay() {
       fx_state_.delay_sample_counter = 0;
       // Read the delayed sample and write back to the delay line.
       int16_t fb = samples_[i] >> 4;
-      fb += SignedUnsignedMulScale8(*read_ptr, feedback);
-      *write_ptr = SignedClip8(fb);
-      fx_state_.delay_delayed_sample = SignedUnsignedMul(*read_ptr, 16);
+      fb += S8U8MulShift8(*read_ptr, feedback);
+      *write_ptr = S16ClipS8(fb);
+      fx_state_.delay_delayed_sample = S8U8Mul(*read_ptr, 16);
       ++read_ptr;
       ++write_ptr;
       if (read_ptr >= end) {
@@ -408,9 +403,8 @@ void FxEngine::RenderCrushDelay() {
     }
     ++fx_state_.delay_sample_counter;
     int16_t out = samples_[i];
-    out += SignedUnsignedMul168Scale8(fx_state_.delay_delayed_sample, amount);
-    Clip12(out);
-    samples_[i] = out;
+    out += S16U8MulShift8(fx_state_.delay_delayed_sample, amount);
+    samples_[i] = Clip(out, -2047, 2047);
   }
   while (fx_state_.delay_ptr > delay_line_size) {
     fx_state_.delay_ptr -= delay_line_size;
@@ -444,7 +438,7 @@ void FxEngine::LooperRecord() {
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
     if (fx_state_.delay_sample_counter >= decimate) {
       fx_state_.delay_sample_counter = 0;
-      uint8_t s = SignedClip8(fx_state_.delay_input_sample) + 128;
+      uint8_t s = S16ClipS8(fx_state_.delay_input_sample) + 128;
       *write_ptr++ = s;
       if (write_ptr >= end) {
         *end = s;
@@ -454,7 +448,7 @@ void FxEngine::LooperRecord() {
     }
     // Low-pass filter the input sample.
     int16_t x = (samples_[i] >> 4) - fx_state_.delay_input_sample;
-    fx_state_.delay_input_sample += SignedUnsignedMul168Scale8(x, filter_gain);
+    fx_state_.delay_input_sample += S16U8MulShift8(x, filter_gain);
     ++fx_state_.delay_sample_counter;
   }
   fx_state_.loop_ptr &= 1023;
@@ -478,7 +472,7 @@ void FxEngine::LooperReplay() {
   // If we record a long loop, we need to divide the phase increment by
   // the sample reduction factor.
   if (phase_scaling != 0) {
-    phase_increment = SignedUnsignedMul16Scale16(
+    phase_increment = S16U16MulShift16(
         phase_increment,
         phase_scaling);
   }
@@ -494,9 +488,9 @@ void FxEngine::LooperReplay() {
     read_ptr &= 1023;
     uint8_t x = fx_state_.delay_line[read_ptr];
     uint8_t y = fx_state_.delay_line[read_ptr + 1];
-    samples_[i] = (Mix16(x, y, fx_state_.loop_phase.fractional) >> 4) - 2048;
+    samples_[i] = (U8MixU16(x, y, fx_state_.loop_phase.fractional) >> 4) - 2048;
     fx_state_.loop_phase = \
-        Add24(fx_state_.loop_phase, loop_phase_increment);
+        U24Add(fx_state_.loop_phase, loop_phase_increment);
     if (fx_state_.loop_phase.integral >= fx_state_.loop_duration) {
       fx_state_.loop_phase.integral -= fx_state_.loop_duration;
     }
@@ -535,7 +529,7 @@ void FxEngine::RenderPitchShifter() {
     int8_t* read_ptr = &fx_state_.delay_line[fx_state_.ps_phase.integral];
     uint8_t a = read_ptr[0];
     // Ideally, we should do this:
-    // uint8_t a = Mix(read_ptr[0], read_ptr[1], fx_state_.ps_phase.fractional);
+    // uint8_t a = U8Mix(read_ptr[0], read_ptr[1], fx_state_.ps_phase.fractional);
     
     read_ptr += half_buffer_duration;
     if (read_ptr >= end) {
@@ -543,7 +537,7 @@ void FxEngine::RenderPitchShifter() {
     } 
     uint8_t b = read_ptr[0];
     // Ideally, we should do this:
-    // uint8_t b = Mix(read_ptr[0], read_ptr[1], fx_state_.ps_phase.fractional);
+    // uint8_t b = U8Mix(read_ptr[0], read_ptr[1], fx_state_.ps_phase.fractional);
 
     // Among the two samples, the one who is the farthest apart from the
     // discontinuity created at the write head location should be given a
@@ -568,11 +562,11 @@ void FxEngine::RenderPitchShifter() {
       distance = buffer_duration - distance - 1;
     }
     uint8_t crossfade = distance >> 1;
-    int16_t pitch_shift = UnsignedUnsignedMul(Mix(a, b, crossfade), 16) - 2048;
-    samples_[i] = SignedUnsignedMul168Scale8(samples_[i], dry);
-    samples_[i] += SignedUnsignedMul168Scale8(pitch_shift, wet);
+    int16_t pitch_shift = U8U8Mul(U8Mix(a, b, crossfade), 16) - 2048;
+    samples_[i] = S16U8MulShift8(samples_[i], dry);
+    samples_[i] += S16U8MulShift8(pitch_shift, wet);
     
-    fx_state_.ps_phase = Add24(fx_state_.ps_phase, ps_phase_increment);
+    fx_state_.ps_phase = U24Add(fx_state_.ps_phase, ps_phase_increment);
     if (fx_state_.ps_phase.integral >= buffer_duration) {
       fx_state_.ps_phase.integral -= buffer_duration;
     }
