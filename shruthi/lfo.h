@@ -101,7 +101,7 @@ class Lfo {
     // Apply the intensity envelope.
     return S8U8MulShift8(
         static_cast<int8_t>(value) - 128,
-        avrlib::U14Shr6(intensity_)
+        avrlib::U14ShiftRight6(intensity_)
     ) + 128;
   }
 

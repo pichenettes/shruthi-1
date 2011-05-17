@@ -554,7 +554,7 @@ class Oscillator {
     data_.vw.update++;
     if (data_.vw.update == kVowelControlRateDecimation) {
       data_.vw.update = 0;
-      uint8_t offset_1 = U8Shr4(parameter_);
+      uint8_t offset_1 = U8ShiftRight4(parameter_);
       offset_1 = (offset_1 << 2) + offset_1;  // offset_1 * 5
       uint8_t offset_2 = offset_1 + 5;
       uint8_t balance = parameter_ & 15;
@@ -578,8 +578,8 @@ class Oscillator {
         data_.vw.formant_amplitude[2 * i + 1] = U8U4MixU8(
             amplitude_a & 0x0f,
             amplitude_b & 0x0f, balance);
-        amplitude_a = U8Shr4(amplitude_a);
-        amplitude_b = U8Shr4(amplitude_b);
+        amplitude_a = U8ShiftRight4(amplitude_a);
+        amplitude_b = U8ShiftRight4(amplitude_b);
         data_.vw.formant_amplitude[2 * i] = U8U4MixU8(
             amplitude_a,
             amplitude_b, balance);
@@ -736,7 +736,7 @@ class SubOscillator {
       uint24_t increment,
       uint8_t* buffer) {
     if (shape >= 3) {
-      increment = U24Lsr(increment);
+      increment = U24ShiftRight(increment);
       shape -= 3;
     }
     uint8_t pulse_width = shape == 0 ? 0x80 : 0x40;
