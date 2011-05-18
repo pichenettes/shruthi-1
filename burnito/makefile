@@ -16,6 +16,8 @@ TARGET         = burnito
 PACKAGES       = avrlib avrlib/i2c avrlib/devices burnito
 RESOURCES      = hardware/burnito/resources
 
+LOCK           = 2f
+
 include avrlib/makefile.mk
 
 include $(DEP_FILE)

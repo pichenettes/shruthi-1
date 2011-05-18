@@ -29,10 +29,11 @@ MCU            = atmega644p
 DMCU           = m644p
 F_CPU          = 20000000
 
-LFUSE          = FF
+LFUSE          = ff
 # Set to D7 to disable bootloader
-HFUSE          = D6
-EFUSE          = FD
+HFUSE          = d6
+EFUSE          = fd
+LOCK           = 2f
 
 # ------------------------------------------------------------------------------
 
@@ -126,18 +127,17 @@ $(DEP_FILE):	$(BUILD_DIR) $(DEPS)
 
 upload:		$(TARGET_HEX)
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
-			-U flash:w:$(TARGET_HEX):i
+			-U flash:w:$(TARGET_HEX):i -U lock:w:0x$(LOCK):m
 
 terminal:
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -tuF
 
 fuses:
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -u \
-			-U lock:w:0x3f:m \
 			-U efuse:w:0x$(EFUSE):m \
 			-U hfuse:w:0x$(HFUSE):m \
 			-U lfuse:w:0x$(LFUSE):m \
-			-Ulock:w:0x0F:m
+			-U lock:w:0x$(LOCK):m
 
 clean:
 		$(REMOVE) $(OBJS) $(TARGETS) $(DEP_FILE) $(DEPS)

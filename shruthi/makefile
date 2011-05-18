@@ -17,6 +17,8 @@ TARGET         = shruthi1
 PACKAGES       = avrlib avrlib/i2c avrlib/devices shruthi
 RESOURCES      = shruthi/resources
 
+LOCK           = 2f
+
 include avrlib/makefile.mk
 
 include $(DEP_FILE)
