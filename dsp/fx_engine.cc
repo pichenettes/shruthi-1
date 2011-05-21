@@ -110,6 +110,15 @@ void FxEngine::SmoothCv() {
 /* static */
 void FxEngine::RenderDcf() {
   uint8_t cutoff = cv(CV_CUTOFF);
+  
+  // If you look at the lut_res_integrator_gain table, you'll see that for
+  // cutoff > 240, the integrator gain is such that the filter doesn't affect
+  // the signal in LP mode. This means that in HP mode, the signal will be 
+  // silenced, and we don't want this, so we cap the cutoff to 240 in HP mode.
+  if ((filter_mode_ & 1) && cutoff > 240) {
+    cutoff = 240;
+  }
+  
   uint8_t resonance = ResourcesManager<>::Lookup<int16_t, uint8_t>(
       waveform_res_resonance_response, filtered_cv(CV_RESONANCE));
   uint8_t dcf_gain = 255 - U8U8MulShift8(resonance, 208);
