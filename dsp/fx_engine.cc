@@ -209,7 +209,7 @@ void FxEngine::RenderDistortion() {
 
 /* static */
 void FxEngine::RenderCrush() {
-  uint8_t decimate = (filtered_cv(CV_1) >> 2) + 1;
+  uint8_t decimate = (filtered_cv(CV_1) >> 3) + 1;
   uint8_t num_bits = 12 - U8U8MulShift8(filtered_cv(CV_2), 12);
   int16_t mask = -2048;
   while (--num_bits) {
