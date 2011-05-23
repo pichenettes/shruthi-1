@@ -56,7 +56,7 @@ OutputArray<
 SwitchArray<
   IOEnableLine, IOClockLine, IOInputLine, kNumSwitches, KEY_LOAD_SAVE> switches;
 
-RotaryEncoderBuffer<RotaryEncoder<
+RotaryEncoderTracker<RotaryEncoder<
   EncoderALine, EncoderBLine, EncoderClickLine> > encoder;
 
 PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
