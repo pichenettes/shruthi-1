@@ -62,6 +62,7 @@ static const prog_char str_res_pattern[] PROGMEM = "pattern";
 static const prog_char str_res_warp[] PROGMEM = "warp";
 static const prog_char str_res_wrp[] PROGMEM = "wrp";
 static const prog_char str_res_start[] PROGMEM = "start";
+static const prog_char str_res_split[] PROGMEM = "split";
 static const prog_char str_res_length[] PROGMEM = "length";
 static const prog_char str_res_octave[] PROGMEM = "octave";
 static const prog_char str_res_raga[] PROGMEM = "raga";
@@ -297,7 +298,7 @@ static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res___seq[] PROGMEM = "seq";
 static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
-static const prog_char str_res_split[] PROGMEM = "split";
+static const prog_char str_res__split[] PROGMEM = "split";
 static const prog_char str_res_full[] PROGMEM = "full";
 static const prog_char str_res_1Tv[] PROGMEM = "1~|";
 static const prog_char str_res_2T1[] PROGMEM = "2~1";
@@ -444,6 +445,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_warp,
   str_res_wrp,
   str_res_start,
+  str_res_split,
   str_res_length,
   str_res_octave,
   str_res_raga,
@@ -679,7 +681,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_thru,
   str_res___seq,
   str_res_ctrl,
-  str_res_split,
+  str_res__split,
   str_res_full,
   str_res_1Tv,
   str_res_2T1,

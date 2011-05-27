@@ -57,6 +57,7 @@ pattern
 warp
 wrp
 start
+split
 length
 octave
 raga
@@ -308,7 +309,7 @@ monkey
 thru
   seq
 ctrl
-split
+ split
 full
 1~|
 2~1
