@@ -1,29 +1,35 @@
+LEDS:
+		Bicolor R/G
+		
+		6 on switches
+		1 R/W activity for SD card
+
+
 ENCODER:
 
 		INC/DEC inc/dec param 1
 		INC/DEC inc/dec param 2
-
-		SW validate choice 1
-		SW validate choice 2
+		SHIFT + INC/DEC = temporary switch to fine/coarse mode
+		SW validate choice 1  OR  switch to fine/coarse mode
+		SW validate choice 2  OR  switch to fine/coarse mode
 
 
 SWITCHES:
 
-		1 SHIFT G (R when pressed)
-		2 PLAY G (blink on MIDI in)
-		3 SAMPLE G
-		4 FILTER G
-		5 MODULATIONS G
-		6 CARD (LOAD / SAVE) G
+		1 SHIFT (L1 R when pressed)
+		2 PLAY (L2 G on MIDI in)
+		3 SAMPLE (L3 G when active)
+		4 FILTER (L4 G when active)
+		5 MODULATIONS (L5 G when active)
+		6 CARD (LOAD / SAVE) (L6 G when active)
 
-		SHIFT + PLAY = REC (R, 4 other LEDs as vu-meter)
-		SHIFT + SAMPLE = SELECT PART (R)
-		SHIFT + FILTER = FX (R)
-		SHIFT + MODULATIONS = KEYBOARD/MIDI/ARP (R)
-		SHIFT + LOAD = SAVE (R)
-		SHIFT + PLAY + LOAD = FORMAT (all R blinking)
-		SHIFT + ENCODER = x5
-		KEY + ENCODER = SCROLL
+		SHIFT + PLAY = REC (L2 R, L3-L6 act as vu-meter)
+		SHIFT + SAMPLE = SELECT PART (L3 R)
+		SHIFT + PLAY + SAMPLE = EDIT (L3 R blink)
+		SHIFT + FILTER = FX (L4 R)
+		SHIFT + MODULATIONS = KEYBOARD/MIDI/ARP (L5 R)
+		SHIFT + LOAD = SAVE (L6 R)
+		SHIFT + PLAY + LOAD = FORMAT (L1-6 R, blink)
 
 
 MENUS:
@@ -38,11 +44,12 @@ MENUS:
 		0123456789ABCDEF
 		smp mode  offset
 		trg 1shot  4000
-		    1shot
+		    loop
 
 		0123456789ABCDEF
 		smp start end
 		<-> 32767 32767
+
 
 		SELECT PART
 
@@ -54,8 +61,18 @@ MENUS:
 		0123456789ABCDEF
 		prt lower upper
 		key C3    C4
-
-
+		
+		
+		EDIT
+		0123456789ABCDEF
+		edt lengt edit 
+		sel     0 cut< 
+		          cut>
+		          fad<
+		          fad>
+		          rvrs
+		
+		
 		FILTER
 
 		0123456789ABCDEF
@@ -147,6 +164,7 @@ MENUS:
       cv1
       cv2
 
+
 		KEYBOARD
 
 		0123456789ABCDEF
@@ -177,6 +195,7 @@ MENUS:
 		     sample/
 		     program/
 		     multi/
+		        FAT16NAM.FOO
 
 
 		SAVE
@@ -187,16 +206,13 @@ MENUS:
 		     sample/
 		     program/
 		     multi/
+		        FAT16NAM.FOO
 
 
 		FORMAT
 		0123456789ABCDEF
-		format sd card?
-		    no    yes
-
-
-		PLAY
-		play C3@100
+		(?) format card?
+		    [no]  [yes]
 
 
 		REC
