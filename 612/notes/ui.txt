@@ -1,0 +1,214 @@
+ENCODER:
+
+		INC/DEC inc/dec param 1
+		INC/DEC inc/dec param 2
+
+		SW validate choice 1
+		SW validate choice 2
+
+
+SWITCHES:
+
+		1 SHIFT G (R when pressed)
+		2 PLAY G (blink on MIDI in)
+		3 SAMPLE G
+		4 FILTER G
+		5 MODULATIONS G
+		6 CARD (LOAD / SAVE) G
+
+		SHIFT + PLAY = REC (R, 4 other LEDs as vu-meter)
+		SHIFT + SAMPLE = SELECT PART (R)
+		SHIFT + FILTER = FX (R)
+		SHIFT + MODULATIONS = KEYBOARD/MIDI/ARP (R)
+		SHIFT + LOAD = SAVE (R)
+		SHIFT + PLAY + LOAD = FORMAT (all R blinking)
+		SHIFT + ENCODER = x5
+		KEY + ENCODER = SCROLL
+
+
+MENUS:
+
+
+		SAMPLE
+
+		0123456789ABCDEF
+		smp root  tune
+		tun C3    127
+
+		0123456789ABCDEF
+		smp mode  offset
+		trg 1shot  4000
+		    1shot
+
+		0123456789ABCDEF
+		smp start end
+		<-> 32767 32767
+
+		SELECT PART
+
+		0123456789ABCDEF
+		prt part  mode
+		sel 1     mono
+		          poly
+
+		0123456789ABCDEF
+		prt lower upper
+		key C3    C4
+
+
+		FILTER
+
+		0123456789ABCDEF
+		flt freq  reso
+		vcf 127   63
+
+		0123456789ABCDEF
+		flt eg1>f lf1>f
+		mod 63    0
+		
+
+		FX
+
+		0123456789ABCDEF
+		fx  fold  fuzz
+		dis 0     31
+
+		0123456789ABCDEF
+		fx  crush bits
+		qlt 0     12
+
+
+		MODULATIONS
+
+		0123456789ABCDEF
+		mod mode  time
+		eg1 a/r    30
+		    a/d    
+		    d/r 0   
+		    d/r 1
+		    d/r 2
+		    d/r 3
+
+		ar: t 0 127 t
+		ad: t t 0 t
+		dr: 0 t 0 t
+		dr1: 0 t 31 t
+		dr2: 0 t 63 t
+		dr3: 0 t 96 t
+
+		0123456789ABCDEF
+		mod attck decay
+		eg2 0     20
+
+		0123456789ABCDEF
+		mod sustn relea
+		eg2 80    30
+
+		0123456789ABCDEF
+		mod wave  rate
+		lf1 squar 63
+
+		0123456789ABCDEF
+		mod wave  rate
+		lf2 squar 63
+
+		0123456789ABCDEF
+		step sequence
+		000044448888ffff
+
+		0123456789ABCDEF
+		mod env  ->freq
+		  1 amount  123
+
+    sources:
+      eg1
+      eg2
+      lfo1
+      lfo2
+      seq
+      note
+      velo
+      gate
+      random
+      touch
+      wheel
+      bend
+      audio
+      
+    destinations:
+      pitch
+      fine
+      crush
+      bits
+      fuzz
+      freq
+      reso
+      vca
+      cv1
+      cv2
+
+		KEYBOARD
+
+		0123456789ABCDEF
+		kbd tempo range
+		arp 120   off
+		          1 oct
+		          2 oct
+		          3 oct
+		          4 oct
+
+		0123456789ABCDEF
+		kbd dirct pattn
+		arp up    4
+		    down
+		    up&dn
+		    randm
+
+		0123456789ABCDEF
+		kbd chann shift
+		mid 1     -2
+
+
+		LOAD
+		0123456789ABCDEF
+		load sample/
+		        FOOBAR~1
+
+		     sample/
+		     program/
+		     multi/
+
+
+		SAVE
+		0123456789ABCDEF
+		save sample/
+		        F_OBAR~1
+
+		     sample/
+		     program/
+		     multi/
+
+
+		FORMAT
+		0123456789ABCDEF
+		format sd card?
+		    no    yes
+
+
+		PLAY
+		play C3@100
+
+
+		REC
+
+		0123456789ABCDEF
+		rec rate  mode
+		smp  39   new
+		     19   ovdub
+		     9
+
+		0123456789ABCDEF
+		rec when? thrsh 
+		smp now   -16dB
+        count
+        thrsh

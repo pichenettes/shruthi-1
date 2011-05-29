@@ -1,0 +1,1 @@
+ROOT: scratchpad.bin 72MB (part1: 16MB, part2: 16MB, part3: 16MB, part4: 16MB, record: 8MB)
