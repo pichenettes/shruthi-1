@@ -110,7 +110,7 @@ void Init() {
   // Prescaler = 16, ADC clocked at 1.25 MHz.
   // ADC conversion time = 10us
   adc.set_prescaler(4);  
-  adc.set_alignemnt(ADC_LEFT_ALIGNED);
+  adc.set_alignment(ADC_LEFT_ALIGNED);
   adc.Enable();
   fx_engine.Init();
   
