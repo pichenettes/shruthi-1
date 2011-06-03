@@ -14,11 +14,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "avrlib/adc.h"
+#include "avrlib/deprecated/devices/input_array.h"
+#include "avrlib/deprecated/devices/output_array.h"
+#include "avrlib/deprecated/devices/switch_array.h"
 #include "avrlib/devices/external_eeprom.h"
-#include "avrlib/devices/input_array.h"
-#include "avrlib/devices/output_array.h"
 #include "avrlib/devices/rotary_encoder.h"
-#include "avrlib/devices/switch_array.h"
 #include "avrlib/gpio.h"
 #include "avrlib/boot.h"
 #include "avrlib/serial.h"

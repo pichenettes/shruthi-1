@@ -6,6 +6,7 @@
 *.b#?
 
 # Gerber files
+*.CUT
 *.GBL
 *.GBO
 *.GBS

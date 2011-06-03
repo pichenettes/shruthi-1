@@ -22,8 +22,7 @@
 
 #include "shruthi/editor.h"
 
-#include "avrlib/devices/switch_array.h"
-#include "avrlib/watchdog_timer.h"
+#include "avrlib/deprecated/devices/switch_array.h"
 #include "shruthi/display.h"
 #include "shruthi/midi_dispatcher.h"
 #include "shruthi/parameter_definitions.h"
