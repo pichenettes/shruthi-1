@@ -27,6 +27,7 @@ BUILD_DIR      = $(BUILD_ROOT)$(TARGET)/
 
 MCU            = atmega644p
 DMCU           = m644p
+MCU_DEFINE     = ATMEGA644P
 F_CPU          = 20000000
 
 LFUSE          = ff
@@ -62,7 +63,7 @@ CAT            = cat
 
 CPPFLAGS      = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I. \
 			-g -Os -w -Wall \
-			-ffunction-sections -fdata-sections \
+			-ffunction-sections -fdata-sections -D$(MCU_DEFINE) \
 			-funsigned-char \
 			-fno-inline-small-functions -mcall-prologues
 CXXFLAGS      = -fno-exceptions
