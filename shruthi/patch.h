@@ -30,7 +30,11 @@
 
 namespace shruthi {
 
+#ifdef PORTAMENTO_SAVE_HACK
+const uint8_t kPatchNameSize = 7;
+#else
 const uint8_t kPatchNameSize = 8;
+#endif  // PORTAMENTO_SAVE_HACK
 const uint8_t kModulationMatrixSize = 12;
 
 struct Modulation {
@@ -104,7 +108,11 @@ class Patch {
   ModulationMatrix modulation_matrix;
   // Offset: 68-76
   uint8_t name[kPatchNameSize];
-  
+
+#ifdef PORTAMENTO_SAVE_HACK
+  uint8_t portamento_data;
+#endif
+
   // Offset: 76-84
   ParameterAssignment assigned_parameters[4];
   

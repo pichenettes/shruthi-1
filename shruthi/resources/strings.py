@@ -249,7 +249,7 @@ compare
 ----
 
 v
-mutable    v0.93
+mutable    v0.94
 instruments \x06\x07-1
 
 extern

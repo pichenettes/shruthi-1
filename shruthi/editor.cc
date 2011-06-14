@@ -627,8 +627,13 @@ void Editor::set_edited_item_number(int16_t value) {
 
 /* static */
 uint8_t Editor::is_cursor_at_valid_position() {
+#ifdef PORTAMENTO_SAVE_HACK
+  uint16_t allowed_cursor_positions = load_save_target_ & LOAD_SAVE_TARGET_PATCH
+      ? 0x07f7 : 0x0007;
+#else
   uint16_t allowed_cursor_positions = load_save_target_ & LOAD_SAVE_TARGET_PATCH
       ? 0x0ff7 : 0x0007;
+#endif
   return ((1 << cursor_) & allowed_cursor_positions) != 0;
 }
 
@@ -722,15 +727,19 @@ void Editor::DisplayLoadSavePage() {
     UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
     AlignRight(line_buffer_, 3);
     memcpy(line_buffer_ + 4, engine.patch().name, kPatchNameSize);
+    memset(
+        line_buffer_ + 4 + kPatchNameSize,
+        ' ',
+        kLcdWidth - kPatchNameSize - 4);
   } else {
     UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
     AlignRight(line_buffer_, 3);
     for (uint8_t i = 0; i < 8; ++i) {
       line_buffer_[i + 4] = engine.sequencer_settings().steps[i].character();
     }
+    memset(line_buffer_ + 12, ' ', kLcdWidth - 12);
   }
   line_buffer_[3] = ' ';
-  memset(line_buffer_ + 12, ' ', kLcdWidth - 12);
   if (action_ == ACTION_SAVE) {
     line_buffer_[kLcdWidth - 3] = 'o';
     line_buffer_[kLcdWidth - 2] = 'k';

@@ -245,7 +245,7 @@ static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v0_93[] PROGMEM = "mutable    v0.93";
+static const prog_char str_res_mutable____v0_94[] PROGMEM = "mutable    v0.94";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_x2_ext[] PROGMEM = "x2 ext";
@@ -628,7 +628,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_compare,
   str_res_,
   str_res_v,
-  str_res_mutable____v0_93,
+  str_res_mutable____v0_94,
   str_res_instruments_671,
   str_res_extern,
   str_res_x2_ext,
