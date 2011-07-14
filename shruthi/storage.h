@@ -88,7 +88,7 @@ class Storage {
   }
   
   static uint16_t addressable_space_size() {
-    return avrlib::kInternalEepromSize + num_accessible_banks_ * kBankSize;
+    return kInternalEepromSize + num_accessible_banks_ * kBankSize;
   }
 
   template<typename T>

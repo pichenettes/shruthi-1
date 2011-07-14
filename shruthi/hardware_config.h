@@ -67,6 +67,8 @@ static const uint8_t kPinCv2Out = 4;
 static const uint8_t kPinAnalogInput = 0;
 static const uint8_t kPinCvInput = 4;
 
+static const uint16_t kInternalEepromSize = 2048;
+
 }  // namespace shruthi
 
 #endif // SHRUTHI_HARDWARE_CONFIG_H_
