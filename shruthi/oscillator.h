@@ -606,9 +606,8 @@ class Oscillator {
         data_.vw.formant_phase[2] = 0;
       }
       uint8_t x = S16ClipS8(4 * result) + 128;
-      *buffer = x;
-      *buffer = x;
-      buffer += 2;
+      *buffer++ = x;
+      *buffer++ = x;
       size -= 2;
     }
   }
@@ -661,7 +660,7 @@ class Oscillator {
           innovation,
           offset + (parameter_ << 2));
       if (parameter_ >= 64) {
-        *buffer++ = innovation - data_.no.lp_noise_sample;
+        *buffer++ = innovation - data_.no.lp_noise_sample - 128;
       } else {
         *buffer++ = data_.no.lp_noise_sample;
       }
