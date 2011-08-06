@@ -1,4 +1,11 @@
-v0.93 (work in progress) -------------------------------------------------------
+v0.94 --------------------------------------------------------------------------
+
+SYNTHESIS
+
+- Fixed a bug that caused a loudness drop of the vowel oscillator
+- Fixed a bug that caused the filtered noise "oscillator" to output incorrect value when the parameter was set to a high value.
+
+v0.93 --------------------------------------------------------------------------
 
 SYNTHESIS
 
