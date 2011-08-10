@@ -212,11 +212,11 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_NOI 93  // noi
 #define STR_RES_SUB 94  // sub
 #define STR_RES_RES 95  // res
-#define STR_RES__CV1 96  // cv1
-#define STR_RES__CV2 97  // cv2
+#define STR_RES_CV1 96  // cv1
+#define STR_RES_CV2 97  // cv2
 #define STR_RES__ATK 98  // atk
-#define STR_RES__LF1 99  // lf1
-#define STR_RES__LF2 100  // lf2
+#define STR_RES_LF1 99  // lf1
+#define STR_RES_LF2 100  // lf2
 #define STR_RES_IN1 101  // in1
 #define STR_RES_IN2 102  // in2
 #define STR_RES_OUT 103  // out
@@ -240,11 +240,11 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_NOISE 121  // noise
 #define STR_RES_SUBOSC 122  // subosc
 #define STR_RES_RESO 123  // reso
-#define STR_RES__CV_1 124  // cv 1
-#define STR_RES__CV_2 125  // cv 2
+#define STR_RES_CV_1 124  // cv 1
+#define STR_RES_CV_2 125  // cv 2
 #define STR_RES__ATTACK 126  // attack
-#define STR_RES__LFO_1 127  // lfo 1
-#define STR_RES__LFO_2 128  // lfo 2
+#define STR_RES_LFO_1 127  // lfo 1
+#define STR_RES_LFO_2 128  // lfo 2
 #define STR_RES_DISTRT 129  // distrt
 #define STR_RES_CRUSHR 130  // crushr
 #define STR_RES_SCMBFL 131  // +cmbfl
@@ -266,18 +266,18 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_FGL 147  // f>l
 #define STR_RES_FGH 148  // f>h
 #define STR_RES_GFX 149  // >fx
-#define STR_RES_LF1 150  // lf1
-#define STR_RES_LF2 151  // lf2
+#define STR_RES__LF1 150  // lf1
+#define STR_RES__LF2 151  // lf2
 #define STR_RES_SEQ 152  // seq
-#define STR_RES__SQ1 153  // sq1
-#define STR_RES__SQ2 154  // sq2
-#define STR_RES__ARP 155  // arp
+#define STR_RES_SQ1 153  // sq1
+#define STR_RES_SQ2 154  // sq2
+#define STR_RES_ARP 155  // arp
 #define STR_RES_WHL 156  // whl
 #define STR_RES_AFT 157  // aft
 #define STR_RES_BND 158  // bnd
 #define STR_RES_OFS 159  // ofs
-#define STR_RES_CV1 160  // cv1
-#define STR_RES_CV2 161  // cv2
+#define STR_RES__CV1 160  // cv1
+#define STR_RES__CV2 161  // cv2
 #define STR_RES_CV3 162  // cv3
 #define STR_RES_CV4 163  // cv4
 #define STR_RES_CCA 164  // ccA
@@ -294,25 +294,25 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_AUD 175  // aud
 #define STR_RES_OP1 176  // op1
 #define STR_RES_OP2 177  // op2
-#define STR_RES_LFO_1 178  // lfo 1
-#define STR_RES_LFO_2 179  // lfo 2
+#define STR_RES__LFO_1 178  // lfo 1
+#define STR_RES__LFO_2 179  // lfo 2
 #define STR_RES_STPSEQ 180  // stpseq
 #define STR_RES_STPSQ1 181  // stpsq1
 #define STR_RES_STPSQ2 182  // stpsq2
-#define STR_RES___ARP 183  // arp
+#define STR_RES__ARP 183  // arp
 #define STR_RES_MWHEEL 184  // mwheel
 #define STR_RES_AFTTCH 185  // afttch
 #define STR_RES_BENDER 186  // bender
 #define STR_RES_OFFSET 187  // offset
-#define STR_RES_CV_1 188  // cv 1
-#define STR_RES_CV_2 189  // cv 2
+#define STR_RES__CV_1 188  // cv 1
+#define STR_RES__CV_2 189  // cv 2
 #define STR_RES_CV_3 190  // cv 3
 #define STR_RES_CV_4 191  // cv 4
 #define STR_RES_CC_A 192  // cc A
 #define STR_RES_CC_B 193  // cc B
 #define STR_RES_CC_C 194  // cc C
 #define STR_RES_CC_D 195  // cc D
-#define STR_RES___NOISE 196  // noise
+#define STR_RES__NOISE 196  // noise
 #define STR_RES_ENV_1 197  // env 1
 #define STR_RES_ENV_2 198  // env 2
 #define STR_RES_VELO 199  // velo
@@ -351,7 +351,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_GG4 232  // >>4
 #define STR_RES_GG8 233  // >>8
 #define STR_RES_STP 234  // stp
-#define STR_RES_ARP 235  // arp
+#define STR_RES___ARP 235  // arp
 #define STR_RES_ARPSLT 236  // arp+lt
 #define STR_RES__SEQ 237  // seq
 #define STR_RES_SEQSLT 238  // seq+lt
@@ -361,7 +361,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_SLAVE 242  // slave
 #define STR_RES_MASTER 243  // master
 #define STR_RES_T 244  // ~
-#define STR_RES___ 245  // 
+#define STR_RES__ 245  // 
 #define STR_RES_T_ 246  // ~-
 #define STR_RES__T_ 247  // ~
 #define STR_RES_GLASS 248  // glass
@@ -407,13 +407,13 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_3 288  // 
 #define STR_RES_4 289  // 
 #define STR_RES_34 290  // 
-#define STR_RES__ 291  // ?
+#define STR_RES___ 291  // ?
 #define STR_RES_OFF 292  // off
 #define STR_RES_ON 293  // on
-#define STR_RES_SQ1 294  // sq1
+#define STR_RES__SQ1 294  // sq1
 #define STR_RES_TR1 295  // tr1
 #define STR_RES_PL1 296  // pl1
-#define STR_RES_SQ2 297  // sq2
+#define STR_RES__SQ2 297  // sq2
 #define STR_RES_TR2 298  // tr2
 #define STR_RES_PL2 299  // pl2
 #define STR_RES_CLICK 300  // click
@@ -444,7 +444,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_8BITS 325  // 8bits
 #define STR_RES_CRUSH 326  // crush
 #define STR_RES_PWM 327  // pwm
-#define STR_RES__NOISE 328  // noise
+#define STR_RES___NOISE 328  // noise
 #define STR_RES_VOWEL 329  // vowel
 #define STR_RES_BELISH 330  // belish
 #define STR_RES_POLATD 331  // polatd

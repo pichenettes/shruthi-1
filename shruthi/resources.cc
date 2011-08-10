@@ -121,10 +121,10 @@ static const prog_char str_res_mix[] PROGMEM = "mix";
 static const prog_char str_res_noi[] PROGMEM = "noi";
 static const prog_char str_res_sub[] PROGMEM = "sub";
 static const prog_char str_res_res[] PROGMEM = "res";
-static const prog_char str_res__cv1[] PROGMEM = "cv1";
-static const prog_char str_res__cv2[] PROGMEM = "cv2";
-static const prog_char str_res__lf1[] PROGMEM = "lf1";
-static const prog_char str_res__lf2[] PROGMEM = "lf2";
+static const prog_char str_res_cv1[] PROGMEM = "cv1";
+static const prog_char str_res_cv2[] PROGMEM = "cv2";
+static const prog_char str_res_lf1[] PROGMEM = "lf1";
+static const prog_char str_res_lf2[] PROGMEM = "lf2";
 static const prog_char str_res_in1[] PROGMEM = "in1";
 static const prog_char str_res_in2[] PROGMEM = "in2";
 static const prog_char str_res_out[] PROGMEM = "out";
@@ -146,10 +146,10 @@ static const prog_char str_res_fine[] PROGMEM = "fine";
 static const prog_char str_res_noise[] PROGMEM = "noise";
 static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_reso[] PROGMEM = "reso";
-static const prog_char str_res__cv_1[] PROGMEM = "cv 1";
-static const prog_char str_res__cv_2[] PROGMEM = "cv 2";
-static const prog_char str_res__lfo_1[] PROGMEM = "lfo 1";
-static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
+static const prog_char str_res_cv_1[] PROGMEM = "cv 1";
+static const prog_char str_res_cv_2[] PROGMEM = "cv 2";
+static const prog_char str_res_lfo_1[] PROGMEM = "lfo 1";
+static const prog_char str_res_lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_distrt[] PROGMEM = "distrt";
 static const prog_char str_res_crushr[] PROGMEM = "crushr";
 static const prog_char str_res_Scmbfl[] PROGMEM = "+cmbfl";
@@ -172,9 +172,9 @@ static const prog_char str_res_fgl[] PROGMEM = "f>l";
 static const prog_char str_res_fgh[] PROGMEM = "f>h";
 static const prog_char str_res_gfx[] PROGMEM = ">fx";
 static const prog_char str_res_seq[] PROGMEM = "seq";
-static const prog_char str_res__sq1[] PROGMEM = "sq1";
-static const prog_char str_res__sq2[] PROGMEM = "sq2";
-static const prog_char str_res__arp[] PROGMEM = "arp";
+static const prog_char str_res_sq1[] PROGMEM = "sq1";
+static const prog_char str_res_sq2[] PROGMEM = "sq2";
+static const prog_char str_res_arp[] PROGMEM = "arp";
 static const prog_char str_res_whl[] PROGMEM = "whl";
 static const prog_char str_res_aft[] PROGMEM = "aft";
 static const prog_char str_res_bnd[] PROGMEM = "bnd";
@@ -252,7 +252,7 @@ static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
 static const prog_char str_res_T[] PROGMEM = "~";
-static const prog_char str_res___[] PROGMEM = "";
+static const prog_char str_res__[] PROGMEM = "";
 static const prog_char str_res_T_[] PROGMEM = "~-";
 static const prog_char str_res__T_[] PROGMEM = "~";
 static const prog_char str_res_glass[] PROGMEM = "glass";
@@ -295,7 +295,7 @@ static const prog_char str_res_step[] PROGMEM = "step";
 static const prog_char str_res_3[] PROGMEM = "";
 static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
-static const prog_char str_res__[] PROGMEM = "?";
+static const prog_char str_res___[] PROGMEM = "?";
 static const prog_char str_res_on[] PROGMEM = "on";
 static const prog_char str_res_tr1[] PROGMEM = "tr1";
 static const prog_char str_res_pl1[] PROGMEM = "pl1";
@@ -478,11 +478,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_noi,
   str_res_sub,
   str_res_res,
-  str_res__cv1,
-  str_res__cv2,
+  str_res_cv1,
+  str_res_cv2,
   str_res_atk,
-  str_res__lf1,
-  str_res__lf2,
+  str_res_lf1,
+  str_res_lf2,
   str_res_in1,
   str_res_in2,
   str_res_out,
@@ -506,11 +506,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_noise,
   str_res_subosc,
   str_res_reso,
-  str_res__cv_1,
-  str_res__cv_2,
+  str_res_cv_1,
+  str_res_cv_2,
   str_res_attack,
-  str_res__lfo_1,
-  str_res__lfo_2,
+  str_res_lfo_1,
+  str_res_lfo_2,
   str_res_distrt,
   str_res_crushr,
   str_res_Scmbfl,
@@ -532,18 +532,18 @@ PROGMEM const prog_char* string_table[] = {
   str_res_fgl,
   str_res_fgh,
   str_res_gfx,
-  str_res__lf1,
-  str_res__lf2,
+  str_res_lf1,
+  str_res_lf2,
   str_res_seq,
-  str_res__sq1,
-  str_res__sq2,
-  str_res__arp,
+  str_res_sq1,
+  str_res_sq2,
+  str_res_arp,
   str_res_whl,
   str_res_aft,
   str_res_bnd,
   str_res_ofs,
-  str_res__cv1,
-  str_res__cv2,
+  str_res_cv1,
+  str_res_cv2,
   str_res_cv3,
   str_res_cv4,
   str_res_cca,
@@ -560,18 +560,18 @@ PROGMEM const prog_char* string_table[] = {
   str_res_aud,
   str_res_op1,
   str_res_op2,
-  str_res__lfo_1,
-  str_res__lfo_2,
+  str_res_lfo_1,
+  str_res_lfo_2,
   str_res_stpseq,
   str_res_stpsq1,
   str_res_stpsq2,
-  str_res__arp,
+  str_res_arp,
   str_res_mwheel,
   str_res_afttch,
   str_res_bender,
   str_res_offset,
-  str_res__cv_1,
-  str_res__cv_2,
+  str_res_cv_1,
+  str_res_cv_2,
   str_res_cv_3,
   str_res_cv_4,
   str_res_cc_a,
@@ -617,7 +617,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_gg4,
   str_res_gg8,
   str_res_stp,
-  str_res__arp,
+  str_res_arp,
   str_res_arpSlt,
   str_res_seq,
   str_res_seqSlt,
@@ -627,7 +627,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_slave,
   str_res_master,
   str_res_T,
-  str_res___,
+  str_res__,
   str_res_T_,
   str_res__T_,
   str_res_glass,
@@ -673,13 +673,13 @@ PROGMEM const prog_char* string_table[] = {
   str_res_3,
   str_res_4,
   str_res_34,
-  str_res__,
+  str_res___,
   str_res___off,
   str_res_on,
-  str_res__sq1,
+  str_res_sq1,
   str_res_tr1,
   str_res_pl1,
-  str_res__sq2,
+  str_res_sq2,
   str_res_tr2,
   str_res_pl2,
   str_res_click,

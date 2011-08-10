@@ -117,11 +117,11 @@ mix
 noi
 sub
 res
- cv1
- cv2
- atk
- lf1
- lf2
+cv1
+cv2
+atk
+lf1
+lf2
 
 in1
 in2
@@ -136,22 +136,22 @@ min
 <=
 
 cutoff
- vca
+vca
 pwm1
 pwm2
 osc1
 osc2
 osc1+2
 fine
- mix
+mix
 noise
 subosc
 reso
- cv 1
- cv 2
- attack
- lfo 1
- lfo 2
+cv 1
+cv 2
+attack
+lfo 1
+lfo 2
 
 distrt
 crushr
@@ -179,9 +179,9 @@ f>h
 lf1
 lf2
 seq
- sq1
- sq2
- arp
+sq1
+sq2
+arp
 whl
 aft
 bnd
@@ -194,7 +194,7 @@ ccA
 ccB
 ccC
 ccD
- noi
+noi
 en1
 en2
 vel
@@ -210,7 +210,7 @@ lfo 2
 stpseq
 stpsq1
 stpsq2
-  arp
+arp
 mwheel
 afttch
 bender
@@ -223,7 +223,7 @@ cc A
 cc B
 cc C
 cc D
-  noise
+noise
 env 1
 env 2
 velo
@@ -269,7 +269,7 @@ fuzz
 stp
 arp
 arp+lt
- seq
+seq
 seq+lt
 rec
 impro
@@ -279,9 +279,9 @@ slave
 master
 
 \x7e
- \x7f
+\x7f
 \x7e-\x7f
- \x7e\x7f
+\x7e\x7f
 glass
 krama
 jata
@@ -307,9 +307,9 @@ monkey
 
  off
 thru
-  seq
+seq
 ctrl
- split
+split
 full
 1~|
 2~1
@@ -368,7 +368,7 @@ user
 8bits
 crush
 pwm
- noise
+noise
 vowel
 belish
 polatd
