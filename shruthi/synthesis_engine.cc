@@ -683,7 +683,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
   int32_t increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
       lut_res_env_portamento_increments,
       engine.system_settings_.portamento);
-  pitch_increment_ = (delta * increment) >> 15;
+  pitch_increment_ = (delta * increment) >> 16;
   if (pitch_increment_ == 0) {
     if (delta < 0) {
       pitch_increment_ = -1;

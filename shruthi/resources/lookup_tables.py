@@ -46,10 +46,10 @@ lookup_tables.append(
 
 
 # Create lookup table for envelope times (x^0.25).
-max_time = 4.0  # seconds
+max_time = 10.0  # seconds
 min_time = 1.0 / control_rate  # seconds
-excursion = 32767.0
-gamma = 0.25
+excursion = 65535.0
+gamma = 0.2
 min_increment = excursion / (max_time * control_rate)
 max_increment = excursion / (min_time * control_rate)
 
