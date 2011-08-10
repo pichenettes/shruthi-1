@@ -243,6 +243,19 @@ waveforms.append(('distortion', Scale(fuzz, dither=0)))
 
 
 """----------------------------------------------------------------------------
+Envelope curves
+-----------------------------------------------------------------------------"""
+
+env_linear = numpy.arange(0, 257.0) / 256.0
+env_linear[-1] = env_linear[-2]
+env_quartic = 1.0 - (1.0 - env_linear) ** 4.0
+env_expo = 1.0 - numpy.exp(-5 * env_linear)
+
+# waveforms.append(('env_quartic', env_quartic / env_quartic.max() * 255))
+waveforms.append(('env_expo', env_expo / env_expo.max() * 255))
+
+
+"""----------------------------------------------------------------------------
 Wavetables
 -----------------------------------------------------------------------------"""
 

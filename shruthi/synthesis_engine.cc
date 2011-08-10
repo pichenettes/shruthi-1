@@ -663,7 +663,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     pitch_target_ = U8U8Mul(note, 128);
   }
   if (!legato || (!engine.system_settings_.legato && legato != 255)) {
-    TriggerEnvelope(PRE_ATTACK);
+    TriggerEnvelope(ATTACK);
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're
     // doing monophonic things anyway (and some pseudo-polysynths/organs are
@@ -704,7 +704,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
 
 /* static */
 void Voice::Release() {
-  TriggerEnvelope(RELEASE_1);
+  TriggerEnvelope(RELEASE);
   if (last_note_ != 0) {
     midi_dispatcher.NoteKilled(last_note_);
     last_note_ = 0;
@@ -717,10 +717,10 @@ inline void Voice::LoadSources() {
   
   // Rescale the value of each modulation sources. Envelopes are in the
   // 0-16383 range ; just like pitch. All are scaled to 0-255.
-  modulation_sources_[MOD_SRC_ENV_1] = U14ShiftRight6(envelope_[0].value());
-  modulation_sources_[MOD_SRC_ENV_2] = U14ShiftRight6(envelope_[1].value());
+  modulation_sources_[MOD_SRC_ENV_1] = envelope_[0].value() >> 8;
+  modulation_sources_[MOD_SRC_ENV_2] = envelope_[1].value() >> 8;
   modulation_sources_[MOD_SRC_NOTE] = U14ShiftRight6(pitch_value_);
-  modulation_sources_[MOD_SRC_GATE] = envelope_[0].stage() >= RELEASE_1 ? 0 : 255;
+  modulation_sources_[MOD_SRC_GATE] = envelope_[0].stage() >= RELEASE ? 0 : 255;
   modulation_sources_[MOD_SRC_AUDIO] = buffer_[0];
   
   // Apply the modulation operators
@@ -846,10 +846,11 @@ inline void Voice::UpdateDestinations() {
   osc_1.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_1]));
   osc_2.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_2]));
   
-  uint8_t velocity = U15ShiftRight7(dst_[MOD_DST_ATTACK]);
-  if (velocity) {
-    envelope_[0].SetVelocity(velocity);
-    envelope_[1].SetVelocity(velocity);
+  uint8_t attack_mod = U15ShiftRight7(dst_[MOD_DST_ATTACK]);
+  for (int i = 0; i < kNumEnvelopes; ++i) {
+    int16_t new_attack = engine.patch_.env[i].attack;
+    new_attack = Clip(new_attack - attack_mod, 0, 127);
+    envelope_[i].UpdateAttack(new_attack);
   }
 }
 
