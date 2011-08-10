@@ -120,8 +120,8 @@ res
 cv1
 cv2
 atk
-lf1
-lf2
+ lf1
+ lf2
 
 in1
 in2
@@ -150,8 +150,8 @@ reso
 cv 1
 cv 2
 attack
-lfo 1
-lfo 2
+ lfo 1
+ lfo 2
 
 distrt
 crushr
