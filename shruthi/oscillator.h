@@ -41,9 +41,6 @@ static const uint16_t kUserWavetableSize = 8 * 129;
 
 namespace shruthi {
 
-#define WAV_RES_SINE WAV_RES_BANDLIMITED_TRIANGLE_6
-
-
 static inline uint8_t ReadSample(
     const prog_uint8_t* table,
     uint16_t phase) __attribute__((always_inline));
@@ -403,7 +400,7 @@ class Oscillator {
       uint8_t phase = phase_.integral >> 8;
       uint8_t clipped_phase = phase < 0x20 ? phase << 3 : 0xff;
       // Interpolation causes more aliasing here.
-      *buffer++ = ReadSample(waveform_table[WAV_RES_SINE],
+      *buffer++ = ReadSample(wav_res_sine,
           U8MixU16(phase, clipped_phase, parameter_ << 1));
     }
   }
@@ -416,9 +413,7 @@ class Oscillator {
         data_.secondary_phase = 32768;
       }
       data_.secondary_phase += increment;
-      uint8_t result = ReadSample(
-          waveform_table[WAV_RES_SINE],
-          data_.secondary_phase);
+      uint8_t result = ReadSample(wav_res_sine, data_.secondary_phase);
       result >>= 1;
       result += 128;   
       if (phase_.integral < 0x4000) {
@@ -432,7 +427,7 @@ class Oscillator {
     }
   }
   
-  static void RenderCzSawReso(uint8_t* buffer) {
+  static void RenderCzReso(uint8_t* buffer) {
     uint16_t increment = UpdateCz();
     uint8_t size = kAudioBlockSize;
     while (size--) {
@@ -440,43 +435,20 @@ class Oscillator {
         data_.secondary_phase = 0;
       }
       data_.secondary_phase += increment;
-      uint8_t result = InterpolateSample(
-          waveform_table[WAV_RES_SINE],
-          data_.secondary_phase);
-      *buffer++ = U8U8MulShift8(result, ~(phase_.integral >> 8));
-    }
-  }
-  
-  static void RenderCzTriReso(uint8_t* buffer) {
-    uint16_t increment = UpdateCz();
-    uint8_t size = kAudioBlockSize;
-    while (size--) {
-      if (UpdatePhase()) {
-        data_.secondary_phase = 0;
+      uint8_t carrier = InterpolateSample(wav_res_sine, data_.secondary_phase);
+      if (shape_ == WAVEFORM_CZ_SYNC) {
+        *buffer++ = phase_.integral < 0x8000 ? carrier : 128;
+      } else {
+        uint8_t window = 0;
+        if (shape_ == WAVEFORM_CZ_RESO) {
+          window = ~(phase_.integral >> 8);
+        } else {
+          window = (phase_.integral & 0x8000) ?
+                ~static_cast<uint8_t>(phase_.integral >> 7) :
+                phase_.integral >> 7;
+        }
+        *buffer++ = U8U8MulShift8(carrier, window);
       }
-      data_.secondary_phase += increment;
-      uint8_t result = InterpolateSample(
-          waveform_table[WAV_RES_SINE],
-          data_.secondary_phase);
-      uint8_t triangle =  (phase_.integral & 0x8000) ?
-            ~static_cast<uint8_t>(phase_.integral >> 7) :
-            phase_.integral >> 7;
-      *buffer++ = U8U8MulShift8(result, triangle);
-    }
-  }
-
-  static void RenderCzSyncReso(uint8_t* buffer) {
-    uint16_t increment = UpdateCz();
-    uint8_t size = kAudioBlockSize;
-    while (size--) {
-      if (UpdatePhase()) {
-        data_.secondary_phase = 0;
-      }
-      data_.secondary_phase += increment;
-      uint8_t result = InterpolateSample(
-          waveform_table[WAV_RES_SINE],
-          data_.secondary_phase);
-      *buffer++ = phase_.integral < 0x8000 ? result : 128;
     }
   }
   
@@ -504,10 +476,10 @@ class Oscillator {
     while (size--) {
       UpdatePhase();
       data_.secondary_phase += increment;
-      uint8_t modulator = InterpolateSample(waveform_table[WAV_RES_SINE],
+      uint8_t modulator = InterpolateSample(wav_res_sine,
           data_.secondary_phase);
       uint16_t modulation = modulator * parameter_;
-      *buffer++ = InterpolateSample(waveform_table[WAV_RES_SINE],
+      *buffer++ = InterpolateSample(wav_res_sine,
           phase_.integral + modulation);
     }
   }
@@ -531,15 +503,13 @@ class Oscillator {
       if (parameter_ <= 63) {
         if (data_.cr.decimate >= parameter_ + 1) {
           data_.cr.decimate = 0;
-          data_.cr.state = InterpolateSample(
-              waveform_table[WAV_RES_SINE],
-              phase_.integral);
+          data_.cr.state = InterpolateSample(wav_res_sine, phase_.integral);
         }
       } else {
         if (data_.cr.decimate >= 128 - parameter_) {
           data_.cr.decimate = 0;
           data_.cr.state = InterpolateSample(
-              waveform_table[WAV_RES_BANDLIMITED_TRIANGLE_0],
+              wav_res_bandlimited_triangle_0,
               phase_.integral);
         }
       }
@@ -561,18 +531,18 @@ class Oscillator {
       for (uint8_t i = 0; i < 3; ++i) {
         data_.vw.formant_increment[i] = U8U4MixU12(
             ResourcesManager::Lookup<uint8_t, uint8_t>(
-                waveform_table[WAV_RES_VOWEL_DATA], offset_1 + i),
+                wav_res_vowel_data, offset_1 + i),
             ResourcesManager::Lookup<uint8_t, uint8_t>(
-                waveform_table[WAV_RES_VOWEL_DATA], offset_2 + i),
+                wav_res_vowel_data, offset_2 + i),
             balance);
         data_.vw.formant_increment[i] <<= 3;
       }
       for (uint8_t i = 0; i < 2; ++i) {
         uint8_t amplitude_a = ResourcesManager::Lookup<uint8_t, uint8_t>(
-            waveform_table[WAV_RES_VOWEL_DATA],
+            wav_res_vowel_data,
             offset_1 + 3 + i);
         uint8_t amplitude_b = ResourcesManager::Lookup<uint8_t, uint8_t>(
-            waveform_table[WAV_RES_VOWEL_DATA],
+            wav_res_vowel_data,
             offset_2 + 3 + i);
 
         data_.vw.formant_amplitude[2 * i + 1] = U8U4MixU8(
@@ -591,8 +561,7 @@ class Oscillator {
       for (uint8_t i = 0; i < 3; ++i) {
         data_.vw.formant_phase[i] += data_.vw.formant_increment[i];
         result += ResourcesManager::Lookup<uint8_t, uint8_t>(
-            i == 2 ? waveform_table[WAV_RES_FORMANT_SQUARE] :
-                     waveform_table[WAV_RES_FORMANT_SINE],
+            i == 2 ? wav_res_formant_square : wav_res_formant_sine,
             ((data_.vw.formant_phase[i] >> 8) & 0xf0) |
               data_.vw.formant_amplitude[i]);
       }
@@ -691,10 +660,10 @@ template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
   &Osc::RenderSimpleWavetable,
 
   &Osc::RenderCzSaw,
-  &Osc::RenderCzSawReso,
-  &Osc::RenderCzTriReso,
+  &Osc::RenderCzReso,
+  &Osc::RenderCzReso,
   &Osc::RenderCzPulseReso,
-  &Osc::RenderCzSyncReso,
+  &Osc::RenderCzReso,
   
   &Osc::RenderQuadSawPad,
   
