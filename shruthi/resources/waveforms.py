@@ -48,7 +48,6 @@ waveforms.extend([
     ('formant_square', square_samples)
 ])
 
-
 """----------------------------------------------------------------------------
 Band-limited waveforms
 ----------------------------------------------------------------------------"""
@@ -116,6 +115,8 @@ bl_tri_tables = []
 wrap = numpy.fmod(numpy.arange(WAVETABLE_SIZE + 1) + WAVETABLE_SIZE / 2, WAVETABLE_SIZE)
 quadrature = numpy.fmod(numpy.arange(WAVETABLE_SIZE + 1) + WAVETABLE_SIZE / 4, WAVETABLE_SIZE)
 fill = numpy.fmod(numpy.arange(WAVETABLE_SIZE + 1), WAVETABLE_SIZE)
+
+waveforms.append(('sine', Scale(sine[quadrature])))
 
 if CAUSAL:
   window = numpy.hanning(WAVETABLE_SIZE)

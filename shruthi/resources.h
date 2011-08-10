@@ -31,6 +31,7 @@
 
 
 #include "avrlib/resources_manager.h"
+
 namespace shruthi {
 
 typedef uint16_t ResourceId;
@@ -87,13 +88,13 @@ extern const prog_uint16_t lut_res_groove_human[] PROGMEM;
 extern const prog_uint16_t lut_res_groove_monkey[] PROGMEM;
 extern const prog_uint8_t wav_res_formant_sine[] PROGMEM;
 extern const prog_uint8_t wav_res_formant_square[] PROGMEM;
+extern const prog_uint8_t wav_res_sine[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_square_0[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_square_1[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_square_2[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_square_3[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_square_4[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_square_5[] PROGMEM;
-extern const prog_uint8_t wav_res_bandlimited_square_6[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_saw_0[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_saw_1[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_saw_2[] PROGMEM;
@@ -211,39 +212,39 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_NOI 93  // noi
 #define STR_RES_SUB 94  // sub
 #define STR_RES_RES 95  // res
-#define STR_RES__CV1 96  //  cv1
-#define STR_RES__CV2 97  //  cv2
-#define STR_RES__ATK 98  //  atk
-#define STR_RES__LF1 99  //  lf1
-#define STR_RES__LF2 100  //  lf2
+#define STR_RES__CV1 96  // cv1
+#define STR_RES__CV2 97  // cv2
+#define STR_RES__ATK 98  // atk
+#define STR_RES__LF1 99  // lf1
+#define STR_RES__LF2 100  // lf2
 #define STR_RES_IN1 101  // in1
 #define STR_RES_IN2 102  // in2
 #define STR_RES_OUT 103  // out
-#define STR_RES___OFF 104  //   off
+#define STR_RES___OFF 104  // off
 #define STR_RES_ADD 105  // add
 #define STR_RES_PRD 106  // prd
 #define STR_RES_MAX 107  // max
 #define STR_RES_MIN 108  // min
-#define STR_RES__XOR 109  //  xor
+#define STR_RES__XOR 109  // xor
 #define STR_RES_GE 110  // >=
 #define STR_RES_LE 111  // <=
 #define STR_RES_CUTOFF 112  // cutoff
-#define STR_RES__VCA 113  //  vca
+#define STR_RES__VCA 113  // vca
 #define STR_RES_PWM1 114  // pwm1
 #define STR_RES_PWM2 115  // pwm2
 #define STR_RES_OSC1 116  // osc1
 #define STR_RES_OSC2 117  // osc2
 #define STR_RES_OSC1S2 118  // osc1+2
 #define STR_RES_FINE 119  // fine
-#define STR_RES__MIX 120  //  mix
+#define STR_RES__MIX 120  // mix
 #define STR_RES_NOISE 121  // noise
 #define STR_RES_SUBOSC 122  // subosc
 #define STR_RES_RESO 123  // reso
-#define STR_RES__CV_1 124  //  cv 1
-#define STR_RES__CV_2 125  //  cv 2
-#define STR_RES__ATTACK 126  //  attack
-#define STR_RES__LFO_1 127  //  lfo 1
-#define STR_RES__LFO_2 128  //  lfo 2
+#define STR_RES__CV_1 124  // cv 1
+#define STR_RES__CV_2 125  // cv 2
+#define STR_RES__ATTACK 126  // attack
+#define STR_RES__LFO_1 127  // lfo 1
+#define STR_RES__LFO_2 128  // lfo 2
 #define STR_RES_DISTRT 129  // distrt
 #define STR_RES_CRUSHR 130  // crushr
 #define STR_RES_SCMBFL 131  // +cmbfl
@@ -268,9 +269,9 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_LF1 150  // lf1
 #define STR_RES_LF2 151  // lf2
 #define STR_RES_SEQ 152  // seq
-#define STR_RES__SQ1 153  //  sq1
-#define STR_RES__SQ2 154  //  sq2
-#define STR_RES__ARP 155  //  arp
+#define STR_RES__SQ1 153  // sq1
+#define STR_RES__SQ2 154  // sq2
+#define STR_RES__ARP 155  // arp
 #define STR_RES_WHL 156  // whl
 #define STR_RES_AFT 157  // aft
 #define STR_RES_BND 158  // bnd
@@ -283,7 +284,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_CCB 165  // ccB
 #define STR_RES_CCC 166  // ccC
 #define STR_RES_CCD 167  // ccD
-#define STR_RES__NOI 168  //  noi
+#define STR_RES__NOI 168  // noi
 #define STR_RES_EN1 169  // en1
 #define STR_RES_EN2 170  // en2
 #define STR_RES_VEL 171  // vel
@@ -298,7 +299,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_STPSEQ 180  // stpseq
 #define STR_RES_STPSQ1 181  // stpsq1
 #define STR_RES_STPSQ2 182  // stpsq2
-#define STR_RES___ARP 183  //   arp
+#define STR_RES___ARP 183  // arp
 #define STR_RES_MWHEEL 184  // mwheel
 #define STR_RES_AFTTCH 185  // afttch
 #define STR_RES_BENDER 186  // bender
@@ -311,7 +312,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_CC_B 193  // cc B
 #define STR_RES_CC_C 194  // cc C
 #define STR_RES_CC_D 195  // cc D
-#define STR_RES___NOISE 196  //   noise
+#define STR_RES___NOISE 196  // noise
 #define STR_RES_ENV_1 197  // env 1
 #define STR_RES_ENV_2 198  // env 2
 #define STR_RES_VELO 199  // velo
@@ -352,7 +353,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_STP 234  // stp
 #define STR_RES_ARP 235  // arp
 #define STR_RES_ARPSLT 236  // arp+lt
-#define STR_RES__SEQ 237  //  seq
+#define STR_RES__SEQ 237  // seq
 #define STR_RES_SEQSLT 238  // seq+lt
 #define STR_RES_REC 239  // rec
 #define STR_RES_IMPRO 240  // impro
@@ -360,9 +361,9 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_SLAVE 242  // slave
 #define STR_RES_MASTER 243  // master
 #define STR_RES_T 244  // ~
-#define STR_RES___ 245  //  
+#define STR_RES___ 245  // 
 #define STR_RES_T_ 246  // ~-
-#define STR_RES__T_ 247  //  ~
+#define STR_RES__T_ 247  // ~
 #define STR_RES_GLASS 248  // glass
 #define STR_RES_KRAMA 249  // krama
 #define STR_RES_JATA 250  // jata
@@ -384,11 +385,11 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_LAG 266  // lag
 #define STR_RES_HUMAN 267  // human
 #define STR_RES_MONKEY 268  // monkey
-#define STR_RES__OFF 269  //  off
+#define STR_RES__OFF 269  // off
 #define STR_RES_THRU 270  // thru
-#define STR_RES___SEQ 271  //   seq
+#define STR_RES___SEQ 271  // seq
 #define STR_RES_CTRL 272  // ctrl
-#define STR_RES__SPLIT 273  //  split
+#define STR_RES__SPLIT 273  // split
 #define STR_RES_FULL 274  // full
 #define STR_RES_1TV 275  // 1~|
 #define STR_RES_2T1 276  // 2~1
@@ -443,7 +444,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_8BITS 325  // 8bits
 #define STR_RES_CRUSH 326  // crush
 #define STR_RES_PWM 327  // pwm
-#define STR_RES__NOISE 328  //  noise
+#define STR_RES__NOISE 328  // noise
 #define STR_RES_VOWEL 329  // vowel
 #define STR_RES_BELISH 330  // belish
 #define STR_RES_POLATD 331  // polatd
@@ -455,7 +456,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_RES3HP 337  // res3hp
 #define STR_RES_ELECTP 338  // electp
 #define STR_RES_VIBES 339  // vibes
-#define STR_RES__LPF 340  //  lpf
+#define STR_RES__LPF 340  // lpf
 #define STR_RES_SSM 341  // ssm
 #define STR_RES_SVF 342  // svf
 #define STR_RES_DSP 343  // dsp
@@ -486,7 +487,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_RANGES 368  // ranges
 #define STR_RES_GANGES 369  // ganges
 #define STR_RES_KAMESH 370  // kamesh
-#define STR_RES_PALAS_ 371  // palas 
+#define STR_RES_PALAS_ 371  // palas
 #define STR_RES_NATBHA 372  // natbha
 #define STR_RES_M_KAUN 373  // m.kaun
 #define STR_RES_BAIRAG 374  // bairag
@@ -587,63 +588,65 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES_FORMANT_SINE_SIZE 256
 #define WAV_RES_FORMANT_SQUARE 1
 #define WAV_RES_FORMANT_SQUARE_SIZE 256
-#define WAV_RES_BANDLIMITED_SQUARE_0 2
+#define WAV_RES_SINE 2
+#define WAV_RES_SINE_SIZE 257
+#define WAV_RES_BANDLIMITED_SQUARE_0 3
 #define WAV_RES_BANDLIMITED_SQUARE_0_SIZE 257
-#define WAV_RES_BANDLIMITED_SQUARE_1 3
+#define WAV_RES_BANDLIMITED_SQUARE_1 4
 #define WAV_RES_BANDLIMITED_SQUARE_1_SIZE 257
-#define WAV_RES_BANDLIMITED_SQUARE_2 4
+#define WAV_RES_BANDLIMITED_SQUARE_2 5
 #define WAV_RES_BANDLIMITED_SQUARE_2_SIZE 257
-#define WAV_RES_BANDLIMITED_SQUARE_3 5
+#define WAV_RES_BANDLIMITED_SQUARE_3 6
 #define WAV_RES_BANDLIMITED_SQUARE_3_SIZE 257
-#define WAV_RES_BANDLIMITED_SQUARE_4 6
+#define WAV_RES_BANDLIMITED_SQUARE_4 7
 #define WAV_RES_BANDLIMITED_SQUARE_4_SIZE 257
-#define WAV_RES_BANDLIMITED_SQUARE_5 7
+#define WAV_RES_BANDLIMITED_SQUARE_5 8
 #define WAV_RES_BANDLIMITED_SQUARE_5_SIZE 257
-#define WAV_RES_BANDLIMITED_SQUARE_6 8
+#define WAV_RES_BANDLIMITED_SQUARE_6 9
 #define WAV_RES_BANDLIMITED_SQUARE_6_SIZE 257
-#define WAV_RES_BANDLIMITED_SAW_0 9
+#define WAV_RES_BANDLIMITED_SAW_0 10
 #define WAV_RES_BANDLIMITED_SAW_0_SIZE 257
-#define WAV_RES_BANDLIMITED_SAW_1 10
+#define WAV_RES_BANDLIMITED_SAW_1 11
 #define WAV_RES_BANDLIMITED_SAW_1_SIZE 257
-#define WAV_RES_BANDLIMITED_SAW_2 11
+#define WAV_RES_BANDLIMITED_SAW_2 12
 #define WAV_RES_BANDLIMITED_SAW_2_SIZE 257
-#define WAV_RES_BANDLIMITED_SAW_3 12
+#define WAV_RES_BANDLIMITED_SAW_3 13
 #define WAV_RES_BANDLIMITED_SAW_3_SIZE 257
-#define WAV_RES_BANDLIMITED_SAW_4 13
+#define WAV_RES_BANDLIMITED_SAW_4 14
 #define WAV_RES_BANDLIMITED_SAW_4_SIZE 257
-#define WAV_RES_BANDLIMITED_SAW_5 14
+#define WAV_RES_BANDLIMITED_SAW_5 15
 #define WAV_RES_BANDLIMITED_SAW_5_SIZE 257
-#define WAV_RES_BANDLIMITED_SAW_6 15
+#define WAV_RES_BANDLIMITED_SAW_6 16
 #define WAV_RES_BANDLIMITED_SAW_6_SIZE 257
-#define WAV_RES_BANDLIMITED_TRIANGLE_0 16
+#define WAV_RES_BANDLIMITED_TRIANGLE_0 17
 #define WAV_RES_BANDLIMITED_TRIANGLE_0_SIZE 257
-#define WAV_RES_BANDLIMITED_TRIANGLE_1 17
+#define WAV_RES_BANDLIMITED_TRIANGLE_1 18
 #define WAV_RES_BANDLIMITED_TRIANGLE_1_SIZE 257
-#define WAV_RES_BANDLIMITED_TRIANGLE_2 18
+#define WAV_RES_BANDLIMITED_TRIANGLE_2 19
 #define WAV_RES_BANDLIMITED_TRIANGLE_2_SIZE 257
-#define WAV_RES_BANDLIMITED_TRIANGLE_3 19
+#define WAV_RES_BANDLIMITED_TRIANGLE_3 20
 #define WAV_RES_BANDLIMITED_TRIANGLE_3_SIZE 257
-#define WAV_RES_BANDLIMITED_TRIANGLE_4 20
+#define WAV_RES_BANDLIMITED_TRIANGLE_4 21
 #define WAV_RES_BANDLIMITED_TRIANGLE_4_SIZE 257
-#define WAV_RES_BANDLIMITED_TRIANGLE_5 21
+#define WAV_RES_BANDLIMITED_TRIANGLE_5 22
 #define WAV_RES_BANDLIMITED_TRIANGLE_5_SIZE 257
-#define WAV_RES_BANDLIMITED_TRIANGLE_6 22
+#define WAV_RES_BANDLIMITED_TRIANGLE_6 23
 #define WAV_RES_BANDLIMITED_TRIANGLE_6_SIZE 257
-#define WAV_RES_VOWEL_DATA 23
+#define WAV_RES_VOWEL_DATA 24
 #define WAV_RES_VOWEL_DATA_SIZE 45
-#define WAV_RES_EXPANSION_KRAMA 24
+#define WAV_RES_EXPANSION_KRAMA 25
 #define WAV_RES_EXPANSION_KRAMA_SIZE 30
-#define WAV_RES_EXPANSION_JATA 25
+#define WAV_RES_EXPANSION_JATA 26
 #define WAV_RES_EXPANSION_JATA_SIZE 90
-#define WAV_RES_EXPANSION_SIKHA 26
+#define WAV_RES_EXPANSION_SIKHA 27
 #define WAV_RES_EXPANSION_SIKHA_SIZE 126
-#define WAV_RES_EXPANSION_GHANA 27
+#define WAV_RES_EXPANSION_GHANA 28
 #define WAV_RES_EXPANSION_GHANA_SIZE 182
-#define WAV_RES_DISTORTION 28
+#define WAV_RES_DISTORTION 29
 #define WAV_RES_DISTORTION_SIZE 256
-#define WAV_RES_WAVES 29
+#define WAV_RES_WAVES 30
 #define WAV_RES_WAVES_SIZE 16512
-#define WAV_RES_WAVETABLES 30
+#define WAV_RES_WAVETABLES 31
 #define WAV_RES_WAVETABLES_SIZE 324
 #define CHR_RES_SPECIAL_CHARACTERS 0
 #define CHR_RES_SPECIAL_CHARACTERS_SIZE 56

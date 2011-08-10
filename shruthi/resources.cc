@@ -21,7 +21,7 @@
 // make resources
 
 
-#include "resources.h"
+#include "shruthi/resources.h"
 
 namespace shruthi {
 
@@ -123,7 +123,6 @@ static const prog_char str_res_sub[] PROGMEM = "sub";
 static const prog_char str_res_res[] PROGMEM = "res";
 static const prog_char str_res__cv1[] PROGMEM = "cv1";
 static const prog_char str_res__cv2[] PROGMEM = "cv2";
-static const prog_char str_res__atk[] PROGMEM = "atk";
 static const prog_char str_res__lf1[] PROGMEM = "lf1";
 static const prog_char str_res__lf2[] PROGMEM = "lf2";
 static const prog_char str_res_in1[] PROGMEM = "in1";
@@ -138,20 +137,17 @@ static const prog_char str_res__xor[] PROGMEM = "xor";
 static const prog_char str_res_ge[] PROGMEM = ">=";
 static const prog_char str_res_le[] PROGMEM = "<=";
 static const prog_char str_res_cutoff[] PROGMEM = "cutoff";
-static const prog_char str_res__vca[] PROGMEM = "vca";
 static const prog_char str_res_pwm1[] PROGMEM = "pwm1";
 static const prog_char str_res_pwm2[] PROGMEM = "pwm2";
 static const prog_char str_res_osc1[] PROGMEM = "osc1";
 static const prog_char str_res_osc2[] PROGMEM = "osc2";
 static const prog_char str_res_osc1S2[] PROGMEM = "osc1+2";
 static const prog_char str_res_fine[] PROGMEM = "fine";
-static const prog_char str_res__mix[] PROGMEM = "mix";
 static const prog_char str_res_noise[] PROGMEM = "noise";
 static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_reso[] PROGMEM = "reso";
 static const prog_char str_res__cv_1[] PROGMEM = "cv 1";
 static const prog_char str_res__cv_2[] PROGMEM = "cv 2";
-static const prog_char str_res__attack[] PROGMEM = "attack";
 static const prog_char str_res__lfo_1[] PROGMEM = "lfo 1";
 static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_distrt[] PROGMEM = "distrt";
@@ -175,8 +171,6 @@ static const prog_char str_res_hgf[] PROGMEM = "h>f";
 static const prog_char str_res_fgl[] PROGMEM = "f>l";
 static const prog_char str_res_fgh[] PROGMEM = "f>h";
 static const prog_char str_res_gfx[] PROGMEM = ">fx";
-static const prog_char str_res_lf1[] PROGMEM = "lf1";
-static const prog_char str_res_lf2[] PROGMEM = "lf2";
 static const prog_char str_res_seq[] PROGMEM = "seq";
 static const prog_char str_res__sq1[] PROGMEM = "sq1";
 static const prog_char str_res__sq2[] PROGMEM = "sq2";
@@ -185,15 +179,12 @@ static const prog_char str_res_whl[] PROGMEM = "whl";
 static const prog_char str_res_aft[] PROGMEM = "aft";
 static const prog_char str_res_bnd[] PROGMEM = "bnd";
 static const prog_char str_res_ofs[] PROGMEM = "ofs";
-static const prog_char str_res_cv1[] PROGMEM = "cv1";
-static const prog_char str_res_cv2[] PROGMEM = "cv2";
 static const prog_char str_res_cv3[] PROGMEM = "cv3";
 static const prog_char str_res_cv4[] PROGMEM = "cv4";
 static const prog_char str_res_cca[] PROGMEM = "ccA";
 static const prog_char str_res_ccb[] PROGMEM = "ccB";
 static const prog_char str_res_ccc[] PROGMEM = "ccC";
 static const prog_char str_res_ccd[] PROGMEM = "ccD";
-static const prog_char str_res__noi[] PROGMEM = "noi";
 static const prog_char str_res_en1[] PROGMEM = "en1";
 static const prog_char str_res_en2[] PROGMEM = "en2";
 static const prog_char str_res_vel[] PROGMEM = "vel";
@@ -203,25 +194,19 @@ static const prog_char str_res_gat[] PROGMEM = "gat";
 static const prog_char str_res_aud[] PROGMEM = "aud";
 static const prog_char str_res_op1[] PROGMEM = "op1";
 static const prog_char str_res_op2[] PROGMEM = "op2";
-static const prog_char str_res_lfo_1[] PROGMEM = "lfo 1";
-static const prog_char str_res_lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_stpseq[] PROGMEM = "stpseq";
 static const prog_char str_res_stpsq1[] PROGMEM = "stpsq1";
 static const prog_char str_res_stpsq2[] PROGMEM = "stpsq2";
-static const prog_char str_res___arp[] PROGMEM = "arp";
 static const prog_char str_res_mwheel[] PROGMEM = "mwheel";
 static const prog_char str_res_afttch[] PROGMEM = "afttch";
 static const prog_char str_res_bender[] PROGMEM = "bender";
 static const prog_char str_res_offset[] PROGMEM = "offset";
-static const prog_char str_res_cv_1[] PROGMEM = "cv 1";
-static const prog_char str_res_cv_2[] PROGMEM = "cv 2";
 static const prog_char str_res_cv_3[] PROGMEM = "cv 3";
 static const prog_char str_res_cv_4[] PROGMEM = "cv 4";
 static const prog_char str_res_cc_a[] PROGMEM = "cc A";
 static const prog_char str_res_cc_b[] PROGMEM = "cc B";
 static const prog_char str_res_cc_c[] PROGMEM = "cc C";
 static const prog_char str_res_cc_d[] PROGMEM = "cc D";
-static const prog_char str_res___noise[] PROGMEM = "noise";
 static const prog_char str_res_env_1[] PROGMEM = "env 1";
 static const prog_char str_res_env_2[] PROGMEM = "env 2";
 static const prog_char str_res_velo[] PROGMEM = "velo";
@@ -255,14 +240,11 @@ static const prog_char str_res__8_ext[] PROGMEM = "/8 ext";
 static const prog_char str_res_sum[] PROGMEM = "sum";
 static const prog_char str_res_sync[] PROGMEM = "sync";
 static const prog_char str_res_ring[] PROGMEM = "ring";
-static const prog_char str_res_xor[] PROGMEM = "xor";
 static const prog_char str_res_fuzz[] PROGMEM = "fuzz";
 static const prog_char str_res_gg4[] PROGMEM = ">>4";
 static const prog_char str_res_gg8[] PROGMEM = ">>8";
 static const prog_char str_res_stp[] PROGMEM = "stp";
-static const prog_char str_res_arp[] PROGMEM = "arp";
 static const prog_char str_res_arpSlt[] PROGMEM = "arp+lt";
-static const prog_char str_res__seq[] PROGMEM = "seq";
 static const prog_char str_res_seqSlt[] PROGMEM = "seq+lt";
 static const prog_char str_res_rec[] PROGMEM = "rec";
 static const prog_char str_res_impro[] PROGMEM = "impro";
@@ -294,11 +276,8 @@ static const prog_char str_res_push[] PROGMEM = "push";
 static const prog_char str_res_lag[] PROGMEM = "lag";
 static const prog_char str_res_human[] PROGMEM = "human";
 static const prog_char str_res_monkey[] PROGMEM = "monkey";
-static const prog_char str_res__off[] PROGMEM = "off";
 static const prog_char str_res_thru[] PROGMEM = "thru";
-static const prog_char str_res___seq[] PROGMEM = "seq";
 static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
-static const prog_char str_res__split[] PROGMEM = "split";
 static const prog_char str_res_full[] PROGMEM = "full";
 static const prog_char str_res_1Tv[] PROGMEM = "1~|";
 static const prog_char str_res_2T1[] PROGMEM = "2~1";
@@ -317,12 +296,9 @@ static const prog_char str_res_3[] PROGMEM = "";
 static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
 static const prog_char str_res__[] PROGMEM = "?";
-static const prog_char str_res_off[] PROGMEM = "off";
 static const prog_char str_res_on[] PROGMEM = "on";
-static const prog_char str_res_sq1[] PROGMEM = "sq1";
 static const prog_char str_res_tr1[] PROGMEM = "tr1";
 static const prog_char str_res_pl1[] PROGMEM = "pl1";
-static const prog_char str_res_sq2[] PROGMEM = "sq2";
 static const prog_char str_res_tr2[] PROGMEM = "tr2";
 static const prog_char str_res_pl2[] PROGMEM = "pl2";
 static const prog_char str_res_click[] PROGMEM = "click";
@@ -353,7 +329,6 @@ static const prog_char str_res_user[] PROGMEM = "user";
 static const prog_char str_res_8bits[] PROGMEM = "8bits";
 static const prog_char str_res_crush[] PROGMEM = "crush";
 static const prog_char str_res_pwm[] PROGMEM = "pwm";
-static const prog_char str_res__noise[] PROGMEM = "noise";
 static const prog_char str_res_vowel[] PROGMEM = "vowel";
 static const prog_char str_res_belish[] PROGMEM = "belish";
 static const prog_char str_res_polatd[] PROGMEM = "polatd";
@@ -365,7 +340,6 @@ static const prog_char str_res_frmnt2[] PROGMEM = "frmnt2";
 static const prog_char str_res_res3hp[] PROGMEM = "res3hp";
 static const prog_char str_res_electp[] PROGMEM = "electp";
 static const prog_char str_res_vibes[] PROGMEM = "vibes";
-static const prog_char str_res__lpf[] PROGMEM = "lpf";
 static const prog_char str_res_ssm[] PROGMEM = "ssm";
 static const prog_char str_res_svf[] PROGMEM = "svf";
 static const prog_char str_res_dsp[] PROGMEM = "dsp";
@@ -506,7 +480,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_res,
   str_res__cv1,
   str_res__cv2,
-  str_res__atk,
+  str_res_atk,
   str_res__lf1,
   str_res__lf2,
   str_res_in1,
@@ -521,20 +495,20 @@ PROGMEM const prog_char* string_table[] = {
   str_res_ge,
   str_res_le,
   str_res_cutoff,
-  str_res__vca,
+  str_res_vca,
   str_res_pwm1,
   str_res_pwm2,
   str_res_osc1,
   str_res_osc2,
   str_res_osc1S2,
   str_res_fine,
-  str_res__mix,
+  str_res_mix,
   str_res_noise,
   str_res_subosc,
   str_res_reso,
   str_res__cv_1,
   str_res__cv_2,
-  str_res__attack,
+  str_res_attack,
   str_res__lfo_1,
   str_res__lfo_2,
   str_res_distrt,
@@ -558,8 +532,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_fgl,
   str_res_fgh,
   str_res_gfx,
-  str_res_lf1,
-  str_res_lf2,
+  str_res__lf1,
+  str_res__lf2,
   str_res_seq,
   str_res__sq1,
   str_res__sq2,
@@ -568,15 +542,15 @@ PROGMEM const prog_char* string_table[] = {
   str_res_aft,
   str_res_bnd,
   str_res_ofs,
-  str_res_cv1,
-  str_res_cv2,
+  str_res__cv1,
+  str_res__cv2,
   str_res_cv3,
   str_res_cv4,
   str_res_cca,
   str_res_ccb,
   str_res_ccc,
   str_res_ccd,
-  str_res__noi,
+  str_res_noi,
   str_res_en1,
   str_res_en2,
   str_res_vel,
@@ -586,25 +560,25 @@ PROGMEM const prog_char* string_table[] = {
   str_res_aud,
   str_res_op1,
   str_res_op2,
-  str_res_lfo_1,
-  str_res_lfo_2,
+  str_res__lfo_1,
+  str_res__lfo_2,
   str_res_stpseq,
   str_res_stpsq1,
   str_res_stpsq2,
-  str_res___arp,
+  str_res__arp,
   str_res_mwheel,
   str_res_afttch,
   str_res_bender,
   str_res_offset,
-  str_res_cv_1,
-  str_res_cv_2,
+  str_res__cv_1,
+  str_res__cv_2,
   str_res_cv_3,
   str_res_cv_4,
   str_res_cc_a,
   str_res_cc_b,
   str_res_cc_c,
   str_res_cc_d,
-  str_res___noise,
+  str_res_noise,
   str_res_env_1,
   str_res_env_2,
   str_res_velo,
@@ -638,14 +612,14 @@ PROGMEM const prog_char* string_table[] = {
   str_res_sum,
   str_res_sync,
   str_res_ring,
-  str_res_xor,
+  str_res__xor,
   str_res_fuzz,
   str_res_gg4,
   str_res_gg8,
   str_res_stp,
-  str_res_arp,
+  str_res__arp,
   str_res_arpSlt,
-  str_res__seq,
+  str_res_seq,
   str_res_seqSlt,
   str_res_rec,
   str_res_impro,
@@ -677,11 +651,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_lag,
   str_res_human,
   str_res_monkey,
-  str_res__off,
+  str_res___off,
   str_res_thru,
-  str_res___seq,
+  str_res_seq,
   str_res_ctrl,
-  str_res__split,
+  str_res_split,
   str_res_full,
   str_res_1Tv,
   str_res_2T1,
@@ -700,12 +674,12 @@ PROGMEM const prog_char* string_table[] = {
   str_res_4,
   str_res_34,
   str_res__,
-  str_res_off,
+  str_res___off,
   str_res_on,
-  str_res_sq1,
+  str_res__sq1,
   str_res_tr1,
   str_res_pl1,
-  str_res_sq2,
+  str_res__sq2,
   str_res_tr2,
   str_res_pl2,
   str_res_click,
@@ -736,7 +710,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_8bits,
   str_res_crush,
   str_res_pwm,
-  str_res__noise,
+  str_res_noise,
   str_res_vowel,
   str_res_belish,
   str_res_polatd,
@@ -748,7 +722,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_res3hp,
   str_res_electp,
   str_res_vibes,
-  str_res__lpf,
+  str_res_lpf,
   str_res_ssm,
   str_res_svf,
   str_res_dsp,
@@ -1199,6 +1173,41 @@ const prog_uint8_t wav_res_formant_square[] PROGMEM = {
        0,     -1,     -1,     -2,     -2,     -3,     -3,     -4,
       -4,     -5,     -6,     -8,     -9,    -11,    -13,    -16,
 };
+const prog_uint8_t wav_res_sine[] PROGMEM = {
+       2,      2,      2,      3,      2,      3,      3,      4,
+       5,      4,      7,      5,      9,      7,     10,     11,
+      11,     13,     13,     17,     16,     18,     21,     21,
+      23,     25,     27,     28,     32,     31,     36,     36,
+      39,     41,     43,     46,     48,     51,     53,     55,
+      57,     62,     63,     65,     70,     70,     75,     76,
+      81,     82,     85,     89,     92,     94,     97,    100,
+     104,    107,    109,    112,    116,    119,    122,    124,
+     129,    130,    135,    137,    140,    144,    147,    148,
+     154,    155,    158,    163,    163,    169,    169,    174,
+     177,    178,    182,    185,    187,    191,    192,    195,
+     199,    200,    203,    205,    209,    210,    212,    216,
+     216,    220,    221,    223,    226,    227,    230,    230,
+     233,    235,    235,    239,    238,    241,    242,    243,
+     245,    245,    246,    249,    247,    251,    249,    252,
+     251,    252,    253,    253,    253,    254,    254,    254,
+     253,    255,    254,    253,    253,    254,    252,    253,
+     251,    251,    250,    250,    248,    248,    246,    246,
+     245,    242,    243,    240,    239,    238,    236,    234,
+     233,    231,    230,    226,    226,    224,    221,    219,
+     217,    215,    212,    211,    208,    206,    202,    201,
+     198,    196,    192,    190,    188,    184,    182,    179,
+     177,    173,    170,    168,    164,    162,    158,    156,
+     153,    149,    147,    143,    141,    136,    135,    131,
+     128,    125,    122,    118,    116,    113,    109,    106,
+     104,    101,     96,     95,     92,     88,     85,     83,
+      80,     77,     74,     71,     69,     66,     63,     61,
+      57,     56,     53,     50,     49,     45,     43,     42,
+      38,     37,     35,     32,     31,     29,     26,     26,
+      22,     22,     20,     19,     16,     16,     13,     14,
+      11,     10,     10,      8,      8,      6,      6,      5,
+       4,      5,      2,      4,      2,      2,      2,      3,
+       1,
+};
 const prog_uint8_t wav_res_bandlimited_square_0[] PROGMEM = {
       30,     30,     32,     30,     32,     32,     32,     33,
       33,     33,     34,     35,     34,     35,     35,     36,
@@ -1408,41 +1417,6 @@ const prog_uint8_t wav_res_bandlimited_square_5[] PROGMEM = {
       36,     36,     34,     34,     32,     31,     31,     28,
       29,     26,     27,     26,     25,     26,     24,     26,
       26,
-};
-const prog_uint8_t wav_res_bandlimited_square_6[] PROGMEM = {
-       2,      2,      2,      3,      2,      3,      3,      4,
-       5,      4,      7,      5,      9,      7,     10,     11,
-      11,     13,     13,     17,     16,     18,     21,     21,
-      23,     25,     27,     28,     32,     31,     36,     36,
-      39,     41,     43,     46,     48,     51,     53,     55,
-      57,     62,     63,     65,     70,     70,     75,     76,
-      81,     82,     85,     89,     92,     94,     97,    100,
-     104,    107,    109,    112,    116,    119,    122,    124,
-     129,    130,    135,    137,    140,    144,    147,    148,
-     154,    155,    158,    163,    163,    169,    169,    174,
-     177,    178,    182,    185,    187,    191,    192,    195,
-     199,    200,    203,    205,    209,    210,    212,    216,
-     216,    220,    221,    223,    226,    227,    230,    230,
-     233,    235,    235,    239,    238,    241,    242,    243,
-     245,    245,    246,    249,    247,    251,    249,    252,
-     251,    252,    253,    253,    253,    254,    254,    254,
-     253,    255,    254,    253,    253,    254,    252,    253,
-     251,    251,    250,    250,    248,    248,    246,    246,
-     245,    242,    243,    240,    239,    238,    236,    234,
-     233,    231,    230,    226,    226,    224,    221,    219,
-     217,    215,    212,    211,    208,    206,    202,    201,
-     198,    196,    192,    190,    188,    184,    182,    179,
-     177,    173,    170,    168,    164,    162,    158,    156,
-     153,    149,    147,    143,    141,    136,    135,    131,
-     128,    125,    122,    118,    116,    113,    109,    106,
-     104,    101,     96,     95,     92,     88,     85,     83,
-      80,     77,     74,     71,     69,     66,     63,     61,
-      57,     56,     53,     50,     49,     45,     43,     42,
-      38,     37,     35,     32,     31,     29,     26,     26,
-      22,     22,     20,     19,     16,     16,     13,     14,
-      11,     10,     10,      8,      8,      6,      6,      5,
-       4,      5,      2,      4,      2,      2,      2,      3,
-       1,
 };
 const prog_uint8_t wav_res_bandlimited_saw_0[] PROGMEM = {
       77,     79,     79,     81,     81,     82,     84,     85,
@@ -4083,27 +4057,28 @@ const prog_uint8_t wav_res_wavetables[] PROGMEM = {
 const prog_uint8_t* waveform_table[] = {
   wav_res_formant_sine,
   wav_res_formant_square,
+  wav_res_sine,
   wav_res_bandlimited_square_0,
   wav_res_bandlimited_square_1,
   wav_res_bandlimited_square_2,
   wav_res_bandlimited_square_3,
   wav_res_bandlimited_square_4,
   wav_res_bandlimited_square_5,
-  wav_res_bandlimited_square_6,
+  wav_res_sine,
   wav_res_bandlimited_saw_0,
   wav_res_bandlimited_saw_1,
   wav_res_bandlimited_saw_2,
   wav_res_bandlimited_saw_3,
   wav_res_bandlimited_saw_4,
   wav_res_bandlimited_saw_5,
-  wav_res_bandlimited_square_6,
+  wav_res_sine,
   wav_res_bandlimited_triangle_0,
   wav_res_bandlimited_triangle_1,
   wav_res_bandlimited_triangle_2,
   wav_res_bandlimited_triangle_3,
   wav_res_bandlimited_triangle_4,
   wav_res_bandlimited_triangle_5,
-  wav_res_bandlimited_square_6,
+  wav_res_sine,
   wav_res_vowel_data,
   wav_res_expansion_krama,
   wav_res_expansion_jata,
