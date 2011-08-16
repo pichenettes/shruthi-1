@@ -179,8 +179,8 @@ f>h
 lf1
 lf2
 seq
-sq1
-sq2
+ sq1
+ sq2
 arp
 whl
 aft

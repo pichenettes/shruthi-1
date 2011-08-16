@@ -215,8 +215,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_CV1 96  // cv1
 #define STR_RES_CV2 97  // cv2
 #define STR_RES__ATK 98  // atk
-#define STR_RES_LF1 99  // lf1
-#define STR_RES_LF2 100  // lf2
+#define STR_RES__LF1 99  // lf1
+#define STR_RES__LF2 100  // lf2
 #define STR_RES_IN1 101  // in1
 #define STR_RES_IN2 102  // in2
 #define STR_RES_OUT 103  // out
@@ -243,8 +243,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_CV_1 124  // cv 1
 #define STR_RES_CV_2 125  // cv 2
 #define STR_RES__ATTACK 126  // attack
-#define STR_RES_LFO_1 127  // lfo 1
-#define STR_RES_LFO_2 128  // lfo 2
+#define STR_RES__LFO_1 127  // lfo 1
+#define STR_RES__LFO_2 128  // lfo 2
 #define STR_RES_DISTRT 129  // distrt
 #define STR_RES_CRUSHR 130  // crushr
 #define STR_RES_SCMBFL 131  // +cmbfl
@@ -266,11 +266,11 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_FGL 147  // f>l
 #define STR_RES_FGH 148  // f>h
 #define STR_RES_GFX 149  // >fx
-#define STR_RES__LF1 150  // lf1
-#define STR_RES__LF2 151  // lf2
+#define STR_RES_LF1 150  // lf1
+#define STR_RES_LF2 151  // lf2
 #define STR_RES_SEQ 152  // seq
-#define STR_RES_SQ1 153  // sq1
-#define STR_RES_SQ2 154  // sq2
+#define STR_RES__SQ1 153  // sq1
+#define STR_RES__SQ2 154  // sq2
 #define STR_RES_ARP 155  // arp
 #define STR_RES_WHL 156  // whl
 #define STR_RES_AFT 157  // aft
@@ -294,8 +294,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_AUD 175  // aud
 #define STR_RES_OP1 176  // op1
 #define STR_RES_OP2 177  // op2
-#define STR_RES__LFO_1 178  // lfo 1
-#define STR_RES__LFO_2 179  // lfo 2
+#define STR_RES_LFO_1 178  // lfo 1
+#define STR_RES_LFO_2 179  // lfo 2
 #define STR_RES_STPSEQ 180  // stpseq
 #define STR_RES_STPSQ1 181  // stpsq1
 #define STR_RES_STPSQ2 182  // stpsq2
@@ -410,10 +410,10 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES___ 291  // ?
 #define STR_RES_OFF 292  // off
 #define STR_RES_ON 293  // on
-#define STR_RES__SQ1 294  // sq1
+#define STR_RES_SQ1 294  // sq1
 #define STR_RES_TR1 295  // tr1
 #define STR_RES_PL1 296  // pl1
-#define STR_RES__SQ2 297  // sq2
+#define STR_RES_SQ2 297  // sq2
 #define STR_RES_TR2 298  // tr2
 #define STR_RES_PL2 299  // pl2
 #define STR_RES_CLICK 300  // click

@@ -123,8 +123,8 @@ static const prog_char str_res_sub[] PROGMEM = "sub";
 static const prog_char str_res_res[] PROGMEM = "res";
 static const prog_char str_res_cv1[] PROGMEM = "cv1";
 static const prog_char str_res_cv2[] PROGMEM = "cv2";
-static const prog_char str_res_lf1[] PROGMEM = "lf1";
-static const prog_char str_res_lf2[] PROGMEM = "lf2";
+static const prog_char str_res__lf1[] PROGMEM = "lf1";
+static const prog_char str_res__lf2[] PROGMEM = "lf2";
 static const prog_char str_res_in1[] PROGMEM = "in1";
 static const prog_char str_res_in2[] PROGMEM = "in2";
 static const prog_char str_res_out[] PROGMEM = "out";
@@ -148,8 +148,8 @@ static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_reso[] PROGMEM = "reso";
 static const prog_char str_res_cv_1[] PROGMEM = "cv 1";
 static const prog_char str_res_cv_2[] PROGMEM = "cv 2";
-static const prog_char str_res_lfo_1[] PROGMEM = "lfo 1";
-static const prog_char str_res_lfo_2[] PROGMEM = "lfo 2";
+static const prog_char str_res__lfo_1[] PROGMEM = "lfo 1";
+static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
 static const prog_char str_res_distrt[] PROGMEM = "distrt";
 static const prog_char str_res_crushr[] PROGMEM = "crushr";
 static const prog_char str_res_Scmbfl[] PROGMEM = "+cmbfl";
@@ -172,8 +172,8 @@ static const prog_char str_res_fgl[] PROGMEM = "f>l";
 static const prog_char str_res_fgh[] PROGMEM = "f>h";
 static const prog_char str_res_gfx[] PROGMEM = ">fx";
 static const prog_char str_res_seq[] PROGMEM = "seq";
-static const prog_char str_res_sq1[] PROGMEM = "sq1";
-static const prog_char str_res_sq2[] PROGMEM = "sq2";
+static const prog_char str_res__sq1[] PROGMEM = "sq1";
+static const prog_char str_res__sq2[] PROGMEM = "sq2";
 static const prog_char str_res_arp[] PROGMEM = "arp";
 static const prog_char str_res_whl[] PROGMEM = "whl";
 static const prog_char str_res_aft[] PROGMEM = "aft";
@@ -481,8 +481,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_cv1,
   str_res_cv2,
   str_res_atk,
-  str_res_lf1,
-  str_res_lf2,
+  str_res__lf1,
+  str_res__lf2,
   str_res_in1,
   str_res_in2,
   str_res_out,
@@ -509,8 +509,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_cv_1,
   str_res_cv_2,
   str_res_attack,
-  str_res_lfo_1,
-  str_res_lfo_2,
+  str_res__lfo_1,
+  str_res__lfo_2,
   str_res_distrt,
   str_res_crushr,
   str_res_Scmbfl,
@@ -532,11 +532,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_fgl,
   str_res_fgh,
   str_res_gfx,
-  str_res_lf1,
-  str_res_lf2,
+  str_res__lf1,
+  str_res__lf2,
   str_res_seq,
-  str_res_sq1,
-  str_res_sq2,
+  str_res__sq1,
+  str_res__sq2,
   str_res_arp,
   str_res_whl,
   str_res_aft,
@@ -560,8 +560,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_aud,
   str_res_op1,
   str_res_op2,
-  str_res_lfo_1,
-  str_res_lfo_2,
+  str_res__lfo_1,
+  str_res__lfo_2,
   str_res_stpseq,
   str_res_stpsq1,
   str_res_stpsq2,
@@ -676,10 +676,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res___,
   str_res___off,
   str_res_on,
-  str_res_sq1,
+  str_res__sq1,
   str_res_tr1,
   str_res_pl1,
-  str_res_sq2,
+  str_res__sq2,
   str_res_tr2,
   str_res_pl2,
   str_res_click,
