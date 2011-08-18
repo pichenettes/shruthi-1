@@ -16,6 +16,7 @@ MCU_NAME       = 644
 TARGET         = shruthi1
 PACKAGES       = avrlib avrlib/i2c avrlib/devices shruthi
 RESOURCES      = shruthi/resources
+EXTRA_DEFINES  = -DDISABLE_DEFAULT_UART_RX_ISR
 # EXTRA_DEFINES  = -DPORTAMENTO_SAVE_HACK
 
 LOCK           = 2f

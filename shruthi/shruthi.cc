@@ -38,8 +38,9 @@ using namespace midi;
 using namespace shruthi;
 
 // Midi input.
-Serial<MidiPort, 31250, BUFFERED, POLLED> midi_io;
+Serial<MidiPort, 31250, POLLED, POLLED> midi_io;
 Serial<CvTxPort, 115200, DISABLED, POLLED> cv_io;
+RingBuffer<SerialInput<MidiPort> > midi_buffer;
 
 // Input event handlers.
 typedef AdcInputScanner AnalogInputs;
@@ -251,8 +252,8 @@ void CvTask() {
 
 void MidiTask() {
   // Try to process as much data as possible from the MIDI buffer.
-  while (midi_io.readable()) {
-    midi_parser.PushByte(midi_io.ImmediateRead());
+  while (midi_buffer.readable()) {
+    midi_parser.PushByte(midi_buffer.ImmediateRead());
   }
   // This is also a good place to do some MIDI output. But because the MIDI
   // output data rate can get intense when tweaking knobs, it's easier to
@@ -345,6 +346,7 @@ uint8_t sub_clock_2 = 0;
 TIMER_2_TICK {
   audio_out.EmitSample();
   sub_clock = (sub_clock + 1) & 0x0f;
+  SerialInput<MidiPort>::Received();
   if (sub_clock == 0) {
     lcd.Tick();
     encoder.Read();
