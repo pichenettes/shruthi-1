@@ -346,7 +346,9 @@ uint8_t sub_clock_2 = 0;
 TIMER_2_TICK {
   audio_out.EmitSample();
   sub_clock = (sub_clock + 1) & 0x0f;
-  SerialInput<MidiPort>::Received();
+  if (midi_io.readable()) {
+    midi_buffer.NonBlockingWrite(midi_io.ImmediateRead());
+  }
   if (sub_clock == 0) {
     lcd.Tick();
     encoder.Read();
