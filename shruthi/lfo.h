@@ -126,7 +126,8 @@ class Lfo {
               uint8_t attack, uint8_t retrigger) {
     shape_ = shape;
     phase_increment_ = phase_increment;
-    intensity_increment_ = Envelope::ScaleEnvelopeIncrement(attack, 127);
+    intensity_increment_ = ResourcesManager::Lookup<
+        uint16_t, uint8_t>(lut_res_env_portamento_increments, attack) >> 1;
     retrigger_ = retrigger;
   }
   

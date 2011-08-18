@@ -16,28 +16,13 @@
 // -----------------------------------------------------------------------------
 //
 // Envelopes.
-//
-// This implements a piece-wise ADSR envelope, with an inflection point in the
-// decay and release segments to make it sound logarithmitc-y:
-//
-// 
-// 
-// < P ><-- A --><-- D -->           <-- R -->
-//               1  2  3             4  5  6
-//              /\
-//             /  \
-//            /    \
-//           /       \
-//          /          \ ____________
-//  _      /                         \
-//    -   /                           \
-//      \/                              \
 
 #ifndef SHRUTHI_ENVELOPE_H_
 #define SHRUTHI_ENVELOPE_H_
 
 #include "avrlib/base.h"
 #include "shruthi/patch.h"
+#include "shruthi/resources.h"
 #include "shruthi/shruthi.h"
 #include "avrlib/op.h"
 
@@ -46,85 +31,93 @@ using namespace avrlib;
 namespace shruthi {
 
 enum EnvelopeStage {
-  // What to do when two notes of a sound with a very long attack time are
-  // played in sequence?
-  // - Should we reset the envelope to 0 and restart the attack? This creates
-  // a nasty click because of the sharp reset.
-  // - Should we start the attack from the current value of the envelope? This
-  // creates a very weird effect on pads or flutes - if notes are played very
-  // fast they end up colliding into each other.
-  //
-  // The solution is to have a very short "pre-attack" phase in which the
-  // envelope quickly goes to 0 to avoid a click, and then restart at the
-  // attack.
-  PRE_ATTACK = 0,
-  ATTACK = 1,
-  DECAY_1 = 2,
-  DECAY_2 = 3,
-  DECAY_3 = 4,
-  SUSTAIN = 5,
-  RELEASE_1 = 6,
-  RELEASE_2 = 7,
-  RELEASE_3 = 8,
-  DEAD = 9,
+  ATTACK = 0,
+  DECAY = 1,
+  SUSTAIN = 2,
+  RELEASE = 3,
+  DEAD = 4,
+  NUM_SEGMENTS,
 };
 
 
 class Envelope {
  public:
   Envelope() { }
- 
-  void Init();
+
+  void Init() {
+    stage_target_[ATTACK] = 255;
+    stage_target_[RELEASE] = 0;
+    stage_target_[DEAD] = 0;
+    stage_phase_increment_[SUSTAIN] = 0;
+    stage_phase_increment_[DEAD] = 0;
+  }
 
   uint8_t stage() { return stage_; }
-  int16_t value() { return value_; }
+  uint16_t value() { return value_; }
 
-  void Trigger(uint8_t stage);
+  void Trigger(uint8_t stage) {
+    if (stage == ATTACK) {
+      value_ = 0;
+    }
+    a_ = value_ >> 8;
+    b_ = stage_target_[stage];
+    stage_ = stage;
+    phase_ = 0;
+    phase_increment_ = stage_phase_increment_[stage];
+  }
 
-  void Update(uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release);
+  inline void UpdateAttack(uint8_t attack) {
+    stage_phase_increment_[ATTACK] = ResourcesManager::Lookup<
+        uint16_t, uint8_t>(lut_res_env_portamento_increments, attack);
+    phase_increment_ = stage_phase_increment_[stage_];
+  }
+
+  inline void Update(
+      uint8_t attack,
+      uint8_t decay,
+      uint8_t sustain,
+      uint8_t release) {
+    stage_phase_increment_[ATTACK] = ResourcesManager::Lookup<
+        uint16_t, uint8_t>(lut_res_env_portamento_increments, attack);
+    stage_phase_increment_[DECAY] = ResourcesManager::Lookup<
+        uint16_t, uint8_t>(lut_res_env_portamento_increments, decay);
+    stage_phase_increment_[RELEASE] = ResourcesManager::Lookup<
+        uint16_t, uint8_t>(lut_res_env_portamento_increments, release);
+    stage_target_[DECAY] = sustain << 1;
+    stage_target_[SUSTAIN] = stage_target_[DECAY];
+  }
 
   void Render() {
-    value_ += increment_;
-    value_ += velocity_increment_;
-    // This code makes the assumption that only the ATTACK stage has a positive
-    // slope. This is true for the classical ADSR envelope. To support more
-    // complex multistage envelopes, the correct code is:
-    //
-    // if ((increment_ > 0) ^ (value_ < target_)) {
-    //
-    // but the first test is more expensive on AVR...
-    if ((stage_ == ATTACK) ^ (value_ < target_)) {
-      value_ = target_;
-      ++stage_;
-      Trigger(stage_);
+    phase_ += phase_increment_;
+    if (phase_ < phase_increment_) {
+      value_ = U8MixU16(a_, b_, 255);
+      Trigger(++stage_);
+    }
+    if (phase_increment_) {
+      uint8_t step = InterpolateSample(wav_res_env_expo, phase_);
+      value_ = U8MixU16(a_, b_, step);
     }
   }
-  
-  inline void SetVelocity(uint8_t velocity) {
-    velocity_increment_ = 0;
-    if (increment_ > 0 && velocity) {
-      velocity = 80 - velocity;
-      if (velocity > 128) {
-        velocity = 0;
-      }
-      velocity_increment_ = ScaleEnvelopeIncrement(velocity, 127);
-    }
-  }
-
-  static uint16_t ScaleEnvelopeIncrement(uint8_t time, uint8_t scale) 
-      __attribute__((noinline));
 
  private:
-  uint8_t release_;  // release time.
-  uint8_t stage_;  // current envelope stage.
-  int16_t increment_;  // envelope value increment.
-  int16_t velocity_increment_;  // envelope value increment.
-  int16_t target_;  // target value (moves to next stage once reached).
-  int16_t value_;  // envelope value, 0-16384.
-  // Increment and target for each stage of the envelope.
-  int16_t stage_increment_[DEAD + 1];
-  int16_t stage_target_[DEAD + 1];
- 
+  // Phase increments for each stage.
+  uint16_t stage_phase_increment_[NUM_SEGMENTS];
+  // Value that needs to be reached at the end of each stage.
+  uint8_t stage_target_[NUM_SEGMENTS];
+  // Current stage.
+  uint8_t stage_;
+
+  // Start and end value of the current segment.
+  uint8_t a_;
+  uint8_t b_;
+
+  // Phase and phase increment.
+  uint16_t phase_increment_;
+  uint16_t phase_;
+
+  // Current value of the envelope.
+  uint16_t value_;
+
   DISALLOW_COPY_AND_ASSIGN(Envelope);
 };
 
