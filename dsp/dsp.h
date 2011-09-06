@@ -29,7 +29,7 @@ namespace dsp {
 // Rate of the main timer. For now, 1 sample is generated per tick, but we might
 // want to do something different to achieve other sample rates
 // (20kHz or 16kHz).
-static const uint16_t kSampleRate = 39062;
+static const uint16_t kSampleRate = 39216;
 
 // The latency is 1ms, with a buffer storing 3ms of audio.
 static const uint8_t kAudioBlockSize = 40;

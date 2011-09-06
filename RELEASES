@@ -4,11 +4,14 @@ SYNTHESIS
 
 - Fixed a bug that caused a loudness drop of the vowel oscillator
 - Fixed a bug that caused the filtered noise "oscillator" to output incorrect value when the parameter was set to a high value.
+- The envelopes now have a smoother curve, and slower attack / decay / release time can be achived.
+- Fixed a timing bug that caused the main oscillators pitch to be off by 8 cents.
 
 CODE
 
 - The z-family oscillators now share common code, saving ~700 bytes of code.
 - Resource table de-duplication saved ~200 bytes of code.
+- MIDI input is polled from the 39kHz audio interrupt rather than interrupt-driven. This saves ~80 CPU cycles per byte of MIDI data received, since there is no extra ISR intro/outtro when a MIDI byte is received.
 
 
 v0.93 --------------------------------------------------------------------------

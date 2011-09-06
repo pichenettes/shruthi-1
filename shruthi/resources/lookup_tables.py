@@ -27,7 +27,7 @@ LFO and envelope increments.
 
 lookup_tables = []
 
-sample_rate = 39062.0
+sample_rate = 20000000.0 / 510
 control_rate = sample_rate / 40.0
 min_frequency = 1.0 / 16.0  # Hertz
 max_frequency = 100.0  # Hertz

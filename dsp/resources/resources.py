@@ -93,7 +93,7 @@ luts.append(('fold', Scale(fold, min=1, max=4094, type=numpy.uint16, dither=0)))
 """----------------------------------------------------------------------------
 Lookup tables for LPF
 -----------------------------------------------------------------------------"""
-sr = 20000000 / 512.0
+sr = 20000000 / 510.0
 cv = numpy.arange(0, 256.0)
 cutoff = numpy.minimum(sr / 2, 1.5 * sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0))
 # The correct scale for cutoff is the following:
@@ -117,7 +117,7 @@ waveforms.append(('resonance_response', resonance_curve))
 """----------------------------------------------------------------------------
 Lookup tables for comb filter
 -----------------------------------------------------------------------------"""
-sr = 20000000 / 512.0
+sr = 20000000 / 510.0
 cutoff = sr / 2 * 2 ** (-(128 - cv / 2.0) / 12.0)
 
 delays = numpy.round(numpy.minimum(1024, sr / cutoff))
