@@ -79,7 +79,7 @@ uint8_t Storage::num_accessible_banks_;
 
 static const prog_char sysex_rx_header[] PROGMEM = {
   0xf0,  // <SysEx>
-  0x00, 0x20, 0x77,  // TODO(pichenettes): register manufacturer ID.
+  0x00, 0x21, 0x02,  // Mutable Instruments manufacturer ID.
   0x00, 0x02,  // Product ID for Shruthi-1.
   // Then:
   // * Command byte:
@@ -93,6 +93,12 @@ static const prog_char sysex_rx_header[] PROGMEM = {
   // - 0x4n: big dump, n-th 16kb of addressable space
   // * Argument byte:
   // Not used for 0x01-0x22, but used for block numbering for 0x4n.
+};
+
+static const prog_char sysex_rx_header_old[] PROGMEM = {
+  0xf0,  // <SysEx>
+  0x00, 0x20, 0x77,
+  0x00, 0x02,  // Product ID for Shruthi-1.
 };
 
 /* static */
@@ -304,6 +310,23 @@ void Storage::SysExReceive(uint8_t sysex_rx_byte) {
           sysex_rx_byte) {
         sysex_rx_bytes_received_++;
         if (sysex_rx_bytes_received_ >= sizeof(sysex_rx_header)) {
+          sysex_rx_state_ = RECEIVING_COMMAND;
+          sysex_rx_bytes_received_ = 0;
+        }
+      } else if (pgm_read_byte(sysex_rx_header_old + sysex_rx_bytes_received_) == \
+            sysex_rx_byte) {
+        sysex_rx_bytes_received_++;
+        sysex_rx_state_ = RECEIVING_OLD_HEADER;
+      } else {
+        sysex_rx_state_ = RECEIVING_FOOTER;
+      }
+      break;
+
+    case RECEIVING_OLD_HEADER:
+      if (pgm_read_byte(sysex_rx_header_old + sysex_rx_bytes_received_) == \
+          sysex_rx_byte) {
+        sysex_rx_bytes_received_++;
+        if (sysex_rx_bytes_received_ >= sizeof(sysex_rx_header_old)) {
           sysex_rx_state_ = RECEIVING_COMMAND;
           sysex_rx_bytes_received_ = 0;
         }

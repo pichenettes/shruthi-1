@@ -35,11 +35,12 @@ namespace shruthi {
   
 enum SysExReceptionState {
   RECEIVING_HEADER = 0,
-  RECEIVING_COMMAND = 1,
-  RECEIVING_DATA = 2,
-  RECEIVING_FOOTER = 3,
-  RECEPTION_OK = 4,
-  RECEPTION_ERROR = 5,
+  RECEIVING_OLD_HEADER = 1,
+  RECEIVING_COMMAND = 2,
+  RECEIVING_DATA = 3,
+  RECEIVING_FOOTER = 4,
+  RECEPTION_OK = 5,
+  RECEPTION_ERROR = 6,
 };
 
 template<typename T>

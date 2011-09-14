@@ -65,16 +65,23 @@ void WriteBufferToFlash() {
   boot_rww_enable();
 }
 
+static const uint8_t sysex_header_old[] = {
+  0xf0,  // <SysEx>
+  0x00, 0x20, 0x77,
+  0x00, 0x02,  // Product ID for Shruthi-1.
+};
+
 static const uint8_t sysex_header[] = {
   0xf0,  // <SysEx>
-  0x00, 0x20, 0x77,  // TODO(pichenettes): register manufacturer ID.
+  0x00, 0x21, 0x02,  // Manufacturer ID for Mutable instruments.
   0x00, 0x02,  // Product ID for Shruthi-1.
 };
 
 enum SysExReceptionState {
   MATCHING_HEADER = 0,
-  READING_COMMAND = 1,
-  READING_DATA = 2,
+  MATCHING_OLD_HEADER = 1,
+  READING_COMMAND = 2,
+  READING_DATA = 3,
 };
 
 inline void MidiLoop() {
@@ -103,6 +110,21 @@ inline void MidiLoop() {
         if (byte == sysex_header[bytes_read]) {
           ++bytes_read;
           if (bytes_read == sizeof(sysex_header)) {
+            bytes_read = 0;
+            state = READING_COMMAND;
+          }
+        } else if (byte == sysex_header_old[bytes_read]) {
+          ++bytes_read;
+          state = MATCHING_OLD_HEADER;
+        } else {
+          bytes_read = 0;
+        }
+        break;
+        
+      case MATCHING_OLD_HEADER:
+        if (byte == sysex_header_old[bytes_read]) {
+          ++bytes_read;
+          if (bytes_read == sizeof(sysex_header_old)) {
             bytes_read = 0;
             state = READING_COMMAND;
           }
