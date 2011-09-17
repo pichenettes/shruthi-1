@@ -521,13 +521,14 @@ class Oscillator {
     if (id == 2) {
       return;  // Do not duplicate this code for the second oscillator.
     }
-    data_.vw.update++;
-    if (data_.vw.update == kVowelControlRateDecimation) {
-      data_.vw.update = 0;
+    data_.vw.update = (data_.vw.update + 1) & 3;
+    if (!data_.vw.update) {
       uint8_t offset_1 = U8ShiftRight4(parameter_);
-      offset_1 = (offset_1 << 2) + offset_1;  // offset_1 * 5
-      uint8_t offset_2 = offset_1 + 5;
+      offset_1 = U8U8Mul(offset_1, 7);
+      uint8_t offset_2 = offset_1 + 7;
       uint8_t balance = parameter_ & 15;
+      
+      // Interpolate formant frequencies.
       for (uint8_t i = 0; i < 3; ++i) {
         data_.vw.formant_increment[i] = U8U4MixU12(
             ResourcesManager::Lookup<uint8_t, uint8_t>(
@@ -537,20 +538,16 @@ class Oscillator {
             balance);
         data_.vw.formant_increment[i] <<= 3;
       }
-      for (uint8_t i = 0; i < 2; ++i) {
+      
+      // Interpolate formant amplitudes.
+      for (uint8_t i = 0; i < 4; ++i) {
         uint8_t amplitude_a = ResourcesManager::Lookup<uint8_t, uint8_t>(
             wav_res_vowel_data,
             offset_1 + 3 + i);
         uint8_t amplitude_b = ResourcesManager::Lookup<uint8_t, uint8_t>(
             wav_res_vowel_data,
             offset_2 + 3 + i);
-
-        data_.vw.formant_amplitude[2 * i + 1] = U8U4MixU8(
-            amplitude_a & 0x0f,
-            amplitude_b & 0x0f, balance);
-        amplitude_a = U8ShiftRight4(amplitude_a);
-        amplitude_b = U8ShiftRight4(amplitude_b);
-        data_.vw.formant_amplitude[2 * i] = U8U4MixU8(
+        data_.vw.formant_amplitude[i] = U8U4MixU8(
             amplitude_a,
             amplitude_b, balance);
       }
