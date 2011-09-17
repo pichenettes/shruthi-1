@@ -349,6 +349,12 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
       case midi::kHarmonicIntensity:
         patch_.filter_resonance = value >> 1;
         break;
+      case midi::kBrightness + 16:
+        patch_.filter_cutoff_2 = value;
+        break;
+      case midi::kHarmonicIntensity + 16:
+        patch_.filter_resonance_2 = value >> 1;
+        break;
       case midi::kBrightness:
         patch_.filter_cutoff = value;
         break;

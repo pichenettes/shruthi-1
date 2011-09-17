@@ -4,14 +4,20 @@ SYNTHESIS
 
 - Fixed a bug that caused a loudness drop of the vowel oscillator
 - Fixed a bug that caused the filtered noise "oscillator" to output incorrect value when the parameter was set to a high value.
-- The envelopes now have a smoother curve, and slower attack / decay / release time can be achived.
+- The envelopes now have a smoother curve, and slower attack / decay / release time can be achieved.
 - Fixed a timing bug that caused the main oscillators pitch to be off by 8 cents.
 
 CODE
 
 - The z-family oscillators now share common code, saving ~700 bytes of code.
 - Resource table de-duplication saved ~200 bytes of code.
+- The vowel oscillator code has been simplified by ~100 bytes.
 - MIDI input is polled from the 39kHz audio interrupt rather than interrupt-driven. This saves ~80 CPU cycles per byte of MIDI data received, since there is no extra ISR intro/outtro when a MIDI byte is received.
+
+MIDI IMPLEMENTATION
+
+- The Shruthi-1 now uses a proper registered manufacturer ID for SysEx communication. The change is backward compatible: patch dumps made with v0.93 will be readable with v0.94 and onwards, but patch dumps made with v0.94 won't be readable with earlier versions.
+- CC90 and CC87 can be used to control the cutoff frequency and resonance of the secondary filter (dual SVF filter board).
 
 
 v0.93 --------------------------------------------------------------------------
