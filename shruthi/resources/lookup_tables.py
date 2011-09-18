@@ -55,9 +55,14 @@ max_increment = excursion / (min_time * control_rate)
 
 rates = numpy.linspace(numpy.power(max_increment, -gamma),
                        numpy.power(min_increment, -gamma), num_values)
-
+values = numpy.power(rates, -1/gamma).astype(int)
+slow_values = numpy.arange(num_values, 0, -1)
+i = num_values - 1
+while slow_values[i] != values[i]:
+  values[i] = slow_values[i]
+  i -= 1
 lookup_tables.append(
-    ('env_portamento_increments', numpy.power(rates, -1/gamma).astype(int))
+    ('env_portamento_increments', values)
 )
 
 # Create table for pitch.
