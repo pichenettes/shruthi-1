@@ -862,9 +862,17 @@ inline void Voice::UpdateDestinations() {
 
 /* static */
 inline void Voice::RenderOscillators() {
+  int16_t base_pitch = pitch_value_;
+  // -4 / +4 semitones by the vibrato and pitch bend.
+  base_pitch += (dst_[MOD_DST_VCO_1_2_COARSE] - 8192) >> 4;
+  // -1 / +1 semitones by the vibrato and pitch bend.
+  base_pitch += (dst_[MOD_DST_VCO_1_2_FINE] - 8192) >> 7;
+  // -1 / +1 semitones by master tuning.
+  base_pitch += engine.system_settings_.master_tuning;
+  
   // Update the oscillator parameters.
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
-    int16_t pitch = pitch_value_;
+    int16_t pitch = base_pitch;
     // -24 / +24 semitones by the range controller.
     int8_t range = 0;
     if (engine.patch_.osc[i].shape == WAVEFORM_FM) {
@@ -885,12 +893,6 @@ inline void Voice::RenderOscillators() {
     }
     // -16 / +16 semitones by the routed modulations.
     pitch += (dst_[MOD_DST_VCO_1 + i] - 8192) >> 2;
-    // -4 / +4 semitones by the vibrato and pitch bend.
-    pitch += (dst_[MOD_DST_VCO_1_2_COARSE] - 8192) >> 4;
-    // -1 / +1 semitones by the vibrato and pitch bend.
-    pitch += (dst_[MOD_DST_VCO_1_2_FINE] - 8192) >> 7;
-    // -1 / +1 semitones by master tuning.
-    pitch += engine.system_settings_.master_tuning;
 
     while (pitch >= kHighestNote) {
       pitch -= kOctave;
