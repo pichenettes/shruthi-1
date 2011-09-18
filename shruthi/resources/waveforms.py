@@ -125,7 +125,7 @@ else:
 
 
 for zone in range(num_zones):
-  f0 = 440.0 * 2.0 ** ((24 + 16 * zone - 69) / 12.0)
+  f0 = 440.0 * 2.0 ** ((18 + 16 * zone - 69) / 12.0)
   period = SAMPLE_RATE / f0
   m = 2 * numpy.floor(period / 2) + 1.0
   i = numpy.arange(-WAVETABLE_SIZE / 2, WAVETABLE_SIZE / 2) / float(WAVETABLE_SIZE)
