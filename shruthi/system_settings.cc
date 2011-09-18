@@ -26,7 +26,6 @@
 namespace shruthi {
 
 void SystemSettings::EepromSave() const {
-  
   uint8_t* data = (uint8_t *)(this);
   uint8_t checksum = 0;
   uint8_t* destination = (uint8_t*)(0);
