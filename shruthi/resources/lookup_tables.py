@@ -69,7 +69,9 @@ lookup_tables.append(
 a4_midi = 69
 a4_pitch = 440.0
 excursion = 65536.0
-notes = numpy.arange(96 * 128.0, (96 + 12) * 128.0, 2)
+pitch_table_start = 108
+notes = numpy.arange(
+    pitch_table_start * 128.0, (pitch_table_start + 12) * 128.0, 2)
 pitches = a4_pitch * 2 ** ((notes - a4_midi * 128) / (128 * 12))
 increments = excursion / sample_rate * pitches
 

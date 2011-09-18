@@ -52,9 +52,9 @@ namespace shruthi {
 
 // Used for MIDI -> oscillator increment conversion.
 static const int16_t kLowestNote = 0 * 128;
-static const int16_t kHighestNote = 108 * 128;
+static const int16_t kHighestNote = 120 * 128;
 static const int16_t kOctave = 12 * 128;
-static const int16_t kPitchTableStart = 96 * 128;
+static const int16_t kPitchTableStart = 108 * 128;
 
 static const uint8_t kNumLfos = 2;
 static const uint8_t kNumEnvelopes = 2;
