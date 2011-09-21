@@ -29,7 +29,6 @@
 #include "avrlib/op.h"
 
 using namespace avrlib;
-using namespace avrlib;
 
 static const uint8_t kSysExBulkDumpBlockSize = 128;
 
