@@ -4,4 +4,3 @@
 [submodule "tools"]
 	path = tools
 	url = git://github.com/pichenettes/avril-firmware_tools.git
-	url = git://github.com/pichenettes/avril-firmware_tools.git

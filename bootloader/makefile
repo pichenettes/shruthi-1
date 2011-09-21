@@ -15,7 +15,7 @@ VERSION        = 0.01
 MCU_NAME       = 644
 TARGET         = muboot
 PACKAGES       = bootloader
-EXTRA_DEFINES  = -DDISABLE_DEFAULT_UART_RX_ISR -funsigned-char -fno-inline-small-functions
+EXTRA_DEFINES  = -DDISABLE_DEFAULT_UART_RX_ISR -funsigned-char -fno-inline-small-functions -fmove-loop-invariants
 EXTRA_LD_FLAGS = ,--section-start=.text=0xfc00,--relax
 
 LOCK           = 2f
