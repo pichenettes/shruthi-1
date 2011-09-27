@@ -801,13 +801,14 @@ inline void Voice::ProcessModulationMatrix() {
     source_value = modulation_sources_[source];
     if (destination != MOD_DST_VCA) {
       int16_t modulation = dst_[destination];
-      modulation += S8U8Mul(amount, source_value);
       // For those sources, use relative modulation.
       if (source <= MOD_SRC_LFO_2 ||
           source == MOD_SRC_PITCH_BEND ||
           source == MOD_SRC_NOTE ||
           source == MOD_SRC_AUDIO) {
-        modulation -= S8U8Mul(amount, 128);
+        modulation += S8S8Mul(amount, source_value + 128);
+      } else {
+        modulation += S8U8Mul(amount, source_value);
       }
       dst_[destination] = S16ClipU14(modulation);
     } else {
@@ -835,9 +836,8 @@ inline void Voice::UpdateDestinations() {
   cutoff = S16ClipU14(cutoff + S8U8Mul(engine.patch_.filter_env,
       modulation_sources_[MOD_SRC_ENV_1]));
   cutoff = S16ClipU14(cutoff + (unregistered_modulation_sources_[0] << 6));
-  cutoff = S16ClipU14(cutoff + S8U8Mul(engine.patch_.filter_lfo,
-      modulation_sources_[MOD_SRC_LFO_2]) -
-      U8U8Mul(engine.patch_.filter_lfo, 128));
+  cutoff = S16ClipU14(cutoff + S8S8Mul(engine.patch_.filter_lfo,
+      modulation_sources_[MOD_SRC_LFO_2] + 128));
   
   // Store in memory all the updated parameters.
   modulation_destinations_[MOD_DST_FILTER_CUTOFF] = U14ShiftRight6(cutoff);
