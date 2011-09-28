@@ -27,6 +27,7 @@
 #include "shruthi/oscillator.h"
 #include "shruthi/parameter_definitions.h"
 #include "shruthi/storage.h"
+#include "shruthi/sub_oscillator.h"
 #include "shruthi/transient_generator.h"
 #include "avrlib/random.h"
 #include "avrlib/op.h"
@@ -40,8 +41,8 @@ SynthesisEngine engine;
 
 Oscillator<1> osc_1;
 Oscillator<2> osc_2;
-SubOscillator<1> sub_osc;
-TransientGenerator<1> transient_generator;
+SubOscillator sub_osc;
+TransientGenerator transient_generator;
 
 /* <static> */
 uint8_t SynthesisEngine::data_access_byte_[1];
@@ -924,19 +925,13 @@ inline void Voice::RenderOscillators() {
     }
     // phase_increment.fractional = 0;
     if (i == 0) {
+      sub_osc.set_increment(U24ShiftRight(increment));
       osc_1.Render(
           engine.patch_.osc[0].shape,
           midi_note,
           increment,
           sync_state_,
           buffer_);
-      increment = U24ShiftRight(increment);
-      if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
-        sub_osc.Render(
-            engine.patch_.mix_sub_osc_shape,
-            increment,
-            sub_osc_buffer_);
-      }
     } else {
       osc_2.Render(
           engine.patch_.osc[1].shape,
@@ -1016,15 +1011,11 @@ inline void Voice::ProcessBlock() {
   // Mix-in sub oscillator or transient generator.
   uint8_t sub_gain = U15ShiftRight7(dst_[MOD_DST_MIX_SUB_OSC]);
   if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
-    uint8_t mix_gain = ~sub_gain;
-    for (uint8_t i = 0; i < kAudioBlockSize; i += decimate) {
-      buffer_[i] = U8Mix(buffer_[i], sub_osc_buffer_[i], mix_gain, sub_gain);
-    }
+    sub_osc.Render(engine.patch_.mix_sub_osc_shape, buffer_, sub_gain);
   } else {
+    sub_gain <<= 1;
     transient_generator.Render(
-        engine.patch_.mix_sub_osc_shape,
-        buffer_,
-        sub_gain << 1);
+        engine.patch_.mix_sub_osc_shape, buffer_, sub_gain);
   }
   
   // Apply optional bitcrushing.

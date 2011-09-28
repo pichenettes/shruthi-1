@@ -17,10 +17,6 @@
 //
 // Oscillators. Note that the code of each oscillator is duplicated/specialized,
 // for a noticeable performance boost.
-// Another performance optimization consists in rendering the oscillator at
-// a sample rate which is the half of the base sample rate - this is
-// particularly useful for oscillators which do not have a rich frequency
-// content, but which are very computationnally expensive.
 
 #ifndef SHRUTHI_OSCILLATOR_H_
 #define SHRUTHI_OSCILLATOR_H_
@@ -685,50 +681,6 @@ template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
   
   &Osc::RenderInterpolatedWavetable,
 };
-
-template<int id>
-class SubOscillator {
- public:
-  SubOscillator() { }
-
-  // Called whenever the parameters of the oscillator change. Can be used
-  // to pre-compute parameters, set tables, etc.
-  static inline void SetupAlgorithm() {
-  }
-  
-  static inline void Render(
-      uint8_t shape,
-      uint24_t increment,
-      uint8_t* buffer) {
-    if (shape >= 3) {
-      increment = U24ShiftRight(increment);
-      shape -= 3;
-    }
-    uint8_t pulse_width = shape == 0 ? 0x80 : 0x40;
-    uint8_t size = kAudioBlockSize;
-    while (size--) {
-      phase_ = U24Add(phase_, increment);
-      if (shape != 1) {
-        *buffer++ = \
-            static_cast<uint8_t>(phase_.integral >> 8) < pulse_width ? 0 : 255;
-      } else {
-        uint8_t tri = phase_.integral >> 7;
-        *buffer++ = phase_.integral & 0x8000 ? tri : ~tri;
-      }
-    }
-  }
-
- private:
-  // Current phase of the oscillator.
-  static uint24_t phase_;
-
-  DISALLOW_COPY_AND_ASSIGN(SubOscillator);
-};
-
-/* <static> */
-template<int id> uint24_t SubOscillator<id>::phase_;
-
-/* </static> */
 
 }  // namespace shruthi
 

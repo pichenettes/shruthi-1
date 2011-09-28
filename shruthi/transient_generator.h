@@ -30,14 +30,13 @@ namespace shruthi {
 
 typedef uint8_t (*RenderFn)(void);
 
-template<int id>
 class TransientGenerator {
  public:
   TransientGenerator() { }
 
   static inline void Render(uint8_t shape, uint8_t* buffer, uint8_t amount) {
     if (shape < WAVEFORM_SUB_OSC_CLICK)  {
-      return;  // Not my business... handled by the sub oscillator!
+      return;
     }
     if (shape > WAVEFORM_SUB_OSC_POP) {
       shape = WAVEFORM_SUB_OSC_POP;
@@ -100,18 +99,18 @@ class TransientGenerator {
 };
 
 /* <static> */
-template<int id> RenderFn TransientGenerator<id>::fn_table_[] = {
-  &TransientGenerator<id>::RenderClick,
-  &TransientGenerator<id>::RenderGlitch,
-  &TransientGenerator<id>::RenderBlow,
-  &TransientGenerator<id>::RenderMetallic,
-  &TransientGenerator<id>::RenderPop,
+RenderFn TransientGenerator::fn_table_[] = {
+  &TransientGenerator::RenderClick,
+  &TransientGenerator::RenderGlitch,
+  &TransientGenerator::RenderBlow,
+  &TransientGenerator::RenderMetallic,
+  &TransientGenerator::RenderPop,
 };
 
-template<int id> uint8_t TransientGenerator<id>::counter_;
-template<int id> uint8_t TransientGenerator<id>::rng_state_;
-template<int id> uint8_t TransientGenerator<id>::decimate_;
-template<int id> uint8_t TransientGenerator<id>::gain_;
+uint8_t TransientGenerator::counter_;
+uint8_t TransientGenerator::rng_state_;
+uint8_t TransientGenerator::decimate_;
+uint8_t TransientGenerator::gain_;
 /* </static> */
 
 }  // namespace shruthi
