@@ -624,7 +624,6 @@ uint8_t Voice::last_note_;
 int16_t Voice::dst_[kNumModulationDestinations];
 uint8_t Voice::buffer_[kAudioBlockSize];
 uint8_t Voice::osc2_buffer_[kAudioBlockSize];
-uint8_t Voice::sub_osc_buffer_[kAudioBlockSize];
 uint8_t Voice::sync_state_[kAudioBlockSize];
 uint8_t Voice::no_sync_[kAudioBlockSize];
 /* </static> */
@@ -724,8 +723,8 @@ inline void Voice::LoadSources() {
   
   // Rescale the value of each modulation sources. Envelopes are in the
   // 0-16383 range ; just like pitch. All are scaled to 0-255.
-  modulation_sources_[MOD_SRC_ENV_1] = envelope_[0].value() >> 8;
-  modulation_sources_[MOD_SRC_ENV_2] = envelope_[1].value() >> 8;
+  modulation_sources_[MOD_SRC_ENV_1] = envelope_[0].Render();
+  modulation_sources_[MOD_SRC_ENV_2] = envelope_[1].Render();
   modulation_sources_[MOD_SRC_NOTE] = U14ShiftRight6(pitch_value_);
   modulation_sources_[MOD_SRC_GATE] = envelope_[0].stage() >= RELEASE ? 0 : 255;
   modulation_sources_[MOD_SRC_AUDIO] = buffer_[0];
@@ -945,10 +944,6 @@ inline void Voice::RenderOscillators() {
 
 /* static */
 inline void Voice::ProcessBlock() {
-  // Update the envelopes.
-  envelope_[0].Render();
-  envelope_[1].Render();
-  
   LoadSources();
   ProcessModulationMatrix();
   UpdateDestinations();
