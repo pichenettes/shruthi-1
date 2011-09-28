@@ -850,7 +850,9 @@ inline void Voice::UpdateDestinations() {
   modulation_destinations_[MOD_DST_LFO_2] = S16ShiftRight8(dst_[MOD_DST_LFO_2]);
   
   osc_1.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_1]));
+  osc_1.set_secondary_parameter(engine.patch_.osc[0].range + 24);
   osc_2.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_2]));
+  osc_2.set_secondary_parameter(engine.patch_.osc[1].range + 24);
   
   uint8_t attack_mod = U15ShiftRight7(dst_[MOD_DST_ATTACK]);
   for (int i = 0; i < kNumEnvelopes; ++i) {
@@ -862,7 +864,14 @@ inline void Voice::UpdateDestinations() {
 
 /* static */
 inline void Voice::RenderOscillators() {
-  int16_t base_pitch = pitch_value_;
+  // Apply portamento.
+  int16_t base_pitch = pitch_value_ + pitch_increment_;
+  if ((pitch_increment_ > 0) ^ (base_pitch < pitch_target_)) {
+    base_pitch = pitch_target_;
+    pitch_increment_ = 0;
+  }
+  pitch_value_ = base_pitch;
+
   // -4 / +4 semitones by the vibrato and pitch bend.
   base_pitch += (dst_[MOD_DST_VCO_1_2_COARSE] - 8192) >> 4;
   // -1 / +1 semitones by the vibrato and pitch bend.
@@ -875,13 +884,7 @@ inline void Voice::RenderOscillators() {
     int16_t pitch = base_pitch;
     // -24 / +24 semitones by the range controller.
     int8_t range = 0;
-    if (engine.patch_.osc[i].shape == WAVEFORM_FM) {
-      if (i == 0) {
-        osc_1.set_secondary_parameter(engine.patch_.osc[i].range + 24);
-      } else {
-        osc_2.set_secondary_parameter(engine.patch_.osc[i].range + 24);
-      }
-    } else {
+    if (engine.patch_.osc[i].shape != WAVEFORM_FM) {
       range += engine.patch_.osc[i].range;
     }
     range += engine.system_settings_.octave * 12;
@@ -948,17 +951,9 @@ inline void Voice::RenderOscillators() {
 /* static */
 inline void Voice::ProcessBlock() {
   // Update the envelopes.
-  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    envelope_[i].Render();
-  }
+  envelope_[0].Render();
+  envelope_[1].Render();
   
-  // Update the portamento envelope.
-  pitch_value_ += pitch_increment_;
-  if ((pitch_increment_ > 0) ^ (pitch_value_ < pitch_target_)) {
-    pitch_value_ = pitch_target_;
-    pitch_increment_ = 0;
-  }
-
   LoadSources();
   ProcessModulationMatrix();
   UpdateDestinations();
