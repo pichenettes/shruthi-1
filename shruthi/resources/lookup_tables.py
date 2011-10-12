@@ -46,17 +46,18 @@ lookup_tables.append(
 
 
 # Create lookup table for envelope times (x^0.25).
-max_time = 10.0  # seconds
-min_time = 1.0 / control_rate  # seconds
+max_time = 12.0  # seconds
+min_time = 6.0 / control_rate  # seconds
 excursion = 65535.0
-gamma = 0.2
+gamma = 0.15
 min_increment = excursion / (max_time * control_rate)
 max_increment = excursion / (min_time * control_rate)
 
 rates = numpy.linspace(numpy.power(max_increment, -gamma),
                        numpy.power(min_increment, -gamma), num_values)
+
 values = numpy.power(rates, -1/gamma).astype(int)
-slow_values = numpy.arange(num_values, 0, -1)
+slow_values = numpy.arange(num_values + 2, 2, -1) / 2
 i = num_values - 1
 while slow_values[i] != values[i]:
   values[i] = slow_values[i]
