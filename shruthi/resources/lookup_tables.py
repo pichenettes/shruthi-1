@@ -62,6 +62,7 @@ i = num_values - 1
 while slow_values[i] != values[i]:
   values[i] = slow_values[i]
   i -= 1
+values[0] = 65535
 lookup_tables.append(
     ('env_portamento_increments', values)
 )
@@ -417,3 +418,4 @@ lookup_tables.extend([
     ('groove_monkey', ConvertGrooveTemplate(
       [0.5, -0.6, 0.6, -0.8, 0.6, -0.7, 0.8, -0.7,
        0.4, -0.5, 0.9, -0.6, 0.9, -0.8, 0.6, -0.6]))])
+ 
