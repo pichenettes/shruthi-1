@@ -40,7 +40,7 @@ void SequencerSettings::PrepareForWrite() {
 }
 
 void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
-  buffer[1] = 0x7c;
+  buffer[1] = ':';
   UnsafeItoa<int16_t>(step, 2, buffer + 2);
   AlignRight(buffer + 2, 2);
   if (buffer[2] == ' ') {
@@ -52,7 +52,7 @@ void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
     ++octave;
     note -= 12;
   }
-  buffer[4] = 0x7c;
+  buffer[4] = ':';
   buffer[5] = ResourcesManager::Lookup<char, uint8_t>(note_names, note << 1);
   buffer[6] = ResourcesManager::Lookup<char, uint8_t>(note_names,
                                                       1 + (note << 1));
@@ -62,7 +62,7 @@ void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
     buffer[11] = NibbleToAscii(steps[step].velocity() >> 4);
   }
   buffer[13] = NibbleToAscii(steps[step].controller()),
-  buffer[15] = 0x7c;
+  buffer[15] = ':';
 }
 
 }  // shruthi

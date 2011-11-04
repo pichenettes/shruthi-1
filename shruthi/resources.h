@@ -128,8 +128,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_DETUNE 8  // detune
 #define STR_RES_OSC_MIX 9  // osc mix
 #define STR_RES_SUB_OSC_ 10  // sub osc.
-#define STR_RES_ENV1TVCF 11  // env1~vcf
-#define STR_RES_LFO2TVCF 12  // lfo2~vcf
+#define STR_RES_ENV1GVCF 11  // env1>vcf
+#define STR_RES_LFO2GVCF 12  // lfo2>vcf
 #define STR_RES_ATTACK 13  // attack
 #define STR_RES_ATK 14  // atk
 #define STR_RES_DECAY 15  // decay
@@ -361,10 +361,10 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_FREE 241  // free
 #define STR_RES_SLAVE 242  // slave
 #define STR_RES_MASTER 243  // master
-#define STR_RES_T 244  // ~
-#define STR_RES__ 245  // 
-#define STR_RES_T_ 246  // ~-
-#define STR_RES__T_ 247  // ~
+#define STR_RES_G 244  // >
+#define STR_RES_L 245  // <
+#define STR_RES_LG 246  // <->
+#define STR_RES__LG 247  // <>
 #define STR_RES_GLASS 248  // glass
 #define STR_RES_KRAMA 249  // krama
 #define STR_RES_JATA 250  // jata
@@ -392,14 +392,14 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_CTRL 272  // ctrl
 #define STR_RES__SPLIT 273  // split
 #define STR_RES_FULL 274  // full
-#define STR_RES_1TV 275  // 1~|
-#define STR_RES_2T1 276  // 2~1
-#define STR_RES_3T2 277  // 3~2
-#define STR_RES_4T3 278  // 4~3
-#define STR_RES_5T4 279  // 5~4
-#define STR_RES_6T5 280  // 6~5
-#define STR_RES_7T6 281  // 7~6
-#define STR_RES_8T7 282  // 8~7
+#define STR_RES_1G 275  // 1>:
+#define STR_RES_2G1 276  // 2>1
+#define STR_RES_3G2 277  // 3>2
+#define STR_RES_4G3 278  // 4>3
+#define STR_RES_5G4 279  // 5>4
+#define STR_RES_6G5 280  // 6>5
+#define STR_RES_7G6 281  // 7>6
+#define STR_RES_8G7 282  // 8>7
 #define STR_RES_TRI 283  // tri
 #define STR_RES_SQR 284  // sqr
 #define STR_RES_S_H 285  // s&h
@@ -408,7 +408,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_3 288  // 
 #define STR_RES_4 289  // 
 #define STR_RES_34 290  // 
-#define STR_RES___ 291  // ?
+#define STR_RES__ 291  // ?
 #define STR_RES_OFF 292  // off
 #define STR_RES_ON 293  // on
 #define STR_RES_SQ1 294  // sq1

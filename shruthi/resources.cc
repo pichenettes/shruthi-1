@@ -36,8 +36,8 @@ static const prog_char str_res_operator[] PROGMEM = "operator";
 static const prog_char str_res_detune[] PROGMEM = "detune";
 static const prog_char str_res_osc_mix[] PROGMEM = "osc mix";
 static const prog_char str_res_sub_osc_[] PROGMEM = "sub osc.";
-static const prog_char str_res_env1Tvcf[] PROGMEM = "env1~vcf";
-static const prog_char str_res_lfo2Tvcf[] PROGMEM = "lfo2~vcf";
+static const prog_char str_res_env1gvcf[] PROGMEM = "env1>vcf";
+static const prog_char str_res_lfo2gvcf[] PROGMEM = "lfo2>vcf";
 static const prog_char str_res_attack[] PROGMEM = "attack";
 static const prog_char str_res_atk[] PROGMEM = "atk";
 static const prog_char str_res_decay[] PROGMEM = "decay";
@@ -251,10 +251,10 @@ static const prog_char str_res_impro[] PROGMEM = "impro";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
-static const prog_char str_res_T[] PROGMEM = "~";
-static const prog_char str_res__[] PROGMEM = "";
-static const prog_char str_res_T_[] PROGMEM = "~-";
-static const prog_char str_res__T_[] PROGMEM = "~";
+static const prog_char str_res_g[] PROGMEM = ">";
+static const prog_char str_res_l[] PROGMEM = "<";
+static const prog_char str_res_lg[] PROGMEM = "<->";
+static const prog_char str_res__lg[] PROGMEM = "<>";
 static const prog_char str_res_glass[] PROGMEM = "glass";
 static const prog_char str_res_krama[] PROGMEM = "krama";
 static const prog_char str_res_jata[] PROGMEM = "jata";
@@ -279,14 +279,14 @@ static const prog_char str_res_monkey[] PROGMEM = "monkey";
 static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
 static const prog_char str_res_full[] PROGMEM = "full";
-static const prog_char str_res_1Tv[] PROGMEM = "1~|";
-static const prog_char str_res_2T1[] PROGMEM = "2~1";
-static const prog_char str_res_3T2[] PROGMEM = "3~2";
-static const prog_char str_res_4T3[] PROGMEM = "4~3";
-static const prog_char str_res_5T4[] PROGMEM = "5~4";
-static const prog_char str_res_6T5[] PROGMEM = "6~5";
-static const prog_char str_res_7T6[] PROGMEM = "7~6";
-static const prog_char str_res_8T7[] PROGMEM = "8~7";
+static const prog_char str_res_1g[] PROGMEM = "1>:";
+static const prog_char str_res_2g1[] PROGMEM = "2>1";
+static const prog_char str_res_3g2[] PROGMEM = "3>2";
+static const prog_char str_res_4g3[] PROGMEM = "4>3";
+static const prog_char str_res_5g4[] PROGMEM = "5>4";
+static const prog_char str_res_6g5[] PROGMEM = "6>5";
+static const prog_char str_res_7g6[] PROGMEM = "7>6";
+static const prog_char str_res_8g7[] PROGMEM = "8>7";
 static const prog_char str_res_tri[] PROGMEM = "tri";
 static const prog_char str_res_sqr[] PROGMEM = "sqr";
 static const prog_char str_res_s_h[] PROGMEM = "s&h";
@@ -295,7 +295,7 @@ static const prog_char str_res_step[] PROGMEM = "step";
 static const prog_char str_res_3[] PROGMEM = "";
 static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
-static const prog_char str_res___[] PROGMEM = "?";
+static const prog_char str_res__[] PROGMEM = "?";
 static const prog_char str_res_on[] PROGMEM = "on";
 static const prog_char str_res_tr1[] PROGMEM = "tr1";
 static const prog_char str_res_pl1[] PROGMEM = "pl1";
@@ -393,8 +393,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_detune,
   str_res_osc_mix,
   str_res_sub_osc_,
-  str_res_env1Tvcf,
-  str_res_lfo2Tvcf,
+  str_res_env1gvcf,
+  str_res_lfo2gvcf,
   str_res_attack,
   str_res_atk,
   str_res_decay,
@@ -626,10 +626,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res_free,
   str_res_slave,
   str_res_master,
-  str_res_T,
-  str_res__,
-  str_res_T_,
-  str_res__T_,
+  str_res_g,
+  str_res_l,
+  str_res_lg,
+  str_res__lg,
   str_res_glass,
   str_res_krama,
   str_res_jata,
@@ -657,14 +657,14 @@ PROGMEM const prog_char* string_table[] = {
   str_res_ctrl,
   str_res_split,
   str_res_full,
-  str_res_1Tv,
-  str_res_2T1,
-  str_res_3T2,
-  str_res_4T3,
-  str_res_5T4,
-  str_res_6T5,
-  str_res_7T6,
-  str_res_8T7,
+  str_res_1g,
+  str_res_2g1,
+  str_res_3g2,
+  str_res_4g3,
+  str_res_5g4,
+  str_res_6g5,
+  str_res_7g6,
+  str_res_8g7,
   str_res_tri,
   str_res_sqr,
   str_res_s_h,
@@ -673,7 +673,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_3,
   str_res_4,
   str_res_34,
-  str_res___,
+  str_res__,
   str_res___off,
   str_res_on,
   str_res__sq1,

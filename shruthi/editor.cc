@@ -59,7 +59,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   0,              // UNIT_TEMPO_WITH_EXTERNAL_CLOCK
   STR_RES__OFF,   // UNIT_MIDI_MODE
   STR_RES_STP,    // UNIT_SEQUENCER_MODE
-  STR_RES_T,      // UNIT_SEQUENCER_WARP
+  STR_RES_G,      // UNIT_SEQUENCER_WARP
   STR_RES_SWING,  // UNIT_GROOVE_TEMPLATE
   0,              // UNIT_ARPEGGIO_PATTERN
   STR_RES_FREE,   // UNIT_LFO_RETRIGGER_MODE
@@ -795,7 +795,7 @@ void Editor::DisplayStepSequencerPage() {
         seq.steps[(i + seq.pattern_rotation) & 0x0f].controller());
   }
   if (seq.pattern_size != kLcdWidth) {
-    line_buffer_[seq.pattern_size] = '|';
+    line_buffer_[seq.pattern_size] = ':';
   }
   display.Print(1, line_buffer_);
   ShowEditCursor();
@@ -882,12 +882,12 @@ void Editor::DisplayTrackerPage() {
   } else {
     // This is an invisible character. It is just there to prevent the status
     // indicator to be printed on the last column instead of the first.
-    line_buffer_[kLcdWidth - 1] = 0xfe;
+    line_buffer_[kLcdWidth - 1] = 0x80;
   }
   display.Print(0, line_buffer_);
 
   engine.sequencer_settings().PrintStep(cursor_, line_buffer_);
-  line_buffer_[0] = 0x7e;
+  line_buffer_[0] = '>';
   display.Print(1, line_buffer_);
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     display.set_cursor_position(0xff);
@@ -961,7 +961,7 @@ void Editor::DisplayPageRPage() {
     line_buffer_[i] = engine.mutable_sequencer_settings()->steps[i].character();
   }
   if (engine.sequencer_settings().pattern_size != kLcdWidth) {
-    line_buffer_[engine.sequencer_settings().pattern_size] = '|';
+    line_buffer_[engine.sequencer_settings().pattern_size] = ':';
   }
   display.Print(0, line_buffer_);
 
@@ -972,7 +972,7 @@ void Editor::DisplayPageRPage() {
     }
   }
   if (engine.sequencer_settings().pattern_size != kLcdWidth) {
-    line_buffer_[engine.sequencer_settings().pattern_size] = '|';
+    line_buffer_[engine.sequencer_settings().pattern_size] = ':';
   }
   display.Print(1, line_buffer_);
   ShowEditCursor();

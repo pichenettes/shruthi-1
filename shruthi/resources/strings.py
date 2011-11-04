@@ -31,8 +31,8 @@ operator
 detune
 osc mix
 sub osc.
-env1~vcf
-lfo2~vcf
+env1>vcf
+lfo2>vcf
 attack
 atk
 decay
@@ -278,10 +278,10 @@ free
 slave
 master
 
-\x7e
-\x7f
-\x7e-\x7f
-\x7e\x7f
+>
+<
+<->
+<>
 glass
 krama
 jata
@@ -311,14 +311,14 @@ seq
 ctrl
 split
 full
-1~|
-2~1
-3~2
-4~3
-5~4
-6~5
-7~6
-8~7
+1>:
+2>1
+3>2
+4>3
+5>4
+6>5
+7>6
+8>7
 
 tri
 sqr
