@@ -121,6 +121,9 @@ void UpdateLedsTask() {
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_SVF) {
     leds.ShiftOutByte(engine.filter_routing_byte());
   }
+  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
+    leds.ShiftOutByte(engine.pvk_routing_byte());
+  }
   leds.ShiftOut();
   leds.End();
 }

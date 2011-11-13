@@ -54,6 +54,8 @@ static const prog_char str_res_dst[] PROGMEM = "dst";
 static const prog_char str_res_amount[] PROGMEM = "amount";
 static const prog_char str_res_amt[] PROGMEM = "amt";
 static const prog_char str_res_mode[] PROGMEM = "mode";
+static const prog_char str_res_overdrive[] PROGMEM = "overdrive";
+static const prog_char str_res__fm[] PROGMEM = "fm";
 static const prog_char str_res_tempo[] PROGMEM = "tempo";
 static const prog_char str_res_bpm[] PROGMEM = "bpm";
 static const prog_char str_res_groove[] PROGMEM = "groove";
@@ -230,7 +232,7 @@ static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v0_94[] PROGMEM = "mutable    v0.94";
+static const prog_char str_res_mutable____v0_95[] PROGMEM = "mutable    v0.95";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_x2_ext[] PROGMEM = "x2 ext";
@@ -316,7 +318,6 @@ static const prog_char str_res_ztri[] PROGMEM = "ztri";
 static const prog_char str_res_zpulse[] PROGMEM = "zpulse";
 static const prog_char str_res_zsync[] PROGMEM = "zsync";
 static const prog_char str_res_pad[] PROGMEM = "pad";
-static const prog_char str_res_fm[] PROGMEM = "fm";
 static const prog_char str_res_waves[] PROGMEM = "waves";
 static const prog_char str_res_tampur[] PROGMEM = "tampur";
 static const prog_char str_res_digitl[] PROGMEM = "digitl";
@@ -343,6 +344,7 @@ static const prog_char str_res_vibes[] PROGMEM = "vibes";
 static const prog_char str_res_ssm[] PROGMEM = "ssm";
 static const prog_char str_res_svf[] PROGMEM = "svf";
 static const prog_char str_res_dsp[] PROGMEM = "dsp";
+static const prog_char str_res_pvk[] PROGMEM = "pvk";
 static const prog_char str_res_4cv_in[] PROGMEM = "4cv in";
 static const prog_char str_res_prgm[] PROGMEM = "prgm";
 static const prog_char str_res_pedals[] PROGMEM = "pedals";
@@ -411,6 +413,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_amount,
   str_res_amt,
   str_res_mode,
+  str_res_overdrive,
+  str_res__fm,
   str_res_tempo,
   str_res_bpm,
   str_res_groove,
@@ -602,7 +606,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_compare,
   str_res_,
   str_res_v,
-  str_res_mutable____v0_94,
+  str_res_mutable____v0_95,
   str_res_instruments_671,
   str_res_extern,
   str_res_x2_ext,
@@ -697,7 +701,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_zpulse,
   str_res_zsync,
   str_res_pad,
-  str_res_fm,
+  str_res__fm,
   str_res_waves,
   str_res_tampur,
   str_res_digitl,
@@ -726,6 +730,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_ssm,
   str_res_svf,
   str_res_dsp,
+  str_res_pvk,
   str_res_4cv_in,
   str_res_prgm,
   str_res_pedals,

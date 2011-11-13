@@ -1,3 +1,15 @@
+v0.95 --------------------------------------------------------------------------
+
+SYNTHESIS
+
+- A menu has been added to configure the routing of the Polivoks filter board.
+
+
+UI
+
+- Fixed a bug occurring when scrolling backwards from the second filter page.
+
+
 v0.94 --------------------------------------------------------------------------
 
 SYNTHESIS

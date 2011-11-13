@@ -49,6 +49,8 @@ dst
 amount
 amt
 mode
+overdrive
+ fm
 tempo
 bpm
 groove
@@ -249,7 +251,7 @@ compare
 ----
 
 v
-mutable    v0.94
+mutable    v0.95
 instruments \x06\x07-1
 
 extern
@@ -385,6 +387,7 @@ vibes
 ssm
 svf
 dsp
+pvk
 
 4cv in
 prgm
