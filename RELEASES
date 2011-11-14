@@ -3,6 +3,7 @@ v0.95 --------------------------------------------------------------------------
 SYNTHESIS
 
 - A menu has been added to configure the routing of the Polivoks filter board.
+- MIDI notes in the 120-128 range are no longer wrapped to 108-116.
 
 
 UI

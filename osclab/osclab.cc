@@ -57,7 +57,7 @@ void UpdateDisplay() {
   display.Tick();
 }
 
-static uint8_t settings[4] = { 60, 0, 0, 1 };
+static uint8_t settings[4] = { 60, 0, 0, 2 };
 static char line_buffer[17];
 
 void ProcessInput() {
@@ -66,7 +66,6 @@ void ProcessInput() {
   static int8_t delta;
   static uint8_t previous_page;
   
-  analog_inputs.set_num_inputs(4);
   analog_inputs.Scan();
   pot_event = pots.Read();
   if (pot_event.event != EVENT_NONE) {
@@ -92,9 +91,9 @@ void ProcessInput() {
 static uint8_t audio_buffer[kAudioBlockSize];
 static uint8_t sync_state[kAudioBlockSize];
 static const int16_t kLowestNote = 0 * 128;
-static const int16_t kHighestNote = 120 * 128;
+static const int16_t kHighestNote = 128 * 128;
 static const int16_t kOctave = 12 * 128;
-static const int16_t kPitchTableStart = 108 * 128;
+static const int16_t kPitchTableStart = 116 * 128;
 static Oscillator<1> osc;
 
 void RenderAudio() {
