@@ -47,6 +47,8 @@ static inline uint8_t ReadSample(
 
 extern uint8_t user_wavetable[];
 
+#define S16S16MulScale14(x, y) ((int16_t)((int32_t)(x) * y) >> 14)
+
 #ifdef USE_OPTIMIZED_OP
 
 static inline uint8_t InterpolateSampleRam(
@@ -99,9 +101,21 @@ static inline uint8_t InterpolateTwoTables(
       gain_a, gain_b);
 }
 
-static const uint8_t kVowelControlRateDecimation = 4;
 static const uint8_t kNumZonesFullSampleRate = 6;
 static const uint8_t kNumZonesHalfSampleRate = 5;
+static const uint8_t kNumBleps = 2;
+
+struct Blep {
+  uint16_t phase;
+  int16_t scale;
+  uint8_t active;
+};
+
+struct BlepOscillator {
+  uint8_t lru_blep;
+  uint8_t up;
+  Blep blep_pool[kNumBleps];
+};
 
 struct VowelSynthesizerState {
   uint16_t formant_increment[3];
@@ -130,9 +144,22 @@ union OscillatorState {
   QuadSawPadState qs;
   CrushedSineState cr;
   uint16_t secondary_phase;
+  BlepOscillator bl;
 };
 
 typedef void (*OscRenderFn)(uint8_t* buffer);
+
+
+#define ACUMULATE_BLEP(index) \
+if (state_.bl.blep_pool[index].active) { \
+  int16_t value = ResourcesManager::Lookup<uint16_t, int16_t>( \
+      lut_res_blep, state_.bl.blep_pool[index].phase); \
+  output += S16S16MulScale14(value, state_.bl.blep_pool[index].scale); \
+  state_.bl.blep_pool[index].phase += 256; \
+  if (state_.bl.blep_pool[index].phase > LUT_RES_BLEP_SIZE) { \
+    state_.bl.blep_pool[index].active = 0; \
+  } \
+}
 
 template<int id>
 class Oscillator {
@@ -149,19 +176,9 @@ class Oscillator {
     note_ = note;
     phase_increment_ = increment;
     sync_state_ = sync_state;
-    // A hack: when pulse width is set to 0, use a simple wavetable.
-    if (shape_ == WAVEFORM_SQUARE) {
-      uint8_t shape = shape_;
-      if (parameter_ == 0) {
-        RenderSimpleWavetable(buffer);
-      } else {
-        RenderBandlimitedPwm(buffer);
-      }
-    } else {
-      OscRenderFn fn = fn_table_[
-          shape > WAVEFORM_VOWEL ? WAVEFORM_WAVETABLE_1 : shape];
-      (*fn)(buffer);
-    }
+    OscRenderFn fn = fn_table_[
+        shape > WAVEFORM_VOWEL ? WAVEFORM_WAVETABLE_1 : shape];
+    (*fn)(buffer);
   }
   
   static inline void set_parameter(uint8_t parameter) {
@@ -190,7 +207,7 @@ class Oscillator {
   static uint8_t note_;
 
   // Union of state data used by each algorithm.
-  static OscillatorState data_;
+  static OscillatorState state_;
 
   // A pointer to the render function.
   static OscRenderFn fn_table_[];
@@ -225,99 +242,91 @@ class Oscillator {
       *buffer++ = 128;
     }
   }
-
-  // ------- Band-limited PWM --------------------------------------------------
-  static void RenderBandlimitedPwm(uint8_t* buffer) {
-    uint8_t balance_index = U8Swap4(note_ - 12);
-    uint8_t gain_2 = balance_index & 0xf0;
-    uint8_t gain_1 = ~gain_2;
-
-    uint8_t wave_index = balance_index & 0xf;
-    const prog_uint8_t* wave_1 = waveform_table[
-        WAV_RES_BANDLIMITED_SAW_1 + wave_index];
-    wave_index = U8AddClip(wave_index, 1, kNumZonesHalfSampleRate);
-    const prog_uint8_t* wave_2 = waveform_table[
-        WAV_RES_BANDLIMITED_SAW_1 + wave_index];
+  
+  // ------- BLEP oscillators --------------------------------------------------
+  static inline void AddBlep(uint24_t phase_residue, int16_t scale) __attribute__((always_inline)) {
+    // The code that follows computes phase_residue / phase_increment * 256.
+    // It works by:
+    // - Shifting phase_residue and phase_residue until they are in the 
+    //   [0-255] range (using the property a / b ~= (a >> 1) / (b >> 1))
+    // - Using a lookup table for computing the reciprocal of phase_increment
+    //   and multiplying it by phase_residue to compute the division.
+    uint16_t a, b;
+    if (static_cast<uint8_t>(phase_increment_.integral >> 8) & 0xff) {
+      a = phase_residue.integral;
+      b = phase_increment_.integral;
+    } else {
+      a = (phase_residue.integral << 8) | phase_residue.fractional;
+      b = (phase_increment_.integral << 8) | phase_increment_.fractional;
+    }
+    while (static_cast<uint8_t>(b >> 8)) {
+      b >>= 1;
+      a >>= 1;
+    }
     
-    uint16_t shift = static_cast<uint16_t>(parameter_ + 128) << 8;
-    // For higher pitched notes, simply use 128
-    uint8_t scale = 192 - (parameter_ >> 1);
-    if (note_ > 64) {
-      scale = U8Mix(scale, 102, (note_ - 64) << 2);
-      scale = U8Mix(scale, 102, (note_ - 64) << 2);
+    // At this stage, b < 256. There are situations where a > b -- this happens
+    // for example when PWM is modulated and there is suddenly a large
+    // difference between the phase counter and the pulse width comparator
+    // position.
+    uint16_t blep_phase = 0;
+    while (a > b) {
+      blep_phase += 256;
+      a -= b;
     }
-    uint8_t size = kAudioBlockSize;
-    while (size) {
-      UpdatePhase();
-      UpdatePhase();
-      uint8_t a = InterpolateTwoTables(
-          wave_1, wave_2,
-          phase_.integral, gain_1, gain_2);
-      
-      a = U8U8MulShift8(a, scale);
-      // This was used in the previous version, doesn't sound much worse
-      // and could save 100 bytes. Using the crossfaded version for sake of
-      // correctness.
-      // uint8_t b = InterpolateSample(wave_1, phase_.integral + shift);
-      uint8_t b = InterpolateTwoTables(
-          wave_1, wave_2,
-          phase_.integral + shift, gain_1, gain_2);
-      b = U8U8MulShift8(b, scale);
-      a = a - b + 128;
-      *buffer++ = a;
-      *buffer++ = a;
-      size -= 2;
-    }
-  }
-
-  // ------- Interpolation between two waveforms from two wavetables -----------
-  // The position is determined by the note pitch, to prevent aliasing.
-
-  static void RenderSimpleWavetable(uint8_t* buffer) {
-    uint8_t balance_index = U8Swap4(note_ - 12);
-    uint8_t gain_2 = balance_index & 0xf0;
-    uint8_t gain_1 = ~gain_2;
-
-    uint8_t wave_index = balance_index & 0xf;
-    uint8_t base_resource_id = shape_ == WAVEFORM_SAW ?
-        WAV_RES_BANDLIMITED_SAW_0 :
-        (shape_ == WAVEFORM_SQUARE ? WAV_RES_BANDLIMITED_SQUARE_0  : 
-        WAV_RES_BANDLIMITED_TRIANGLE_0);
-
-    const prog_uint8_t* wave_1 = waveform_table[base_resource_id + wave_index];
-    wave_index = U8AddClip(wave_index, 1, kNumZonesFullSampleRate);
-    const prog_uint8_t* wave_2 = waveform_table[base_resource_id + wave_index];
-    
-    uint8_t size = kAudioBlockSize;
-    while (size--) {
-      UpdatePhase();
-      uint8_t sample = InterpolateTwoTables(
-          wave_1, wave_2,
-          phase_.integral, gain_1, gain_2);
-      // To produce pulse width-modulated variants, we shift (saw) or set to
-      // a constant (triangle) a portion of the waveform within an increasingly
-      // large fraction of the period. Note that this is pure waveshapping - the
-      // phase information is not used to determine when/where to shift.
-      //
-      //     /|            /|          /\             /\
-      //    / |           / |         /  \           /  \
-      //   /  |    =>  /|/  |        /    \  =>  ___/    \
-      //  /   |       /     |/      /      \
-      // /    |/                   /        \
-      //
-      if (sample < parameter_) {
-        if (shape_ == WAVEFORM_SAW) {
-          // Add a discontinuity.
-          sample += parameter_ >> 1;
-        } else {
-          // Clip.
-          sample = parameter_;
-        }
-      }
-      *buffer++ = sample;
-    }
+    blep_phase += U16U8MulShift8(
+        ResourcesManager::Lookup<uint8_t, uint8_t>(lut_res_reciprocal, b), a);
+    state_.bl.lru_blep = (state_.bl.lru_blep + 1) % kNumBleps;
+    Blep& blep = state_.bl.blep_pool[state_.bl.lru_blep];
+    blep.phase = blep_phase;
+    blep.scale = scale;
+    blep.active = 1;
   }
   
+  static void RenderBandlimitedPwm(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
+    uint8_t pw = parameter_ + 128;
+    while (size--) {
+      UpdatePhase();
+      if (static_cast<uint8_t>(phase_.integral >> 8) >= pw) {
+        if (state_.bl.up) {
+          uint24_t offset;
+          offset.integral = pw << 8;
+          offset.fractional = 0;
+          AddBlep(U24Sub(phase_, offset), 32767);
+          state_.bl.up = 0;
+        }
+      }
+      if (phase_.integral < phase_increment_.integral) {
+        // Add a blep from down to up when there is a phase wrap-around that
+        // is not triggered by sync.
+        if (!state_.bl.up) {
+          AddBlep(phase_, 32767);
+          state_.bl.up = 1;
+        }
+      }
+      int16_t output = state_.bl.up ? 16383 : -16384;
+      ACUMULATE_BLEP(0)
+      ACUMULATE_BLEP(1)
+      *buffer++ = (output >> 8) + 128;
+    }
+  }
+
+  static void RenderBandlimitedSaw(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
+    while (size--) {
+      uint16_t previous_position = phase_.integral >> 1;
+      UpdatePhase();
+      if (phase_.integral < phase_increment_.integral) {
+        // Oscillator reset triggered by sync or overflow.
+        AddBlep(phase_, previous_position);
+      }
+      int16_t output = (phase_.integral >> 1) - 16384;
+      ACUMULATE_BLEP(0)
+      ACUMULATE_BLEP(1)
+      *buffer++ = (output >> 8) + 128;
+    }
+  }
+
   // ------- Interpolation between two waveforms from two wavetables -----------
   static void RenderInterpolatedWavetable(uint8_t* buffer) {
     uint8_t index = shape_ >= WAVEFORM_WAVETABLE_9 ? 
@@ -405,10 +414,10 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        data_.secondary_phase = 32768;
+        state_.secondary_phase = 32768;
       }
-      data_.secondary_phase += increment;
-      uint8_t result = ReadSample(wav_res_sine, data_.secondary_phase);
+      state_.secondary_phase += increment;
+      uint8_t result = ReadSample(wav_res_sine, state_.secondary_phase);
       result >>= 1;
       result += 128;   
       if (phase_.integral < 0x4000) {
@@ -427,10 +436,10 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        data_.secondary_phase = 0;
+        state_.secondary_phase = 0;
       }
-      data_.secondary_phase += increment;
-      uint8_t carrier = InterpolateSample(wav_res_sine, data_.secondary_phase);
+      state_.secondary_phase += increment;
+      uint8_t carrier = InterpolateSample(wav_res_sine, state_.secondary_phase);
       if (shape_ == WAVEFORM_CZ_SYNC) {
         *buffer++ = phase_.integral < 0x8000 ? carrier : 128;
       } else {
@@ -470,9 +479,9 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
-      data_.secondary_phase += increment;
+      state_.secondary_phase += increment;
       uint8_t modulator = InterpolateSample(wav_res_sine,
-          data_.secondary_phase);
+          state_.secondary_phase);
       uint16_t modulation = modulator * parameter_;
       *buffer++ = InterpolateSample(wav_res_sine,
           phase_.integral + modulation);
@@ -494,21 +503,19 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
-      ++data_.cr.decimate;
+      ++state_.cr.decimate;
       if (parameter_ <= 63) {
-        if (data_.cr.decimate >= parameter_ + 1) {
-          data_.cr.decimate = 0;
-          data_.cr.state = InterpolateSample(wav_res_sine, phase_.integral);
+        if (state_.cr.decimate >= parameter_ + 1) {
+          state_.cr.decimate = 0;
+          state_.cr.state = InterpolateSample(wav_res_sine, phase_.integral);
         }
       } else {
-        if (data_.cr.decimate >= 128 - parameter_) {
-          data_.cr.decimate = 0;
-          data_.cr.state = InterpolateSample(
-              wav_res_bandlimited_triangle_0,
-              phase_.integral);
+        if (state_.cr.decimate >= 128 - parameter_) {
+          state_.cr.decimate = 0;
+          state_.cr.state = InterpolateSample(wav_res_triangle, phase_.integral);
         }
       }
-      *buffer++ = data_.cr.state;
+      *buffer++ = state_.cr.state;
     }
   }
   
@@ -516,8 +523,8 @@ class Oscillator {
     if (id == 2) {
       return;  // Do not duplicate this code for the second oscillator.
     }
-    data_.vw.update = (data_.vw.update + 1) & 3;
-    if (!data_.vw.update) {
+    state_.vw.update = (state_.vw.update + 1) & 3;
+    if (!state_.vw.update) {
       uint8_t offset_1 = U8ShiftRight4(parameter_);
       offset_1 = U8U8Mul(offset_1, 7);
       uint8_t offset_2 = offset_1 + 7;
@@ -525,13 +532,13 @@ class Oscillator {
       
       // Interpolate formant frequencies.
       for (uint8_t i = 0; i < 3; ++i) {
-        data_.vw.formant_increment[i] = U8U4MixU12(
+        state_.vw.formant_increment[i] = U8U4MixU12(
             ResourcesManager::Lookup<uint8_t, uint8_t>(
                 wav_res_vowel_data, offset_1 + i),
             ResourcesManager::Lookup<uint8_t, uint8_t>(
                 wav_res_vowel_data, offset_2 + i),
             balance);
-        data_.vw.formant_increment[i] <<= 3;
+        state_.vw.formant_increment[i] <<= 3;
       }
       
       // Interpolate formant amplitudes.
@@ -542,7 +549,7 @@ class Oscillator {
         uint8_t amplitude_b = ResourcesManager::Lookup<uint8_t, uint8_t>(
             wav_res_vowel_data,
             offset_2 + 3 + i);
-        data_.vw.formant_amplitude[i] = U8U4MixU8(
+        state_.vw.formant_amplitude[i] = U8U4MixU8(
             amplitude_a,
             amplitude_b, balance);
       }
@@ -551,20 +558,20 @@ class Oscillator {
     while (size) {
       int8_t result = 0;
       for (uint8_t i = 0; i < 3; ++i) {
-        data_.vw.formant_phase[i] += data_.vw.formant_increment[i];
+        state_.vw.formant_phase[i] += state_.vw.formant_increment[i];
         result += ResourcesManager::Lookup<uint8_t, uint8_t>(
             i == 2 ? wav_res_formant_square : wav_res_formant_sine,
-            ((data_.vw.formant_phase[i] >> 8) & 0xf0) |
-              data_.vw.formant_amplitude[i]);
+            ((state_.vw.formant_phase[i] >> 8) & 0xf0) |
+              state_.vw.formant_amplitude[i]);
       }
       result = S8U8MulShift8(result, ~(phase_.integral >> 8));
       phase_.integral += phase_increment_.integral;
       int16_t phase_noise = int8_t(Random::state_msb()) *
-          int8_t(data_.vw.noise_modulation);
+          int8_t(state_.vw.noise_modulation);
       if ((phase_.integral + phase_noise) < phase_increment_.integral) {
-        data_.vw.formant_phase[0] = 0;
-        data_.vw.formant_phase[1] = 0;
-        data_.vw.formant_phase[2] = 0;
+        state_.vw.formant_phase[0] = 0;
+        state_.vw.formant_phase[1] = 0;
+        state_.vw.formant_phase[2] = 0;
       }
       uint8_t x = S16ClipS8(4 * result) + 128;
       *buffer++ = x;
@@ -597,13 +604,13 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
-      data_.qs.phase[0] += increments[0];
-      data_.qs.phase[1] += increments[1];
-      data_.qs.phase[2] += increments[2];
+      state_.qs.phase[0] += increments[0];
+      state_.qs.phase[1] += increments[1];
+      state_.qs.phase[2] += increments[2];
       uint8_t value = (phase_.integral >> 10);
-      value += (data_.qs.phase[0] >> 10);
-      value += (data_.qs.phase[1] >> 10);
-      value += (data_.qs.phase[2] >> 10);
+      value += (state_.qs.phase[0] >> 10);
+      value += (state_.qs.phase[1] >> 10);
+      value += (state_.qs.phase[2] >> 10);
       *buffer++ = value;
     }
   }
@@ -616,14 +623,14 @@ class Oscillator {
       // This trick is used to avoid having a DC component (no innovation) when
       // the parameter is set to its minimal or maximal value.
       uint8_t offset = parameter_ == 127 ? 0 : 2;
-      data_.no.lp_noise_sample = U8Mix(
-          data_.no.lp_noise_sample,
+      state_.no.lp_noise_sample = U8Mix(
+          state_.no.lp_noise_sample,
           innovation,
           offset + (parameter_ << 2));
       if (parameter_ >= 64) {
-        *buffer++ = innovation - data_.no.lp_noise_sample - 128;
+        *buffer++ = innovation - state_.no.lp_noise_sample - 128;
       } else {
-        *buffer++ = data_.no.lp_noise_sample;
+        *buffer++ = state_.no.lp_noise_sample;
       }
     }
   }
@@ -642,14 +649,14 @@ template<int id> uint8_t Oscillator<id>::secondary_parameter_;
 template<int id> uint8_t Oscillator<id>::note_;
 template<int id> uint8_t* Oscillator<id>::sync_state_;
 
-template<int id> OscillatorState Oscillator<id>::data_;
+template<int id> OscillatorState Oscillator<id>::state_;
 
 template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
   &Osc::RenderSilence,
 
-  &Osc::RenderSimpleWavetable,
+  &Osc::RenderBandlimitedSaw,
   &Osc::RenderBandlimitedPwm,
-  &Osc::RenderSimpleWavetable,
+  &Osc::RenderBandlimitedSaw,
 
   &Osc::RenderCzSaw,
   &Osc::RenderCzReso,

@@ -54,22 +54,6 @@ Band-limited waveforms
 
 WAVETABLE_SIZE = 256
 
-# The Juno-6 / Juno-60 waveforms have a brighter harmonic content, which can be
-# recreated by adding to the signal a 1-pole high-pass filtered version of
-# itself.
-JUNINESS = 1.0
-
-
-# If you look at the bandlimited waveform produced by the approach described
-# in the BLIT paper, you'll find that they are not causal: it is as if the
-# band-limiting filter "anticipated" the discontinuity and started the
-# oscillations/ringing to smooth the discontinuity *before* it happens.
-# Such things do not exist in nature.
-# A way of avoiding this is to use a causal version of the band-limiting filter,
-# obtained by minimum phase reconstruction of the sinc. It doesn't sound better.
-CAUSAL = False
-
-
 def Dither(x, order=0, type=numpy.uint8):
   for i in xrange(order):
     x = numpy.hstack((numpy.zeros(1,), numpy.cumsum(x)))
@@ -91,80 +75,16 @@ def Scale(array, min=1, max=254, center=True, dither=2):
   array = array * (max - min) + min
   return Dither(array, order=dither)
 
-
-def MinimumPhaseReconstruction(signal, fft_size=16384):
-  Xf = numpy.fft.fft(signal, fft_size)
-  real_cepstrum = numpy.fft.ifft(numpy.log(numpy.abs(Xf))).real
-  real_cepstrum[1:fft_size / 2] *= 2
-  real_cepstrum[fft_size / 2 + 1:] = 0
-  min_phi = numpy.fft.ifft(numpy.exp(numpy.fft.fft(real_cepstrum))).real
-  return min_phi
-
-
 # Sine wave.
 numpy.random.seed(21)
 sine = -numpy.sin(numpy.arange(WAVETABLE_SIZE + 1) / float(WAVETABLE_SIZE) * 2 * numpy.pi) * 127.5 + 127.5
+triangle = 2.0 * numpy.arange(WAVETABLE_SIZE + 1)
+triangle[triangle > 256] = 512 - triangle[triangle > 256]
 
-# Band limited waveforms.
-num_zones = (107 - 24) / 16 + 2
-bl_pulse_tables = []
-bl_square_tables = []
-bl_saw_tables = []
-bl_tri_tables = []
-
-wrap = numpy.fmod(numpy.arange(WAVETABLE_SIZE + 1) + WAVETABLE_SIZE / 2, WAVETABLE_SIZE)
 quadrature = numpy.fmod(numpy.arange(WAVETABLE_SIZE + 1) + WAVETABLE_SIZE / 4, WAVETABLE_SIZE)
-fill = numpy.fmod(numpy.arange(WAVETABLE_SIZE + 1), WAVETABLE_SIZE)
 
 waveforms.append(('sine', Scale(sine[quadrature])))
-
-if CAUSAL:
-  window = numpy.hanning(WAVETABLE_SIZE)
-else:
-  window = 1
-
-
-for zone in range(num_zones):
-  f0 = 440.0 * 2.0 ** ((18 + 16 * zone - 69) / 12.0)
-  period = SAMPLE_RATE / f0
-  m = 2 * numpy.floor(period / 2) + 1.0
-  i = numpy.arange(-WAVETABLE_SIZE / 2, WAVETABLE_SIZE / 2) / float(WAVETABLE_SIZE)
-  pulse = numpy.sin(numpy.pi * i * m) / (m * numpy.sin(numpy.pi * i) + 1e-9)
-  pulse[WAVETABLE_SIZE / 2] = 1.0
-  pulse *= window
-  if CAUSAL:
-    pulse = MinimumPhaseReconstruction(pulse)[:(WAVETABLE_SIZE + 1)]
-  else:
-    pulse = pulse[fill]
-
-  square = numpy.cumsum(pulse - pulse[wrap])
-  triangle = -numpy.cumsum(square[::-1] - square.mean()) / WAVETABLE_SIZE
-
-  square -= JUNINESS * triangle
-  if zone == num_zones - 1:
-    square = sine
-  bl_square_tables.append(('bandlimited_square_%d' % zone,
-                          Scale(square[quadrature])))
-
-  triangle = triangle[quadrature]
-  if zone == num_zones - 1:
-    triangle = sine
-  bl_tri_tables.append(('bandlimited_triangle_%d' % zone,
-                        Scale(triangle[quadrature])))
-
-  saw = -numpy.cumsum(pulse[wrap] - pulse.mean())
-  saw -= JUNINESS * numpy.cumsum(saw - saw.mean()) / WAVETABLE_SIZE
-  if zone == num_zones - 1:
-    saw = sine
-  bl_saw_tables.append(('bandlimited_saw_%d' % zone,
-                       Scale(saw[quadrature])))
-
-
-waveforms.extend(bl_pulse_tables)
-waveforms.extend(bl_square_tables)
-waveforms.extend(bl_saw_tables)
-waveforms.extend(bl_tri_tables)
-
+waveforms.append(('triangle', Scale(triangle)))
 
 """----------------------------------------------------------------------------
 Vowel data (formant amplitudes)

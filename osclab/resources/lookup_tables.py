@@ -76,3 +76,49 @@ fm_frequency_ratios = numpy.array(
 lookup_tables.append(
     ('fm_frequency_ratios', (fm_frequency_ratios * 256).astype(int))
 )
+
+
+"""----------------------------------------------------------------------------
+MinBLEP
+----------------------------------------------------------------------------"""
+
+NUM_ZERO_CROSSINGS = 16
+OVERSAMPLING = 256
+THRESHOLD = 15
+
+def minimum_phase_reconstruction(signal, fft_size=32768):
+  Xf = numpy.fft.fft(signal, fft_size)
+  real_cepstrum = numpy.fft.ifft(numpy.log(1e-50 + numpy.abs(Xf))).real
+  real_cepstrum[1:fft_size / 2] *= 2
+  real_cepstrum[fft_size / 2 + 1:] = 0
+  min_phi = numpy.fft.ifft(numpy.exp(numpy.fft.fft(real_cepstrum))).real
+  return min_phi
+
+
+n = NUM_ZERO_CROSSINGS * OVERSAMPLING * 2 + 1
+t = numpy.arange(0, n)
+sinc = numpy.sinc(-NUM_ZERO_CROSSINGS + 2.0 * t / (n - 1) * NUM_ZERO_CROSSINGS)
+windowed_sinc = sinc * numpy.blackman(n)
+blep = minimum_phase_reconstruction(windowed_sinc)[:n]
+blep = numpy.cumsum(blep)
+blep = 1.0 - (blep / blep[-1])
+blep_s2_14 = (blep * 16384).round().astype(numpy.int16)
+last_sample = numpy.max(numpy.where(numpy.abs(blep_s2_14) > THRESHOLD)[0])
+blep_s2_14 = blep_s2_14[:last_sample + 1]
+
+lookup_tables.append(
+    ('blep', blep_s2_14.astype(int))
+)
+
+
+"""----------------------------------------------------------------------------
+Reciprocal
+----------------------------------------------------------------------------"""
+
+x = numpy.arange(0, 256)
+x[0] = 1
+x = 65535 / x
+
+lookup_tables.append(
+    ('reciprocal', x.astype(int))
+)
