@@ -224,6 +224,7 @@ class Oscillator {
       if (*sync_state_++) {
         phase_.integral = 0;
         phase_.fractional = 0;
+        return 1;
       }
       uint24c_t phi = U24AddC(phase_, phase_increment_);
       phase_.fractional = phi.fractional;
@@ -282,22 +283,21 @@ class Oscillator {
   
   static void RenderBandlimitedPwm(uint8_t* buffer) {
     uint8_t size = kAudioBlockSize;
-    uint8_t pw = parameter_ + 128;
+    uint8_t pw = 128 - parameter_;
     while (size--) {
-      UpdatePhase();
-      if (static_cast<uint8_t>(phase_.integral >> 8) >= pw) {
-        if (state_.bl.up) {
+      uint8_t wrap = UpdatePhase();
+      if (state_.bl.up) {
+        // Add a blep from up to down when the phase exceeds the pulse width.
+        if (static_cast<uint8_t>(phase_.integral >> 8) >= pw) {
           uint24_t offset;
           offset.integral = pw << 8;
           offset.fractional = 0;
           AddBlep(U24Sub(phase_, offset), 127);
           state_.bl.up = 0;
         }
-      }
-      if (phase_.integral < phase_increment_.integral) {
-        // Add a blep from down to up when there is a phase wrap-around that
-        // is not triggered by sync.
-        if (!state_.bl.up) {
+      } else {
+        // Add a blep from down to up when there is a phase reset.
+        if (wrap) {
           AddBlep(phase_, -127);
           state_.bl.up = 1;
         }
@@ -313,9 +313,7 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       uint8_t previous_position = phase_.integral >> 9;
-      UpdatePhase();
-      if (phase_.integral < phase_increment_.integral) {
-        // Oscillator reset triggered by sync or overflow.
+      if (UpdatePhase()) {
         AddBlep(phase_, previous_position);
       }
       int16_t output = (phase_.integral >> 1) - 16384;
