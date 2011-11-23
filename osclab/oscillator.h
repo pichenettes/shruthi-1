@@ -47,8 +47,6 @@ static inline uint8_t ReadSample(
 
 extern uint8_t user_wavetable[];
 
-#define S16S16MulScale14(x, y) ((int16_t)((int32_t)(x) * y) >> 14)
-
 #ifdef USE_OPTIMIZED_OP
 
 static inline uint8_t InterpolateSampleRam(
@@ -107,8 +105,7 @@ static const uint8_t kNumBleps = 2;
 
 struct Blep {
   uint16_t phase;
-  int16_t scale;
-  uint8_t active;
+  int8_t scale;
 };
 
 struct BlepOscillator {
@@ -150,14 +147,14 @@ union OscillatorState {
 typedef void (*OscRenderFn)(uint8_t* buffer);
 
 
-#define ACUMULATE_BLEP(index) \
-if (state_.bl.blep_pool[index].active) { \
+#define ACCUMULATE_BLEP(index) \
+if (state_.bl.blep_pool[index].scale) { \
   int16_t value = ResourcesManager::Lookup<uint16_t, int16_t>( \
       lut_res_blep, state_.bl.blep_pool[index].phase); \
-  output += S16S16MulScale14(value, state_.bl.blep_pool[index].scale); \
+  output += S16S8MulShift8(value, state_.bl.blep_pool[index].scale) << 1; \
   state_.bl.blep_pool[index].phase += 256; \
   if (state_.bl.blep_pool[index].phase > LUT_RES_BLEP_SIZE) { \
-    state_.bl.blep_pool[index].active = 0; \
+    state_.bl.blep_pool[index].scale = 0; \
   } \
 }
 
@@ -244,7 +241,9 @@ class Oscillator {
   }
   
   // ------- BLEP oscillators --------------------------------------------------
-  static inline void AddBlep(uint24_t phase_residue, int16_t scale) __attribute__((always_inline)) {
+  static inline void AddBlep(
+      uint24_t phase_residue,
+      int8_t scale) __attribute__((always_inline)) {
     // The code that follows computes phase_residue / phase_increment * 256.
     // It works by:
     // - Shifting phase_residue and phase_residue until they are in the 
@@ -274,12 +273,11 @@ class Oscillator {
       a -= b;
     }
     blep_phase += U16U8MulShift8(
-        ResourcesManager::Lookup<uint8_t, uint8_t>(lut_res_reciprocal, b), a);
+        ResourcesManager::Lookup<uint16_t, uint8_t>(lut_res_reciprocal, b), a);
     state_.bl.lru_blep = (state_.bl.lru_blep + 1) % kNumBleps;
     Blep& blep = state_.bl.blep_pool[state_.bl.lru_blep];
     blep.phase = blep_phase;
     blep.scale = scale;
-    blep.active = 1;
   }
   
   static void RenderBandlimitedPwm(uint8_t* buffer) {
@@ -292,7 +290,7 @@ class Oscillator {
           uint24_t offset;
           offset.integral = pw << 8;
           offset.fractional = 0;
-          AddBlep(U24Sub(phase_, offset), 32767);
+          AddBlep(U24Sub(phase_, offset), 127);
           state_.bl.up = 0;
         }
       }
@@ -300,13 +298,13 @@ class Oscillator {
         // Add a blep from down to up when there is a phase wrap-around that
         // is not triggered by sync.
         if (!state_.bl.up) {
-          AddBlep(phase_, 32767);
+          AddBlep(phase_, -127);
           state_.bl.up = 1;
         }
       }
       int16_t output = state_.bl.up ? 16383 : -16384;
-      ACUMULATE_BLEP(0)
-      ACUMULATE_BLEP(1)
+      ACCUMULATE_BLEP(0)
+      ACCUMULATE_BLEP(1)
       *buffer++ = (output >> 8) + 128;
     }
   }
@@ -314,15 +312,15 @@ class Oscillator {
   static void RenderBandlimitedSaw(uint8_t* buffer) {
     uint8_t size = kAudioBlockSize;
     while (size--) {
-      uint16_t previous_position = phase_.integral >> 1;
+      uint8_t previous_position = phase_.integral >> 9;
       UpdatePhase();
       if (phase_.integral < phase_increment_.integral) {
         // Oscillator reset triggered by sync or overflow.
         AddBlep(phase_, previous_position);
       }
       int16_t output = (phase_.integral >> 1) - 16384;
-      ACUMULATE_BLEP(0)
-      ACUMULATE_BLEP(1)
+      ACCUMULATE_BLEP(0)
+      ACCUMULATE_BLEP(1)
       *buffer++ = (output >> 8) + 128;
     }
   }

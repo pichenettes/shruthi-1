@@ -84,7 +84,7 @@ MinBLEP
 
 NUM_ZERO_CROSSINGS = 16
 OVERSAMPLING = 256
-THRESHOLD = 15
+THRESHOLD = 31
 
 def minimum_phase_reconstruction(signal, fft_size=32768):
   Xf = numpy.fft.fft(signal, fft_size)
@@ -102,12 +102,12 @@ windowed_sinc = sinc * numpy.blackman(n)
 blep = minimum_phase_reconstruction(windowed_sinc)[:n]
 blep = numpy.cumsum(blep)
 blep = 1.0 - (blep / blep[-1])
-blep_s2_14 = (blep * 16384).round().astype(numpy.int16)
-last_sample = numpy.max(numpy.where(numpy.abs(blep_s2_14) > THRESHOLD)[0])
-blep_s2_14 = blep_s2_14[:last_sample + 1]
+blep_s1_15 = (blep * 32767).round().astype(numpy.int16)
+last_sample = numpy.max(numpy.where(numpy.abs(blep_s1_15) > THRESHOLD)[0])
+blep_s1_15 = blep_s1_15[:last_sample + 1]
 
 lookup_tables.append(
-    ('blep', blep_s2_14.astype(int))
+    ('blep', blep_s1_15.astype(int))
 )
 
 

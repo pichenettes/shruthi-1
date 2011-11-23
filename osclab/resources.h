@@ -93,7 +93,7 @@ extern const prog_uint8_t wav_res_wavetables[] PROGMEM;
 #define LUT_RES_FM_FREQUENCY_RATIOS 1
 #define LUT_RES_FM_FREQUENCY_RATIOS_SIZE 25
 #define LUT_RES_BLEP 2
-#define LUT_RES_BLEP_SIZE 5430
+#define LUT_RES_BLEP_SIZE 5429
 #define LUT_RES_RECIPROCAL 3
 #define LUT_RES_RECIPROCAL_SIZE 256
 #define WAV_RES_FORMANT_SINE 0
