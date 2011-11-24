@@ -38,6 +38,8 @@ PwmOutput<kPinVcfCutoffOut> vcf_cutoff_out;
 PwmOutput<kPinVcfResonanceOut> vcf_resonance_out;
 PwmOutput<kPinVcaOut> vca_out;
 
+Gpio<PortD, 3> tick;
+
 uint8_t sub_clock = 0;
 uint8_t sub_clock_2 = 0;
 
@@ -72,7 +74,7 @@ void ProcessInput() {
     memset(line_buffer, ' ', 16);
     settings[pot_event.id] = pot_event.value >> 3;
     if (pot_event.id == 3) {
-      settings[3] >>= 3;
+      settings[3] >>= 2;
     }
     char* p = line_buffer + 1;
     for (uint8_t i = 0; i < 3; ++i) {
@@ -125,10 +127,12 @@ void RenderAudio() {
       midi_note = 12;
     }
     osc.set_parameter(settings[2]);
+    tick.High();
     osc.Render(settings[3], midi_note, increment, sync_state, audio_buffer);
     for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
       audio_out.Overwrite(audio_buffer[i]);
     }
+    tick.Low();
   }
 }
 
@@ -138,7 +142,9 @@ void Init() {
   UCSR1B = 0;
   
   audio_out.Init();
+  analog_inputs.set_num_inputs(4);
   pots.Init();
+  tick.set_mode(DIGITAL_OUTPUT);
   
   // Initialize all the PWM outputs to 39kHz, phase correct mode.
   Timer<0>::set_prescaler(1);

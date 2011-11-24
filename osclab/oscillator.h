@@ -102,6 +102,8 @@ static inline uint8_t InterpolateTwoTables(
 static const uint8_t kNumZonesFullSampleRate = 6;
 static const uint8_t kNumZonesHalfSampleRate = 5;
 static const uint8_t kNumBleps = 2;
+static const uint8_t kBlepTransitionStart = 92;
+static const uint8_t kBlepTransitionEnd = 100;
 
 struct Blep {
   uint16_t phase;
@@ -284,28 +286,40 @@ class Oscillator {
   static void RenderBandlimitedPwm(uint8_t* buffer) {
     uint8_t size = kAudioBlockSize;
     uint8_t pw = 128 - parameter_;
+    
     while (size--) {
       uint8_t wrap = UpdatePhase();
-      if (state_.bl.up) {
-        // Add a blep from up to down when the phase exceeds the pulse width.
-        if (static_cast<uint8_t>(phase_.integral >> 8) >= pw) {
-          uint24_t offset;
-          offset.integral = pw << 8;
-          offset.fractional = 0;
-          AddBlep(U24Sub(phase_, offset), 127);
-          state_.bl.up = 0;
+      if (note_ < kBlepTransitionEnd) {
+        if (state_.bl.up) {
+          // Add a blep from up to down when the phase exceeds the pulse width.
+          if (static_cast<uint8_t>(phase_.integral >> 8) >= pw) {
+            uint24_t offset;
+            offset.integral = pw << 8;
+            offset.fractional = 0;
+            AddBlep(U24Sub(phase_, offset), 127);
+            state_.bl.up = 0;
+          }
+        } else {
+          // Add a blep from down to up when there is a phase reset.
+          if (wrap) {
+            AddBlep(phase_, -127);
+            state_.bl.up = 1;
+          }
         }
-      } else {
-        // Add a blep from down to up when there is a phase reset.
-        if (wrap) {
-          AddBlep(phase_, -127);
-          state_.bl.up = 1;
-        }
+        int16_t output = state_.bl.up ? 16383 : -16384;
+        ACCUMULATE_BLEP(0)
+        ACCUMULATE_BLEP(1)
+        *buffer = (output >> 8) + 128;
       }
-      int16_t output = state_.bl.up ? 16383 : -16384;
-      ACCUMULATE_BLEP(0)
-      ACCUMULATE_BLEP(1)
-      *buffer++ = (output >> 8) + 128;
+      if (note_ > kBlepTransitionStart) {
+        uint8_t sine_gain = U8ShiftLeft4(note_ - kBlepTransitionStart) << 1;
+        if (note_ >= kBlepTransitionEnd) {
+          sine_gain = 255;
+        }
+        uint8_t sine = ReadSample(wav_res_sine, phase_.integral);
+        *buffer = U8Mix(*buffer, sine, sine_gain);
+      }
+      buffer++;
     }
   }
 
@@ -313,13 +327,25 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       uint8_t previous_position = phase_.integral >> 9;
-      if (UpdatePhase()) {
-        AddBlep(phase_, previous_position);
+      uint8_t wrap = UpdatePhase();
+      if (note_ < kBlepTransitionEnd) {
+        if (wrap) {
+          AddBlep(phase_, previous_position);
+        }
+        int16_t output = (phase_.integral >> 1) - 16384;
+        ACCUMULATE_BLEP(0)
+        ACCUMULATE_BLEP(1)
+        *buffer = (output >> 8) + 128;
       }
-      int16_t output = (phase_.integral >> 1) - 16384;
-      ACCUMULATE_BLEP(0)
-      ACCUMULATE_BLEP(1)
-      *buffer++ = (output >> 8) + 128;
+      if (note_ > kBlepTransitionStart) {
+        uint8_t sine_gain = U8ShiftLeft4(note_ - kBlepTransitionStart) << 1;
+        if (note_ >= kBlepTransitionEnd) {
+          sine_gain = 255;
+        }
+        uint8_t sine = ReadSample(wav_res_sine, phase_.integral);
+        *buffer = U8Mix(*buffer, sine, sine_gain);
+      }
+      buffer++;
     }
   }
 
