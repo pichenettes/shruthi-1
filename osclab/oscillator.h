@@ -142,7 +142,7 @@ union OscillatorState {
   FilteredNoiseState no;
   QuadSawPadState qs;
   CrushedSineState cr;
-  uint16_t secondary_phase;
+  uint24_t aux_phase;
   BlepOscillator bl;
 };
 
@@ -322,17 +322,58 @@ class Oscillator {
       buffer++;
     }
   }
-
+  
   static void RenderBandlimitedSaw(uint8_t* buffer) {
     uint8_t size = kAudioBlockSize;
     while (size--) {
-      uint8_t previous_position = phase_.integral >> 9;
+      int8_t previous_sample = phase_.integral >> 9;
       uint8_t wrap = UpdatePhase();
       if (note_ < kBlepTransitionEnd) {
         if (wrap) {
-          AddBlep(phase_, previous_position);
+          AddBlep(phase_, previous_sample);
         }
-        int16_t output = (phase_.integral >> 1) - 16384;
+        
+        int16_t output = phase_.integral >> 1;
+        output -= 16384;
+        ACCUMULATE_BLEP(0)
+        ACCUMULATE_BLEP(1)
+        *buffer = (output >> 8) + 128;
+      }
+      if (note_ > kBlepTransitionStart) {
+        uint8_t sine_gain = U8ShiftLeft4(note_ - kBlepTransitionStart) << 1;
+        if (note_ >= kBlepTransitionEnd) {
+          sine_gain = 255;
+        }
+        uint8_t sine = ReadSample(wav_res_sine, phase_.integral);
+        *buffer = U8Mix(*buffer, sine, sine_gain);
+      }
+      buffer++;
+    }
+  }
+
+  static void RenderBandlimitedPwmSaw(uint8_t* buffer) {
+    uint8_t size = kAudioBlockSize;
+    while (size--) {
+      int8_t previous_sample = phase_.integral >> 10;
+      uint8_t wrap = UpdatePhase();
+      if (note_ < kBlepTransitionEnd) {
+        int8_t previous_sample_aux = state_.aux_phase.integral >> 10;
+        if (wrap) {
+          AddBlep(phase_, previous_sample);
+          state_.aux_phase.fractional = phase_.fractional;
+          state_.aux_phase.integral = phase_.integral + (parameter_ << 8);
+        }
+        
+        uint24c_t phi = U24AddC(state_.aux_phase, phase_increment_);
+        state_.aux_phase.fractional = phi.fractional;
+        state_.aux_phase.integral = phi.integral;
+        if (phi.carry) {
+          AddBlep(state_.aux_phase, previous_sample_aux);
+        }
+        
+        int16_t output = phase_.integral >> 2;
+        output += state_.aux_phase.integral >> 2;
+        output -= 16384;
         ACCUMULATE_BLEP(0)
         ACCUMULATE_BLEP(1)
         *buffer = (output >> 8) + 128;
@@ -436,10 +477,10 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        state_.secondary_phase = 32768;
+        state_.aux_phase.integral = 32768;
       }
-      state_.secondary_phase += increment;
-      uint8_t result = ReadSample(wav_res_sine, state_.secondary_phase);
+      state_.aux_phase.integral += increment;
+      uint8_t result = ReadSample(wav_res_sine, state_.aux_phase.integral);
       result >>= 1;
       result += 128;   
       if (phase_.integral < 0x4000) {
@@ -458,10 +499,10 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        state_.secondary_phase = 0;
+        state_.aux_phase.integral = 0;
       }
-      state_.secondary_phase += increment;
-      uint8_t carrier = InterpolateSample(wav_res_sine, state_.secondary_phase);
+      state_.aux_phase.integral += increment;
+      uint8_t carrier = InterpolateSample(wav_res_sine, state_.aux_phase.integral);
       if (shape_ == WAVEFORM_CZ_SYNC) {
         *buffer++ = phase_.integral < 0x8000 ? carrier : 128;
       } else {
@@ -501,9 +542,9 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
-      state_.secondary_phase += increment;
+      state_.aux_phase.integral += increment;
       uint8_t modulator = InterpolateSample(wav_res_sine,
-          state_.secondary_phase);
+          state_.aux_phase.integral);
       uint16_t modulation = modulator * parameter_;
       *buffer++ = InterpolateSample(wav_res_sine,
           phase_.integral + modulation);
@@ -676,9 +717,9 @@ template<int id> OscillatorState Oscillator<id>::state_;
 template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
   &Osc::RenderSilence,
 
-  &Osc::RenderBandlimitedSaw,
+  &Osc::RenderBandlimitedPwmSaw,
   &Osc::RenderBandlimitedPwm,
-  &Osc::RenderBandlimitedSaw,
+  &Osc::RenderBandlimitedPwmSaw,
 
   &Osc::RenderCzSaw,
   &Osc::RenderCzReso,

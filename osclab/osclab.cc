@@ -129,10 +129,10 @@ void RenderAudio() {
     osc.set_parameter(settings[2]);
     tick.High();
     osc.Render(settings[3], midi_note, increment, sync_state, audio_buffer);
+    tick.Low();
     for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
       audio_out.Overwrite(audio_buffer[i]);
     }
-    tick.Low();
   }
 }
 
