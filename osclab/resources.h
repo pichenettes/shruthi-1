@@ -50,6 +50,24 @@ extern const prog_uint8_t wav_res_formant_sine[] PROGMEM;
 extern const prog_uint8_t wav_res_formant_square[] PROGMEM;
 extern const prog_uint8_t wav_res_sine[] PROGMEM;
 extern const prog_uint8_t wav_res_triangle[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_square_0[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_square_1[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_square_2[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_square_3[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_square_4[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_square_5[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_saw_0[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_saw_1[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_saw_2[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_saw_3[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_saw_4[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_saw_5[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_triangle_0[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_triangle_1[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_triangle_2[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_triangle_3[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_triangle_4[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_triangle_5[] PROGMEM;
 extern const prog_uint8_t wav_res_vowel_data[] PROGMEM;
 extern const prog_uint8_t wav_res_waves[] PROGMEM;
 extern const prog_uint8_t wav_res_wavetables[] PROGMEM;
@@ -104,11 +122,53 @@ extern const prog_uint8_t wav_res_wavetables[] PROGMEM;
 #define WAV_RES_SINE_SIZE 257
 #define WAV_RES_TRIANGLE 3
 #define WAV_RES_TRIANGLE_SIZE 257
-#define WAV_RES_VOWEL_DATA 4
+#define WAV_RES_BANDLIMITED_SQUARE_0 4
+#define WAV_RES_BANDLIMITED_SQUARE_0_SIZE 257
+#define WAV_RES_BANDLIMITED_SQUARE_1 5
+#define WAV_RES_BANDLIMITED_SQUARE_1_SIZE 257
+#define WAV_RES_BANDLIMITED_SQUARE_2 6
+#define WAV_RES_BANDLIMITED_SQUARE_2_SIZE 257
+#define WAV_RES_BANDLIMITED_SQUARE_3 7
+#define WAV_RES_BANDLIMITED_SQUARE_3_SIZE 257
+#define WAV_RES_BANDLIMITED_SQUARE_4 8
+#define WAV_RES_BANDLIMITED_SQUARE_4_SIZE 257
+#define WAV_RES_BANDLIMITED_SQUARE_5 9
+#define WAV_RES_BANDLIMITED_SQUARE_5_SIZE 257
+#define WAV_RES_BANDLIMITED_SQUARE_6 10
+#define WAV_RES_BANDLIMITED_SQUARE_6_SIZE 257
+#define WAV_RES_BANDLIMITED_SAW_0 11
+#define WAV_RES_BANDLIMITED_SAW_0_SIZE 257
+#define WAV_RES_BANDLIMITED_SAW_1 12
+#define WAV_RES_BANDLIMITED_SAW_1_SIZE 257
+#define WAV_RES_BANDLIMITED_SAW_2 13
+#define WAV_RES_BANDLIMITED_SAW_2_SIZE 257
+#define WAV_RES_BANDLIMITED_SAW_3 14
+#define WAV_RES_BANDLIMITED_SAW_3_SIZE 257
+#define WAV_RES_BANDLIMITED_SAW_4 15
+#define WAV_RES_BANDLIMITED_SAW_4_SIZE 257
+#define WAV_RES_BANDLIMITED_SAW_5 16
+#define WAV_RES_BANDLIMITED_SAW_5_SIZE 257
+#define WAV_RES_BANDLIMITED_SAW_6 17
+#define WAV_RES_BANDLIMITED_SAW_6_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_0 18
+#define WAV_RES_BANDLIMITED_TRIANGLE_0_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_1 19
+#define WAV_RES_BANDLIMITED_TRIANGLE_1_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_2 20
+#define WAV_RES_BANDLIMITED_TRIANGLE_2_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_3 21
+#define WAV_RES_BANDLIMITED_TRIANGLE_3_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_4 22
+#define WAV_RES_BANDLIMITED_TRIANGLE_4_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_5 23
+#define WAV_RES_BANDLIMITED_TRIANGLE_5_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_6 24
+#define WAV_RES_BANDLIMITED_TRIANGLE_6_SIZE 257
+#define WAV_RES_VOWEL_DATA 25
 #define WAV_RES_VOWEL_DATA_SIZE 63
-#define WAV_RES_WAVES 5
+#define WAV_RES_WAVES 26
 #define WAV_RES_WAVES_SIZE 16512
-#define WAV_RES_WAVETABLES 6
+#define WAV_RES_WAVETABLES 27
 #define WAV_RES_WAVETABLES_SIZE 324
 typedef avrlib::ResourcesManager<
     ResourceId,

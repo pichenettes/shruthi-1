@@ -114,6 +114,7 @@ struct BlepOscillator {
   uint8_t lru_blep;
   uint8_t up;
   Blep blep_pool[kNumBleps];
+  uint24_t aux_phase;
 };
 
 struct VowelSynthesizerState {
@@ -142,8 +143,9 @@ union OscillatorState {
   FilteredNoiseState no;
   QuadSawPadState qs;
   CrushedSineState cr;
-  uint24_t aux_phase;
   BlepOscillator bl;
+
+  uint24_t modulator_phase;
 };
 
 typedef void (*OscRenderFn)(uint8_t* buffer);
@@ -240,6 +242,50 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       *buffer++ = 128;
+    }
+  }
+  
+  // ------- Old school band-limited PWM ---------------------------------------
+  static void RenderBandlimitedPwmOld(uint8_t* buffer) {
+    uint8_t balance_index = U8Swap4(note_ - 12);
+    uint8_t gain_2 = balance_index & 0xf0;
+    uint8_t gain_1 = ~gain_2;
+
+    uint8_t wave_index = balance_index & 0xf;
+    const prog_uint8_t* wave_1 = waveform_table[
+        WAV_RES_BANDLIMITED_SAW_1 + wave_index];
+    wave_index = U8AddClip(wave_index, 1, kNumZonesHalfSampleRate);
+    const prog_uint8_t* wave_2 = waveform_table[
+        WAV_RES_BANDLIMITED_SAW_1 + wave_index];
+    
+    uint16_t shift = static_cast<uint16_t>(parameter_ + 128) << 8;
+    // For higher pitched notes, simply use 128
+    uint8_t scale = 192 - (parameter_ >> 1);
+    if (note_ > 64) {
+      scale = U8Mix(scale, 102, (note_ - 64) << 2);
+      scale = U8Mix(scale, 102, (note_ - 64) << 2);
+    }
+    uint8_t size = kAudioBlockSize;
+    while (size) {
+      UpdatePhase();
+      UpdatePhase();
+      uint8_t a = InterpolateTwoTables(
+          wave_1, wave_2,
+          phase_.integral, gain_1, gain_2);
+      
+      a = U8U8MulShift8(a, scale);
+      // This was used in the previous version, doesn't sound much worse
+      // and could save 100 bytes. Using the crossfaded version for sake of
+      // correctness.
+      // uint8_t b = InterpolateSample(wave_1, phase_.integral + shift);
+      uint8_t b = InterpolateTwoTables(
+          wave_1, wave_2,
+          phase_.integral + shift, gain_1, gain_2);
+      b = U8U8MulShift8(b, scale);
+      a = a - b + 128;
+      *buffer++ = a;
+      *buffer++ = a;
+      size -= 2;
     }
   }
   
@@ -357,22 +403,22 @@ class Oscillator {
       int8_t previous_sample = phase_.integral >> 10;
       uint8_t wrap = UpdatePhase();
       if (note_ < kBlepTransitionEnd) {
-        int8_t previous_sample_aux = state_.aux_phase.integral >> 10;
+        int8_t previous_sample_aux = state_.bl.aux_phase.integral >> 10;
         if (wrap) {
           AddBlep(phase_, previous_sample);
-          state_.aux_phase.fractional = phase_.fractional;
-          state_.aux_phase.integral = phase_.integral + (parameter_ << 8);
+          AddBlep(phase_, previous_sample_aux);
+          state_.bl.aux_phase.fractional = phase_.fractional;
+          state_.bl.aux_phase.integral = phase_.integral + (parameter_ << 8);
+        } else {
+          uint24c_t phi = U24AddC(state_.bl.aux_phase, phase_increment_);
+          state_.bl.aux_phase.fractional = phi.fractional;
+          state_.bl.aux_phase.integral = phi.integral;
+          if (phi.carry) {
+            AddBlep(state_.bl.aux_phase, previous_sample_aux);
+          }
         }
-        
-        uint24c_t phi = U24AddC(state_.aux_phase, phase_increment_);
-        state_.aux_phase.fractional = phi.fractional;
-        state_.aux_phase.integral = phi.integral;
-        if (phi.carry) {
-          AddBlep(state_.aux_phase, previous_sample_aux);
-        }
-        
         int16_t output = phase_.integral >> 2;
-        output += state_.aux_phase.integral >> 2;
+        output += state_.bl.aux_phase.integral >> 2;
         output -= 16384;
         ACCUMULATE_BLEP(0)
         ACCUMULATE_BLEP(1)
@@ -477,10 +523,10 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        state_.aux_phase.integral = 32768;
+        state_.modulator_phase.integral = 32768;
       }
-      state_.aux_phase.integral += increment;
-      uint8_t result = ReadSample(wav_res_sine, state_.aux_phase.integral);
+      state_.modulator_phase.integral += increment;
+      uint8_t result = ReadSample(wav_res_sine, state_.modulator_phase.integral);
       result >>= 1;
       result += 128;   
       if (phase_.integral < 0x4000) {
@@ -499,10 +545,12 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       if (UpdatePhase()) {
-        state_.aux_phase.integral = 0;
+        state_.modulator_phase.integral = 0;
       }
-      state_.aux_phase.integral += increment;
-      uint8_t carrier = InterpolateSample(wav_res_sine, state_.aux_phase.integral);
+      state_.modulator_phase.integral += increment;
+      uint8_t carrier = InterpolateSample(
+          wav_res_sine,
+          state_.modulator_phase.integral);
       if (shape_ == WAVEFORM_CZ_SYNC) {
         *buffer++ = phase_.integral < 0x8000 ? carrier : 128;
       } else {
@@ -542,9 +590,9 @@ class Oscillator {
     uint8_t size = kAudioBlockSize;
     while (size--) {
       UpdatePhase();
-      state_.aux_phase.integral += increment;
+      state_.modulator_phase.integral += increment;
       uint8_t modulator = InterpolateSample(wav_res_sine,
-          state_.aux_phase.integral);
+          state_.modulator_phase.integral);
       uint16_t modulation = modulator * parameter_;
       *buffer++ = InterpolateSample(wav_res_sine,
           phase_.integral + modulation);
@@ -719,7 +767,7 @@ template<int id> OscRenderFn Oscillator<id>::fn_table_[] = {
 
   &Osc::RenderBandlimitedPwmSaw,
   &Osc::RenderBandlimitedPwm,
-  &Osc::RenderBandlimitedPwmSaw,
+  &Osc::RenderBandlimitedPwmOld,
 
   &Osc::RenderCzSaw,
   &Osc::RenderCzReso,
