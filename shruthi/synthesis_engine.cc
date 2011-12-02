@@ -267,6 +267,10 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
       controller <= midi::kAssignableCcD) {
     set_modulation_source(MOD_SRC_CC_A + controller -
         midi::kAssignableCcA, value << 1);
+  } else if (controller >= midi::kAssignableCcA + 70 &&
+             controller <= midi::kAssignableCcD + 70) {
+    set_modulation_source(MOD_SRC_CC_A + controller -
+        midi::kAssignableCcA - 70, value << 1);
   } else if (controller >= 70 && controller <= 84) {
     controller -= 70;  // CCs for oscillators and mixer.
     editing_controller = 1;
