@@ -267,14 +267,11 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
       controller <= midi::kAssignableCcD) {
     set_modulation_source(MOD_SRC_CC_A + controller -
         midi::kAssignableCcA, value << 1);
-  } else if (controller >= 20 && controller <= 31) {
-    controller -= 20;  // CCs for oscillators and mixer.
+  } else if (controller >= 70 && controller <= 84) {
+    controller -= 70;  // CCs for oscillators and mixer.
     editing_controller = 1;
-  } else if (controller >= 14 && controller <= 15) {
-    controller -= 2; // CCs for Cutoff and resonance.
-    editing_controller = 1;
-  } else if (controller >= 12 && controller <= 13) {
-    controller = controller - 12 + 66;  // CCs for cutoff2 and resonance2.
+  } else if (controller >= 90 && controller <= 91) {
+    controller = controller - 90 + 66;  // CCs for cutoff2 and resonance2.
     editing_controller = 1;
   } else if (controller >= 102 && controller <= 119) {
     controller = controller - 102 + 14; // CCs for filter mods, envelopes and LFOs.
@@ -340,24 +337,6 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
         break;
       case midi::kPortamentoTimeMsb:
         system_settings_.portamento = value;
-        break;
-      case midi::kRelease:
-        SetParameter(PRM_ENV_RELEASE_2, value, 0);
-        break;
-      case midi::kAttack:
-        SetParameter(PRM_ENV_ATTACK_2, value, 0);
-        break;
-      case midi::kHarmonicIntensity:
-        patch_.filter_resonance = value >> 1;
-        break;
-      case midi::kBrightness + 16:
-        patch_.filter_cutoff_2 = value;
-        break;
-      case midi::kHarmonicIntensity + 16:
-        patch_.filter_resonance_2 = value >> 1;
-        break;
-      case midi::kBrightness:
-        patch_.filter_cutoff = value;
         break;
       case midi::kNrpnLsb:
         nrpn_parameter_number_ = value | nrpn_parameter_number_msb_;
