@@ -262,14 +262,14 @@ class SynthesisEngine : public midi::MidiDevice {
   
   static inline uint8_t pvk_routing_byte() {
     uint8_t byte = 0;
-    if (patch_.filter_1_mode_ == FILTER_MODE_BP) {
-      byte |= 1;
+    if (patch_.filter_1_mode_ == FILTER_MODE_LP) {
+      byte |= 4;
     }
-    if (voice(0).cv_1()) {
+    if (!voice(0).cv_1()) {
       byte |= 2;
     }
-    if (voice(0).cv_2()) {
-      byte |= 4;
+    if (!voice(0).cv_2()) {
+      byte |= 1;
     }
     return byte;
   }

@@ -417,6 +417,11 @@ static const prog_char raw_parameter_definition[
   STR_RES_PR2, STR_RES_PARAM__2,
   
   // Settings for the polivoks filter board.
+  PRM_FILTER_CUTOFF,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_CUT, STR_RES_CUTOFF,
+
   PRM_PV_MODE,
   FILTER_MODE_LP, FILTER_MODE_BP,
   UNIT_FILTER_1_MODE,
@@ -431,11 +436,6 @@ static const prog_char raw_parameter_definition[
   0, 1,
   UNIT_BOOLEAN,
   STR_RES__FM, STR_RES__FM,
-
-  PRM_FILTER_MODE_2,
-  0, 0,
-  UNIT_INT8,
-  STR_RES_, STR_RES_,
 };
 
 /* static */

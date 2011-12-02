@@ -298,7 +298,15 @@ void AudioRenderingTask() {
       }
     }
     vcf_cutoff_out.Write(engine.voice(0).cutoff());
-    vcf_resonance_out.Write(engine.voice(0).resonance());
+    uint8_t resonance = engine.voice(0).resonance();
+    if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
+      // Apply a knee to the resonance curve.
+      resonance = (resonance >> 1) + (resonance < 128 ? resonance : 128);
+      if (resonance >= 252) {
+        resonance = 255;
+      }
+    }
+    vcf_resonance_out.Write(resonance);
     vca_out.Write(engine.voice(0).vca());
     cv_1_out.Write(engine.voice(0).cv_1());
     cv_2_out.Write(engine.voice(0).cv_2());
