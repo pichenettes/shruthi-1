@@ -354,25 +354,25 @@ static const prog_char raw_parameter_definition[
   STR_RES_OUT, STR_RES_OUT,
   
   // Settings for SSM2044 filter board.
+  PRM_FILTER_CUTOFF,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_CUT, STR_RES_CUTOFF,
+
+  PRM_FILTER_RESONANCE,
+  0, 63,
+  UNIT_UINT8,
+  STR_RES_RESONANCE, STR_RES_RESONANCE,
+
+  PRM_FILTER_ENV,
+  0, 63,
+  UNIT_INT8,
+  STR_RES_ENV1TVCF, STR_RES_ENV1TVCF,
+
   PRM_FILTER_CUTOFF_2,
   0, 127,
   UNIT_RAW_UINT8,
   STR_RES_HPF, STR_RES_HPF,
-
-  PRM_FILTER_RESONANCE_2,
-  0, 0,
-  UNIT_UINT8,
-  STR_RES_, STR_RES_,
-
-  PRM_FILTER_RESONANCE_2,
-  0, 0,
-  UNIT_INT8,
-  STR_RES_, STR_RES_,
-
-  PRM_FILTER_RESONANCE_2,
-  0, 0,
-  UNIT_INT8,
-  STR_RES_, STR_RES_,
   
   // Settings for dual SVF filter board.
   PRM_FILTER_CUTOFF_2,
