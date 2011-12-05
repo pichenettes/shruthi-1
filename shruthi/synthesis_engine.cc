@@ -818,9 +818,12 @@ inline void Voice::ProcessModulationMatrix() {
         amount = -amount;
         source_value = 255 - source_value;
       }
+      if (amount != 63) {
+        source_value = U8Mix(255, source_value, amount << 2);
+      }
       modulation_destinations_[MOD_DST_VCA] = U8U8MulShift8(
-          modulation_destinations_[MOD_DST_VCA],
-          U8Mix(255, source_value, amount << 2));
+            modulation_destinations_[MOD_DST_VCA],
+            source_value);
     }
   }
 }
