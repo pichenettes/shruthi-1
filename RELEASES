@@ -6,6 +6,7 @@ SYNTHESIS
 - The page showing the hpf settings for the SSM2044 filter board simultaneously
 displays the cutoff/resonance of the lpf - allowing both filters to be tweaked
 at the same time.
+- Added a cutoff-coupling mode for the dual SVF filter board.
 - MIDI notes in the 120-128 range are no longer wrapped to 108-116.
 - Fixed a bug causing a faint VCA bleed with some specific combinations of
 modulation sources routed to the VCA.
@@ -13,7 +14,6 @@ modulation sources routed to the VCA.
 CODE
 - 512 bytes have been saved by using the same table for the lowest octaves of
 the triangle oscillator.
-
 
 UI
 
