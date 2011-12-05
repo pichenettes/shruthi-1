@@ -373,7 +373,11 @@ enum CvOperator {
 enum MainFilterMode {
   FILTER_MODE_LP,
   FILTER_MODE_BP,
-  FILTER_MODE_HP
+  FILTER_MODE_HP,
+  
+  FILTER_MODE_LP_COUPLED,
+  FILTER_MODE_BP_COUPLED,
+  FILTER_MODE_HP_COUPLED
 };
 
 enum SecondaryFilterMode {

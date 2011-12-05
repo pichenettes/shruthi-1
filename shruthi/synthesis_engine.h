@@ -276,15 +276,20 @@ class SynthesisEngine : public midi::MidiDevice {
   
   static inline uint8_t filter_routing_byte() {
     uint8_t byte = 0;
-    if (patch_.filter_1_mode_ == FILTER_MODE_BP) {
+    uint8_t filter_1_mode = patch_.filter_1_mode_;
+    if (filter_1_mode >= 3) {
+      filter_1_mode -= 3;
+    }
+    if (filter_1_mode == FILTER_MODE_BP) {
       byte = 2;
-    } else if (patch_.filter_1_mode_ == FILTER_MODE_HP) {
+    } else if (filter_1_mode == FILTER_MODE_HP) {
       byte = 4;
     }
     if (patch_.filter_2_mode_ >= FILTER_MODE_SERIAL_LP && 
         patch_.filter_2_mode_ <= FILTER_MODE_SERIAL_HP) {
       byte |= 1;  // Do not mix filter 1 to the output.
     }
+    
     uint8_t filter_2_mode = patch_.filter_2_mode_;
     if (filter_2_mode >= 3) {
       filter_2_mode -= 3;

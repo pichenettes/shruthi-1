@@ -100,6 +100,9 @@ fx prog.
 lpf
 bpf
 hpf
+lp<
+bp<
+hp<
 +lp
 +bp
 +hp

@@ -841,6 +841,13 @@ inline void Voice::UpdateDestinations() {
   cutoff = S16ClipU14(cutoff + (unregistered_modulation_sources_[0] << 6));
   cutoff = S16ClipU14(cutoff + S8S8Mul(engine.patch_.filter_lfo,
       modulation_sources_[MOD_SRC_LFO_2] + 128));
+
+  // If the secondary filter is linked to the first one, offset its cutoff
+  // by the cutoff value of the first filter.
+  if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM &&
+      engine.patch_.filter_2_mode_ >= FILTER_MODE_LP_COUPLED) {
+    dst_[MOD_DST_CV_1] = S16ClipU14(dst_[MOD_DST_CV_1] + cutoff);
+  }
   
   // Store in memory all the updated parameters.
   modulation_destinations_[MOD_DST_FILTER_CUTOFF] = U14ShiftRight6(cutoff);
@@ -863,6 +870,7 @@ inline void Voice::UpdateDestinations() {
     new_attack = Clip(new_attack - attack_mod, 0, 127);
     envelope_[i].UpdateAttack(new_attack);
   }
+  
 }
 
 /* static */

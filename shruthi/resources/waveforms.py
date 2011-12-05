@@ -160,6 +160,11 @@ for zone in range(num_zones):
                        Scale(saw[quadrature])))
 
 
+triangle_lowest_octave = bl_tri_tables[0]
+for i in xrange(3):
+  bl_tri_tables[i] = triangle_lowest_octave
+
+
 waveforms.extend(bl_pulse_tables)
 waveforms.extend(bl_square_tables)
 waveforms.extend(bl_saw_tables)

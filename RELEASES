@@ -2,8 +2,17 @@ v0.95 --------------------------------------------------------------------------
 
 SYNTHESIS
 
-- A menu has been added to configure the routing of the Polivoks filter board.
+- A page has been added to configure the routing of the Polivoks filter board.
+- The page showing the hpf settings for the SSM2044 filter board simultaneously
+displays the cutoff/resonance of the lpf - allowing both filters to be tweaked
+at the same time.
 - MIDI notes in the 120-128 range are no longer wrapped to 108-116.
+- Fixed a bug causing a faint VCA bleed with some specific combinations of
+modulation sources routed to the VCA.
+
+CODE
+- 512 bytes have been saved by using the same table for the lowest octaves of
+the triangle oscillator.
 
 
 UI
@@ -11,26 +20,37 @@ UI
 - Fixed a bug occurring when scrolling backwards from the second filter page.
 
 
+CODE
+
 v0.94 --------------------------------------------------------------------------
 
 SYNTHESIS
 
 - Fixed a bug that caused a loudness drop of the vowel oscillator
-- Fixed a bug that caused the filtered noise "oscillator" to output incorrect values when the parameter was set to a high value.
-- The envelopes now have a smoother curve, and slower attack / decay / release times can be achieved.
-- Fixed a timing bug that caused the main oscillators pitch to be off by 8 cents.
+- Fixed a bug that caused the filtered noise "oscillator" to output incorrect
+values when the parameter was set to a high value.
+- The envelopes now have a smoother curve, and slower attack / decay / release
+times can be achieved.
+- Fixed a timing bug that caused the main oscillators pitch to be off by 8
+cents.
 
 CODE
 
 - The z-family oscillators now share common code, saving ~700 bytes of code.
 - Resource table de-duplication saved ~200 bytes of code.
 - The vowel oscillator code has been simplified by ~100 bytes.
-- MIDI input is polled from the 39kHz audio interrupt rather than interrupt-driven. This saves ~80 CPU cycles per byte of MIDI data received, since there is no extra ISR intro/outtro when a MIDI byte is received.
+- MIDI input is polled from the 39kHz audio interrupt rather than
+interrupt-driven. This saves ~80 CPU cycles per byte of MIDI data received,
+since there is no extra ISR intro/outtro when a MIDI byte is received.
 
 MIDI IMPLEMENTATION
 
-- The Shruthi-1 now uses an officially registered manufacturer ID for SysEx communication. As a result, patch dumps/backups made with previous versions will still be readable with v0.94 and onwards, but patch dumps made with v0.94 won't be readable with earlier versions.
-- CC90 and CC87 can be used to control the cutoff frequency and resonance of the second filter on the dual SVF filter board.
+- The Shruthi-1 now uses an officially registered manufacturer ID for SysEx
+communication. As a result, patch dumps/backups made with previous versions will
+still be readable with v0.94 and onwards, but patch dumps made with v0.94 won't
+be readable with earlier versions.
+- CC90 and CC87 can be used to control the cutoff frequency and resonance of the
+second filter on the dual SVF filter board.
 
 
 v0.93 --------------------------------------------------------------------------
