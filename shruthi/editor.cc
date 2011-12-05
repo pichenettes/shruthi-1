@@ -1230,7 +1230,9 @@ void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
       value = int16_t(int8_t(value));
       break;
     case UNIT_BOOLEAN:
-      value = value != 0;
+      if (value > 0) {
+        value = 1;
+      }
       break;
     case UNIT_INDEX:
       value++;
