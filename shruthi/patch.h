@@ -355,6 +355,8 @@ enum Operator {
   OP_FUZZ,
   OP_CRUSH_4,
   OP_CRUSH_8,
+  OP_FOLD,
+  OP_BITS,
   OP_LAST
 };
 

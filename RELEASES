@@ -10,6 +10,12 @@ at the same time.
 - MIDI notes in the 120-128 range are no longer wrapped to 108-116.
 - Fixed a bug causing a faint VCA bleed with some specific combinations of
 modulation sources routed to the VCA.
+- Added a new mixing mode, "fold", which equally mixes oscillator 1 and 2 and
+send the output to a fold-back distortion, the amount of which is controlled by
+"mix"
+- Added a new mixing mode, "bits", which equally mixes oscillator 1 and 2 and
+send the output to a bit-reduction distortion, the amount of which is controlled
+by "mix".
 
 CODE
 - 512 bytes have been saved by using the same table for the lowest octaves of

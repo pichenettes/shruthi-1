@@ -248,6 +248,8 @@ static const prog_char str_res_ring[] PROGMEM = "ring";
 static const prog_char str_res_fuzz[] PROGMEM = "fuzz";
 static const prog_char str_res_gg4[] PROGMEM = ">>4";
 static const prog_char str_res_gg8[] PROGMEM = ">>8";
+static const prog_char str_res_fold[] PROGMEM = "fold";
+static const prog_char str_res_bits[] PROGMEM = "bits";
 static const prog_char str_res_stp[] PROGMEM = "stp";
 static const prog_char str_res_arpSlt[] PROGMEM = "arp+lt";
 static const prog_char str_res_seqSlt[] PROGMEM = "seq+lt";
@@ -626,6 +628,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_fuzz,
   str_res_gg4,
   str_res_gg8,
+  str_res_fold,
+  str_res_bits,
   str_res_stp,
   str_res_arp,
   str_res_arpSlt,

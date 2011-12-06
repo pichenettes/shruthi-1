@@ -1000,6 +1000,28 @@ inline void Voice::ProcessBlock() {
         buffer_[i] ^= osc_2_gain;
       }
       break;
+    case OP_FOLD:
+      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+        buffer_[i] >>= 1;
+        buffer_[i] += (osc2_buffer_[i] >> 1);
+        buffer_[i] = U8Mix(
+            buffer_[i],
+            buffer_[i] + 128,
+            osc_1_gain,
+            osc_2_gain);
+      }
+      break;
+    case OP_BITS:
+      {
+        osc_2_gain >>= 5;
+        osc_2_gain = 255 - ((1 << osc_2_gain) - 1);
+        for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+          buffer_[i] >>= 1;
+          buffer_[i] += (osc2_buffer_[i] >> 1);
+          buffer_[i] &= osc_2_gain;
+        }
+      }
+      break;
     default:
       for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
         buffer_[i] = U8Mix(buffer_[i], osc2_buffer_[i], osc_1_gain, osc_2_gain);

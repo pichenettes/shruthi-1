@@ -270,6 +270,8 @@ xor
 fuzz
 >>4
 >>8
+fold
+bits
 
 stp
 arp
