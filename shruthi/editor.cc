@@ -271,18 +271,20 @@ void Editor::PageChange() {
         uint8_t index = KnobIndexToParameterId(i);
         const ParameterDefinition& parameter = (
             ParameterDefinitions::parameter_definition(index));
-        int16_t value = GetParameterValue(parameter.id);
         if (parameter.unit == UNIT_INT8) {
+          int16_t value = GetParameterValue(parameter.id);
           value -= static_cast<int8_t>(parameter.min_value);
           value <<= 8;
           value /= (static_cast<int8_t>(parameter.max_value) - 
                     static_cast<int8_t>(parameter.min_value));
+          locked_value_[i] = value >> 1;
         } else {
+          uint16_t value = GetParameterValue(parameter.id);
           value -= parameter.min_value;
           value <<= 8;
           value /= (parameter.max_value - parameter.min_value);
+          locked_value_[i] = value >> 1;
         }
-        locked_value_[i] = value >> 1;
       }
     } else {
       memset(locked_, 0, kNumEditingPots);

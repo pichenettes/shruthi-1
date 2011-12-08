@@ -24,9 +24,8 @@ the triangle oscillator.
 UI
 
 - Fixed a bug occurring when scrolling backwards from the second filter page.
+- Fixed a bug preventing the tempo and LFO rate parameters to be edited with the pot, when the unit is configured in "snap" mode.
 
-
-CODE
 
 v0.94 --------------------------------------------------------------------------
 
