@@ -183,6 +183,14 @@ void SynthesisEngine::TouchPatch(uint8_t cascade) {
     if (system_settings_.midi_out_mode >= MIDI_OUT_2_1) {
       Storage::SysExDump(&patch_);
     }
+#ifdef SERIAL_PATCH_DUMP
+    Serial<CvTxPort, 4800, DISABLED, POLLED> tx_port;
+    tx_port.Init();
+    uint8_t* data = &data_access_byte_[1];
+    for (uint8_t i = 0; i < sizeof(Patch); ++i) {
+      tx_port.Write(*data++);
+    }
+#endif
   }
   volume_ = 255;
 }

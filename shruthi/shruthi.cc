@@ -269,6 +269,7 @@ void AudioRenderingTask() {
   if (audio_out.writable_block()) {
     engine.ProcessBlock();
     uint8_t v;
+#ifndef SERIAL_PATCH_DUMP
     if (engine.system_settings().expansion_filter_board == FILTER_BOARD_DSP) {
       // Shove two bytes to the serial output used for transmitting CVs to the
       // digital filter board.
@@ -297,6 +298,7 @@ void AudioRenderingTask() {
         cv_io_round_robin = 0;
       }
     }
+#endif  // SERIAL_PATCH_DUMP
     vcf_cutoff_out.Write(engine.voice(0).cutoff());
     uint8_t resonance = engine.voice(0).resonance();
     if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
