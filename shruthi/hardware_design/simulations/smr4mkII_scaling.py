@@ -36,26 +36,26 @@ def Divide(x, a, b):
 
 
 # Another variant with +/- 8V
-# vcc = 8.0
-# vee = -8.0
-# gnd = 0.0
-# num_poles = 4
-# 
-# r_cutoff_cv_input = 57.2 * k
-# r_cutoff_negative_trim = 150 * k
-# r_cutoff_feedback = 2.2 * k
-# r_current_source = 100 * k
-
-# Another variant with +/- 8V and a 2.5V referenced CV
 vcc = 8.0
 vee = -8.0
 gnd = 0.0
 num_poles = 4
 
-r_cutoff_cv_input = 56 * k
-r_cutoff_negative_trim = 330 * k
-r_cutoff_feedback = 4.7 * k
-r_current_source = 150 * k
+r_cutoff_cv_input = 57.2 * k
+r_cutoff_negative_trim = 150 * k
+r_cutoff_feedback = 2.2 * k
+r_current_source = 100 * k
+
+# Another variant with +/- 8V and a 2.5V referenced CV
+# vcc = 8.0
+# vee = -8.0
+# gnd = 0.0
+# num_poles = 4
+# 
+# r_cutoff_cv_input = 56 * k
+# r_cutoff_negative_trim = 330 * k
+# r_cutoff_feedback = 4.7 * k
+# r_current_source = 150 * k
 
 # Voltage divider resistors in filter stages.
 r_small = 220.0
@@ -87,5 +87,5 @@ i_max = CutoffToIcontrol(cutoff_max)
 # print 'Expected control current range:', i_min, i_max
 
 min_cutoff = Cutoff(CvPostToIcontrol(CvPreToCvPost(0.0)) / num_poles)
-max_cutoff = Cutoff(CvPostToIcontrol(CvPreToCvPost(2.5)) / num_poles)
+max_cutoff = Cutoff(CvPostToIcontrol(CvPreToCvPost(5.0)) / num_poles)
 print max_cutoff / min_cutoff, 2 ** (128.0 / 12), min_cutoff, max_cutoff
