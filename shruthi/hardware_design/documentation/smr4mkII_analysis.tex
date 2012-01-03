@@ -10,7 +10,7 @@
 \headsep=0in
 \oddsidemargin=0in
 \evensidemargin=0in
-\title{Analysis of the SMR-4 VCF/VCA board\\Second design revision}
+\title{Analysis of the SMR-4 VCF/VCA board\\Second revision}
 \author{Olivier Gillet \\ \tt olivier@mutable-instruments.net}
 \date{}
 \begin{document}
@@ -304,5 +304,28 @@ Resonance is achieved by feeding back a fraction of the filter output signal int
 First, the current output by the OTA is not converted back into a voltage by an op-amp. Instead, it is directly injected at the summing node of the first OTA-integrator cell. A way to look at it: the $220 \Omega$ resistor to ground at the OTA-integrator cell inverting input does the current to voltage conversion.
 
 Then, the resonance VCA is fed not only with the filter output, but also with a fraction of the unfiltered input signal itself. This causes the level of the signal entering the filter to increase as resonance is increased, and helps in compensating the dreaded ``resonance loudness drop" of 4-pole filters. An extra refinement here is the the input signal is coupled into the resonance VCA through an undersized capacitor. This will cause the resonance loudness drop to be compensated only in the highest regions of the spectrum ; creating brighter and shinier sounds when the resonance is increased. This trick was inspired by the Jupiter-8 filter circuit.
+
+\section*{Foreword: learning from mistakes}
+
+18 months and roughly 1000 units have happened between the design of the original filter (which was my first shot at doing analog synth circuits) and this revision. This section briefly discusses some of the changes:
+
+\begin{itemize}
+\item The main ``awkwardness" in the original design was the exponential converter. All the calculations had been done with a pair of NPN; until I realized in shock that the current biasing pin on the LM13700 is below ground. My attempt to save the design with PNP ``mirroring" the current from the exponential converter was rather inelegant.
+\item During the design of the first version, many efforts had been done to get all the part values ``right", which sometimes requested additional voltage dividers to get required voltage ratios using E12 or E24 values -- this can be seen in the filter cutoff CV scaler. This ultimately proved futile as some parts have rather wide tolerances (at best 2.5\% for capacitors); and thus came the trimmers.
+\item Trimmers are evil, do not use them. Some builders are obsessed by them and are chasing a magical combination of settings. It distracts the attention of some builders trying to identify a build problem; while some builders having committed grave assembly mistakes do not bother fixing them because they wrongly assume the bad sound comes from inadequate trimming. Finally, giving choices to users is not very compatible with the diffusion and sharing of patch libraries (how my patch will sound on someone else's device which has a different cutoff range). I am now keeping trimmers for the strict minimum -- V/Oct tuning and would rather rely on sane defaults even if they are at $\pm 5\%$.
+\item I made a point of having a DC-coupled VCA in the first version to have the flattest response in the low-end. This requested the adjustment of a trimmer to compensate for a slight DC offset at the output of the filter -- and I suspect that a significant proportion of builders ignored it or got it wrong. I am no longer scared of AC-coupling and losing half a dB at 10 Hz.
+\item On the original filter, the compensation for the resonance loudness drop was done at the final VCA. Here it is done directly within the resonance VCA - a simpler design I learnt from looking at the schematics of IR3109-based filters.
+\item The original design had a few ``current to voltage to current" blocks that came from piecing together basic bits of circuits but could ultimately be eliminated.
+\item Some better choices of parts: DC jacks with thick legs (easier to source), trimmers with side adjustment (trimming can be done without disassembling the unit), $0.1in$ space solder pads for pots.
+\end{itemize}
+
+To conclude, a list of things that did not work well during the design of this filter and that I had to throw away:
+
+\begin{itemize}
+\item Unipolar power supply and virtual ground. In my quest of getting rid of the expensive LT1054, I worked on a first design with a 9V unipolar supply and a virtual ground. In spite of trying many different techniques for getting a clean middle rail (buffered rail splitter IC ; precision voltage reference ; voltage regulator), noise was always a problem and the virtual ground circuit always performed 5 or 6 dB worse than its split supply equivalent. Even with copious (to the point of being more expensive than a LT1054) decoupling. Worst part: those super useful 9V PP3 battery to 2.1mm jack clips could not be used, since an input voltage above 11V had to be provided to the filter board.
+\item AC power supply. What's more expensive than a LT1054? A pair of heatsinks and big caps.
+\item LM13700 Darlington buffers. The ``OTA-C-buffer" configuration is actually very common, but I could not get it to work with the LM13700 in a satisfying way. The main problem was self-oscillation, which, for different values of the cutoff frequency, did not appear at the same values of the resonance VCA gain. Either a loud, Curtis-like, distorted sine wave for high cutoff values and a normal sine wave for the lowest values ; or a normal sine wave for high cutoff values and no self-oscillation for the lowest values. It was as if the Darlington buffers had a very slight high-pass effect.
+\item LM13700 linearization diodes. Where's the fun gone?
+\end{itemize}
 
 \end{document}
