@@ -119,7 +119,7 @@ I_{c2} &=& I_{s2} \left(\exp \left( \frac{V_{eb2}}{V_T} \right) - 1 \right) \\
 I_{c3} &=& I_{s3} \left(\exp \left( \frac{V_{eb3}}{V_T} \right) - 1 \right)
 \end{eqnarray}
 
-$V_T$ is the thermal voltage, equal to $26 mV$ at room temperature. We will see later that $\exp \left( \frac{V_{eb2}}{V_T} \right)$ is much bigger than 1, it is thus a sane approximation to ignore the $- 1$ term. Assuming that the two transistors have the same characteristics, $I_{s2} = I_{s3}$. Thus we have, by substituting in the first equation the value of $I_{s2}$ derived from the second one:
+$V_T$ is the thermal voltage, equal to $26 mV$ at room temperature. We have $|V_{e2}| < 200mV$ (we will see later that this is the range giving cutoff frequencies in the audio range), $V_{b2} \simeq 0.7V$ (1 diode drop) ; so $V_{eb2} >> V_T$. It is thus a sane approximation to ignore the $- 1$ term. Assuming that the two transistors have the same characteristics, $I_{s2} = I_{s3}$. Thus we have, by substituting in the first equation the value of $I_{s2}$ derived from the second one:
 
 \begin{equation}
 I_{c2} = I_{c3} \exp \left( \frac{V_{eb2} - V_{eb3}}{V_T} \right)
@@ -178,9 +178,7 @@ Note that the use of a supply rail ($V_{ee}$) to generate a negative reference v
 
 \subsection{An important consideration}
 
-All the computations in the previous steps are done under the assumption that the exponential current source is connected to only one OTA. In the SMR4 mkII filter, the exponential converter is connected to 4 OTAs. Assuming the OTAs have similar characteristics, the biasing current $I_{freq}$ received by each OTA is only one fourth of the value of $I_{c2}$.
-
-This saves 3 transistors but has a drawback: in case one of the OTA cells fails, the current received by the other cells will be higher. Under some circumstances (incorrectly trimmed filter and maximum cutoff), this excess of current could potentially damage the remaining cells. Another minor drawback is the design relying on each cell having exactly similar characteristics. A robust way of addressing this problem commonly see in other designs is to duplicate 4 times the left side of figure \ref{fig:expo}.
+All the computations in the previous steps are done under the assumption that the exponential current source is connected to only one OTA. In the SMR4 mkII filter, the exponential converter is connected to 4 OTAs. Assuming the OTAs have similar characteristics, the biasing current $I_{freq}$ received by each OTA is only one fourth of the value of $I_{c2}$. A more common solution seen in other designs is to duplicate 4 times the left side of figure \ref{fig:expo}. Not doing so saves 3 transistors but has a drawback: in case one of the OTA cells fails, the current received by the other cells will be higher. This put a constraint on the current limiting resistor $R_{12}$: if it is too low, the maximum current emitted by the exponential converter will be acceptable for 4 cells but not for 2 or 3 in case of failure ; and if it is too high, the maximum current will not give a sufficiently high cutoff frequency.
 
 \subsection{Component values}
 
@@ -212,7 +210,7 @@ We provide in the rest of this section a validation of the selected values.
 
 \paragraph{Input impedance} Greater than $47k\Omega$, all good!
 
-\paragraph{OTA small current constraint} The worst case corresponds to the maximum cutoff value, which can be obtained with an input signal $V_{fin} = 5V$, and $R_{34}$ trimmed to $20k\Omega$. In this case, $V_{freq} = -161mV$ and $I_{c2} = 7.4mA$, yielding $I_{freq} = 1.8mA$ per OTA, below the $2mA$ maximum rating.
+\paragraph{OTA small current constraint} At worst, the output of $IC4C$ is $3.7V$ (clipping output voltage for a $TL074$) ; and we have $V_{e2} = V_{e3} = 0.7V$. The maximum current produced by the exponential converter is thus $3.0mA$ with $R_{12} = 1k\Omega$. This is enough to protect one of the LM13700 (2 OTA cells) in case the other one is not inserted in its socket.
 
 \paragraph{Cutoff frequency range} Let us check first that the lowest cutoff frequency attainable with the filter has the expected value. When $V_{fin} = 0V$, $V_{freq} = -73mV$ and $I_{freq} = 0.23\mu A$. The lowest cutoff frequency is thus: $14.5 Hz$.
 
@@ -221,8 +219,8 @@ Let us now check what is the maximum cutoff frequency that can be reached. $V_{f
 \begin{eqnarray}
 0 \Omega \leq &R_{34}& \leq 20 k\Omega \\
 91mV \leq &V_{freq}& \leq 161mV \\
-0.125 mA \leq &I_{freq}& \leq 1.85 mA \\
-8.0kHz \leq &f& \leq 118kHz
+0.125 mA \leq &I_{freq}& \leq \frac{3.0}{4} mA \\
+8kHz \leq &f& \leq 48kHz
 \end{eqnarray}
 
 The target frequency range is thus feasible. Note that the exact 1:1 tracking is achieved with $R_{34} = 10.2 kHz$, so the default factory position of the trimmer (middle) is roughly the right one.
