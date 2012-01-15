@@ -24,8 +24,18 @@ def Parallel(a, b):
 def Divide(x, a, b):
   return x * a / (a + b)
 
-# vcc = 5.0
 # vee = -5.0
+# gnd = 0.0
+# num_poles = 4
+# 
+# r_cutoff_cv_input = 47 * k
+# r_cutoff_negative_trim = 150 * k
+# r_cutoff_feedback = 2.2 * k
+# r_current_source = 330 * k
+
+
+# Another variant with a negative voltage reference obtained with a Zener
+# vee = -4.7
 # gnd = 0.0
 # num_poles = 4
 # 
@@ -34,28 +44,15 @@ def Divide(x, a, b):
 # r_cutoff_feedback = 2.2 * k
 # r_current_source = 330 * k
 
-
-# Another variant with +/- 8V
-vcc = 8.0
-vee = -8.0
+# Another variant with a 4.7V Zener for offset and a 2.5V wide CV
+vee = -4.7
 gnd = 0.0
 num_poles = 4
 
-r_cutoff_cv_input = 57.2 * k
-r_cutoff_negative_trim = 150 * k
-r_cutoff_feedback = 2.2 * k
-r_current_source = 100 * k
-
-# Another variant with +/- 8V and a 2.5V referenced CV
-# vcc = 8.0
-# vee = -8.0
-# gnd = 0.0
-# num_poles = 4
-# 
-# r_cutoff_cv_input = 56 * k
-# r_cutoff_negative_trim = 330 * k
-# r_cutoff_feedback = 4.7 * k
-# r_current_source = 150 * k
+r_cutoff_cv_input = 56 * k
+r_cutoff_negative_trim = 330 * k
+r_cutoff_feedback = 4.7 * k
+r_current_source = 330 * k
 
 # Voltage divider resistors in filter stages.
 r_small = 220.0
@@ -86,6 +83,9 @@ i_min = CutoffToIcontrol(cutoff_min)
 i_max = CutoffToIcontrol(cutoff_max)
 # print 'Expected control current range:', i_min, i_max
 
+print CvPostToIcontrol(CvPreToCvPost(5.0)) * 1000
+
 min_cutoff = Cutoff(CvPostToIcontrol(CvPreToCvPost(0.0)) / num_poles)
-max_cutoff = Cutoff(CvPostToIcontrol(CvPreToCvPost(5.0)) / num_poles)
+max_cutoff = Cutoff(CvPostToIcontrol(CvPreToCvPost(2.5)) / num_poles)
+# max_cutoff = Cutoff(0.003 / num_poles)
 print max_cutoff / min_cutoff, 2 ** (128.0 / 12), min_cutoff, max_cutoff
