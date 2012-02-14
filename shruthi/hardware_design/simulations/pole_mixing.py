@@ -26,6 +26,30 @@ settings = [
   (1, 3, 6, 4),  # 3AP + 1LP 1LP / 3AP + 1LP
 ]
 
+responses = [
+  ('lp1', 0, 1, 0, 0, 0),
+  ('lp2', 0, 1, 0, 0, 1),
+  ('lp3', 0, 0, 0, 1, 0),
+  ('lp4', 0, 0, 0, 1, 1),
+
+  ('hp1', 1, 1, 0, 0, 0),
+  ('hp2', 1, 2, 1, 0, 0),
+  ('hp3', 1, 3, 3, 1, 0),
+
+  ('bp2', 1, 1, 0, 0, 1),
+  ('bp4', 0, 1, 2, 1, 1),
+
+  ('hp2+lp1', 1, 2, 1, 0, 1),
+  ('hp3+lp1', 1, 3, 3, 1, 1),
+
+  ('notch', 1, 2, 2, 0, 0),
+  ('notch+lp1', 1, 2, 2, 0, 1),
+
+  ('phaser', 1, 3, 6, 4, 0),
+  ('phaser+lp1', 1, 3, 6, 4, 1),
+]
+
+
 pylab.figure(figsize=(8, 16))
 k = 0
 for i in xrange(8):
@@ -39,3 +63,23 @@ for i in xrange(8):
     pylab.semilogx(f, (numpy.angle(t) + numpy.pi) % (2 * numpy.pi), 'g')
     axes.set_ylim(-60, 10)
 pylab.savefig('response.pdf')
+
+# for r in responses:
+#   name, a, b, c, d, lp1 = r
+#   t = response(a, b, c, d, lp1)
+#   pylab.figure()
+#   pylab.semilogx(f, 20 * numpy.log10(abs(t)).T)
+#   pylab.title(name)
+#   pylab.xlabel('frequency')
+#   pylab.ylabel('|H(p)|')
+#   axes = pylab.gca()
+#   axes.set_ylim(-60, 10)
+#   pylab.savefig('response_' + name.replace('+', '_') + '.pdf')
+
+# t = 1 / (1 + s) - (1 - s) ** 3 / (1 + s) ** 4
+# pylab.semilogx(f, 20 * numpy.log10(abs(t)).T)
+# pylab.xlabel('frequency')
+# pylab.ylabel('|H(p)|')
+# axes = pylab.gca()
+# axes.set_ylim(-60, 10)
+# pylab.show()
