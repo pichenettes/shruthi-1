@@ -22,10 +22,8 @@ upload_all:	$(FIRMWARE) $(BOOTLOADER)
 			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i -U eeprom:w:$(EEPROM):i
 
 bake_all:	$(FIRMWARE) $(BOOTLOADER)
-		echo "sck 10\nquit\n" | $(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -tuF
 		make -f bootloader/makefile fuses
-		echo "sck 1\nquit\n" | $(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e -tuF
-		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
+		$(AVRDUDE) -B 1 $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
 			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i \
 			-U eeprom:w:$(EEPROM):i -U lock:w:0x2f:m
 
