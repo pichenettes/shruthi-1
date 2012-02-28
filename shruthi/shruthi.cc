@@ -329,22 +329,6 @@ void AudioGlitchMonitoringTask() {
   }
 }
 
-typedef NaiveScheduler<kSchedulerNumSlots> Scheduler;
-
-Scheduler scheduler;
-
-/* static */
-template<>
-Task Scheduler::tasks_[] = {
-    { &AudioRenderingTask, 16 },
-    { &MidiTask, 6 },
-    { &UpdateLedsTask, 4 },
-    { &UpdateDisplayTask, 2 },
-    { &AudioGlitchMonitoringTask, 1 },
-    { &InputTask, 2 },
-    { &CvTask, 1 },
-};
-
 inline void FlushMidiOut() {
   if (midi_dispatcher.readable()) {
     if (midi_io.writable()) {
@@ -422,11 +406,40 @@ void Init() {
   } else {
     editor.DisplaySplashScreen(STR_RES_V + 1);
   }
-  
-  scheduler.Init();
 }
+
+char task_sequence[] = "MGMLMIDLMCMLMIDL";
 
 int main(void) {
   Init();
-  scheduler.Run();
+  uint8_t task;
+  while (1) {
+    task = (task + 1) & 0x0f;
+    AudioRenderingTask();
+    switch (task_sequence[task]) {
+      case 'M':
+        MidiTask();
+        break;
+        
+      case 'L':
+        UpdateLedsTask();
+        break;
+        
+      case 'D':
+        UpdateDisplayTask();
+        break;
+        
+      case 'G':
+        AudioGlitchMonitoringTask();
+        break;
+        
+      case 'I':
+        InputTask();
+        break;
+        
+      case 'C':
+        CvTask();
+        break;
+    }
+  }
 }
