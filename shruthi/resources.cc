@@ -235,7 +235,7 @@ static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v0_95[] PROGMEM = "mutable    v0.95";
+static const prog_char str_res_mutable____v0_96[] PROGMEM = "mutable    v0.96";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_x2_ext[] PROGMEM = "x2 ext";
@@ -614,7 +614,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_compare,
   str_res_,
   str_res_v,
-  str_res_mutable____v0_95,
+  str_res_mutable____v0_96,
   str_res_instruments_671,
   str_res_extern,
   str_res_x2_ext,
@@ -1677,41 +1677,6 @@ const prog_uint8_t wav_res_bandlimited_triangle_0[] PROGMEM = {
       35,     32,     30,     28,     27,     25,     22,     20,
       19,     16,     15,     13,     11,      8,      7,      4,
        4,
-};
-const prog_uint8_t wav_res_bandlimited_triangle_3[] PROGMEM = {
-       2,      4,      5,      7,     10,     11,     14,     14,
-      19,     18,     22,     23,     25,     27,     30,     30,
-      34,     35,     36,     40,     41,     43,     44,     48,
-      48,     52,     52,     55,     56,     60,     60,     63,
-      64,     67,     69,     70,     73,     74,     77,     78,
-      81,     82,     85,     85,     90,     89,     93,     94,
-      96,     99,     99,    103,    104,    106,    108,    110,
-     112,    114,    116,    118,    120,    121,    125,    125,
-     128,    130,    132,    133,    136,    138,    139,    142,
-     143,    146,    148,    149,    151,    154,    155,    158,
-     159,    161,    164,    165,    167,    170,    170,    174,
-     175,    177,    179,    181,    183,    185,    187,    189,
-     191,    193,    195,    196,    200,    200,    203,    204,
-     208,    208,    210,    214,    214,    216,    219,    220,
-     223,    225,    226,    228,    230,    233,    235,    235,
-     239,    240,    242,    245,    246,    247,    251,    252,
-     255,    252,    252,    249,    246,    245,    243,    242,
-     238,    238,    234,    233,    232,    229,    227,    225,
-     223,    221,    220,    217,    215,    213,    212,    209,
-     208,    204,    204,    202,    199,    198,    195,    193,
-     192,    189,    189,    184,    184,    182,    180,    177,
-     176,    173,    173,    169,    168,    165,    165,    161,
-     160,    158,    156,    154,    151,    151,    148,    145,
-     145,    142,    139,    139,    136,    134,    132,    131,
-     127,    127,    124,    122,    121,    118,    116,    114,
-     113,    110,    109,    106,    105,    101,    102,     98,
-      96,     95,     93,     90,     88,     88,     84,     82,
-      82,     78,     77,     74,     74,     70,     69,     66,
-      66,     62,     62,     58,     57,     56,     52,     51,
-      49,     47,     46,     42,     42,     38,     38,     35,
-      33,     32,     28,     28,     25,     24,     20,     21,
-      16,     16,     13,     12,      9,      8,      5,      3,
-       2,
 };
 const prog_uint8_t wav_res_bandlimited_triangle_4[] PROGMEM = {
        2,      3,      3,      5,      7,     10,     11,     14,
@@ -4057,7 +4022,7 @@ const prog_uint8_t* waveform_table[] = {
   wav_res_bandlimited_triangle_0,
   wav_res_bandlimited_triangle_0,
   wav_res_bandlimited_triangle_0,
-  wav_res_bandlimited_triangle_3,
+  wav_res_bandlimited_triangle_0,
   wav_res_bandlimited_triangle_4,
   wav_res_bandlimited_triangle_5,
   wav_res_sine,

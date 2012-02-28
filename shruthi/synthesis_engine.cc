@@ -686,6 +686,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     transient_generator.Trigger();
     modulation_sources_[MOD_SRC_VELOCITY] = velocity << 1;
     modulation_sources_[MOD_SRC_RANDOM] = Random::state_msb();
+    osc_2.Reset();
   }
   // At boot up, or when the note is not played legato and the portamento
   // is in auto mode, do not ramp up the pitch but jump straight to the target

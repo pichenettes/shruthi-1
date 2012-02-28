@@ -114,6 +114,8 @@ struct VowelSynthesizerState {
 
 struct FilteredNoiseState {
   uint8_t lp_noise_sample;
+  uint16_t rng_state;
+  uint16_t rng_reset_value;
 };
 
 struct QuadSawPadState {
@@ -139,6 +141,10 @@ template<int id>
 class Oscillator {
  public:
   Oscillator() { }
+  
+  static inline void Reset() {
+    data_.no.rng_reset_value = Random::GetByte() + 1;
+  }
 
   static inline void Render(
       uint8_t shape,
@@ -612,21 +618,32 @@ class Oscillator {
   // ------- Low-passed, then high-passed white noise --------------------------
   static void RenderFilteredNoise(uint8_t* buffer) {
     uint8_t size = kAudioBlockSize;
+    uint16_t rng_state = data_.no.rng_state;
+    uint8_t filter_coefficient = parameter_ << 2;
+    if (filter_coefficient <= 4) {
+      filter_coefficient = 4;
+    }
     while (size--) {
-      uint8_t innovation = Random::GetByte();
+      if (id == 2) {
+        if (*sync_state_++) {
+          rng_state = data_.no.rng_reset_value;
+        }
+      }
+      rng_state = (rng_state >> 1) ^ (-(rng_state & 1) & 0xb400);
+      uint8_t noise_sample = rng_state >> 8;
       // This trick is used to avoid having a DC component (no innovation) when
       // the parameter is set to its minimal or maximal value.
-      uint8_t offset = parameter_ == 127 ? 0 : 2;
       data_.no.lp_noise_sample = U8Mix(
           data_.no.lp_noise_sample,
-          innovation,
-          offset + (parameter_ << 2));
+          noise_sample,
+          filter_coefficient);
       if (parameter_ >= 64) {
-        *buffer++ = innovation - data_.no.lp_noise_sample - 128;
+        *buffer++ = noise_sample - data_.no.lp_noise_sample - 128;
       } else {
         *buffer++ = data_.no.lp_noise_sample;
       }
     }
+    data_.no.rng_state = rng_state;
   }
 
   DISALLOW_COPY_AND_ASSIGN(Oscillator);

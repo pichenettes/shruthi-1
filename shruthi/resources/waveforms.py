@@ -161,7 +161,7 @@ for zone in range(num_zones):
 
 
 triangle_lowest_octave = bl_tri_tables[0]
-for i in xrange(3):
+for i in xrange(4):
   bl_tri_tables[i] = triangle_lowest_octave
 
 
