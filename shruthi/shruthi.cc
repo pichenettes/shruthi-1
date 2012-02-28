@@ -138,78 +138,75 @@ void UpdateDisplayTask() {
   display.Tick();
 }
 
-void InputTask() {
+static uint8_t previous_page;
+
+void SwitchesTask() {
+  uint8_t idle;
   Pots::Event pot_event;
-  static uint8_t idle;
-  static int8_t delta;
-  static uint8_t previous_page;
-TASK_BEGIN_NEAR
-  while (1) {
-    previous_page = editor.current_page();
-    idle = 0;
+  
+  previous_page = editor.current_page();
+  idle = 0;
 
-    // Read the switches.
-    switches.Read();
-    
-    // If a button was pressed, perform the action. Otherwise, if nothing
-    // happened for 1.5s, update the idle flag.
-    if (switches.idle_time() > (engine.system_settings().display_delay << 7)) {
-      idle = 1;
-    } else {
-      KeyEvent e = switches.key_event();
-      if (e.id != KEY_NONE) {
-        editor.HandleKeyEvent(e);
-      }
+  // Read the switches.
+  switches.Read();
+  
+  // If a button was pressed, perform the action. Otherwise, if nothing
+  // happened for 1.5s, update the idle flag.
+  if (switches.idle_time() > (engine.system_settings().display_delay << 7)) {
+    idle = 1;
+  } else {
+    KeyEvent e = switches.key_event();
+    if (e.id != KEY_NONE) {
+      editor.HandleKeyEvent(e);
     }
-
-    // Read the ADC.
-    analog_inputs.Scan();
-    pot_event = pots.Read();
-
-    // Update the editor if something happened.
-    // Revert back to the main page when nothing happened for 1.5s.
-    if (pot_event.event == EVENT_NONE) {
-      if (idle &&
-          pot_event.time > (engine.system_settings().display_delay << 7)) {
-        editor.Relax();
-      }
-    } else {
-      editor.HandleInput(pot_event.id, pot_event.value);
-    }
-    TASK_SWITCH;
-
-    if (encoder.increment()) {
-      switches.Touch();
-      int8_t increment = encoder.increment();
-      if (switches.shifted()) {
-        switches.InhibitShiftRelease();
-        increment *= 10;
-      }
-      editor.HandleIncrement(increment);
-    } else {
-      if (encoder.clicked()) {
-        switches.Touch();
-        editor.HandleClick();
-      }
-    }
-    encoder.Flush();
-    // In case we have moved to a different page, make the pots less sensitive
-    // to changes to make sure that a subtle change to a pot won't create a
-    // discontinuity.
-    if (editor.current_page() != previous_page) {
-      pots.Lock(32);
-    }
-    TASK_SWITCH;
   }
-TASK_END
+
+  // Read the ADC.
+  analog_inputs.Scan();
+  pot_event = pots.Read();
+
+  // Update the editor if something happened.
+  // Revert back to the main page when nothing happened for 1.5s.
+  if (pot_event.event == EVENT_NONE) {
+    if (idle &&
+        pot_event.time > (engine.system_settings().display_delay << 7)) {
+      editor.Relax();
+    }
+  } else {
+    editor.HandleInput(pot_event.id, pot_event.value);
+  }
 }
 
-uint8_t current_cv;
-uint8_t programmer_counter = 0;
-uint8_t currently_tweaked_pot;
-int16_t pots_value[32];
+void EncoderTask() {
+  if (encoder.increment()) {
+    switches.Touch();
+    int8_t increment = encoder.increment();
+    if (switches.shifted()) {
+      switches.InhibitShiftRelease();
+      increment *= 10;
+    }
+    editor.HandleIncrement(increment);
+  } else {
+    if (encoder.clicked()) {
+      switches.Touch();
+      editor.HandleClick();
+    }
+  }
+  encoder.Flush();
+  // In case we have moved to a different page, make the pots less sensitive
+  // to changes to make sure that a subtle change to a pot won't create a
+  // discontinuity.
+  if (editor.current_page() != previous_page) {
+    pots.Lock(32);
+  }
+}
 
 void CvTask() {
+  static uint8_t current_cv;
+  static uint8_t programmer_counter = 0;
+  static uint8_t currently_tweaked_pot;
+  static int16_t pots_value[32];
+
   analog_inputs.Scan();
   if (engine.system_settings().expansion_cv_mode == CV_MODE_4CV_IN) {
     analog_inputs.set_num_inputs(8);
@@ -264,6 +261,7 @@ void MidiTask() {
 }
 
 uint8_t cv_io_round_robin = 0;
+
 void AudioRenderingTask() {
   // Run only when there's a block of 40 samples to fill...
   if (audio_out.writable_block()) {
@@ -315,8 +313,6 @@ void AudioRenderingTask() {
   }
 }
 
-uint16_t previous_num_glitches;
-
 // This task displays a '!' in the status area of the LCD whenever
 // a discontinuity occurred in the audio rendering. Even if the code is
 // optimized in such a way that it never occurs, I'd rather keep it here in
@@ -337,10 +333,10 @@ inline void FlushMidiOut() {
   }
 }
 
-uint8_t sub_clock = 0;
-uint8_t sub_clock_2 = 0;
-
 TIMER_2_TICK {
+  static uint8_t sub_clock = 0;
+  static uint8_t sub_clock_2 = 0;
+
   audio_out.EmitSample();
   sub_clock = (sub_clock + 1) & 0x0f;
   if (midi_io.readable()) {
@@ -408,7 +404,7 @@ void Init() {
   }
 }
 
-char task_sequence[] = "MGMLMIDLMCMLMIDL";
+char task_sequence[] = "GLSDLCLEDL";
 
 int main(void) {
   Init();
@@ -416,11 +412,9 @@ int main(void) {
   while (1) {
     task = (task + 1) & 0x0f;
     AudioRenderingTask();
+    MidiTask();
+    AudioRenderingTask();
     switch (task_sequence[task]) {
-      case 'M':
-        MidiTask();
-        break;
-        
       case 'L':
         UpdateLedsTask();
         break;
@@ -433,8 +427,12 @@ int main(void) {
         AudioGlitchMonitoringTask();
         break;
         
-      case 'I':
-        InputTask();
+      case 'S':
+        SwitchesTask();
+        break;
+
+      case 'E':
+        EncoderTask();
         break;
         
       case 'C':
