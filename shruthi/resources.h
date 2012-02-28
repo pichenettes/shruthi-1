@@ -102,6 +102,7 @@ extern const prog_uint8_t wav_res_bandlimited_saw_3[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_saw_4[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_saw_5[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_0[] PROGMEM;
+extern const prog_uint8_t wav_res_bandlimited_triangle_3[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_4[] PROGMEM;
 extern const prog_uint8_t wav_res_bandlimited_triangle_5[] PROGMEM;
 extern const prog_uint8_t wav_res_vowel_data[] PROGMEM;
@@ -630,8 +631,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES__BANDLIMITED_TRIANGLE_0_SIZE 257
 #define WAV_RES___BANDLIMITED_TRIANGLE_0 19
 #define WAV_RES___BANDLIMITED_TRIANGLE_0_SIZE 257
-#define WAV_RES____BANDLIMITED_TRIANGLE_0 20
-#define WAV_RES____BANDLIMITED_TRIANGLE_0_SIZE 257
+#define WAV_RES_BANDLIMITED_TRIANGLE_3 20
+#define WAV_RES_BANDLIMITED_TRIANGLE_3_SIZE 257
 #define WAV_RES_BANDLIMITED_TRIANGLE_4 21
 #define WAV_RES_BANDLIMITED_TRIANGLE_4_SIZE 257
 #define WAV_RES_BANDLIMITED_TRIANGLE_5 22
@@ -653,7 +654,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES_ENV_EXPO 30
 #define WAV_RES_ENV_EXPO_SIZE 257
 #define WAV_RES_WAVES 31
-#define WAV_RES_WAVES_SIZE 16512
+#define WAV_RES_WAVES_SIZE 16383
 #define WAV_RES_WAVETABLES 32
 #define WAV_RES_WAVETABLES_SIZE 324
 #define CHR_RES_SPECIAL_CHARACTERS 0
