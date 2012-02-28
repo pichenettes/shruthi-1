@@ -376,9 +376,6 @@ TIMER_2_TICK {
 
 void Init() {
   sei();
-  UCSR0B = 0;
-  UCSR1B = 0;
-  
   audio_out.Init();
   midi_io.Init();
   cv_io.Init();
