@@ -31,7 +31,6 @@
 #include "shruthi/midi_dispatcher.h"
 #include "shruthi/storage.h"
 #include "shruthi/synthesis_engine.h"
-#include "avrlib/task.h"
 
 using namespace avrlib;
 using namespace midi;
@@ -404,40 +403,33 @@ void Init() {
   }
 }
 
-char task_sequence[] = "GLSDLCLEDL";
+typedef void (*Task)();
+
+Task task_sequence[] = {
+  &AudioGlitchMonitoringTask,
+  &UpdateLedsTask,
+  &SwitchesTask,
+  &UpdateDisplayTask,
+  &UpdateLedsTask,
+
+  &CvTask,
+  &UpdateLedsTask,
+  &EncoderTask,
+  &UpdateDisplayTask,
+  &UpdateLedsTask,
+};
 
 int main(void) {
   Init();
-  uint8_t task;
+  uint8_t task = 0;
   while (1) {
-    task = (task + 1) & 0x0f;
     AudioRenderingTask();
     MidiTask();
     AudioRenderingTask();
-    switch (task_sequence[task]) {
-      case 'L':
-        UpdateLedsTask();
-        break;
-        
-      case 'D':
-        UpdateDisplayTask();
-        break;
-        
-      case 'G':
-        AudioGlitchMonitoringTask();
-        break;
-        
-      case 'S':
-        SwitchesTask();
-        break;
-
-      case 'E':
-        EncoderTask();
-        break;
-        
-      case 'C':
-        CvTask();
-        break;
+    task_sequence[task]();
+    ++task;
+    if (task >= sizeof(task_sequence) / sizeof(Task)) {
+      task = 0;
     }
   }
 }
