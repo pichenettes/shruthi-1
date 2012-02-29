@@ -68,7 +68,7 @@ PwmOutput<kPinCv2Out> cv_2_out;
 
 MidiStreamParser<MidiDispatcher> midi_parser;
 
-static uint8_t programmer_active_pot = 0;
+uint8_t programmer_active_pot = 0;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -138,7 +138,7 @@ void UpdateDisplayTask() {
   display.Tick();
 }
 
-static uint8_t previous_page;
+uint8_t previous_page;
 
 void SwitchesTask() {
   uint8_t idle;
@@ -260,9 +260,9 @@ void MidiTask() {
   // flush the data at a faster rate in the audio sample interrupt.
 }
 
-uint8_t cv_io_round_robin = 0;
-
 void AudioRenderingTask() {
+  static uint8_t cv_io_round_robin = 0;
+
   // Run only when there's a block of 40 samples to fill...
   if (audio_out.writable_block()) {
     engine.ProcessBlock();

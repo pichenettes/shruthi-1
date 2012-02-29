@@ -470,7 +470,7 @@ void ParameterDefinitions::Init() {
     uint8_t prm = ResourcesManager::Lookup<uint8_t, uint16_t>(
         raw_parameter_definition,
         offset);
-    if (prm != PRM_MOD_ROW && prm != PRM_OP_ROW) {
+    if (prm != PRM_MOD_ROW && prm != PRM_OP_ROW && prm < 128) {
       offset_to_id_map_[prm] = i;
     }
   }
