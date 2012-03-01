@@ -91,7 +91,7 @@ void SynthesisEngine::Init() {
       kUserWavetableSize);
 }
 
-/*static const prog_char init_patch[] PROGMEM = {
+static const prog_char init_patch[] PROGMEM = {
     // Oscillators
     WAVEFORM_SAW, 0, 0, 0,
     WAVEFORM_SQUARE, 16, -12, 12,
@@ -127,48 +127,6 @@ void SynthesisEngine::Init() {
     PRM_FILTER_ENV, 0,
     // Settings for second filter
     0, 0, 0, 
-    0, 0, 0, 0,
-    '!',
-    0, 0, 0, 0, 0, 0, 0, 0,
-};
-*/
-
-static const prog_char init_patch[] PROGMEM = {
-    // Oscillators
-    WAVEFORM_SAW, 0, 0, 0,
-    WAVEFORM_SQUARE, 16, -12, 12,
-    // Mixer
-    32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
-    // Filter
-    50, 0, 32, 0,
-    // ADSR
-    0, 50, 20, 60,
-    0, 40, 90, 30,
-    // LFO
-    LFO_WAVEFORM_SQUARE, 50, 0, 0,
-    LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
-    // Routing
-    MOD_SRC_OP_1, MOD_DST_FILTER_CUTOFF, 63,
-    MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,
-    MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
-    MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
-    MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
-    MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 0,
-    MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
-    MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
-    MOD_SRC_ENV_2, MOD_DST_VCA, 63,
-    MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
-    MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_COARSE, 32,
-    MOD_SRC_LFO_1, MOD_DST_VCO_1_2_COARSE, 16,
-    // Name
-    'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
-    // Performance page assignments.
-    1, 0,
-    PRM_FILTER_CUTOFF, 0,
-    PRM_FILTER_RESONANCE, 0,
-    PRM_FILTER_ENV, 0,
-    // Settings for second filter
-    0, 0, 0 /* LP in parallel with a second LP */, 
     0, 0, 0, 0,
     '!',
     0, 0, 0, 0, 0, 0, 0, 0,

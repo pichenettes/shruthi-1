@@ -204,7 +204,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_MOD_, STR_RES_MODULATION,
 
   PRM_MOD_SOURCE,
-  0, kNumModulationSources - 1,
+  0, MOD_SRC_TRIG_2,
   UNIT_MODULATION_SOURCE,
   STR_RES_SRC, STR_RES_SOURCE,
 
