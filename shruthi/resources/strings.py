@@ -139,6 +139,8 @@ min
  xor
 >=
 <=
+qtz
+lag
 
 cutoff
 vca
@@ -209,6 +211,12 @@ gat
 aud
 op1
 op2
+tr1
+tr2
+=4
+=8
+=16
+=32
 
 lfo 1
 lfo 2
@@ -238,6 +246,12 @@ gate
 audio
 op. 1
 op. 2
+trg 1
+trg 2
+= 4
+= 8
+= 16
+= 32
 
 touch a knob to
 assign parameter

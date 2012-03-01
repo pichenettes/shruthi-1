@@ -167,6 +167,14 @@ enum ModulationSource {
   MOD_SRC_OP_1,
   MOD_SRC_OP_2,
   
+  /* Some newly added modulations */
+  MOD_SRC_TRIG_1,
+  MOD_SRC_TRIG_2,
+  MOD_SRC_VALUE_4,
+  MOD_SRC_VALUE_8,
+  MOD_SRC_VALUE_16,
+  MOD_SRC_VALUE_32,
+  
   MOD_SRC_LAST
 };
 
@@ -369,6 +377,8 @@ enum CvOperator {
   OP_CV_XOR,
   OP_CV_GE,
   OP_CV_LE,
+  OP_CV_QUANTIZE,
+  OP_CV_LAG_PROCESSOR,
   OP_CV_LAST
 };
 

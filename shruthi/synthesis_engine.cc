@@ -91,7 +91,7 @@ void SynthesisEngine::Init() {
       kUserWavetableSize);
 }
 
-static const prog_char init_patch[] PROGMEM = {
+/*static const prog_char init_patch[] PROGMEM = {
     // Oscillators
     WAVEFORM_SAW, 0, 0, 0,
     WAVEFORM_SQUARE, 16, -12, 12,
@@ -107,6 +107,48 @@ static const prog_char init_patch[] PROGMEM = {
     LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
     // Routing
     MOD_SRC_LFO_1, MOD_DST_VCO_1, 0,
+    MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,
+    MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
+    MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
+    MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
+    MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 0,
+    MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
+    MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
+    MOD_SRC_ENV_2, MOD_DST_VCA, 63,
+    MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
+    MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_COARSE, 32,
+    MOD_SRC_LFO_1, MOD_DST_VCO_1_2_COARSE, 16,
+    // Name
+    'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
+    // Performance page assignments.
+    1, 0,
+    PRM_FILTER_CUTOFF, 0,
+    PRM_FILTER_RESONANCE, 0,
+    PRM_FILTER_ENV, 0,
+    // Settings for second filter
+    0, 0, 0, 
+    0, 0, 0, 0,
+    '!',
+    0, 0, 0, 0, 0, 0, 0, 0,
+};
+*/
+
+static const prog_char init_patch[] PROGMEM = {
+    // Oscillators
+    WAVEFORM_SAW, 0, 0, 0,
+    WAVEFORM_SQUARE, 16, -12, 12,
+    // Mixer
+    32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
+    // Filter
+    50, 0, 32, 0,
+    // ADSR
+    0, 50, 20, 60,
+    0, 40, 90, 30,
+    // LFO
+    LFO_WAVEFORM_SQUARE, 50, 0, 0,
+    LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
+    // Routing
+    MOD_SRC_OP_1, MOD_DST_FILTER_CUTOFF, 63,
     MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,
     MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
     MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
@@ -644,6 +686,10 @@ void Voice::Init() {
     envelope_[i].Init();
   }
   memset(no_sync_, 0, kAudioBlockSize);
+  modulation_sources_[MOD_SRC_VALUE_4] = 4;
+  modulation_sources_[MOD_SRC_VALUE_8] = 8;
+  modulation_sources_[MOD_SRC_VALUE_16] = 16;
+  modulation_sources_[MOD_SRC_VALUE_32] = 32;
 }
 
 /* static */
@@ -747,17 +793,33 @@ inline void Voice::LoadSources() {
     uint8_t y = engine.patch_.ops_[i].operands[1];
     x = modulation_sources_[x];
     y = modulation_sources_[y];
-    if (x > y) {
-      ops[3] = x;  ops[6] = 255;
-      ops[4] = y;  ops[7] = 0;
-    } else {
-      ops[3] = y;  ops[6] = 0;
-      ops[4] = x;  ops[7] = 255;
+    uint8_t op = engine.patch_.ops_[i].op;
+    if (op <= OP_CV_LE) {
+      if (x > y) {
+        ops[3] = x;  ops[6] = 255;
+        ops[4] = y;  ops[7] = 0;
+      } else {
+        ops[3] = y;  ops[6] = 0;
+        ops[4] = x;  ops[7] = 255;
+      }
+      ops[1] = (x >> 1) + (y >> 1);
+      ops[2] = U8U8MulShift8(x, y);
+      ops[5] = x ^ y;
+      modulation_sources_[MOD_SRC_OP_1 + i] = ops[op];
+    } else if (op == OP_CV_QUANTIZE) {
+      uint8_t mask = 0;
+      while (y >>= 1) {
+        mask >>= 1;
+        mask |= 0x80;
+      }
+      modulation_sources_[MOD_SRC_OP_1 + i] = x & mask;
+    } else if (op == OP_CV_LAG_PROCESSOR) {
+      y >>= 2;
+      ++y;
+      uint16_t v = U8U8Mul(256 - y, modulation_sources_[MOD_SRC_OP_1 + i]);
+      v += U8U8Mul(y, x);
+      modulation_sources_[MOD_SRC_OP_1 + i] = v >> 8;
     }
-    ops[1] = (x >> 1) + (y >> 1);
-    ops[2] = U8U8MulShift8(x, y);
-    ops[5] = x ^ y;
-    modulation_sources_[MOD_SRC_OP_1 + i] = ops[engine.patch_.ops_[i].op];
   }
 
   modulation_destinations_[MOD_DST_VCA] = engine.volume_;

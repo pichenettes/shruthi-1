@@ -141,6 +141,8 @@ static const prog_char str_res_min[] PROGMEM = "min";
 static const prog_char str_res__xor[] PROGMEM = "xor";
 static const prog_char str_res_ge[] PROGMEM = ">=";
 static const prog_char str_res_le[] PROGMEM = "<=";
+static const prog_char str_res_qtz[] PROGMEM = "qtz";
+static const prog_char str_res_lag[] PROGMEM = "lag";
 static const prog_char str_res_cutoff[] PROGMEM = "cutoff";
 static const prog_char str_res_pwm1[] PROGMEM = "pwm1";
 static const prog_char str_res_pwm2[] PROGMEM = "pwm2";
@@ -199,6 +201,12 @@ static const prog_char str_res_gat[] PROGMEM = "gat";
 static const prog_char str_res_aud[] PROGMEM = "aud";
 static const prog_char str_res_op1[] PROGMEM = "op1";
 static const prog_char str_res_op2[] PROGMEM = "op2";
+static const prog_char str_res_tr1[] PROGMEM = "tr1";
+static const prog_char str_res_tr2[] PROGMEM = "tr2";
+static const prog_char str_res_e4[] PROGMEM = "=4";
+static const prog_char str_res_e8[] PROGMEM = "=8";
+static const prog_char str_res_e16[] PROGMEM = "=16";
+static const prog_char str_res_e32[] PROGMEM = "=32";
 static const prog_char str_res_stpseq[] PROGMEM = "stpseq";
 static const prog_char str_res_stpsq1[] PROGMEM = "stpsq1";
 static const prog_char str_res_stpsq2[] PROGMEM = "stpsq2";
@@ -221,6 +229,12 @@ static const prog_char str_res_gate[] PROGMEM = "gate";
 static const prog_char str_res_audio[] PROGMEM = "audio";
 static const prog_char str_res_op__1[] PROGMEM = "op. 1";
 static const prog_char str_res_op__2[] PROGMEM = "op. 2";
+static const prog_char str_res_trg_1[] PROGMEM = "trg 1";
+static const prog_char str_res_trg_2[] PROGMEM = "trg 2";
+static const prog_char str_res_e_4[] PROGMEM = "= 4";
+static const prog_char str_res_e_8[] PROGMEM = "= 8";
+static const prog_char str_res_e_16[] PROGMEM = "= 16";
+static const prog_char str_res_e_32[] PROGMEM = "= 32";
 static const prog_char str_res_touch_a_knob_to[] PROGMEM = "touch a knob to";
 static const prog_char str_res_assign_parameter[] PROGMEM = "assign parameter";
 static const prog_char str_res_patch[] PROGMEM = "patch";
@@ -280,7 +294,6 @@ static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
 static const prog_char str_res_swing[] PROGMEM = "swing";
 static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
 static const prog_char str_res_push[] PROGMEM = "push";
-static const prog_char str_res_lag[] PROGMEM = "lag";
 static const prog_char str_res_human[] PROGMEM = "human";
 static const prog_char str_res_monkey[] PROGMEM = "monkey";
 static const prog_char str_res_thru[] PROGMEM = "thru";
@@ -304,9 +317,7 @@ static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
 static const prog_char str_res___[] PROGMEM = "?";
 static const prog_char str_res_on[] PROGMEM = "on";
-static const prog_char str_res_tr1[] PROGMEM = "tr1";
 static const prog_char str_res_pl1[] PROGMEM = "pl1";
-static const prog_char str_res_tr2[] PROGMEM = "tr2";
 static const prog_char str_res_pl2[] PROGMEM = "pl2";
 static const prog_char str_res_click[] PROGMEM = "click";
 static const prog_char str_res_glitch[] PROGMEM = "glitch";
@@ -506,6 +517,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res__xor,
   str_res_ge,
   str_res_le,
+  str_res_qtz,
+  str_res_lag,
   str_res_cutoff,
   str_res_vca,
   str_res_pwm1,
@@ -572,6 +585,12 @@ PROGMEM const prog_char* string_table[] = {
   str_res_aud,
   str_res_op1,
   str_res_op2,
+  str_res_tr1,
+  str_res_tr2,
+  str_res_e4,
+  str_res_e8,
+  str_res_e16,
+  str_res_e32,
   str_res__lfo_1,
   str_res__lfo_2,
   str_res_stpseq,
@@ -600,6 +619,12 @@ PROGMEM const prog_char* string_table[] = {
   str_res_audio,
   str_res_op__1,
   str_res_op__2,
+  str_res_trg_1,
+  str_res_trg_2,
+  str_res_e_4,
+  str_res_e_8,
+  str_res_e_16,
+  str_res_e_32,
   str_res_touch_a_knob_to,
   str_res_assign_parameter,
   str_res_patch,
