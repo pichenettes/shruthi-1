@@ -86,10 +86,15 @@ envelope 1
 envelope 2
 sequencer
 arpeggio
+ch1
+ch2
+\x011
+\x012
 step sequencer
 keyboard
 midi
 system
+triggers
 performance
 param. 1
 param. 2

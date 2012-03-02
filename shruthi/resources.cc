@@ -91,10 +91,15 @@ static const prog_char str_res_envelope_1[] PROGMEM = "envelope 1";
 static const prog_char str_res_envelope_2[] PROGMEM = "envelope 2";
 static const prog_char str_res_sequencer[] PROGMEM = "sequencer";
 static const prog_char str_res_arpeggio[] PROGMEM = "arpeggio";
+static const prog_char str_res_ch1[] PROGMEM = "ch1";
+static const prog_char str_res_ch2[] PROGMEM = "ch2";
+static const prog_char str_res_11[] PROGMEM = "1";
+static const prog_char str_res_12[] PROGMEM = "2";
 static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
 static const prog_char str_res_midi[] PROGMEM = "midi";
 static const prog_char str_res_system[] PROGMEM = "system";
+static const prog_char str_res_triggers[] PROGMEM = "triggers";
 static const prog_char str_res_performance[] PROGMEM = "performance";
 static const prog_char str_res_param__1[] PROGMEM = "param. 1";
 static const prog_char str_res_param__2[] PROGMEM = "param. 2";
@@ -466,10 +471,15 @@ PROGMEM const prog_char* string_table[] = {
   str_res_envelope_2,
   str_res_sequencer,
   str_res_arpeggio,
+  str_res_ch1,
+  str_res_ch2,
+  str_res_11,
+  str_res_12,
   str_res_step_sequencer,
   str_res_keyboard,
   str_res_midi,
   str_res_system,
+  str_res_triggers,
   str_res_performance,
   str_res_param__1,
   str_res_param__2,

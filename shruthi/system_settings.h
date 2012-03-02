@@ -24,6 +24,23 @@
 
 namespace shruthi {
 
+struct Trigger {
+  uint8_t channel;
+  uint8_t note;
+};
+
+// The original layout for the EEPROM was 16 bytes for system settings ;
+// then 1984 bytes for patches and sequences. New system settings over the
+// 16 bytes boundary have been added to this structure ; which is written
+// in the last 32 bytes of the EEPROM.
+class ExtraSystemSettings {
+ public:
+  Trigger trigger[2];
+  
+  void EepromSave() const;
+  void EepromLoad();
+};
+
 class SystemSettings {
  public:
   int8_t octave;
@@ -95,6 +112,14 @@ enum SystemParameter {
   PRM_SYS_EXPANSION_FILTER_BOARD,
   PRM_SYS_EXPANSION_CV_MODE,
   PRM_SYS_DISPLAY_SNAP
+};
+
+enum ExtraSystemParameter {
+  PRM_SYS_TRIGGER_1_CHANNEL = \
+      sizeof(Patch) + sizeof(SequencerSettings) + sizeof(SystemSettings),
+  PRM_SYS_TRIGGER_1_NOTE,
+  PRM_SYS_TRIGGER_2_CHANNEL,
+  PRM_SYS_TRIGGER_2_NOTE,
 };
 
 }  // namespace shruthi

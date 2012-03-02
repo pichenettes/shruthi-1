@@ -49,11 +49,15 @@ class MidiDispatcher : public midi::MidiDevice {
   static inline void NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     display.set_status('\x01');
     if (!editor.HandleNoteOn(note, velocity)) {
-      engine.NoteOn(channel, note, velocity);
+      if (!ProcessTriggers(0x90 | channel, note)) {
+        engine.NoteOn(channel, note, velocity);
+      }
     }
   }
   static inline void NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
-    engine.NoteOff(channel, note, velocity);
+    if (!ProcessTriggers(0x80 | channel, note)) {
+      engine.NoteOff(channel, note, velocity);
+    }
   }
 
   // Handled.
@@ -132,12 +136,50 @@ class MidiDispatcher : public midi::MidiDevice {
            settings.midi_channel == (channel + 1);
   }
   
+  static uint8_t ProcessTriggers(uint8_t status, uint8_t note) {
+    // Since "triggers" can occur on any channel, this is where trigger
+    // detection must occur.
+    const ExtraSystemSettings& s = engine.extra_system_settings();
+    uint8_t ch1 = (s.trigger[0].channel - 1) & 0xf;
+    if (note == s.trigger[0].note) {
+      if (status == (0x90 | ch1)) {
+        display.set_status('*');
+        engine.Trigger(0, 255);
+        return 1;
+      }
+      if (status == (0x80 | ch1)) {
+        display.set_status('*');
+        engine.Trigger(0, 0);
+        return 1;
+      }
+    }
+    
+    uint8_t ch2 = (s.trigger[1].channel - 1) & 0xf;
+    if (note == s.trigger[1].note) {
+      if (status == (0x90 | ch2)) {
+        display.set_status('*');
+        engine.Trigger(1, 255);
+        return 1;
+      }
+      if (status == (0x80 | ch2)) {
+        display.set_status('*');
+        engine.Trigger(1, 0);
+        return 1;
+      }
+    }
+    
+    return 0;
+  }
+  
   static void RawMidiData(
       uint8_t status,
       uint8_t* data,
       uint8_t data_size,
       uint8_t accepted_channel) {
     uint8_t hi = status & 0xf0;
+    
+    ProcessTriggers(status, data[0]);
+    
     // When is parsed midi data forwarded to the MIDI out?
     // - When the data is a channel different from the RX channel.
     // - When we are in "Full" mode.

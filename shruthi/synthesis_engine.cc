@@ -49,8 +49,9 @@ uint8_t SynthesisEngine::data_access_byte_[1];
 Patch SynthesisEngine::patch_;
 SequencerSettings SynthesisEngine::sequencer_settings_;
 SystemSettings SynthesisEngine::system_settings_;
+ExtraSystemSettings SynthesisEngine::extra_system_settings_;
 
-Voice SynthesisEngine::voice_[kNumVoices];
+Voice SynthesisEngine::voice_;
 VoiceController SynthesisEngine::controller_;
 VoiceAllocator SynthesisEngine::polychaining_allocator_;
 Lfo SynthesisEngine::lfo_[kNumLfos] = { };
@@ -69,7 +70,7 @@ uint8_t SynthesisEngine::volume_;
 
 /* static */
 void SynthesisEngine::Init() {
-  controller_.Init(&sequencer_settings_, voice_, kNumVoices);
+  controller_.Init(&sequencer_settings_, &voice_, 1);
   polychaining_allocator_.Init();
   ResetPatch();
   ResetSequencerSettings();
@@ -77,10 +78,9 @@ void SynthesisEngine::Init() {
     ResetSystemSettings();
     system_settings_.EepromSave();
   }
+  extra_system_settings_.EepromLoad();
   Reset();
-  for (uint8_t i = 0; i < kNumVoices; ++i) {
-    voice_[i].Init();
-  }
+  voice_.Init();
   nrpn_parameter_number_ = 255;
   dirty_ = 0;
   
@@ -221,7 +221,7 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     // Check which unit in the chain is responsible for this note/voice. If this
     // is not the current unit, forward to the next unit in the chain.
     if (polychaining_allocator_.NoteOn(note) == 0) {
-      voice_[0].Trigger(note, velocity, 0);
+      voice_.Trigger(note, velocity, 0);
     } else {
       midi_dispatcher.Send3(0x90 | channel, note, velocity);
     }
@@ -252,7 +252,7 @@ void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
     // Check which unit in the chain is responsible for this note/voice. If this
     // is not the current unit, forward to the next unit in the chain.
     if (polychaining_allocator_.NoteOff(note) == 0) {
-      voice_[0].Release();
+      voice_.Release();
     } else { 
       midi_dispatcher.Send3(0x80 | channel, note, 0);
     }
@@ -512,13 +512,11 @@ void SynthesisEngine::UpdateModulationRates() {
     UpdateLfoRate(i);
   }
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    for (uint8_t j = 0; j < kNumVoices; ++j) {
-      voice_[j].mutable_envelope(i)->Update(
-          patch_.env[i].attack,
-          patch_.env[i].decay,
-          patch_.env[i].sustain,
-          patch_.env[i].release);
-    }
+    voice_.mutable_envelope(i)->Update(
+        patch_.env[i].attack,
+        patch_.env[i].decay,
+        patch_.env[i].sustain,
+        patch_.env[i].release);
   }
 }
 
@@ -532,7 +530,7 @@ void SynthesisEngine::UpdateLfoRate(uint8_t i) {
                          (1 + patch_.lfo[i].rate) / 4);
   } else {
     uint16_t rate = patch_.lfo[i].rate;
-    rate += voice_[0].modulation_destination(MOD_DST_LFO_1 + i);
+    rate += voice_.modulation_destination(MOD_DST_LFO_1 + i);
     rate -= 32;
     if (rate < 0) {
       rate = 0;
@@ -599,23 +597,21 @@ void SynthesisEngine::ProcessBlock() {
   // Update the modulation speed if some of the LFO FM parameters have changed.
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     if (previous_lfo_fm_[i] !=
-       voice_[0].modulation_destination(MOD_DST_LFO_1 + i)) {
-      previous_lfo_fm_[i] = voice_[0].modulation_destination(MOD_DST_LFO_1 + i);
+       voice_.modulation_destination(MOD_DST_LFO_1 + i)) {
+      previous_lfo_fm_[i] = voice_.modulation_destination(MOD_DST_LFO_1 + i);
       UpdateLfoRate(i);
     }
   }
 
-  for (uint8_t i = 0; i < kNumVoices; ++i) {
-    // Looping envelopes. Note that the second envelope stops looping after the
-    // key is released otherwise the note will never stops playing.
-    for (uint8_t j = 0; j < kNumLfos; ++j) {
-      if (lfo_[j].triggered() &&
-          patch_.lfo[j].retrigger_mode == LFO_MODE_MASTER) {
-        voice_[i].TriggerEnvelope(j, ATTACK);
-      }
+  // Looping envelopes. Note that the second envelope stops looping after the
+  // key is released otherwise the note will never stops playing.
+  for (uint8_t j = 0; j < kNumLfos; ++j) {
+    if (lfo_[j].triggered() &&
+        patch_.lfo[j].retrigger_mode == LFO_MODE_MASTER) {
+      voice_.TriggerEnvelope(j, ATTACK);
     }
-    voice_[i].ProcessBlock();
   }
+  voice_.ProcessBlock();
 }
 
 /* <static> */
