@@ -172,7 +172,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_ATK, STR_RES_ATTACK,
 
   PRM_LFO_RETRIGGER_1,
-  LFO_MODE_FREE, LFO_MOD_LAST - 1,
+  LFO_MODE_FREE, LFO_MODE_LAST - 1,
   UNIT_LFO_RETRIGGER_MODE,
   STR_RES_MODE, STR_RES_MODE,
 
@@ -193,7 +193,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_ATK, STR_RES_ATTACK,
 
   PRM_LFO_RETRIGGER_2,
-  LFO_MODE_FREE, LFO_MOD_LAST - 1,
+  LFO_MODE_FREE, LFO_MODE_LAST - 1,
   UNIT_LFO_RETRIGGER_MODE,
   STR_RES_MODE, STR_RES_MODE,
 

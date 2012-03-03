@@ -677,7 +677,12 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     pitch_target_ = U8U8Mul(note, 128);
   }
   if (!legato || (!engine.system_settings_.legato && legato != 255)) {
-    TriggerEnvelope(ATTACK);
+    for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
+      if (engine.patch_.lfo[i].retrigger_mode !=
+          LFO_MODE_NO_TRIGGER_FOR_LINKED_ENVELOPE) {
+        envelope_[i].Trigger(ATTACK);
+      }
+    }
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're
     // doing monophonic things anyway (and some pseudo-polysynths/organs are
@@ -788,6 +793,8 @@ inline void Voice::LoadSources() {
   dst_[MOD_DST_VCO_1_2_COARSE] = dst_[MOD_DST_VCO_1_2_FINE] = 8192;
   dst_[MOD_DST_VCO_1] = dst_[MOD_DST_VCO_2] = 8192;
   dst_[MOD_DST_LFO_1] = dst_[MOD_DST_LFO_2] = 8192;
+  dst_[MOD_DST_TRIGGER_ENV_1] = 0;
+  dst_[MOD_DST_TRIGGER_ENV_2] = 0;
 
   dst_[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
   dst_[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
@@ -883,6 +890,24 @@ inline void Voice::UpdateDestinations() {
   modulation_destinations_[MOD_DST_CV_2] = U14ShiftRight6(dst_[MOD_DST_CV_2]);
   modulation_destinations_[MOD_DST_LFO_1] = S16ShiftRight8(dst_[MOD_DST_LFO_1]);
   modulation_destinations_[MOD_DST_LFO_2] = S16ShiftRight8(dst_[MOD_DST_LFO_2]);
+  
+  if (dst_[MOD_DST_TRIGGER_ENV_1] > 6000) {
+    if (!modulation_destinations_[MOD_DST_TRIGGER_ENV_1]) {
+      envelope_[0].Trigger(ATTACK);
+    }
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_1] = 255;
+  } else {
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_1] = 0;
+  }
+
+  if (dst_[MOD_DST_TRIGGER_ENV_2] > 6000) {
+    if (!modulation_destinations_[MOD_DST_TRIGGER_ENV_2]) {
+      envelope_[1].Trigger(ATTACK);
+    }
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_2] = 255;
+  } else {
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_2] = 0;
+  }
   
   osc_1.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_1]));
   osc_1.set_secondary_parameter(engine.patch_.osc[0].range + 24);

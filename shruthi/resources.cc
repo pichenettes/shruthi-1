@@ -135,6 +135,8 @@ static const prog_char str_res_cv1[] PROGMEM = "cv1";
 static const prog_char str_res_cv2[] PROGMEM = "cv2";
 static const prog_char str_res__lf1[] PROGMEM = "lf1";
 static const prog_char str_res__lf2[] PROGMEM = "lf2";
+static const prog_char str_res_en1[] PROGMEM = "en1";
+static const prog_char str_res_en2[] PROGMEM = "en2";
 static const prog_char str_res_in1[] PROGMEM = "in1";
 static const prog_char str_res_in2[] PROGMEM = "in2";
 static const prog_char str_res_out[] PROGMEM = "out";
@@ -162,6 +164,8 @@ static const prog_char str_res_cv_1[] PROGMEM = "cv 1";
 static const prog_char str_res_cv_2[] PROGMEM = "cv 2";
 static const prog_char str_res__lfo_1[] PROGMEM = "lfo 1";
 static const prog_char str_res__lfo_2[] PROGMEM = "lfo 2";
+static const prog_char str_res_env_1[] PROGMEM = "env 1";
+static const prog_char str_res_env_2[] PROGMEM = "env 2";
 static const prog_char str_res_distrt[] PROGMEM = "distrt";
 static const prog_char str_res_crushr[] PROGMEM = "crushr";
 static const prog_char str_res_Scmbfl[] PROGMEM = "+cmbfl";
@@ -197,8 +201,6 @@ static const prog_char str_res_cca[] PROGMEM = "ccA";
 static const prog_char str_res_ccb[] PROGMEM = "ccB";
 static const prog_char str_res_ccc[] PROGMEM = "ccC";
 static const prog_char str_res_ccd[] PROGMEM = "ccD";
-static const prog_char str_res_en1[] PROGMEM = "en1";
-static const prog_char str_res_en2[] PROGMEM = "en2";
 static const prog_char str_res_vel[] PROGMEM = "vel";
 static const prog_char str_res_rnd[] PROGMEM = "rnd";
 static const prog_char str_res_not[] PROGMEM = "not";
@@ -225,8 +227,6 @@ static const prog_char str_res_cc_a[] PROGMEM = "cc A";
 static const prog_char str_res_cc_b[] PROGMEM = "cc B";
 static const prog_char str_res_cc_c[] PROGMEM = "cc C";
 static const prog_char str_res_cc_d[] PROGMEM = "cc D";
-static const prog_char str_res_env_1[] PROGMEM = "env 1";
-static const prog_char str_res_env_2[] PROGMEM = "env 2";
 static const prog_char str_res_velo[] PROGMEM = "velo";
 static const prog_char str_res_random[] PROGMEM = "random";
 static const prog_char str_res_note[] PROGMEM = "note";
@@ -277,6 +277,7 @@ static const prog_char str_res_impro[] PROGMEM = "impro";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
+static const prog_char str_res_envtrg[] PROGMEM = "envtrg";
 static const prog_char str_res_T[] PROGMEM = "~";
 static const prog_char str_res__[] PROGMEM = "";
 static const prog_char str_res_T_[] PROGMEM = "~-";
@@ -516,6 +517,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_atk,
   str_res__lf1,
   str_res__lf2,
+  str_res_en1,
+  str_res_en2,
   str_res_in1,
   str_res_in2,
   str_res_out,
@@ -546,6 +549,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_attack,
   str_res__lfo_1,
   str_res__lfo_2,
+  str_res_env_1,
+  str_res_env_2,
   str_res_distrt,
   str_res_crushr,
   str_res_Scmbfl,
@@ -675,6 +680,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_free,
   str_res_slave,
   str_res_master,
+  str_res_envtrg,
   str_res_T,
   str_res__,
   str_res_T_,

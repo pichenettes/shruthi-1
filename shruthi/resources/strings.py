@@ -132,6 +132,8 @@ cv2
 atk
  lf1
  lf2
+en1
+en2
 
 in1
 in2
@@ -164,6 +166,8 @@ cv 2
 attack
  lfo 1
  lfo 2
+env 1
+env 2
 
 distrt
 crushr
@@ -303,6 +307,7 @@ impro
 free
 slave
 master
+envtrg
 
 \x7e
 \x7f
