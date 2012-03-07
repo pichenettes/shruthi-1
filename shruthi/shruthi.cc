@@ -308,6 +308,14 @@ void AudioRenderingTask() {
         resonance = 255;
       }
     }
+    if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
+      // If the resonance overdrive mode is not selected, half the scale of
+      // the resonance setting. Resonance overdrive needs a very strong control
+      // current on the OTA to kick in.
+      if (!engine.voice().cv_1()) {
+        resonance >>= 1;
+      }
+    }
     vcf_resonance_out.Write(resonance);
     vca_out.Write(engine.voice().vca());
     cv_1_out.Write(engine.voice().cv_1());
