@@ -616,7 +616,8 @@ void SynthesisEngine::ProcessBlock() {
 
 /* <static> */
 Envelope Voice::envelope_[kNumEnvelopes];
-uint8_t Voice::dead_;
+uint8_t Voice::disable_envelope_auto_retriggering_[kNumEnvelopes];
+uint8_t Voice::gate_;
 int16_t Voice::pitch_increment_;
 int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
@@ -678,11 +679,11 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
   }
   if (!legato || (!engine.system_settings_.legato && legato != 255)) {
     for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-      if (engine.patch_.lfo[i].retrigger_mode !=
-          LFO_MODE_NO_TRIGGER_FOR_LINKED_ENVELOPE) {
+      if (!disable_envelope_auto_retriggering_[i]) {
         envelope_[i].Trigger(ATTACK);
       }
     }
+    gate_ = 255;
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're
     // doing monophonic things anyway (and some pseudo-polysynths/organs are
@@ -724,6 +725,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
 
 /* static */
 void Voice::Release() {
+  gate_ = 0;
   TriggerEnvelope(RELEASE);
   if (last_note_ != 0) {
     midi_dispatcher.NoteKilled(last_note_);
@@ -740,7 +742,7 @@ inline void Voice::LoadSources() {
   modulation_sources_[MOD_SRC_ENV_1] = envelope_[0].Render();
   modulation_sources_[MOD_SRC_ENV_2] = envelope_[1].Render();
   modulation_sources_[MOD_SRC_NOTE] = U14ShiftRight6(pitch_value_);
-  modulation_sources_[MOD_SRC_GATE] = envelope_[0].stage() >= RELEASE ? 0 : 255;
+  modulation_sources_[MOD_SRC_GATE] = gate_;
   modulation_sources_[MOD_SRC_AUDIO] = buffer_[0];
   
   // Apply the modulation operators
@@ -814,6 +816,9 @@ inline void Voice::LoadSources() {
 /* static */
 inline void Voice::ProcessModulationMatrix() {
   // Apply the modulations in the modulation matrix.
+  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
+    disable_envelope_auto_retriggering_[i] = 0;
+  }
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     int8_t amount = engine.patch_.modulation_matrix.modulation[i].amount;
     if (!amount) {
@@ -828,6 +833,11 @@ inline void Voice::ProcessModulationMatrix() {
     uint8_t source = engine.patch_.modulation_matrix.modulation[i].source;
     uint8_t destination =
         engine.patch_.modulation_matrix.modulation[i].destination;
+    if (destination >= MOD_DST_TRIGGER_ENV_1 &&
+        destination <= MOD_DST_TRIGGER_ENV_2) {
+      disable_envelope_auto_retriggering_[destination - \
+          MOD_DST_TRIGGER_ENV_1] = 1;
+    }
     uint8_t source_value;
 
     source_value = modulation_sources_[source];

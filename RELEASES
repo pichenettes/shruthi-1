@@ -18,8 +18,6 @@ trigger effects (such as a pitch change or LFO speed boost) from a keyboard or
 an external MIDI sequencer.
 - 2 new modulation destinations, "env 1" and "env 2" allow the envelopes to be
 triggered whenever a modulation source crosses a threshold.
-- The automatic triggering of envelopes at each note can be disabled on the LFO
-page.
 
 CODE
 - 256 bytes have been saved by using the same table for the lowest octaves of

@@ -121,8 +121,9 @@ class Voice {
    
   // Envelope generators.
   static Envelope envelope_[kNumEnvelopes];
+  static uint8_t disable_envelope_auto_retriggering_[kNumEnvelopes];
+  static uint8_t gate_;
   static int16_t dst_[kNumModulationDestinations];
-  static uint8_t dead_;
 
   // Counters/phases for the pitch envelope generator (portamento).
   // Pitches are stored on 14 bits, the 7 highest bits are the MIDI note value,

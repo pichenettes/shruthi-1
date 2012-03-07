@@ -307,7 +307,6 @@ impro
 free
 slave
 master
-envtrg
 
 \x7e
 \x7f

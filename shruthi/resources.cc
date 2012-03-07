@@ -277,7 +277,6 @@ static const prog_char str_res_impro[] PROGMEM = "impro";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
-static const prog_char str_res_envtrg[] PROGMEM = "envtrg";
 static const prog_char str_res_T[] PROGMEM = "~";
 static const prog_char str_res__[] PROGMEM = "";
 static const prog_char str_res_T_[] PROGMEM = "~-";
@@ -680,7 +679,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_free,
   str_res_slave,
   str_res_master,
-  str_res_envtrg,
   str_res_T,
   str_res__,
   str_res_T_,
