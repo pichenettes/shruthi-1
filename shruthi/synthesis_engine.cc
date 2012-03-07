@@ -876,7 +876,7 @@ inline void Voice::UpdateDestinations() {
 
   // If the secondary filter is linked to the first one, offset its cutoff
   // by the cutoff value of the first filter.
-  if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM &&
+  if (engine.system_settings_.expansion_filter_board == FILTER_BOARD_SVF &&
       engine.patch_.filter_1_mode_ >= FILTER_MODE_LP_COUPLED) {
     dst_[MOD_DST_CV_1] = S16ClipU14(dst_[MOD_DST_CV_1] + cutoff - 8192);
   }
