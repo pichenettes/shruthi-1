@@ -71,6 +71,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   STR_RES___OFF,   // UNIT_CV_OPERATOR
   STR_RES_DISTRT,  // UNIT_FX_PROGRAM
   STR_RES_LGF,     // UNIT_FILTER_FX_MODE
+  STR_RES_LP4,     // UNIT_FILTER_4P_MODE
 };  // UNIT_LAST
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -115,7 +116,7 @@ PageDefinition Editor::page_definition_[] = {
 
   /* PAGE_FILTER_MULTIMODE */ { PAGE_FILTER_FILTER, GROUP_FILTER,
     PAGE_FILTER_FILTER, PAGE_MOD_ENV_1,
-    STR_RES_FILTERS, PARAMETER_EDITOR, 62, LED_3_MASK },
+    STR_RES_FILTERS, PARAMETER_EDITOR, 66, LED_3_MASK },
 
   /* PAGE_MOD_ENV_1 */ { PAGE_MOD_ENV_2, GROUP_MOD_SOURCES,
     PAGE_FILTER_MULTIMODE, PAGE_MOD_ENV_2,
@@ -140,7 +141,7 @@ PageDefinition Editor::page_definition_[] = {
   /* PAGE_MOD_OPERATORS */ { PAGE_MOD_MATRIX, GROUP_MOD_MATRIX,
     PAGE_MOD_MATRIX, PAGE_OSC_OSC_1,
     STR_RES_OPERATORS, PARAMETER_EDITOR, 58, 0 },
-
+    
   /* PAGE_SEQ_SEQUENCER */ { PAGE_SEQ_ARPEGGIATOR, GROUP_SEQUENCER_ARPEGGIATOR,
     PAGE_SEQ_CONTROLLER, PAGE_SEQ_ARPEGGIATOR,
     STR_RES_SEQUENCER, PARAMETER_EDITOR, 36, LED_1_MASK },
@@ -162,17 +163,21 @@ PageDefinition Editor::page_definition_[] = {
     STR_RES_STEP_SEQUENCER, STEP_SEQUENCER, 52, LED_5_MASK },
 
   /* PAGE_SYS_KBD */ { PAGE_SYS_MIDI, GROUP_SYS,
-    PAGE_SYS_MIDI, PAGE_SYS_MIDI,
+    PAGE_SYS_TRIGGERS, PAGE_SYS_MIDI,
     STR_RES_KEYBOARD, PARAMETER_EDITOR, 44, LED_6_MASK },
 
   /* PAGE_SYS_MIDI */ { PAGE_SYS_DISPLAY, GROUP_SYS,
-    PAGE_SYS_DISPLAY, PAGE_SYS_DISPLAY,
+    PAGE_SYS_KBD, PAGE_SYS_DISPLAY,
     STR_RES_MIDI, PARAMETER_EDITOR, 48, LED_6_MASK },
 
-  /* PAGE_SYS_DISPLAY */ { PAGE_SYS_KBD, GROUP_SYS,
-    PAGE_SYS_KBD, PAGE_SYS_KBD,
+  /* PAGE_SYS_DISPLAY */ { PAGE_SYS_TRIGGERS, GROUP_SYS,
+    PAGE_SYS_MIDI, PAGE_SYS_TRIGGERS,
     STR_RES_SYSTEM, PARAMETER_EDITOR, 52, LED_6_MASK },
 
+  /* PAGE_SYS_TRIGGERS */ { PAGE_SYS_KBD, GROUP_SYS,
+    PAGE_SYS_DISPLAY, PAGE_SYS_KBD,
+    STR_RES_TRIGGERS, PARAMETER_EDITOR, 62, LED_6_MASK },
+    
   /* PAGE_LOAD_SAVE */ { PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
     STR_RES_PATCH, LOAD_SAVE, 0, LED_WRITE_MASK },
@@ -247,7 +252,7 @@ void Editor::ConfigureFilterMenu() {
     page_definition_[PAGE_FILTER_FILTER].next = PAGE_FILTER_MULTIMODE;
     page_definition_[PAGE_FILTER_FILTER].overall_next = PAGE_FILTER_MULTIMODE;
     page_definition_[PAGE_MOD_ENV_1].overall_previous = PAGE_FILTER_MULTIMODE;
-    page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index = 62;
+    page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index = 66;
     page_definition_[PAGE_FILTER_MULTIMODE].name = (n == FILTER_BOARD_DSP) ? \
         STR_RES_DSP : STR_RES_FILTERS;
     while (--n) {
@@ -372,6 +377,7 @@ void Editor::RandomizeSequence() {
 /* static */
 void Editor::SaveSystemSettings() {
   engine.mutable_system_settings()->EepromSave();
+  engine.extra_system_settings().EepromSave();
 }
 
 /* static */
@@ -424,16 +430,6 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         }
         break;
 
-      case KEY_4:
-        {
-          ConfirmPageSettings confirm_midi_backup;
-          confirm_midi_backup.text = STR_RES_START_FULL_MIDI;
-          confirm_midi_backup.return_group = GROUP_OSC;
-          confirm_midi_backup.callback = &StartMidiBackup;
-          Confirm(confirm_midi_backup);
-        }
-        break;
-        
       case KEY_MODE:
         {
           engine.mutable_system_settings()->sequence_patch_coupling ^= 1;
@@ -463,6 +459,11 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
           return;  // To avoid refresh
         }
         break;
+        
+      case KEY_4:
+        current_page_ = PAGE_SYS_TRIGGERS;
+        PageChange();
+        break;
 
       case KEY_MODE:
         editor_mode_ = EDITOR_MODE_PERFORMANCE;
@@ -475,7 +476,7 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       : EDITOR_MODE_SEQUENCE;
     JumpToPageGroup(last_visited_group_[editor_mode_]);
   } else if (event.id == KEY_LOAD_SAVE) {
-    if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_DISPLAY) {
+    if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_TRIGGERS) {
       ConfirmPageSettings confirm_save_system_settings;
       confirm_save_system_settings.text = STR_RES_SAVE_MIDI_KBD;
       confirm_save_system_settings.return_group = GROUP_SYS;

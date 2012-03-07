@@ -49,8 +49,9 @@ uint8_t SynthesisEngine::data_access_byte_[1];
 Patch SynthesisEngine::patch_;
 SequencerSettings SynthesisEngine::sequencer_settings_;
 SystemSettings SynthesisEngine::system_settings_;
+ExtraSystemSettings SynthesisEngine::extra_system_settings_;
 
-Voice SynthesisEngine::voice_[kNumVoices];
+Voice SynthesisEngine::voice_;
 VoiceController SynthesisEngine::controller_;
 VoiceAllocator SynthesisEngine::polychaining_allocator_;
 Lfo SynthesisEngine::lfo_[kNumLfos] = { };
@@ -69,7 +70,7 @@ uint8_t SynthesisEngine::volume_;
 
 /* static */
 void SynthesisEngine::Init() {
-  controller_.Init(&sequencer_settings_, voice_, kNumVoices);
+  controller_.Init(&sequencer_settings_, &voice_, 1);
   polychaining_allocator_.Init();
   ResetPatch();
   ResetSequencerSettings();
@@ -77,10 +78,9 @@ void SynthesisEngine::Init() {
     ResetSystemSettings();
     system_settings_.EepromSave();
   }
+  extra_system_settings_.EepromLoad();
   Reset();
-  for (uint8_t i = 0; i < kNumVoices; ++i) {
-    voice_[i].Init();
-  }
+  voice_.Init();
   nrpn_parameter_number_ = 255;
   dirty_ = 0;
   
@@ -91,7 +91,7 @@ void SynthesisEngine::Init() {
       kUserWavetableSize);
 }
 
-/*static const prog_char init_patch[] PROGMEM = {
+static const prog_char init_patch[] PROGMEM = {
     // Oscillators
     WAVEFORM_SAW, 0, 0, 0,
     WAVEFORM_SQUARE, 16, -12, 12,
@@ -127,48 +127,6 @@ void SynthesisEngine::Init() {
     PRM_FILTER_ENV, 0,
     // Settings for second filter
     0, 0, 0, 
-    0, 0, 0, 0,
-    '!',
-    0, 0, 0, 0, 0, 0, 0, 0,
-};
-*/
-
-static const prog_char init_patch[] PROGMEM = {
-    // Oscillators
-    WAVEFORM_SAW, 0, 0, 0,
-    WAVEFORM_SQUARE, 16, -12, 12,
-    // Mixer
-    32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
-    // Filter
-    50, 0, 32, 0,
-    // ADSR
-    0, 50, 20, 60,
-    0, 40, 90, 30,
-    // LFO
-    LFO_WAVEFORM_SQUARE, 50, 0, 0,
-    LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
-    // Routing
-    MOD_SRC_OP_1, MOD_DST_FILTER_CUTOFF, 63,
-    MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,
-    MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
-    MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
-    MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
-    MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 0,
-    MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
-    MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
-    MOD_SRC_ENV_2, MOD_DST_VCA, 63,
-    MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
-    MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_COARSE, 32,
-    MOD_SRC_LFO_1, MOD_DST_VCO_1_2_COARSE, 16,
-    // Name
-    'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
-    // Performance page assignments.
-    1, 0,
-    PRM_FILTER_CUTOFF, 0,
-    PRM_FILTER_RESONANCE, 0,
-    PRM_FILTER_ENV, 0,
-    // Settings for second filter
-    0, 0, 0 /* LP in parallel with a second LP */, 
     0, 0, 0, 0,
     '!',
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -263,7 +221,7 @@ void SynthesisEngine::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     // Check which unit in the chain is responsible for this note/voice. If this
     // is not the current unit, forward to the next unit in the chain.
     if (polychaining_allocator_.NoteOn(note) == 0) {
-      voice_[0].Trigger(note, velocity, 0);
+      voice_.Trigger(note, velocity, 0);
     } else {
       midi_dispatcher.Send3(0x90 | channel, note, velocity);
     }
@@ -294,7 +252,7 @@ void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
     // Check which unit in the chain is responsible for this note/voice. If this
     // is not the current unit, forward to the next unit in the chain.
     if (polychaining_allocator_.NoteOff(note) == 0) {
-      voice_[0].Release();
+      voice_.Release();
     } else { 
       midi_dispatcher.Send3(0x80 | channel, note, 0);
     }
@@ -554,13 +512,11 @@ void SynthesisEngine::UpdateModulationRates() {
     UpdateLfoRate(i);
   }
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    for (uint8_t j = 0; j < kNumVoices; ++j) {
-      voice_[j].mutable_envelope(i)->Update(
-          patch_.env[i].attack,
-          patch_.env[i].decay,
-          patch_.env[i].sustain,
-          patch_.env[i].release);
-    }
+    voice_.mutable_envelope(i)->Update(
+        patch_.env[i].attack,
+        patch_.env[i].decay,
+        patch_.env[i].sustain,
+        patch_.env[i].release);
   }
 }
 
@@ -574,7 +530,7 @@ void SynthesisEngine::UpdateLfoRate(uint8_t i) {
                          (1 + patch_.lfo[i].rate) / 4);
   } else {
     uint16_t rate = patch_.lfo[i].rate;
-    rate += voice_[0].modulation_destination(MOD_DST_LFO_1 + i);
+    rate += voice_.modulation_destination(MOD_DST_LFO_1 + i);
     rate -= 32;
     if (rate < 0) {
       rate = 0;
@@ -641,28 +597,27 @@ void SynthesisEngine::ProcessBlock() {
   // Update the modulation speed if some of the LFO FM parameters have changed.
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     if (previous_lfo_fm_[i] !=
-       voice_[0].modulation_destination(MOD_DST_LFO_1 + i)) {
-      previous_lfo_fm_[i] = voice_[0].modulation_destination(MOD_DST_LFO_1 + i);
+       voice_.modulation_destination(MOD_DST_LFO_1 + i)) {
+      previous_lfo_fm_[i] = voice_.modulation_destination(MOD_DST_LFO_1 + i);
       UpdateLfoRate(i);
     }
   }
 
-  for (uint8_t i = 0; i < kNumVoices; ++i) {
-    // Looping envelopes. Note that the second envelope stops looping after the
-    // key is released otherwise the note will never stops playing.
-    for (uint8_t j = 0; j < kNumLfos; ++j) {
-      if (lfo_[j].triggered() &&
-          patch_.lfo[j].retrigger_mode == LFO_MODE_MASTER) {
-        voice_[i].TriggerEnvelope(j, ATTACK);
-      }
+  // Looping envelopes. Note that the second envelope stops looping after the
+  // key is released otherwise the note will never stops playing.
+  for (uint8_t j = 0; j < kNumLfos; ++j) {
+    if (lfo_[j].triggered() &&
+        patch_.lfo[j].retrigger_mode == LFO_MODE_MASTER) {
+      voice_.TriggerEnvelope(j, ATTACK);
     }
-    voice_[i].ProcessBlock();
   }
+  voice_.ProcessBlock();
 }
 
 /* <static> */
 Envelope Voice::envelope_[kNumEnvelopes];
-uint8_t Voice::dead_;
+uint8_t Voice::disable_envelope_auto_retriggering_[kNumEnvelopes];
+uint8_t Voice::gate_;
 int16_t Voice::pitch_increment_;
 int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
@@ -723,7 +678,12 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     pitch_target_ = U8U8Mul(note, 128);
   }
   if (!legato || (!engine.system_settings_.legato && legato != 255)) {
-    TriggerEnvelope(ATTACK);
+    for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
+      if (!disable_envelope_auto_retriggering_[i]) {
+        envelope_[i].Trigger(ATTACK);
+      }
+    }
+    gate_ = 255;
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're
     // doing monophonic things anyway (and some pseudo-polysynths/organs are
@@ -765,6 +725,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
 
 /* static */
 void Voice::Release() {
+  gate_ = 0;
   TriggerEnvelope(RELEASE);
   if (last_note_ != 0) {
     midi_dispatcher.NoteKilled(last_note_);
@@ -781,7 +742,7 @@ inline void Voice::LoadSources() {
   modulation_sources_[MOD_SRC_ENV_1] = envelope_[0].Render();
   modulation_sources_[MOD_SRC_ENV_2] = envelope_[1].Render();
   modulation_sources_[MOD_SRC_NOTE] = U14ShiftRight6(pitch_value_);
-  modulation_sources_[MOD_SRC_GATE] = envelope_[0].stage() >= RELEASE ? 0 : 255;
+  modulation_sources_[MOD_SRC_GATE] = gate_;
   modulation_sources_[MOD_SRC_AUDIO] = buffer_[0];
   
   // Apply the modulation operators
@@ -834,6 +795,8 @@ inline void Voice::LoadSources() {
   dst_[MOD_DST_VCO_1_2_COARSE] = dst_[MOD_DST_VCO_1_2_FINE] = 8192;
   dst_[MOD_DST_VCO_1] = dst_[MOD_DST_VCO_2] = 8192;
   dst_[MOD_DST_LFO_1] = dst_[MOD_DST_LFO_2] = 8192;
+  dst_[MOD_DST_TRIGGER_ENV_1] = 0;
+  dst_[MOD_DST_TRIGGER_ENV_2] = 0;
 
   dst_[MOD_DST_FILTER_RESONANCE] = engine.patch_.filter_resonance << 8;
   dst_[MOD_DST_MIX_BALANCE] = engine.patch_.mix_balance << 8;
@@ -853,6 +816,9 @@ inline void Voice::LoadSources() {
 /* static */
 inline void Voice::ProcessModulationMatrix() {
   // Apply the modulations in the modulation matrix.
+  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
+    disable_envelope_auto_retriggering_[i] = 0;
+  }
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     int8_t amount = engine.patch_.modulation_matrix.modulation[i].amount;
     if (!amount) {
@@ -867,6 +833,11 @@ inline void Voice::ProcessModulationMatrix() {
     uint8_t source = engine.patch_.modulation_matrix.modulation[i].source;
     uint8_t destination =
         engine.patch_.modulation_matrix.modulation[i].destination;
+    if (destination >= MOD_DST_TRIGGER_ENV_1 &&
+        destination <= MOD_DST_TRIGGER_ENV_2) {
+      disable_envelope_auto_retriggering_[destination - \
+          MOD_DST_TRIGGER_ENV_1] = 1;
+    }
     uint8_t source_value;
 
     source_value = modulation_sources_[source];
@@ -915,7 +886,7 @@ inline void Voice::UpdateDestinations() {
 
   // If the secondary filter is linked to the first one, offset its cutoff
   // by the cutoff value of the first filter.
-  if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM &&
+  if (engine.system_settings_.expansion_filter_board == FILTER_BOARD_SVF &&
       engine.patch_.filter_1_mode_ >= FILTER_MODE_LP_COUPLED) {
     dst_[MOD_DST_CV_1] = S16ClipU14(dst_[MOD_DST_CV_1] + cutoff - 8192);
   }
@@ -929,6 +900,24 @@ inline void Voice::UpdateDestinations() {
   modulation_destinations_[MOD_DST_CV_2] = U14ShiftRight6(dst_[MOD_DST_CV_2]);
   modulation_destinations_[MOD_DST_LFO_1] = S16ShiftRight8(dst_[MOD_DST_LFO_1]);
   modulation_destinations_[MOD_DST_LFO_2] = S16ShiftRight8(dst_[MOD_DST_LFO_2]);
+  
+  if (dst_[MOD_DST_TRIGGER_ENV_1] > 6000) {
+    if (!modulation_destinations_[MOD_DST_TRIGGER_ENV_1]) {
+      envelope_[0].Trigger(ATTACK);
+    }
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_1] = 255;
+  } else {
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_1] = 0;
+  }
+
+  if (dst_[MOD_DST_TRIGGER_ENV_2] > 6000) {
+    if (!modulation_destinations_[MOD_DST_TRIGGER_ENV_2]) {
+      envelope_[1].Trigger(ATTACK);
+    }
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_2] = 255;
+  } else {
+    modulation_destinations_[MOD_DST_TRIGGER_ENV_2] = 0;
+  }
   
   osc_1.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_1]));
   osc_1.set_secondary_parameter(engine.patch_.osc[0].range + 24);

@@ -51,6 +51,7 @@ amt
 mode
 overdrive
  fm
+ms rez
 tempo
 bpm
 groove
@@ -86,10 +87,15 @@ envelope 1
 envelope 2
 sequencer
 arpeggio
+ch1
+ch2
+\x011
+\x012
 step sequencer
 keyboard
 midi
 system
+triggers
 performance
 param. 1
 param. 2
@@ -109,6 +115,21 @@ hp<
 >lp
 >bp
 >hp
+lp4
+lp3
+lp2
+lp1
+hp1
+hp2
+hp3
+bp2
+bp4
+notch
+allpass
+h2lp
+h3lp
+n+lp
+a+lp
 
 cut
 vca
@@ -127,6 +148,8 @@ cv2
 atk
  lf1
  lf2
+en1
+en2
 
 in1
 in2
@@ -159,6 +182,8 @@ cv 2
 attack
  lfo 1
  lfo 2
+env 1
+env 2
 
 distrt
 crushr
@@ -407,6 +432,7 @@ ssm
 svf
 dsp
 pvk
+4pm
 
 4cv in
 prgm

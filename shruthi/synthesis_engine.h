@@ -121,8 +121,9 @@ class Voice {
    
   // Envelope generators.
   static Envelope envelope_[kNumEnvelopes];
+  static uint8_t disable_envelope_auto_retriggering_[kNumEnvelopes];
+  static uint8_t gate_;
   static int16_t dst_[kNumModulationDestinations];
-  static uint8_t dead_;
 
   // Counters/phases for the pitch envelope generator (portamento).
   // Pitches are stored on 14 bits, the 7 highest bits are the MIDI note value,
@@ -180,6 +181,9 @@ class SynthesisEngine : public midi::MidiDevice {
   static void Stop();
 
   static void ProcessBlock();
+  static void Trigger(uint8_t index, uint8_t value) {
+    voice_.set_modulation_source(MOD_SRC_TRIG_1 + index, value);
+  }
 
   // Patch manipulation stuff.
   static void SetParameter(
@@ -194,14 +198,10 @@ class SynthesisEngine : public midi::MidiDevice {
     return data_access_byte_[parameter_index + 1];
   }
   static void set_modulation_source(uint8_t index, uint8_t value) {
-    for (uint8_t i = 0; i < kNumVoices; ++i) {
-      voice_[i].set_modulation_source(index, value);
-    }
+    voice_.set_modulation_source(index, value);
   }
   static void set_unregistered_modulation_source(uint8_t index, uint8_t value) {
-    for (uint8_t i = 0; i < kNumVoices; ++i) {
-      voice_[i].set_unregistered_modulation_source(index, value);
-    }
+    voice_.set_unregistered_modulation_source(index, value);
   }
   static void ResetPatch();
   static void ResetSequencerSettings();
@@ -232,6 +232,9 @@ class SynthesisEngine : public midi::MidiDevice {
   static inline const SystemSettings& system_settings() {
     return system_settings_;
   }
+  static inline const ExtraSystemSettings& extra_system_settings() {
+    return extra_system_settings_;
+  }
   static inline Patch* mutable_patch() { return &patch_; }
   static inline VoiceController* mutable_voice_controller() {
     return &controller_;
@@ -245,10 +248,10 @@ class SynthesisEngine : public midi::MidiDevice {
 
   // These variables are sent to I/O pins, and are made accessible here.
   static inline uint8_t modulation_source(uint8_t i, uint8_t j) {
-    return voice_[i].modulation_source(j);
+    return voice_.modulation_source(j);
   }
 
-  static const Voice& voice(uint8_t i) { return voice_[i]; }
+  static const Voice& voice() { return voice_; }
   
   static uint8_t dirty() {
     uint8_t value = dirty_;
@@ -265,11 +268,28 @@ class SynthesisEngine : public midi::MidiDevice {
     if (patch_.filter_1_mode_ == FILTER_MODE_LP) {
       byte |= 4;
     }
-    if (!voice(0).cv_1()) {
+    if (!voice().cv_1()) {
       byte |= 2;
     }
-    if (!voice(0).cv_2()) {
+    if (!voice().cv_2()) {
       byte |= 1;
+    }
+    return byte;
+  }
+  
+  static inline uint8_t four_poles_routing_byte() {
+    uint8_t byte = 0;
+    if (voice().cv_1()) {
+      byte |= 0x10;
+    }
+    if (voice().cv_2()) {
+      byte |= 0x20;
+    }
+    if (voice().modulation_destination(MOD_DST_LFO_1) > 0x80) {
+      byte |= 0x40;
+    }
+    if (voice().modulation_destination(MOD_DST_LFO_2) > 0x80) {
+      byte |= 0x80;
     }
     return byte;
   }
@@ -310,6 +330,7 @@ class SynthesisEngine : public midi::MidiDevice {
   static Patch patch_;
   static SequencerSettings sequencer_settings_;
   static SystemSettings system_settings_;
+  static ExtraSystemSettings extra_system_settings_;
   
   static Lfo lfo_[kNumLfos];
   static uint8_t previous_lfo_fm_[kNumLfos];
@@ -317,7 +338,7 @@ class SynthesisEngine : public midi::MidiDevice {
   static uint8_t num_lfo_reset_steps_;  // resync the LFO every n-th step.
   static uint8_t lfo_reset_counter_;
   static uint8_t lfo_to_reset_;
-  static Voice voice_[kNumVoices];
+  static Voice voice_;
   static VoiceController controller_;
   static VoiceAllocator polychaining_allocator_;
   static uint8_t nrpn_parameter_number_;

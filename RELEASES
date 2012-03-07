@@ -2,13 +2,22 @@ v0.96 --------------------------------------------------------------------------
 
 SYNTHESIS
 
-- The LFSR used for the noise oscillator can now be reset by oscillator sync. This allows the creation of pitched sounds with a very rich timbre.
-- Constant values have been introduced in the mod matrix. They can be combined with operators to attenuate, translate, or quantize a modulation source by a
+- The LFSR used for the noise oscillator can now be reset by oscillator sync.
+This allows the creation of pitched sounds with a very rich timbre.
+- Constant values have been introduced in the mod matrix. They can be combined
+with operators to attenuate, translate, or quantize a modulation source by a
 known value.
 - A Quantize operation has been added to the operators. It reduces the bit-depth
 of a modulation source to create a Sample & Hold like effect on any modulation.
 - A Lag processor operation has been added to the operators. It smoothes the
 slope of a modulation source to create more progressive modulations.
+- Two MIDI channel/note combo can be defined as "triggers". When such a MIDI
+message is received, a note is not played. Instead, a modulation source
+("trigger 1" and "trigger 2" in the mod matrix) changes. This can be used to
+trigger effects (such as a pitch change or LFO speed boost) from a keyboard or
+an external MIDI sequencer.
+- 2 new modulation destinations, "env 1" and "env 2" allow the envelopes to be
+triggered whenever a modulation source crosses a threshold.
 
 CODE
 - 256 bytes have been saved by using the same table for the lowest octaves of

@@ -123,6 +123,9 @@ void UpdateLedsTask() {
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
     leds.ShiftOutByte(engine.pvk_routing_byte());
   }
+  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
+    leds.ShiftOutByte(engine.four_poles_routing_byte());
+  }
   leds.ShiftOut();
   leds.End();
 }
@@ -277,14 +280,14 @@ void AudioRenderingTask() {
       } else if (cv_io_round_robin == 2) {
         cv_io.Overwrite(engine.sequencer_settings().seq_tempo);
       } else {
-        v = engine.voice(0).modulation_destination(
+        v = engine.voice().modulation_destination(
             MOD_DST_FILTER_RESONANCE + cv_io_round_robin - 3);
         if (v == 0xff) {
           v = 0xfe;
         }
         cv_io.Overwrite(v);
       }
-      v = engine.voice(0).modulation_destination(
+      v = engine.voice().modulation_destination(
           MOD_DST_FILTER_CUTOFF + (cv_io_round_robin & 1));
       if (v == 0xff) {
         v = 0xfe;
@@ -296,8 +299,8 @@ void AudioRenderingTask() {
       }
     }
 #endif  // SERIAL_PATCH_DUMP
-    vcf_cutoff_out.Write(engine.voice(0).cutoff());
-    uint8_t resonance = engine.voice(0).resonance();
+    vcf_cutoff_out.Write(engine.voice().cutoff());
+    uint8_t resonance = engine.voice().resonance();
     if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
       // Apply a knee to the resonance curve.
       resonance = (resonance >> 1) + (resonance < 128 ? resonance : 128);
@@ -305,10 +308,18 @@ void AudioRenderingTask() {
         resonance = 255;
       }
     }
+    if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
+      // If the resonance overdrive mode is not selected, half the scale of
+      // the resonance setting. Resonance overdrive needs a very strong control
+      // current on the OTA to kick in.
+      if (!engine.voice().cv_1()) {
+        resonance >>= 1;
+      }
+    }
     vcf_resonance_out.Write(resonance);
-    vca_out.Write(engine.voice(0).vca());
-    cv_1_out.Write(engine.voice(0).cv_1());
-    cv_2_out.Write(engine.voice(0).cv_2());
+    vca_out.Write(engine.voice().vca());
+    cv_1_out.Write(engine.voice().cv_1());
+    cv_2_out.Write(engine.voice().cv_2());
   }
 }
 

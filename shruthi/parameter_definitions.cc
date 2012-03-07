@@ -28,7 +28,7 @@
 namespace shruthi {
 
 static const prog_char raw_parameter_definition[
-    78 * sizeof(ParameterDefinition)] PROGMEM = {
+    86 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_LAST - 1,
@@ -172,7 +172,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_ATK, STR_RES_ATTACK,
 
   PRM_LFO_RETRIGGER_1,
-  LFO_MODE_FREE, LFO_MOD_LAST - 1,
+  LFO_MODE_FREE, LFO_MODE_LAST - 1,
   UNIT_LFO_RETRIGGER_MODE,
   STR_RES_MODE, STR_RES_MODE,
 
@@ -193,7 +193,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_ATK, STR_RES_ATTACK,
 
   PRM_LFO_RETRIGGER_2,
-  LFO_MODE_FREE, LFO_MOD_LAST - 1,
+  LFO_MODE_FREE, LFO_MODE_LAST - 1,
   UNIT_LFO_RETRIGGER_MODE,
   STR_RES_MODE, STR_RES_MODE,
 
@@ -204,7 +204,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_MOD_, STR_RES_MODULATION,
 
   PRM_MOD_SOURCE,
-  0, kNumModulationSources - 1,
+  0, MOD_SRC_TRIG_2,
   UNIT_MODULATION_SOURCE,
   STR_RES_SRC, STR_RES_SOURCE,
 
@@ -353,6 +353,26 @@ static const prog_char raw_parameter_definition[
   UNIT_CV_OPERATOR,
   STR_RES_OUT, STR_RES_OUT,
   
+  PRM_SYS_TRIGGER_1_CHANNEL,
+  1, 16,
+  UNIT_UINT8,
+  STR_RES_CH1, STR_RES_CH1,
+
+  PRM_SYS_TRIGGER_1_NOTE,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_11, STR_RES_11,
+
+  PRM_SYS_TRIGGER_2_CHANNEL,
+  1, 16,
+  UNIT_UINT8,
+  STR_RES_CH2, STR_RES_CH2,
+
+  PRM_SYS_TRIGGER_2_NOTE,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_12, STR_RES_12,
+  
   // Settings for SSM2044 filter board.
   PRM_FILTER_CUTOFF,
   0, 127,
@@ -433,6 +453,27 @@ static const prog_char raw_parameter_definition[
   STR_RES_OVERDRIVE, STR_RES_OVERDRIVE,
   
   PRM_PV_FM_FEEDBACK,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES__FM, STR_RES__FM,
+  
+  // Settings for new filter board.
+  PRM_FILTER_CUTOFF,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_CUT, STR_RES_CUTOFF,
+
+  PRM_4P_MODE,
+  0, 14,
+  UNIT_FILTER_4P_MODE,
+  STR_RES_MODE, STR_RES_MODE,
+  
+  PRM_4P_MS_REZ,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES_MS_REZ, STR_RES_MS_REZ,
+  
+  PRM_4P_FM_FEEDBACK,
   0, 1,
   UNIT_BOOLEAN,
   STR_RES__FM, STR_RES__FM,
