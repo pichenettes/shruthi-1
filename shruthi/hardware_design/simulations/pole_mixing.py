@@ -47,8 +47,10 @@ responses = [
 
   ('phaser', 1, 3, 6, 4, 0),
   ('phaser+lp1', 1, 3, 6, 4, 1),
+  
+  ('true_ap', 1, 6, 12, 8, 0),
+  ('improved_phaser', 1, 7, 12, 8, 0),
 ]
-
 
 pylab.figure(figsize=(8, 16))
 k = 0
@@ -76,10 +78,25 @@ pylab.savefig('response.pdf')
 #   axes.set_ylim(-60, 10)
 #   pylab.savefig('response_' + name.replace('+', '_') + '.pdf')
 
-# t = 1 / (1 + s) - (1 - s) ** 3 / (1 + s) ** 4
-# pylab.semilogx(f, 20 * numpy.log10(abs(t)).T)
-# pylab.xlabel('frequency')
-# pylab.ylabel('|H(p)|')
-# axes = pylab.gca()
-# axes.set_ylim(-60, 10)
-# pylab.show()
+# responses = [
+#   ('4 pole', 1 / (1 + s) ** 4),
+#   ('2 pole', 1 / (1 + s) ** 2),
+#   ('4 pole + BP1', 1 / (1 + s) ** 4 - 1 / (1 + s)),
+#   ('4 pole + BP3', 1 / (1 + s) ** 4 - 1 / (1 + s) ** 3),
+#   ('2 pole + BP1', 1 / (1 + s) ** 2 - 1 / (1 + s)),
+#   ('2 pole + BP3', 1 / (1 + s) ** 2 - 1 / (1 + s) ** 3),
+# ]
+# 
+# pylab.figure(figsize=(12, 16))
+# 
+# for i, (name, t) in enumerate(responses):
+#   pylab.subplot(321 + i)
+#   pylab.semilogx(f, 20 * numpy.log10(abs(t)).T)
+#   pylab.xlabel('frequency')
+#   pylab.ylabel('|H(p)|')
+#   pylab.title(name)
+#   axes = pylab.gca()
+#   axes.set_ylim(-60, 10)
+#   axes.set_xlim(20, 20000)
+# 
+# pylab.savefig('responses.pdf')
