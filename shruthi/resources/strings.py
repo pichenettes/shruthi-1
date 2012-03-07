@@ -51,6 +51,7 @@ amt
 mode
 overdrive
  fm
+ms rez
 tempo
 bpm
 groove
@@ -114,6 +115,21 @@ hp<
 >lp
 >bp
 >hp
+lp4
+lp3
+lp2
+lp1
+hp1
+hp2
+hp3
+bp2
+bp4
+notch
+allpass
+h2lp
+h3lp
+n+lp
+a+lp
 
 cut
 vca
@@ -416,6 +432,7 @@ ssm
 svf
 dsp
 pvk
+4pm
 
 4cv in
 prgm

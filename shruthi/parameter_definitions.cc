@@ -28,7 +28,7 @@
 namespace shruthi {
 
 static const prog_char raw_parameter_definition[
-    82 * sizeof(ParameterDefinition)] PROGMEM = {
+    86 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_LAST - 1,
@@ -453,6 +453,27 @@ static const prog_char raw_parameter_definition[
   STR_RES_OVERDRIVE, STR_RES_OVERDRIVE,
   
   PRM_PV_FM_FEEDBACK,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES__FM, STR_RES__FM,
+  
+  // Settings for new filter board.
+  PRM_FILTER_CUTOFF,
+  0, 127,
+  UNIT_RAW_UINT8,
+  STR_RES_CUT, STR_RES_CUTOFF,
+
+  PRM_4P_MODE,
+  0, 14,
+  UNIT_FILTER_4P_MODE,
+  STR_RES_MODE, STR_RES_MODE,
+  
+  PRM_4P_MS_REZ,
+  0, 1,
+  UNIT_BOOLEAN,
+  STR_RES_MS_REZ, STR_RES_MS_REZ,
+  
+  PRM_4P_FM_FEEDBACK,
   0, 1,
   UNIT_BOOLEAN,
   STR_RES__FM, STR_RES__FM,

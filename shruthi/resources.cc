@@ -56,6 +56,7 @@ static const prog_char str_res_amt[] PROGMEM = "amt";
 static const prog_char str_res_mode[] PROGMEM = "mode";
 static const prog_char str_res_overdrive[] PROGMEM = "overdrive";
 static const prog_char str_res__fm[] PROGMEM = "fm";
+static const prog_char str_res_ms_rez[] PROGMEM = "ms rez";
 static const prog_char str_res_tempo[] PROGMEM = "tempo";
 static const prog_char str_res_bpm[] PROGMEM = "bpm";
 static const prog_char str_res_groove[] PROGMEM = "groove";
@@ -119,6 +120,21 @@ static const prog_char str_res_Shp[] PROGMEM = "+hp";
 static const prog_char str_res_glp[] PROGMEM = ">lp";
 static const prog_char str_res_gbp[] PROGMEM = ">bp";
 static const prog_char str_res_ghp[] PROGMEM = ">hp";
+static const prog_char str_res_lp4[] PROGMEM = "lp4";
+static const prog_char str_res_lp3[] PROGMEM = "lp3";
+static const prog_char str_res_lp2[] PROGMEM = "lp2";
+static const prog_char str_res_lp1[] PROGMEM = "lp1";
+static const prog_char str_res_hp1[] PROGMEM = "hp1";
+static const prog_char str_res_hp2[] PROGMEM = "hp2";
+static const prog_char str_res_hp3[] PROGMEM = "hp3";
+static const prog_char str_res_bp2[] PROGMEM = "bp2";
+static const prog_char str_res_bp4[] PROGMEM = "bp4";
+static const prog_char str_res_notch[] PROGMEM = "notch";
+static const prog_char str_res_allpass[] PROGMEM = "allpass";
+static const prog_char str_res_h2lp[] PROGMEM = "h2lp";
+static const prog_char str_res_h3lp[] PROGMEM = "h3lp";
+static const prog_char str_res_nSlp[] PROGMEM = "n+lp";
+static const prog_char str_res_aSlp[] PROGMEM = "a+lp";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
 static const prog_char str_res_pw1[] PROGMEM = "pw1";
@@ -366,6 +382,7 @@ static const prog_char str_res_ssm[] PROGMEM = "ssm";
 static const prog_char str_res_svf[] PROGMEM = "svf";
 static const prog_char str_res_dsp[] PROGMEM = "dsp";
 static const prog_char str_res_pvk[] PROGMEM = "pvk";
+static const prog_char str_res_4pm[] PROGMEM = "4pm";
 static const prog_char str_res_4cv_in[] PROGMEM = "4cv in";
 static const prog_char str_res_prgm[] PROGMEM = "prgm";
 static const prog_char str_res_pedals[] PROGMEM = "pedals";
@@ -436,6 +453,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_mode,
   str_res_overdrive,
   str_res__fm,
+  str_res_ms_rez,
   str_res_tempo,
   str_res_bpm,
   str_res_groove,
@@ -499,6 +517,21 @@ PROGMEM const prog_char* string_table[] = {
   str_res_glp,
   str_res_gbp,
   str_res_ghp,
+  str_res_lp4,
+  str_res_lp3,
+  str_res_lp2,
+  str_res_lp1,
+  str_res_hp1,
+  str_res_hp2,
+  str_res_hp3,
+  str_res_bp2,
+  str_res_bp4,
+  str_res_notch,
+  str_res_allpass,
+  str_res_h2lp,
+  str_res_h3lp,
+  str_res_nSlp,
+  str_res_aSlp,
   str_res_cut,
   str_res_vca,
   str_res_pw1,
@@ -780,6 +813,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_svf,
   str_res_dsp,
   str_res_pvk,
+  str_res_4pm,
   str_res_4cv_in,
   str_res_prgm,
   str_res_pedals,

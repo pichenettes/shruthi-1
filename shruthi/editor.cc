@@ -71,6 +71,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   STR_RES___OFF,   // UNIT_CV_OPERATOR
   STR_RES_DISTRT,  // UNIT_FX_PROGRAM
   STR_RES_LGF,     // UNIT_FILTER_FX_MODE
+  STR_RES_LP4,     // UNIT_FILTER_4P_MODE
 };  // UNIT_LAST
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
