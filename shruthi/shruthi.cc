@@ -123,6 +123,9 @@ void UpdateLedsTask() {
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
     leds.ShiftOutByte(engine.pvk_routing_byte());
   }
+  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
+    leds.ShiftOutByte(engine.four_poles_routing_byte());
+  }
   leds.ShiftOut();
   leds.End();
 }

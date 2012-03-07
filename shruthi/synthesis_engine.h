@@ -277,6 +277,23 @@ class SynthesisEngine : public midi::MidiDevice {
     return byte;
   }
   
+  static inline uint8_t four_poles_routing_byte() {
+    uint8_t byte = 0;
+    if (voice().cv_1()) {
+      byte |= 0x10;
+    }
+    if (voice().cv_2()) {
+      byte |= 0x20;
+    }
+    if (voice().modulation_destination(MOD_DST_LFO_1) > 0x80) {
+      byte |= 0x40;
+    }
+    if (voice().modulation_destination(MOD_DST_LFO_2) > 0x80) {
+      byte |= 0x80;
+    }
+    return byte;
+  }
+  
   static inline uint8_t filter_routing_byte() {
     uint8_t byte = 0;
     uint8_t filter_1_mode = patch_.filter_1_mode_;
