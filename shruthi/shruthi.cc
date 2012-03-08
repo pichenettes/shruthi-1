@@ -118,13 +118,13 @@ void UpdateLedsTask() {
     leds.ShiftOutByte(programmer_active_pot);
   }
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_SVF) {
-    leds.ShiftOutByte(engine.filter_routing_byte());
+    leds.ShiftOutByte(engine.svf_routing_byte());
   }
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
     leds.ShiftOutByte(engine.pvk_routing_byte());
   }
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
-    leds.ShiftOutByte(engine.four_poles_routing_byte());
+    leds.ShiftOutByte(engine.four_pole_routing_byte());
   }
   leds.ShiftOut();
   leds.End();
