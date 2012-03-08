@@ -547,6 +547,28 @@ void SynthesisEngine::UpdateLfoRate(uint8_t i) {
       patch_.lfo[i].retrigger_mode);
 }
 
+const prog_uint8_t filter_modes[15] PROGMEM = {
+  2, 10, 1, 9, 8, 11, 13, 0, 7, 14, 12, 3, 5, 6, 4
+};
+
+/* static */
+uint8_t SynthesisEngine::four_pole_routing_byte() {
+  uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
+  if (voice().cv_1()) {
+    byte |= 0x10;
+  }
+  if (voice().cv_2()) {
+    byte |= 0x20;
+  }
+  if (voice().modulation_destination(MOD_DST_LFO_1) > 0x80) {
+    byte |= 0x40;
+  }
+  if (voice().modulation_destination(MOD_DST_LFO_2) > 0x80) {
+    byte |= 0x80;
+  }
+  return byte;
+}
+
 /* static */
 void SynthesisEngine::ProcessBlock() {
   for (uint8_t i = 0; i < kNumLfos; ++i) {
