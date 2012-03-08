@@ -125,11 +125,11 @@ hp3
 bp2
 bp4
 notch
-allpass
+phaser
 h2lp
 h3lp
 n+lp
-a+lp
+p+lp
 
 liquid
 ms

@@ -130,11 +130,11 @@ static const prog_char str_res_hp3[] PROGMEM = "hp3";
 static const prog_char str_res_bp2[] PROGMEM = "bp2";
 static const prog_char str_res_bp4[] PROGMEM = "bp4";
 static const prog_char str_res_notch[] PROGMEM = "notch";
-static const prog_char str_res_allpass[] PROGMEM = "allpass";
+static const prog_char str_res_phaser[] PROGMEM = "phaser";
 static const prog_char str_res_h2lp[] PROGMEM = "h2lp";
 static const prog_char str_res_h3lp[] PROGMEM = "h3lp";
 static const prog_char str_res_nSlp[] PROGMEM = "n+lp";
-static const prog_char str_res_aSlp[] PROGMEM = "a+lp";
+static const prog_char str_res_pSlp[] PROGMEM = "p+lp";
 static const prog_char str_res_liquid[] PROGMEM = "liquid";
 static const prog_char str_res_ms[] PROGMEM = "ms";
 static const prog_char str_res_wobbly[] PROGMEM = "wobbly";
@@ -531,11 +531,11 @@ PROGMEM const prog_char* string_table[] = {
   str_res_bp2,
   str_res_bp4,
   str_res_notch,
-  str_res_allpass,
+  str_res_phaser,
   str_res_h2lp,
   str_res_h3lp,
   str_res_nSlp,
-  str_res_aSlp,
+  str_res_pSlp,
   str_res_liquid,
   str_res_ms,
   str_res_wobbly,

@@ -220,11 +220,11 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_BP2 102  // bp2
 #define STR_RES_BP4 103  // bp4
 #define STR_RES_NOTCH 104  // notch
-#define STR_RES_ALLPASS 105  // allpass
+#define STR_RES_PHASER 105  // phaser
 #define STR_RES_H2LP 106  // h2lp
 #define STR_RES_H3LP 107  // h3lp
 #define STR_RES_NSLP 108  // n+lp
-#define STR_RES_ASLP 109  // a+lp
+#define STR_RES_PSLP 109  // p+lp
 #define STR_RES_LIQUID 110  // liquid
 #define STR_RES_MS 111  // ms
 #define STR_RES_WOBBLY 112  // wobbly
