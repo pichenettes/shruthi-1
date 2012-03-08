@@ -554,12 +554,7 @@ const prog_uint8_t filter_modes[15] PROGMEM = {
 /* static */
 uint8_t SynthesisEngine::four_pole_routing_byte() {
   uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
-  if (voice().cv_1()) {
-    byte |= 0x10;
-  }
-  if (voice().cv_2()) {
-    byte |= 0x20;
-  }
+  byte |= U8ShiftLeft4(patch_.filter_2_mode_);
   if (voice().modulation_destination(MOD_DST_LFO_1) > 0x80) {
     byte |= 0x40;
   }

@@ -51,7 +51,7 @@ amt
 mode
 overdrive
  fm
-ms rez
+flavour
 tempo
 bpm
 groove
@@ -130,6 +130,11 @@ h2lp
 h3lp
 n+lp
 a+lp
+
+clean
+ms
+wobbly
+gnarly
 
 cut
 vca

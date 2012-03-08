@@ -56,7 +56,7 @@ static const prog_char str_res_amt[] PROGMEM = "amt";
 static const prog_char str_res_mode[] PROGMEM = "mode";
 static const prog_char str_res_overdrive[] PROGMEM = "overdrive";
 static const prog_char str_res__fm[] PROGMEM = "fm";
-static const prog_char str_res_ms_rez[] PROGMEM = "ms rez";
+static const prog_char str_res_flavour[] PROGMEM = "flavour";
 static const prog_char str_res_tempo[] PROGMEM = "tempo";
 static const prog_char str_res_bpm[] PROGMEM = "bpm";
 static const prog_char str_res_groove[] PROGMEM = "groove";
@@ -135,6 +135,10 @@ static const prog_char str_res_h2lp[] PROGMEM = "h2lp";
 static const prog_char str_res_h3lp[] PROGMEM = "h3lp";
 static const prog_char str_res_nSlp[] PROGMEM = "n+lp";
 static const prog_char str_res_aSlp[] PROGMEM = "a+lp";
+static const prog_char str_res_clean[] PROGMEM = "clean";
+static const prog_char str_res_ms[] PROGMEM = "ms";
+static const prog_char str_res_wobbly[] PROGMEM = "wobbly";
+static const prog_char str_res_gnarly[] PROGMEM = "gnarly";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
 static const prog_char str_res_pw1[] PROGMEM = "pw1";
@@ -453,7 +457,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_mode,
   str_res_overdrive,
   str_res__fm,
-  str_res_ms_rez,
+  str_res_flavour,
   str_res_tempo,
   str_res_bpm,
   str_res_groove,
@@ -532,6 +536,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res_h3lp,
   str_res_nSlp,
   str_res_aSlp,
+  str_res_clean,
+  str_res_ms,
+  str_res_wobbly,
+  str_res_gnarly,
   str_res_cut,
   str_res_vca,
   str_res_pw1,
