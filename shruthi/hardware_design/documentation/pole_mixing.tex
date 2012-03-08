@@ -195,20 +195,6 @@ Phaser & \includegraphics[width=0.4\textwidth]{response_phaser.pdf} & $1 - \frac
 \hline
 \end{tabular}
 
-\subsection{True all-pass, and proposed improved phaser mode}
-
-The values $1, 3, 6, 4$ for the phaser response in the previous section are taken from the Xpander schematics, but they do not seem to provide a convincing phaser -- the response looks like a high-pass filtered notch. Here are two new suggestions:
-
-\begin{tabular}{lcclllll}
-\hline
-Name & Response & Transfer function & $a$ & $b$ & $c$ & $d$ & First LP stage \\
-\hline
-True all-pass & \includegraphics[width=0.4\textwidth]{response_true_ap.pdf} & $\frac{(1 - s)^3}{(1 + s)^3}$ & 1 & 6 & 12 & 8 & Disabled \\
-\hline
-Improved phaser & \includegraphics[width=0.4\textwidth]{response_improved_phaser.pdf} & $\frac{1}{1 + s} + \frac{(1 - s)^3}{(1 + s)^3}$ & 1 & 7 & 12 & 8 & Disabled \\
-\hline
-\end{tabular}
-
 \subsection{``Leftover" modes}
 
 These modes are of little interest, but are cheap to realize by toggling the LP stage on already existing modes.
