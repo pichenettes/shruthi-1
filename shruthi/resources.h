@@ -225,10 +225,10 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_H3LP 107  // h3lp
 #define STR_RES_NSLP 108  // n+lp
 #define STR_RES_ASLP 109  // a+lp
-#define STR_RES_CLEAN 110  // clean
+#define STR_RES_LIQUID 110  // liquid
 #define STR_RES_MS 111  // ms
 #define STR_RES_WOBBLY 112  // wobbly
-#define STR_RES_GNARLY 113  // gnarly
+#define STR_RES_WHACKY 113  // whacky
 #define STR_RES_CUT 114  // cut
 #define STR_RES_VCA 115  // vca
 #define STR_RES_PW1 116  // pw1

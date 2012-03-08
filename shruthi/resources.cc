@@ -135,10 +135,10 @@ static const prog_char str_res_h2lp[] PROGMEM = "h2lp";
 static const prog_char str_res_h3lp[] PROGMEM = "h3lp";
 static const prog_char str_res_nSlp[] PROGMEM = "n+lp";
 static const prog_char str_res_aSlp[] PROGMEM = "a+lp";
-static const prog_char str_res_clean[] PROGMEM = "clean";
+static const prog_char str_res_liquid[] PROGMEM = "liquid";
 static const prog_char str_res_ms[] PROGMEM = "ms";
 static const prog_char str_res_wobbly[] PROGMEM = "wobbly";
-static const prog_char str_res_gnarly[] PROGMEM = "gnarly";
+static const prog_char str_res_whacky[] PROGMEM = "whacky";
 static const prog_char str_res_cut[] PROGMEM = "cut";
 static const prog_char str_res_vca[] PROGMEM = "vca";
 static const prog_char str_res_pw1[] PROGMEM = "pw1";
@@ -536,10 +536,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res_h3lp,
   str_res_nSlp,
   str_res_aSlp,
-  str_res_clean,
+  str_res_liquid,
   str_res_ms,
   str_res_wobbly,
-  str_res_gnarly,
+  str_res_whacky,
   str_res_cut,
   str_res_vca,
   str_res_pw1,

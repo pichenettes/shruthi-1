@@ -131,10 +131,10 @@ h3lp
 n+lp
 a+lp
 
-clean
+liquid
 ms
 wobbly
-gnarly
+whacky
 
 cut
 vca
