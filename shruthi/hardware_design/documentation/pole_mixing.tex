@@ -131,7 +131,7 @@ A bank of resistors behind (a) multiplexer(s) can be used to switch sets of $a, 
 \item Transfer functions like $\frac{s}{1 + s}$ (1-pole HP) are not realizable with this system, since the order of the polynomial at the numerator can only be strictly lower than the order of the polynomial at the bottom.
 \end{itemize}
 
-A possible solution is to add a switch in the circuit to bypass the first low-pass cell. Using this approach, transfer functions of the form:
+A possible solution is to add a switch in the circuit to bypass the first low-pass cell (or more accurately use a lower integration cap to provide a very high cutoff-frequency). Using this approach, transfer functions of the form:
 
 $$H_{x, y, z, t}(s) = \frac{x s^3 + y s^2 + z s + t}{(1 + s)^3}$$
 
@@ -211,7 +211,7 @@ Improved phaser & \includegraphics[width=0.4\textwidth]{response_improved_phaser
 
 \subsection{``Leftover" modes}
 
-These modes are of little interest, but are cheap to realize by toggling the LP stage on already existing mode.
+These modes are of little interest, but are cheap to realize by toggling the LP stage on already existing modes.
 
 \begin{tabular}{lcclllll}
 \hline
