@@ -167,8 +167,7 @@ void Oscillator::RenderInterpolatedWavetable(uint8_t* buffer) {
   uint16_t wave_index_2 = ResourcesManager::Lookup<uint8_t, uint8_t>(
       wavetable_definition,
       2 + (pointer >> 8));
-  uint8_t gain_2 = pointer & 0xff;
-  uint8_t gain_1 = ~gain_2;
+  uint8_t gain = pointer & 0xff;
   const prog_uint8_t* wave_1 = wav_res_waves + U8U8Mul(
       wave_index_1,
       129);
@@ -181,8 +180,8 @@ void Oscillator::RenderInterpolatedWavetable(uint8_t* buffer) {
         wave_1,
         wave_2,
         phase.integral >> 1,
-        gain_1,
-        gain_2);
+        ~gain,
+        gain);
   END_SAMPLE_LOOP
 }  
 // The position is freely determined by the parameter
