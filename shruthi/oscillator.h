@@ -191,7 +191,6 @@ class Oscillator {
   // Copy of the shape used by this oscillator. When changing this, you
   // should also update the Update/Render pointers.
   uint8_t shape_;
-  uint8_t shape_corrected_;
 
   // Current value of the oscillator parameter.
   uint8_t parameter_;
