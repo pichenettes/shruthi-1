@@ -52,7 +52,7 @@ void Oscillator::RenderSilence(uint8_t* buffer) {
 }
 
 // ------- Band-limited PWM --------------------------------------------------
-void Oscillator::RenderBandlimitedPwmMaster(uint8_t* buffer) {
+void Oscillator::RenderBandlimitedPwm(uint8_t* buffer) {
   uint8_t balance_index = U8Swap4(note_ - 12);
   uint8_t gain_2 = balance_index & 0xf0;
   uint8_t gain_1 = ~gain_2;
@@ -71,71 +71,23 @@ void Oscillator::RenderBandlimitedPwmMaster(uint8_t* buffer) {
     scale = U8Mix(scale, 102, (note_ - 64) << 2);
     scale = U8Mix(scale, 102, (note_ - 64) << 2);
   }
-  BEGIN_SAMPLE_LOOP
-    phase = U24AddC(phase, phase_increment_int);
-    *sync_output_++ = phase.carry;
-    phase = U24AddC(phase, phase_increment_int);
-    *sync_output_++ = phase.carry;
-    uint8_t a = InterpolateTwoTables(
-        wave_1, wave_2,
-        phase.integral, gain_1, gain_2);
-    
-    a = U8U8MulShift8(a, scale);
-    // This was used in the previous version, doesn't sound much worse
-    // and could save 100 bytes. Using the crossfaded version for sake of
-    // correctness.
-    // uint8_t b = InterpolateSample(wave_1, phase.integral + shift);
-    uint8_t b = InterpolateTwoTables(
-        wave_1, wave_2,
-        phase.integral + shift, gain_1, gain_2);
-    b = U8U8MulShift8(b, scale);
-    a = a - b + 128;
-    *buffer++ = a;
-    *buffer++ = a;
-    size--;
-  END_SAMPLE_LOOP
-}
-
-// ------- Band-limited PWM --------------------------------------------------
-void Oscillator::RenderBandlimitedPwmSlave(uint8_t* buffer) {
-  uint8_t balance_index = U8Swap4(note_ - 12);
-  uint8_t gain_2 = balance_index & 0xf0;
-  uint8_t gain_1 = ~gain_2;
-
-  uint8_t wave_index = balance_index & 0xf;
-  const prog_uint8_t* wave_1 = waveform_table[
-      WAV_RES_BANDLIMITED_SAW_1 + wave_index];
-  wave_index = U8AddClip(wave_index, 1, kNumZonesHalfSampleRate);
-  const prog_uint8_t* wave_2 = waveform_table[
-      WAV_RES_BANDLIMITED_SAW_1 + wave_index];
   
-  uint16_t shift = static_cast<uint16_t>(parameter_ + 128) << 8;
-  // For higher pitched notes, simply use 128
-  uint8_t scale = 192 - (parameter_ >> 1);
-  if (note_ > 64) {
-    scale = U8Mix(scale, 102, (note_ - 64) << 2);
-    scale = U8Mix(scale, 102, (note_ - 64) << 2);
-  }
+  phase_increment_ = U24ShiftLeft(phase_increment_);
+  
   BEGIN_SAMPLE_LOOP
-    if (*sync_input_++) {
+    phase = U24AddC(phase, phase_increment_int);
+    *sync_output_++ = phase.carry;
+    *sync_output_++ = 0;
+    if (sync_input_[0] || sync_input_[1]) {
       phase.integral = 0;
       phase.fractional = 0;
     }
-    phase = U24AddC(phase, phase_increment_int);
-    if (*sync_input_++) {
-      phase.integral = 0;
-      phase.fractional = 0;
-    }
-    phase = U24AddC(phase, phase_increment_int);
+    sync_input_ += 2;
+    
     uint8_t a = InterpolateTwoTables(
         wave_1, wave_2,
         phase.integral, gain_1, gain_2);
-    
     a = U8U8MulShift8(a, scale);
-    // This was used in the previous version, doesn't sound much worse
-    // and could save 100 bytes. Using the crossfaded version for sake of
-    // correctness.
-    // uint8_t b = InterpolateSample(wave_1, phase.integral + shift);
     uint8_t b = InterpolateTwoTables(
         wave_1, wave_2,
         phase.integral + shift, gain_1, gain_2);

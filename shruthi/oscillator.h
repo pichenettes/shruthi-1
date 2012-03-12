@@ -152,8 +152,7 @@ class Oscillator {
       uint24_t increment,
       uint8_t* sync_input,
       uint8_t* sync_output,
-      uint8_t* buffer,
-      uint8_t master) {
+      uint8_t* buffer) {
     shape_ = shape;
     note_ = note;
     phase_increment_ = increment;
@@ -165,11 +164,7 @@ class Oscillator {
       if (parameter_ == 0) {
         RenderSimpleWavetable(buffer);
       } else {
-        if (master) {
-          RenderBandlimitedPwmMaster(buffer);
-        } else {
-          RenderBandlimitedPwmSlave(buffer);
-        }
+        RenderBandlimitedPwm(buffer);
       }
     } else {
       RenderFn fn = fn_table_[
@@ -218,8 +213,7 @@ class Oscillator {
   // Since this is the most computationally expensive function, we still
   // duplicated it into a "master" and a "slave" version for OSC1 and OSC2,
   // with the corresponding oscillators sync code stripped away.
-  void RenderBandlimitedPwmMaster(uint8_t* buffer);
-  void RenderBandlimitedPwmSlave(uint8_t* buffer);
+  void RenderBandlimitedPwm(uint8_t* buffer);
   
   void RenderSimpleWavetable(uint8_t* buffer);
   void RenderInterpolatedWavetable(uint8_t* buffer);

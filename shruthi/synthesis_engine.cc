@@ -1020,8 +1020,7 @@ inline void Voice::RenderOscillators() {
           increment,
           no_sync_,
           sync_state_,
-          buffer_,
-          1);
+          buffer_);
     } else {
       osc_2.Render(
           engine.patch_.osc[1].shape,
@@ -1029,8 +1028,7 @@ inline void Voice::RenderOscillators() {
           increment,
           engine.patch_.osc[0].option == OP_SYNC ? sync_state_ : no_sync_,
           dummy_sync_state_,
-          osc2_buffer_,
-          0);
+          osc2_buffer_);
     }
   }
 }
