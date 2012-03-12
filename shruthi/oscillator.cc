@@ -27,6 +27,15 @@ uint8_t user_wavetable[129 * 8 + 1];
   phase = U24AddC(phase, phase_increment_int); \
   *sync_output_++ = phase.carry; \
 
+// This variant has a larger register width, but yields faster code.
+#define UPDATE_PHASE_MORE_REGISTERS \
+  if (*sync_input++) { \
+    phase.integral = 0; \
+    phase.fractional = 0; \
+  } \
+  phase = U24AddC(phase, phase_increment_int); \
+  *sync_output++ = phase.carry; \
+
 #define BEGIN_SAMPLE_LOOP \
   uint24c_t phase; \
   uint24_t phase_increment_int; \
@@ -35,8 +44,10 @@ uint8_t user_wavetable[129 * 8 + 1];
   phase.integral = phase_.integral; \
   phase.fractional = phase_.fractional; \
   uint8_t size = kAudioBlockSize; \
+  uint8_t* sync_input = sync_input_; \
+  uint8_t* sync_output = sync_output_; \
   while (size--) {
-  
+
 #define END_SAMPLE_LOOP \
   } \
   phase_.integral = phase.integral; \
@@ -118,7 +129,7 @@ void Oscillator::RenderSimpleWavetable(uint8_t* buffer) {
   const prog_uint8_t* wave_2 = waveform_table[base_resource_id + wave_index];
   
   BEGIN_SAMPLE_LOOP
-    UPDATE_PHASE
+    UPDATE_PHASE_MORE_REGISTERS
     uint8_t sample = InterpolateTwoTables(
         wave_1, wave_2,
         phase.integral, gain_1, gain_2);
@@ -175,7 +186,7 @@ void Oscillator::RenderInterpolatedWavetable(uint8_t* buffer) {
       wave_index_2,
       129);
   BEGIN_SAMPLE_LOOP
-    UPDATE_PHASE
+    UPDATE_PHASE_MORE_REGISTERS
     *buffer++ = InterpolateTwoTables(
         wave_1,
         wave_2,
@@ -211,7 +222,7 @@ void Oscillator::RenderSweepingWavetableRam(uint8_t* buffer) {
 // ------- Casio CZ-like synthesis -------------------------------------------
 void Oscillator::RenderCzSaw(uint8_t* buffer) {
   BEGIN_SAMPLE_LOOP
-    UPDATE_PHASE
+    UPDATE_PHASE_MORE_REGISTERS
     uint8_t phi = phase.integral >> 8;
     uint8_t clipped_phi = phi < 0x20 ? phi << 3 : 0xff;
     // Interpolation causes more aliasing here.
@@ -320,7 +331,7 @@ void Oscillator::RenderCrushedSine(uint8_t* buffer) {
   uint8_t decimate = data_.cr.decimate;
   uint8_t held_sample = data_.cr.state;
   BEGIN_SAMPLE_LOOP
-    UPDATE_PHASE
+    UPDATE_PHASE_MORE_REGISTERS
     ++decimate;
     if (parameter_ <= 63) {
       if (decimate >= parameter_ + 1) {
