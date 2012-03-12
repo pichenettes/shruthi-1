@@ -25,6 +25,7 @@ the triangle oscillator.
 - 129 bytes have been saved by simplifying the "vibes" wavetable.
 - A bug that caused random corruption of an unused memory area during program
 startup has been fixed.
+- 2.5kbytes have been saved by de-specialization the Oscillators code.
 
 
 v0.95 --------------------------------------------------------------------------
