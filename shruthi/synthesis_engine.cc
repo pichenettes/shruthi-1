@@ -39,8 +39,8 @@ namespace shruthi {
 /* extern */
 SynthesisEngine engine;
 
-Oscillator<1> osc_1;
-Oscillator<2> osc_2;
+Oscillator osc_1;
+Oscillator osc_2;
 SubOscillator sub_osc;
 TransientGenerator transient_generator;
 
@@ -648,6 +648,7 @@ uint8_t Voice::buffer_[kAudioBlockSize];
 uint8_t Voice::osc2_buffer_[kAudioBlockSize];
 uint8_t Voice::sync_state_[kAudioBlockSize];
 uint8_t Voice::no_sync_[kAudioBlockSize];
+uint8_t Voice::dummy_sync_state_[kAudioBlockSize];
 /* </static> */
 
 /* static */
@@ -1017,6 +1018,7 @@ inline void Voice::RenderOscillators() {
           engine.patch_.osc[0].shape,
           midi_note,
           increment,
+          no_sync_,
           sync_state_,
           buffer_);
     } else {
@@ -1025,6 +1027,7 @@ inline void Voice::RenderOscillators() {
           midi_note,
           increment,
           engine.patch_.osc[0].option == OP_SYNC ? sync_state_ : no_sync_,
+          dummy_sync_state_,
           osc2_buffer_);
     }
   }
