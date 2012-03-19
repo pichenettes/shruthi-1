@@ -843,13 +843,16 @@ inline void Voice::UpdateDestinations() {
   // transistors are thermically coupled. You can disable tracking by applying
   // a negative modulation from NOTE to CUTOFF.
   uint16_t cutoff = dst_[MOD_DST_FILTER_CUTOFF];
-  cutoff = S16ClipU14(cutoff + pitch_value_ - 8192);
+  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
+    cutoff = S16ClipU14(cutoff + pitch_value_ - 8192 + (16 << 7));
+  } else {
+    cutoff = S16ClipU14(cutoff + pitch_value_ - 8192);
+  }
   cutoff = S16ClipU14(cutoff + S8U8Mul(engine.patch_.filter_env,
       modulation_sources_[MOD_SRC_ENV_1]));
   cutoff = S16ClipU14(cutoff + (unregistered_modulation_sources_[0] << 6));
   cutoff = S16ClipU14(cutoff + S8S8Mul(engine.patch_.filter_lfo,
       modulation_sources_[MOD_SRC_LFO_2] + 128));
-
   // If the secondary filter is linked to the first one, offset its cutoff
   // by the cutoff value of the first filter.
   if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM &&
