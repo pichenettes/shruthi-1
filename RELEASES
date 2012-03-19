@@ -19,13 +19,18 @@ an external MIDI sequencer.
 - 2 new modulation destinations, "env 1" and "env 2" allow the envelopes to be
 triggered whenever a modulation source crosses a threshold.
 
+FILTER BOARD HANDLING
+
+- The cutoff range of the Polivoks filter board has been shifted up by one
+octave.
+
 CODE
 - 256 bytes have been saved by using the same table for the lowest octaves of
 the triangle oscillator.
 - 129 bytes have been saved by simplifying the "vibes" wavetable.
 - A bug that caused random corruption of an unused memory area during program
 startup has been fixed.
-- 2.5kbytes have been saved by de-specialization the Oscillators code.
+- 2.5 kbytes have been saved by de-specialization the Oscillators code.
 
 
 v0.95 --------------------------------------------------------------------------
