@@ -555,13 +555,17 @@ const prog_uint8_t filter_modes[15] PROGMEM = {
 uint8_t SynthesisEngine::four_pole_routing_byte() {
   uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
   byte |= U8ShiftLeft4(patch_.filter_2_mode_);
-  if (voice().modulation_source(MOD_SRC_LFO_1) > 0x80) {
-    byte |= 0x40;
+  uint8_t eye_pattern = 0;
+  uint8_t lfo_1 = voice().modulation_source(MOD_SRC_LFO_1) > 0x80;
+  uint8_t lfo_2 = voice().modulation_source(MOD_SRC_LFO_2) > 0x80;
+  if (patch_.filter_2_mode_ == 1) {
+    eye_pattern = 1;
+  } else if (patch_.filter_2_mode_ == 2) {
+    eye_pattern = lfo_1 & lfo_2;
+  } else if (patch_.filter_2_mode_ == 3) {
+    eye_pattern = lfo_1 ^ lfo_2;
   }
-  if (voice().modulation_source(MOD_SRC_LFO_2) > 0x80) {
-    byte |= 0x80;
-  }
-  return byte;
+  return byte | (eye_pattern ? 0x80 : 0x00) | (lfo_2 ? 0x40 : 0x00);
 }
 
 /* static */
