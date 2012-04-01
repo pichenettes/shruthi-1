@@ -558,14 +558,26 @@ uint8_t SynthesisEngine::four_pole_routing_byte() {
   uint8_t eye_pattern = 0;
   uint8_t lfo_1 = voice().modulation_source(MOD_SRC_LFO_1) > 0x80;
   uint8_t lfo_2 = voice().modulation_source(MOD_SRC_LFO_2) > 0x80;
-  if (patch_.filter_2_mode_ == 1) {
-    eye_pattern = 1;
-  } else if (patch_.filter_2_mode_ == 2) {
-    eye_pattern = lfo_1 & lfo_2;
-  } else if (patch_.filter_2_mode_ == 3) {
-    eye_pattern = lfo_1 ^ lfo_2;
+  switch (patch_.filter_2_mode_) {
+    case 0:
+      eye_pattern = 1;
+      break;
+    case 1:
+      eye_pattern = lfo_1;
+      break;
+    case 2:
+      eye_pattern = lfo_1 & lfo_2;
+      break;
+    case 3:
+      eye_pattern = lfo_1 ^ lfo_2;
+      break;
   }
-  return byte | (eye_pattern ? 0x80 : 0x00) | (lfo_2 ? 0x40 : 0x00);
+  if (modulation_source(0, MOD_SRC_PITCH_BEND) < 32 ||
+      modulation_source(0, MOD_SRC_PITCH_BEND) > 224 ||
+      modulation_source(0, MOD_SRC_WHEEL) > 224) {
+    byte |= (eye_pattern ? 0x80 : 0x00) | (lfo_1 ? 0x40 : 0x00);
+  }
+  return byte;
 }
 
 /* static */
