@@ -555,27 +555,14 @@ const prog_uint8_t filter_modes[15] PROGMEM = {
 uint8_t SynthesisEngine::four_pole_routing_byte() {
   uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
   byte |= U8ShiftLeft4(patch_.filter_2_mode_);
-  uint8_t eye_pattern = 0;
-  uint8_t lfo_1 = voice().modulation_source(MOD_SRC_LFO_1) > 0x80;
-  uint8_t lfo_2 = voice().modulation_source(MOD_SRC_LFO_2) > 0x80;
-  switch (patch_.filter_2_mode_) {
-    case 0:
-      eye_pattern = 1;
-      break;
-    case 1:
-      eye_pattern = lfo_1;
-      break;
-    case 2:
-      eye_pattern = lfo_1 & lfo_2;
-      break;
-    case 3:
-      eye_pattern = lfo_1 ^ lfo_2;
-      break;
-  }
-  if (modulation_source(0, MOD_SRC_PITCH_BEND) < 32 ||
-      modulation_source(0, MOD_SRC_PITCH_BEND) > 224 ||
-      modulation_source(0, MOD_SRC_WHEEL) > 224) {
-    byte |= (eye_pattern ? 0x80 : 0x00) | (lfo_1 ? 0x40 : 0x00);
+  if (modulation_source(0, MOD_SRC_WHEEL) > 224) {
+    uint8_t i = kModulationMatrixSize - 1;
+    uint8_t wheel_mod = patch_.modulation_matrix.modulation[i].source;
+    wheel_mod = voice_.modulation_source(wheel_mod);
+    byte |= (wheel_mod > 0xc0 ? 0x80 : 0x00);
+    byte |= (wheel_mod > 0x40 ? 0x40 : 0x00);
+  } else if (patch_.filter_resonance > 56) {
+    byte |= 0xc0;
   }
   return byte;
 }
