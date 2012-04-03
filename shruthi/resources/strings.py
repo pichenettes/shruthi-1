@@ -316,6 +316,9 @@ fuzz
 >>8
 fold
 bits
+2steps
+4steps
+8steps
 
 stp
 arp

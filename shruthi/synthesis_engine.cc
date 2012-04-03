@@ -652,6 +652,7 @@ uint8_t Voice::osc2_buffer_[kAudioBlockSize];
 uint8_t Voice::sync_state_[kAudioBlockSize];
 uint8_t Voice::no_sync_[kAudioBlockSize];
 uint8_t Voice::dummy_sync_state_[kAudioBlockSize];
+uint8_t Voice::trigger_count_;
 /* </static> */
 
 /* static */
@@ -704,6 +705,7 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
         envelope_[i].Trigger(ATTACK);
       }
     }
+    ++trigger_count_;
     gate_ = 255;
     // The LFOs are shared by all voices, so if there are other voices still
     // playing there will be a discontinuity. We don't care because we're
@@ -1040,6 +1042,10 @@ inline void Voice::RenderOscillators() {
   }
 }
 
+const prog_uint8_t eight_step_sequence[8] PROGMEM = {
+  0, 1, 2, 2, 3, 0, 2, 3, 
+};
+
 /* static */
 inline void Voice::ProcessBlock() {
   LoadSources();
@@ -1055,10 +1061,23 @@ inline void Voice::ProcessBlock() {
     }
     return;
   }
+  
   uint8_t op = engine.patch_.osc[0].option;
+  uint8_t phase = 0xff;
+  if (op == OP_PING_PONG_2) {
+    phase = (((trigger_count_) << 1) + 1) & 3;
+  } else if (op == OP_PING_PONG_4) {
+    phase = trigger_count_ & 3;
+  } else if (op == OP_PING_PONG_8) {
+    phase = pgm_read_byte(eight_step_sequence + (trigger_count_ & 7));
+  }
+  
   uint8_t osc_2_gain = U14ShiftRight6(dst_[MOD_DST_MIX_BALANCE]);
   uint8_t osc_1_gain = ~osc_2_gain;
-  
+  if (phase != 0xff) {
+    osc_2_gain = (phase == 1) ? 255 : 0;
+    osc_1_gain = (phase == 3) ? 255 : 0;
+  }
   // Mix oscillators.
   switch (op) {
     case OP_RING_MOD:
@@ -1125,6 +1144,9 @@ inline void Voice::ProcessBlock() {
   
   // Mix-in sub oscillator or transient generator.
   uint8_t sub_gain = U15ShiftRight7(dst_[MOD_DST_MIX_SUB_OSC]);
+  if (phase != 0xff && op != OP_PING_PONG_2) {
+    sub_gain = (phase == 0) ? 255 : 0;
+  }
   if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
     sub_osc.Render(engine.patch_.mix_sub_osc_shape, buffer_, sub_gain);
   } else {
@@ -1147,6 +1169,9 @@ inline void Voice::ProcessBlock() {
   // Mix with noise and output.
   uint8_t noise = Random::GetByte();
   uint8_t noise_gain = S16ShiftRight8(dst_[MOD_DST_MIX_NOISE]);
+  if (phase != 0xff && op != OP_PING_PONG_2) {
+    noise_gain = (phase == 2) ? 255 : 0;
+  }
   uint8_t mix_gain = ~noise_gain;
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
     noise = (noise * 73) + 1;

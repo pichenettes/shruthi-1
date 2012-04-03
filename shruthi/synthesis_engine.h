@@ -150,6 +150,7 @@ class Voice {
   static uint8_t sync_state_[kAudioBlockSize];
   static uint8_t no_sync_[kAudioBlockSize];
   static uint8_t dummy_sync_state_[kAudioBlockSize];
+  static uint8_t trigger_count_;
 
   DISALLOW_COPY_AND_ASSIGN(Voice);
 };
