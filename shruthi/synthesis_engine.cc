@@ -826,7 +826,7 @@ inline void Voice::LoadSources() {
   dst_[MOD_DST_MIX_NOISE] = engine.patch_.mix_noise << 8;
   dst_[MOD_DST_MIX_SUB_OSC] = engine.patch_.mix_sub_osc << 8;
 
-  dst_[MOD_DST_ATTACK] = 0;
+  dst_[MOD_DST_ATTACK] = 8192;
   dst_[MOD_DST_CV_1] = 0;
   dst_[MOD_DST_CV_2] = 0;
   if (engine.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM) {
@@ -951,13 +951,13 @@ inline void Voice::UpdateDestinations() {
   osc_2.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_2]));
   osc_2.set_secondary_parameter(engine.patch_.osc[1].range + 24);
   
-  uint8_t attack_mod = U15ShiftRight7(dst_[MOD_DST_ATTACK]);
+  int8_t attack_mod = U15ShiftRight7(dst_[MOD_DST_ATTACK]) - 64;
+  attack_mod <<= 1;
   for (int i = 0; i < kNumEnvelopes; ++i) {
     int16_t new_attack = engine.patch_.env[i].attack;
     new_attack = Clip(new_attack - attack_mod, 0, 127);
     envelope_[i].UpdateAttack(new_attack);
   }
-  
 }
 
 /* static */
