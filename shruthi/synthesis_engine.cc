@@ -1043,7 +1043,11 @@ inline void Voice::RenderOscillators() {
 }
 
 const prog_uint8_t eight_step_sequence[8] PROGMEM = {
-  0, 1, 2, 2, 3, 0, 2, 3, 
+  4, 1, 8, 8, 2, 4, 8, 2,
+};
+
+const prog_uint8_t four_step_sequence[4] PROGMEM = {
+  4, 1, 8, 2
 };
 
 /* static */
@@ -1063,78 +1067,92 @@ inline void Voice::ProcessBlock() {
   }
   
   uint8_t op = engine.patch_.osc[0].option;
-  uint8_t phase = 0xff;
+  // By default, disable rhythmical mixing.
+  uint8_t enabled_source_bitmask = 0xff;
+  
+  // With the sequenced mixing mode, use a different value of the bitmask.
   if (op == OP_PING_PONG_2) {
-    phase = (((trigger_count_) << 1) + 1) & 3;
+    enabled_source_bitmask = (trigger_count_ & 1) ? 0x0e : 0x0d;
   } else if (op == OP_PING_PONG_4) {
-    phase = trigger_count_ & 3;
+    enabled_source_bitmask = pgm_read_byte(
+        four_step_sequence + (trigger_count_ & 3));
   } else if (op == OP_PING_PONG_8) {
-    phase = pgm_read_byte(eight_step_sequence + (trigger_count_ & 7));
+    enabled_source_bitmask = pgm_read_byte(
+        eight_step_sequence + (trigger_count_ & 7));
+  } else if (op == OP_PING_PONG_SEQ) {
+    enabled_source_bitmask = modulation_sources_[MOD_SRC_SEQ] >> 4;
   }
   
   uint8_t osc_2_gain = U14ShiftRight6(dst_[MOD_DST_MIX_BALANCE]);
   uint8_t osc_1_gain = ~osc_2_gain;
-  if (phase != 0xff) {
-    osc_2_gain = (phase == 1) ? 255 : 0;
-    osc_1_gain = (phase == 3) ? 255 : 0;
+  if (enabled_source_bitmask != 0xff && (enabled_source_bitmask & 3) != 3) {
+    osc_2_gain = (enabled_source_bitmask & 1) ? 255 : 0;
+    osc_1_gain = (enabled_source_bitmask & 2) ? 255 : 0;
   }
-  // Mix oscillators.
-  switch (op) {
-    case OP_RING_MOD:
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        uint8_t ring_mod = S8S8MulShift8(
-            buffer_[i] + 128,
-            osc2_buffer_[i] + 128) + 128;
-        buffer_[i] = U8Mix(buffer_[i], ring_mod, osc_1_gain, osc_2_gain);
-      }
-      break;
-    case OP_FUZZ:
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        buffer_[i] >>= 1;
-        buffer_[i] += (osc2_buffer_[i] >> 1);
-        buffer_[i] = U8Mix(
-            buffer_[i],
-            ResourcesManager::Lookup<uint8_t, uint8_t>(
-                wav_res_distortion, buffer_[i]),
-            osc_1_gain,
-            osc_2_gain);
-      }
-      break;
-    case OP_XOR:
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        buffer_[i] ^= osc2_buffer_[i];
-        buffer_[i] ^= osc_2_gain;
-      }
-      break;
-    case OP_FOLD:
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        buffer_[i] >>= 1;
-        buffer_[i] += (osc2_buffer_[i] >> 1);
-        buffer_[i] = U8Mix(
-            buffer_[i],
-            buffer_[i] + 128,
-            osc_1_gain,
-            osc_2_gain);
-      }
-      break;
-    case OP_BITS:
-      {
-        osc_2_gain >>= 5;
-        osc_2_gain = 255 - ((1 << osc_2_gain) - 1);
+  if (!osc_1_gain && !osc_2_gain) {
+    memset(buffer_, 128, kAudioBlockSize);
+  } else {
+    // Mix oscillators.
+    switch (op) {
+      case OP_RING_MOD:
+        for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+          uint8_t ring_mod = S8S8MulShift8(
+              buffer_[i] + 128,
+              osc2_buffer_[i] + 128) + 128;
+          buffer_[i] = U8Mix(buffer_[i], ring_mod, osc_1_gain, osc_2_gain);
+        }
+        break;
+      case OP_FUZZ:
         for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
           buffer_[i] >>= 1;
           buffer_[i] += (osc2_buffer_[i] >> 1);
-          buffer_[i] &= osc_2_gain;
+          buffer_[i] = U8Mix(
+              buffer_[i],
+              ResourcesManager::Lookup<uint8_t, uint8_t>(
+                  wav_res_distortion, buffer_[i]),
+              osc_1_gain,
+              osc_2_gain);
         }
-      }
-      break;
-    default:
-      for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
-        buffer_[i] = U8Mix(buffer_[i], osc2_buffer_[i], osc_1_gain, osc_2_gain);
-      }
-      break;
+        break;
+      case OP_XOR:
+        for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+          buffer_[i] ^= osc2_buffer_[i];
+          buffer_[i] ^= osc_2_gain;
+        }
+        break;
+      case OP_FOLD:
+        for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+          buffer_[i] >>= 1;
+          buffer_[i] += (osc2_buffer_[i] >> 1);
+          buffer_[i] = U8Mix(
+              buffer_[i],
+              buffer_[i] + 128,
+              osc_1_gain,
+              osc_2_gain);
+        }
+        break;
+      case OP_BITS:
+        {
+          osc_2_gain >>= 5;
+          osc_2_gain = 255 - ((1 << osc_2_gain) - 1);
+          for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+            buffer_[i] >>= 1;
+            buffer_[i] += (osc2_buffer_[i] >> 1);
+            buffer_[i] &= osc_2_gain;
+          }
+        }
+        break;
+      default:
+        for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
+          buffer_[i] = U8Mix(
+              buffer_[i],
+              osc2_buffer_[i],
+              osc_1_gain,
+              osc_2_gain);
+        }
+        break;
+    }    
   }
-  
   uint8_t decimate = 1;
   if (op == OP_CRUSH_4) {
     decimate = 4;
@@ -1144,13 +1162,15 @@ inline void Voice::ProcessBlock() {
   
   // Mix-in sub oscillator or transient generator.
   uint8_t sub_gain = U15ShiftRight7(dst_[MOD_DST_MIX_SUB_OSC]);
-  if (phase != 0xff && op != OP_PING_PONG_2) {
-    sub_gain = (phase == 0) ? 255 : 0;
+  if (enabled_source_bitmask != 0xff) {
+    sub_gain = (enabled_source_bitmask & 4) ? sub_gain : 0;
+    if ((enabled_source_bitmask & 3) == 0) {
+      sub_gain <<= 1;
+    }
   }
   if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
     sub_osc.Render(engine.patch_.mix_sub_osc_shape, buffer_, sub_gain);
   } else {
-    sub_gain <<= 1;
     transient_generator.Render(
         engine.patch_.mix_sub_osc_shape, buffer_, sub_gain);
   }
@@ -1169,8 +1189,11 @@ inline void Voice::ProcessBlock() {
   // Mix with noise and output.
   uint8_t noise = Random::GetByte();
   uint8_t noise_gain = S16ShiftRight8(dst_[MOD_DST_MIX_NOISE]);
-  if (phase != 0xff && op != OP_PING_PONG_2) {
-    noise_gain = (phase == 2) ? 255 : 0;
+  if (enabled_source_bitmask != 0xff) {
+    noise_gain = (enabled_source_bitmask & 8) ? noise_gain : 0;
+    if (enabled_source_bitmask == 8) {
+      noise_gain <<= 1;
+    }
   }
   uint8_t mix_gain = ~noise_gain;
   for (uint8_t i = 0; i < kAudioBlockSize; ++i) {

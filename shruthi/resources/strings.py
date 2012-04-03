@@ -319,6 +319,7 @@ bits
 2steps
 4steps
 8steps
+seqmix
 
 stp
 arp

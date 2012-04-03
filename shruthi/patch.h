@@ -373,6 +373,7 @@ enum Operator {
   OP_PING_PONG_2,
   OP_PING_PONG_4,
   OP_PING_PONG_8,
+  OP_PING_PONG_SEQ,
   OP_LAST
 };
 
