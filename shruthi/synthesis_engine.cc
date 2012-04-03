@@ -1171,6 +1171,9 @@ inline void Voice::ProcessBlock() {
   if (engine.patch_.mix_sub_osc_shape < WAVEFORM_SUB_OSC_CLICK) {
     sub_osc.Render(engine.patch_.mix_sub_osc_shape, buffer_, sub_gain);
   } else {
+    if (sub_gain < 128) {
+      sub_gain <<= 1;
+    }
     transient_generator.Render(
         engine.patch_.mix_sub_osc_shape, buffer_, sub_gain);
   }
