@@ -287,6 +287,7 @@ void VoiceController::NoteOnHandlerArpStep(uint8_t note, uint8_t velocity) {
   // Trigger the note.
   if (sequencer_settings_->seq_mode == SEQUENCER_MODE_STEP) {
     voices_[0].Trigger(note, velocity, notes_.size() > 1);
+    voices_[0].TriggerSecondNote(notes_.least_recent_note().note);
   }
 }
 
@@ -379,7 +380,7 @@ void VoiceController::NoteOffHandlerDefault(uint8_t note) {
     // the one currently played.
     if (sequencer_settings_->seq_mode == SEQUENCER_MODE_STEP) {
       if (top_note == note) {
-        voices_[0].Trigger(notes_.most_recent_note().note, 0, true);
+        voices_[0].Trigger(notes_.most_recent_note().note, 0, 1);
       }
     }
   }

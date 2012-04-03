@@ -641,6 +641,7 @@ uint8_t Voice::gate_;
 int16_t Voice::pitch_increment_;
 int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
+int16_t Voice::aux_pitch_;
 uint8_t Voice::modulation_sources_[kNumModulationSources];
 uint8_t Voice::unregistered_modulation_sources_[1];
 int8_t Voice::modulation_destinations_[kNumModulationDestinations];
@@ -682,7 +683,7 @@ void Voice::TriggerEnvelope(uint8_t index, uint8_t stage) {
 }
 
 /* static */
-void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
+uint16_t Voice::NoteToPitch(uint8_t note) {
   if (engine.system_settings_.raga) {
     int16_t pitch_shift = ResourcesManager::Lookup<int16_t, uint8_t>(
         ResourceId(LUT_RES_SCALE_JUST + engine.system_settings_.raga - 1),
@@ -690,20 +691,46 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     if (pitch_shift != 32767) {
       // Some scales/raga settings might have muted notes. Do not trigger
       // anything in this case!
-      pitch_target_ = (static_cast<uint16_t>(note) * 128) + pitch_shift;
+      return U8U8Mul(note, 128) + pitch_shift;
     } else {
-      if (legato) {
-        legato = 255;
-      }
+      return 0;
     }
   } else {
-    pitch_target_ = U8U8Mul(note, 128);
+    return U8U8Mul(note, 128);
+  }
+}
+
+/* static */
+void Voice::TriggerSecondNote(uint8_t note) {
+  aux_pitch_ = NoteToPitch(note);
+  if (aux_pitch_ == pitch_target_) {
+    aux_pitch_ = 0;
+  }
+}
+
+/* static */
+void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
+  if (!velocity && engine.patch_.osc[0].option == OP_DUO) {
+    // In duophonic mode, ignore the stack retriggering.
+    return;
+  }
+  aux_pitch_ = pitch_target_;
+  uint16_t pitch = NoteToPitch(note);
+  if (pitch == 0) {
+    if (legato) {
+      legato = 255;
+    }
+  } else {
+    pitch_target_ = pitch;
   }
   if (!legato || (!engine.system_settings_.legato && legato != 255)) {
     for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
       if (!disable_envelope_auto_retriggering_[i]) {
         envelope_[i].Trigger(ATTACK);
       }
+    }
+    if (engine.voice_controller().notes().size() == 1 && !legato) {
+      aux_pitch_ = 0;
     }
     ++trigger_count_;
     gate_ = 255;
@@ -900,10 +927,12 @@ inline void Voice::UpdateDestinations() {
   // transistors are thermically coupled. You can disable tracking by applying
   // a negative modulation from NOTE to CUTOFF.
   uint16_t cutoff = dst_[MOD_DST_FILTER_CUTOFF];
-  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
-    cutoff = S16ClipU14(cutoff + pitch_value_ - 8192 + (16 << 7));
-  } else {
-    cutoff = S16ClipU14(cutoff + pitch_value_ - 8192);
+  if (engine.patch_.osc[0].option != OP_DUO) {
+    if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
+      cutoff = S16ClipU14(cutoff + pitch_value_ - 8192 + (16 << 7));
+    } else {
+      cutoff = S16ClipU14(cutoff + pitch_value_ - 8192);
+    }
   }
   cutoff = S16ClipU14(cutoff + S8U8Mul(engine.patch_.filter_env,
       modulation_sources_[MOD_SRC_ENV_1]));
@@ -977,9 +1006,21 @@ inline void Voice::RenderOscillators() {
   // -1 / +1 semitones by master tuning.
   base_pitch += engine.system_settings_.master_tuning;
   
+  const NoteStack& stack = engine.voice_controller().notes();
+  const NoteEntry& top_note = stack.most_recent_note();
+  const NoteEntry& next_note = stack.note(top_note.next_ptr);
+  
   // Update the oscillator parameters.
   for (uint8_t i = 0; i < kNumOscillators; ++i) {
     int16_t pitch = base_pitch;
+    
+    // This is where we look up the list of most recently pressed notes for
+    // the duophonic mode.
+    if (engine.patch_.osc[0].option == OP_DUO && i == 1) {
+      pitch -= pitch_value_;
+      pitch += aux_pitch_;
+    }
+    
     // -24 / +24 semitones by the range controller.
     int8_t range = 0;
     if (engine.patch_.osc[i].shape != WAVEFORM_FM) {
@@ -1031,8 +1072,19 @@ inline void Voice::RenderOscillators() {
           sync_state_,
           buffer_);
     } else {
+      uint8_t shape = engine.patch_.osc[1].shape;
+      // The sub always plays the lowest note.
+      if (engine.patch_.osc[0].option == OP_DUO) {
+        if (aux_pitch_ > 0) {
+          if (aux_pitch_ < pitch_target_) {
+            sub_osc.set_increment(U24ShiftRight(increment));
+          }
+        } else {
+          shape = 0;
+        }
+      }
       osc_2.Render(
-          engine.patch_.osc[1].shape,
+          shape,
           midi_note,
           increment,
           engine.patch_.osc[0].option == OP_SYNC ? sync_state_ : no_sync_,

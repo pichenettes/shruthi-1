@@ -67,6 +67,7 @@ class Voice {
 
   // Called whenever a new note is played, manually or through the arpeggiator.
   static void Trigger(uint8_t note, uint8_t velocity, uint8_t legato);
+  static void TriggerSecondNote(uint8_t note);
 
   // Move this voice to the release stage.
   static void Release();
@@ -118,6 +119,8 @@ class Voice {
   static inline void ProcessModulationMatrix() __attribute__((always_inline));
   static inline void UpdateDestinations() __attribute__((always_inline));
   static inline void RenderOscillators() __attribute__((always_inline));
+  
+  static uint16_t NoteToPitch(uint8_t note);
    
   // Envelope generators.
   static Envelope envelope_[kNumEnvelopes];
@@ -131,6 +134,7 @@ class Voice {
   static int16_t pitch_increment_;
   static int16_t pitch_target_;
   static int16_t pitch_value_;
+  static int16_t aux_pitch_;
 
   // The voice-specific modulation sources are from MOD_SRC_ENV_1 to
   // MOD_SRC_GATE.
@@ -327,6 +331,7 @@ class SynthesisEngine : public midi::MidiDevice {
   static Voice voice_;
   static VoiceController controller_;
   static VoiceAllocator polychaining_allocator_;
+  static VoiceAllocator duophonic_allocator_;
   static uint8_t nrpn_parameter_number_;
   static uint8_t nrpn_parameter_number_msb_;
   static uint8_t data_entry_msb_;

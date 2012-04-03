@@ -18,11 +18,16 @@ trigger effects (such as a pitch change or LFO speed boost) from a keyboard or
 an external MIDI sequencer.
 - 2 new modulation destinations, "env 1" and "env 2" allow the envelopes to be
 triggered whenever a modulation source crosses a threshold.
+- A new mixing mode, "duo", allows the synth to be used in a pseudo-duophonic
+mode. The least recently played note is played on osc 2, and the most recently
+played note is played on osc 1.
 - 3 new mixing modes, "2 steps", "4 steps" and "8 steps" allows the oscillators
 (or oscillators, sub-oscillator and noise source) to be triggered rythmically
 at each note.
 - A new mixing mode, "stepmix" allows the oscillators/sub/noise sources to be
 rythmically disabled according to the pattern input in the step sequencer.
+- The attack time modulation destination now accepts both positive (faster
+attack) and negative (slower attack) modulations.
 
 FILTER BOARD HANDLING
 

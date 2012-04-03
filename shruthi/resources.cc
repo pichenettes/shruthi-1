@@ -289,6 +289,7 @@ static const prog_char str_res_gg4[] PROGMEM = ">>4";
 static const prog_char str_res_gg8[] PROGMEM = ">>8";
 static const prog_char str_res_fold[] PROGMEM = "fold";
 static const prog_char str_res_bits[] PROGMEM = "bits";
+static const prog_char str_res_duo[] PROGMEM = "duo";
 static const prog_char str_res_2steps[] PROGMEM = "2steps";
 static const prog_char str_res_4steps[] PROGMEM = "4steps";
 static const prog_char str_res_8steps[] PROGMEM = "8steps";
@@ -714,6 +715,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_gg8,
   str_res_fold,
   str_res_bits,
+  str_res_duo,
   str_res_2steps,
   str_res_4steps,
   str_res_8steps,

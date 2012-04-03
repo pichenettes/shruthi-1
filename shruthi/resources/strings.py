@@ -316,6 +316,7 @@ fuzz
 >>8
 fold
 bits
+duo
 2steps
 4steps
 8steps

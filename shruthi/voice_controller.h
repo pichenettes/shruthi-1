@@ -87,6 +87,8 @@ class VoiceController {
     Reset();
     active_ = 1;
   }
+  
+  static const NoteStack& notes() { return notes_; }
 
  private:
   static void ArpeggioStep(int8_t delta);
