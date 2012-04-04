@@ -1076,9 +1076,7 @@ inline void Voice::RenderOscillators() {
       // The sub always plays the lowest note.
       if (engine.patch_.osc[0].option == OP_DUO) {
         if (aux_pitch_ > 0) {
-          if (aux_pitch_ < pitch_target_) {
-            sub_osc.set_increment(U24ShiftRight(increment));
-          }
+          sub_osc.set_increment(U24ShiftRight(increment));
         } else {
           shape = 0;
         }
