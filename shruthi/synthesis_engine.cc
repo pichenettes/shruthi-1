@@ -529,7 +529,7 @@ void SynthesisEngine::UpdateLfoRate(uint8_t i) {
     phase_increment = 65536 / (controller_.estimated_beat_duration() *
                          (1 + patch_.lfo[i].rate) / 4);
   } else {
-    uint16_t rate = patch_.lfo[i].rate;
+    int16_t rate = patch_.lfo[i].rate;
     rate += voice_.modulation_destination(MOD_DST_LFO_1 + i);
     rate -= 32;
     if (rate < 0) {
