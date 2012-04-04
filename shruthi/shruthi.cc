@@ -300,16 +300,25 @@ void AudioRenderingTask() {
     }
 #endif  // SERIAL_PATCH_DUMP
     vcf_cutoff_out.Write(engine.voice().cutoff());
-    cv_1_out.Write(engine.voice().cv_1());
-    cv_2_out.Write(engine.voice().cv_2());
     uint8_t resonance = engine.voice().resonance();
     uint8_t gain = engine.voice().vca();
     if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
+      uint8_t adjusted_cutoff = engine.voice().cutoff();
+      if (adjusted_cutoff > 24) {
+        adjusted_cutoff -= 24;
+      } else {
+        adjusted_cutoff = 0;
+      }
+      cv_1_out.Write(resonance);
+      cv_2_out.Write(adjusted_cutoff);
       // Apply a knee to the resonance curve.
       resonance = (resonance >> 1) + (resonance < 128 ? resonance : 128);
       if (resonance >= 252) {
         resonance = 255;
       }
+    } else {
+      cv_1_out.Write(engine.voice().cv_1());
+      cv_2_out.Write(engine.voice().cv_2());
     }
     if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
       // If the resonance overdrive mode is not selected, half the scale of
