@@ -555,12 +555,18 @@ const prog_uint8_t filter_modes[15] PROGMEM = {
 uint8_t SynthesisEngine::four_pole_routing_byte() {
   uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
   byte |= U8ShiftLeft4(patch_.filter_2_mode_);
-  if (modulation_source(0, MOD_SRC_WHEEL) > 224) {
+  if (controller_.active() &&
+      sequencer_settings_.seq_mode >= SEQUENCER_MODE_ARP_LATCH &&
+      sequencer_settings_.seq_mode <= SEQUENCER_MODE_RPS_LATCH) {
+    if (!(controller_.step() & 3)) {
+      byte |= 0xc0;
+    }
+  } else if (modulation_source(0, MOD_SRC_WHEEL) > 224) {
     uint8_t i = kModulationMatrixSize - 1;
     uint8_t wheel_mod = patch_.modulation_matrix.modulation[i].source;
     wheel_mod = voice_.modulation_source(wheel_mod);
     byte |= (wheel_mod > 0xc0 ? 0x80 : 0x00);
-    byte |= (wheel_mod > 0x40 ? 0x40 : 0x00);
+    byte |= (wheel_mod < 0x40 ? 0x40 : 0x00);
   } else if (patch_.filter_resonance > 56) {
     byte |= 0xc0;
   }
