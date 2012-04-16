@@ -12,7 +12,8 @@ reimplementation of the formant synthesis algorithm used in Peter Knight's
 Cantarino speech synthesizer.
 
 The PCB layouts and schematics (in /hardware/shruthi/design/pcb)
-are released under a Creative Commons cc-by-nc-sa 3.0 license for some, and cc-by-sa 3.0 license for others. This is indicated in each schematics file.
+are released under a Creative Commons cc-by-sa 3.0 license - except for some
+discontinued filter boards which were released under a cc-by-nc-sa 3.0 license.
 
 Documentation, analyses, simulations and 3D models are released under a
 Creative Commons cc-by-sa 3.0 license.
