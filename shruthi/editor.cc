@@ -430,6 +430,16 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
           Storage::SysExDump(engine.mutable_sequencer_settings());
         }
         break;
+        
+      case KEY_4:
+        {
+          ConfirmPageSettings confirm_midi_backup;
+          confirm_midi_backup.text = STR_RES_START_FULL_MIDI;
+          confirm_midi_backup.return_group = GROUP_OSC;
+          confirm_midi_backup.callback = &StartMidiBackup;
+          Confirm(confirm_midi_backup);
+        }
+        break;
 
       case KEY_MODE:
         {
@@ -461,11 +471,6 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
         }
         break;
         
-      case KEY_4:
-        current_page_ = PAGE_SYS_TRIGGERS;
-        PageChange();
-        break;
-
       case KEY_MODE:
         editor_mode_ = EDITOR_MODE_PERFORMANCE;
         JumpToPageGroup(GROUP_PERFORMANCE);
