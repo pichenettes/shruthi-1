@@ -28,9 +28,15 @@ void Patch::PrepareForWrite() {
   exclamation_mark_ = '!';
   filter_topology_ = (filter_1_mode_ << 4) | filter_2_mode_;
   op_data_[0] = ops_[0].operands[0];
-  op_data_[1] = (ops_[0].operands[1] << 3) | ops_[0].op;
+  op_data_[1] = (ops_[0].operands[1] << 3) | (ops_[0].op & 0x7);
   op_data_[2] = ops_[1].operands[0];
-  op_data_[3] = (ops_[1].operands[1] << 3) | ops_[1].op;
+  op_data_[3] = (ops_[1].operands[1] << 3) | (ops_[1].op & 0x7);
+  if (ops_[0].op & 0x8) {
+    op_data_[0] |= 0x80;
+  }
+  if (ops_[1].op & 0x8) {
+    op_data_[2] |= 0x80;
+  }
   
 #ifdef PORTAMENTO_SAVE_HACK
   portamento_data = \
@@ -73,12 +79,18 @@ void Patch::Update() {
     name[kPatchNameSize - 1] = ' ';
   }
 #endif  // PORTAMENTO_SAVE_HACK
-  ops_[0].operands[0] = op_data_[0];
+  ops_[0].operands[0] = op_data_[0] & 0x7f;
   ops_[0].operands[1] = op_data_[1] >> 3;
   ops_[0].op = op_data_[1] & 0x7;
-  ops_[1].operands[0] = op_data_[2];
+  if (op_data_[0] & 0x80) {
+    ops_[0].op |= 0x8;
+  }
+  ops_[1].operands[0] = op_data_[2] & 0x7f;
   ops_[1].operands[1] = op_data_[3] >> 3;
   ops_[1].op = op_data_[3] & 0x7;
+  if (op_data_[2] & 0x80) {
+    ops_[1].op |= 0x8;
+  }
     
   filter_2_mode_ = filter_topology_ & 0xf;
   filter_1_mode_ = filter_topology_ >> 4;
