@@ -24,9 +24,9 @@ upload_all:	$(FIRMWARE) $(BOOTLOADER)
 bake_all:	$(FIRMWARE) $(BOOTLOADER)
 		make -f bootloader/makefile fuses
 		$(AVRDUDE) -B 1 $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
+			-U eeprom:w:$(EEPROM):i \
 			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i \
-			-U eeprom:w:$(EEPROM):i
-		$(AVRDUDE) -B 1 $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -U lock:w:0x2f:m
+			-U lock:w:0x2f:m
 
 backup:	$(EEPROM)
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -U eeprom:r:$(EEPROM):i
