@@ -114,9 +114,6 @@ void UpdateLedsTask() {
     }
   }
   leds.Begin();
-  if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
-    leds.ShiftOutByte(programmer_active_pot);
-  }
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_SVF) {
     leds.ShiftOutByte(engine.svf_routing_byte());
   }
@@ -125,6 +122,9 @@ void UpdateLedsTask() {
   }
   if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
     leds.ShiftOutByte(engine.four_pole_routing_byte());
+  }
+  if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
+    leds.ShiftOutByte(programmer_active_pot);
   }
   leds.ShiftOut();
   leds.End();
