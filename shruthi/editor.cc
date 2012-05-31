@@ -224,6 +224,7 @@ uint8_t Editor::last_knob_;
 uint8_t Editor::subpage_;
 uint8_t Editor::action_;
 uint8_t Editor::load_save_target_;
+uint8_t Editor::last_external_input_;
 uint16_t Editor::current_patch_number_ = 0;
 uint16_t Editor::current_sequence_number_ = 0;
 
@@ -522,6 +523,7 @@ void Editor::HandleIncrement(int8_t increment) {
 void Editor::HandleClick() {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     display_mode_ = DISPLAY_MODE_EDIT;
+    last_external_input_ = 0xff;
   } else {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
   }
@@ -1055,6 +1057,11 @@ void Editor::DisplayEditDetailsPage() {
     return;
   }
   // 0123456789abcdef
+  // programmer
+  // cutoff        42
+  //
+  // OR
+  //
   // filter
   // cutoff       127
   //
@@ -1086,15 +1093,23 @@ void Editor::DisplayEditDetailsPage() {
     display.Print(0, line_buffer_);
   }
   uint8_t index = KnobIndexToParameterId(cursor_);
+  if (last_external_input_ != 0xff) {
+    index = last_external_input_;
+  }
   const ParameterDefinition& parameter = (
       ParameterDefinitions::parameter_definition(index));
   const PageDefinition& page = page_definition_[current_page_];
 
-  if (current_page_ != PAGE_MOD_MATRIX) {
+  if (current_page_ != PAGE_MOD_MATRIX && last_external_input_ == 0xff) {
     ResourcesManager::LoadStringResource(
         page.name,
         line_buffer_,
         kLcdWidth);
+    AlignLeft(line_buffer_, kLcdWidth);
+    display.Print(0, line_buffer_);
+  }
+  if (last_external_input_ != 0xff) {
+    strcpy_P(line_buffer_, PSTR("programmer"));
     AlignLeft(line_buffer_, kLcdWidth);
     display.Print(0, line_buffer_);
   }
@@ -1147,7 +1162,15 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
         parameter.id,
         ParameterDefinitions::Scale(parameter, value_7bits));
     cursor_ = knob_index;
+
+    last_external_input_ = 0xff;
   }
+}
+
+/* static */
+void Editor::HandleProgrammerInput(uint8_t ui_parameter_index, uint16_t value) {
+  display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
+  last_external_input_ = ui_parameter_index;
 }
 
 /* static */

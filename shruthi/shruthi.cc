@@ -68,6 +68,7 @@ PwmOutput<kPinCv2Out> cv_2_out;
 MidiStreamParser<MidiDispatcher> midi_parser;
 
 uint8_t programmer_active_pot = 0;
+uint32_t last_input_event_time = 0;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -170,11 +171,13 @@ void SwitchesTask() {
   // Update the editor if something happened.
   // Revert back to the main page when nothing happened for 1.5s.
   if (pot_event.event == EVENT_NONE) {
-    if (idle &&
-        pot_event.time > (engine.system_settings().display_delay << 7)) {
+    if (idle && 
+        milliseconds() - last_input_event_time >
+          (engine.system_settings().display_delay << 7)) {
       editor.Relax();
     }
   } else {
+    last_input_event_time = milliseconds();
     editor.HandleInput(pot_event.id, pot_event.value);
   }
 }
@@ -228,6 +231,9 @@ void CvTask() {
     if ((pots_value[programmer_active_pot] - value > 8) ||
         (pots_value[programmer_active_pot] - value < -8)) {
       engine.SetScaledParameter(programmer_active_pot, value >> 3, 1);
+      // Show tweaked param on display
+      editor.HandleProgrammerInput(programmer_active_pot, value);
+      last_input_event_time = milliseconds();
       currently_tweaked_pot = programmer_active_pot;
       pots_value[programmer_active_pot] = value;
     }

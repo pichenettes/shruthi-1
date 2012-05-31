@@ -185,6 +185,11 @@ class Editor {
   // recorded in the sequence. In this case, it is not processed!
   static uint8_t HandleNoteOn(uint8_t note, uint16_t velocity);
 
+  // When a parameter is controlled externally with the XT/Programmer
+  // interface, this routine handles showing the changed parameter
+  // temporarily on the display.
+  static void HandleProgrammerInput(uint8_t ui_parameter_index, uint16_t value);
+
   // Displays variants of the current page.
   static void Refresh();
   
@@ -295,6 +300,7 @@ class Editor {
   static uint8_t cursor_;
   static uint8_t last_knob_;
   static uint8_t last_visited_subpage_;
+  static uint8_t last_external_input_;
 
   static char line_buffer_[kLcdWidth * kLcdHeight + 1];
 
