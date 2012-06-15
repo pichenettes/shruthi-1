@@ -57,6 +57,10 @@ static const prog_char str_res_mode[] PROGMEM = "mode";
 static const prog_char str_res_overdrive[] PROGMEM = "overdrive";
 static const prog_char str_res__fm[] PROGMEM = "fm";
 static const prog_char str_res_flavour[] PROGMEM = "flavour";
+static const prog_char str_res_time[] PROGMEM = "time";
+static const prog_char str_res_level[] PROGMEM = "level";
+static const prog_char str_res_fdb[] PROGMEM = "fdb";
+static const prog_char str_res_feedback[] PROGMEM = "feedback";
 static const prog_char str_res_tempo[] PROGMEM = "tempo";
 static const prog_char str_res_bpm[] PROGMEM = "bpm";
 static const prog_char str_res_groove[] PROGMEM = "groove";
@@ -274,7 +278,7 @@ static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v0_96[] PROGMEM = "mutable    v0.96";
+static const prog_char str_res_mutable____v0_97[] PROGMEM = "mutable    v0.97";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_x2_ext[] PROGMEM = "x2 ext";
@@ -392,6 +396,7 @@ static const prog_char str_res_svf[] PROGMEM = "svf";
 static const prog_char str_res_dsp[] PROGMEM = "dsp";
 static const prog_char str_res_pvk[] PROGMEM = "pvk";
 static const prog_char str_res_4pm[] PROGMEM = "4pm";
+static const prog_char str_res_dly[] PROGMEM = "dly";
 static const prog_char str_res_4cv_in[] PROGMEM = "4cv in";
 static const prog_char str_res_prgm[] PROGMEM = "prgm";
 static const prog_char str_res_pedals[] PROGMEM = "pedals";
@@ -463,6 +468,10 @@ PROGMEM const prog_char* string_table[] = {
   str_res_overdrive,
   str_res__fm,
   str_res_flavour,
+  str_res_time,
+  str_res_level,
+  str_res_fdb,
+  str_res_feedback,
   str_res_tempo,
   str_res_bpm,
   str_res_groove,
@@ -699,7 +708,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_compare,
   str_res_,
   str_res_v,
-  str_res_mutable____v0_96,
+  str_res_mutable____v0_97,
   str_res_instruments_671,
   str_res_extern,
   str_res_x2_ext,
@@ -832,6 +841,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_dsp,
   str_res_pvk,
   str_res_4pm,
+  str_res_dly,
   str_res_4cv_in,
   str_res_prgm,
   str_res_pedals,

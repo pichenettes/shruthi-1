@@ -55,6 +55,7 @@ typedef Gpio<PortB, 7> IOClockLine;
 typedef Gpio<PortB, 6> IOInputLine;
 typedef Gpio<PortB, 5> IOOutputLine;
 typedef Gpio<PortD, 2> IOEnableLine;
+typedef Gpio<PortD, 3> IOEnableLineAux;
 
 // PWM/audio output.
 static const uint8_t kPinVcoOut = 12;

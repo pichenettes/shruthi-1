@@ -52,6 +52,10 @@ mode
 overdrive
  fm
 flavour
+time
+level
+fdb
+feedback
 tempo
 bpm
 groove
@@ -298,7 +302,7 @@ compare
 ----
 
 v
-mutable    v0.96
+mutable    v0.97
 instruments \x06\x07-1
 
 extern
@@ -443,6 +447,7 @@ svf
 dsp
 pvk
 4pm
+dly
 
 4cv in
 prgm

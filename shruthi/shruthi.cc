@@ -52,6 +52,8 @@ AnalogInputs analog_inputs;
 OutputArray<
   IOEnableLine, IOClockLine, IOOutputLine, kNumLeds, 4, MSB_FIRST, false> leds;
 
+IOEnableLineAux aux_ss;
+
 // Switches array
 SwitchArray<
   IOEnableLine, IOClockLine, IOInputLine, kNumSwitches, KEY_LOAD_SAVE> switches;
@@ -69,6 +71,8 @@ MidiStreamParser<MidiDispatcher> midi_parser;
 
 uint8_t programmer_active_pot = 0;
 uint32_t last_input_event_time = 0;
+
+bool aux_uart_enabled = false;
 
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
@@ -114,20 +118,35 @@ void UpdateLedsTask() {
       mask <<= 1;
     }
   }
+  
+  uint8_t filter_board = engine.system_settings().expansion_filter_board;
+  static uint8_t a = 0;
   leds.Begin();
-  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_SVF) {
+  if (filter_board == FILTER_BOARD_DLY) {
+    cv_io.Disable();
+    aux_ss.High();
+    aux_uart_enabled = false;
+    leds.ShiftOutByte(0x00);
+    aux_ss.Low();
+    leds.ShiftOutByte(engine.voice().cv_1());
+    leds.ShiftOutByte(0x10);
+    leds.ShiftOutByte(engine.voice().cv_2());
+  }
+  
+  if (filter_board == FILTER_BOARD_SVF) {
     leds.ShiftOutByte(engine.svf_routing_byte());
   }
-  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
+  if (filter_board == FILTER_BOARD_PVK) {
     leds.ShiftOutByte(engine.pvk_routing_byte());
   }
-  if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
+  if (filter_board == FILTER_BOARD_4PM) {
     leds.ShiftOutByte(engine.four_pole_routing_byte());
   }
   if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
     leds.ShiftOutByte(programmer_active_pot);
   }
   leds.ShiftOut();
+  aux_ss.High();
   leds.End();
 }
 
@@ -277,6 +296,10 @@ void AudioRenderingTask() {
     uint8_t v;
 #ifndef SERIAL_PATCH_DUMP
     if (engine.system_settings().expansion_filter_board == FILTER_BOARD_DSP) {
+      if (!aux_uart_enabled) {
+        cv_io.Init();
+        aux_uart_enabled = true;
+      }
       // Shove two bytes to the serial output used for transmitting CVs to the
       // digital filter board.
       if (cv_io_round_robin == 0) {
@@ -322,6 +345,9 @@ void AudioRenderingTask() {
       if (resonance >= 252) {
         resonance = 255;
       }
+    } else if (engine.system_settings().expansion_filter_board == FILTER_BOARD_DLY) {
+      cv_1_out.Write(U8ShiftLeft4(engine.patch().filter_1_mode_));
+      cv_2_out.Write(U8ShiftLeft4(engine.patch().filter_2_mode_));
     } else {
       cv_1_out.Write(engine.voice().cv_1());
       cv_2_out.Write(engine.voice().cv_2());
@@ -388,7 +414,6 @@ void Init() {
   sei();
   audio_out.Init();
   midi_io.Init();
-  cv_io.Init();
   pots.Init();
   switches.Init();
   encoder.Init();
@@ -402,6 +427,7 @@ void Init() {
   Timer<2>::set_prescaler(1);
   Timer<2>::set_mode(TIMER_PWM_PHASE_CORRECT);
   Timer<2>::Start();
+  aux_ss.set_mode(DIGITAL_OUTPUT);
   
   vcf_cutoff_out.Init();
   vcf_resonance_out.Init();
