@@ -329,9 +329,10 @@ void AudioRenderingTask() {
     }
 #endif  // SERIAL_PATCH_DUMP
     vcf_cutoff_out.Write(engine.voice().cutoff());
+    uint8_t filter_board = engine.system_settings().expansion_filter_board;
     uint8_t resonance = engine.voice().resonance();
     uint8_t gain = engine.voice().vca();
-    if (engine.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
+    if (filter_board == FILTER_BOARD_PVK) {
       uint8_t adjusted_cutoff = engine.voice().cutoff();
       if (adjusted_cutoff > 24) {
         adjusted_cutoff -= 24;
@@ -345,14 +346,18 @@ void AudioRenderingTask() {
       if (resonance >= 252) {
         resonance = 255;
       }
-    } else if (engine.system_settings().expansion_filter_board == FILTER_BOARD_DLY) {
+    } else if (filter_board == FILTER_BOARD_DLY) {
       cv_1_out.Write(U8ShiftLeft4(engine.patch().filter_1_mode_));
       cv_2_out.Write(U8ShiftLeft4(engine.patch().filter_2_mode_));
+      // Apply a knee to the resonance curve.
+      resonance = ~resonance;
+      resonance = U8U8MulShift8(resonance, resonance);
+      resonance = U8U8MulShift8(~resonance, 160) + 48;
     } else {
       cv_1_out.Write(engine.voice().cv_1());
       cv_2_out.Write(engine.voice().cv_2());
     }
-    if (engine.system_settings().expansion_filter_board == FILTER_BOARD_4PM) {
+    if (filter_board == FILTER_BOARD_4PM) {
       // If the resonance overdrive mode is not selected, half the scale of
       // the resonance setting. Resonance overdrive needs a very strong control
       // current on the OTA to kick in.
