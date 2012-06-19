@@ -61,6 +61,8 @@ static const prog_char str_res_time[] PROGMEM = "time";
 static const prog_char str_res_level[] PROGMEM = "level";
 static const prog_char str_res_fdb[] PROGMEM = "fdb";
 static const prog_char str_res_feedback[] PROGMEM = "feedback";
+static const prog_char str_res_eq_[] PROGMEM = "eq.";
+static const prog_char str_res_fdbck_eq_[] PROGMEM = "fdbck eq.";
 static const prog_char str_res_tempo[] PROGMEM = "tempo";
 static const prog_char str_res_bpm[] PROGMEM = "bpm";
 static const prog_char str_res_groove[] PROGMEM = "groove";
@@ -472,6 +474,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_level,
   str_res_fdb,
   str_res_feedback,
+  str_res_eq_,
+  str_res_fdbck_eq_,
   str_res_tempo,
   str_res_bpm,
   str_res_groove,

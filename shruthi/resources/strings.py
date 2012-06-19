@@ -56,6 +56,8 @@ time
 level
 fdb
 feedback
+eq.
+fdbck eq.
 tempo
 bpm
 groove

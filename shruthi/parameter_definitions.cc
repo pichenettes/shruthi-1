@@ -497,7 +497,7 @@ static const prog_char raw_parameter_definition[
   PRM_DELAY_FLAVOUR,
   0, 15,
   UNIT_UINT8,
-  STR_RES_FLAVOUR, STR_RES_FLAVOUR,
+  STR_RES_EQ_, STR_RES_FDBCK_EQ_,
 };
 
 /* static */
