@@ -125,24 +125,19 @@ void UpdateLedsTask() {
   uint8_t filter_board = engine.system_settings().expansion_filter_board;
   leds.Begin();
   if (filter_board == FILTER_BOARD_DLY) {
-    bool refresh = prev_cv_1 != engine.voice().cv_1() || \
-        prev_cv_2 != engine.voice().cv_2();
-    prev_cv_1 = engine.voice().cv_1();
-    prev_cv_2 = engine.voice().cv_2();
-    // Prevent digital noise caused by incessant refresh of the digital pot.
-    // The digital pot is refreshed only when the values have changed.
-    if (refresh) {
-      cv_io.Disable();
-      aux_ss.High();
-      aux_uart_enabled = false;
-    }
-    leds.ShiftOutByte(0x10);
-    if (refresh) {
-      aux_ss.Low();
-    }
-    leds.ShiftOutByte(prev_cv_1);
-    leds.ShiftOutByte(0x00);
-    leds.ShiftOutByte(prev_cv_2);
+    Word w;
+    w.value = U8U8Mul(engine.voice().cv_1(), 4);
+    cv_io.Disable();
+    aux_ss.High();
+    aux_uart_enabled = false;
+    leds.ShiftOutByte(w.bytes[1] | 0x90);
+    aux_ss.Low();
+    leds.ShiftOutByte(w.bytes[0]);
+    w.value = U8U8Mul(~engine.voice().cv_2(), 16);
+    leds.ShiftOutByte(w.bytes[1] | 0x10);
+    aux_ss.High();
+    aux_ss.Low();
+    leds.ShiftOutByte(w.bytes[0]);
   }
   
   if (filter_board == FILTER_BOARD_SVF) {
@@ -299,6 +294,10 @@ void MidiTask() {
   // flush the data at a faster rate in the audio sample interrupt.
 }
 
+static const prog_uint16_t ssm2164_attenuation[] PROGMEM = {
+  
+};
+
 void AudioRenderingTask() {
   static uint8_t cv_io_round_robin = 0;
 
@@ -359,12 +358,13 @@ void AudioRenderingTask() {
         resonance = 255;
       }
     } else if (filter_board == FILTER_BOARD_DLY) {
-      uint8_t intensity = U8ShiftLeft4(engine.patch().filter_1_mode_);
-      uint8_t tilt = U8ShiftLeft4(engine.patch().filter_2_mode_);
-      intensity = U8U8MulShift8(intensity, 208) + 48;
-      cv_2_out.Write(U8U8MulShift8(intensity, tilt < 128 ? (tilt << 1) : 255));
-      tilt = ~tilt;
-      cv_1_out.Write(U8U8MulShift8(intensity, tilt < 128 ? (tilt << 1) : 255));
+      uint8_t intensity = engine.patch().filter_1_mode_;
+      uint8_t tilt = engine.patch().filter_2_mode_ << 1;
+      uint8_t cv;
+      cv = ~U8U8Mul(intensity, tilt < 16 ? tilt : 16);
+      cv_2_out.Write(U8U8MulShift8(cv, cv));
+      cv = ~U8U8Mul(intensity, tilt > 16 ? (30 - tilt) : 16);
+      cv_1_out.Write(U8U8MulShift8(cv, cv));
       // Apply a knee to the resonance curve.
       resonance = ~resonance;
       resonance = U8U8MulShift8(resonance, resonance);
