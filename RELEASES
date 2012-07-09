@@ -1,3 +1,20 @@
+v0.97 --------------------------------------------------------------------------
+
+SYNTHESIS
+
+- The envelopes have a different behaviour - the attack does not reset 0 at the
+beginning of each note, but rather starts from the current level of the
+envelope.
+
+FILTER BOARD HANDLING
+
+- Support for the "LP2+Delay" filter board.
+
+UI
+
+- When using the programmer, the screen shows the value of the edited parameter.
+
+
 v0.96 --------------------------------------------------------------------------
 
 SYNTHESIS
@@ -35,8 +52,10 @@ FILTER BOARD HANDLING
 
 - The cutoff range of the Polivoks filter board has been shifted up by one
 octave.
+- Support for the "4-Pole Mission" filter board.
 
 CODE
+
 - 256 bytes have been saved by using the same table for the lowest octaves of
 the triangle oscillator.
 - 129 bytes have been saved by simplifying the "vibes" wavetable.

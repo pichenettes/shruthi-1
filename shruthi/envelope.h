@@ -56,7 +56,7 @@ class Envelope {
   uint16_t value() { return value_; }
 
   void Trigger(uint8_t stage) {
-    if (stage == ATTACK) {
+    if (stage == DEAD) {
       value_ = 0;
     }
     a_ = value_ >> 8;
