@@ -261,6 +261,20 @@ waveforms.append(('env_expo', env_expo / env_expo.max() * 255))
 
 
 """----------------------------------------------------------------------------
+SSM2164 linearization table.
+----------------------------------------------------------------------------"""
+
+delay_gains = numpy.linspace(0, 1.0, 64) ** 1.5
+delay_gains[0] = 1e-10
+delay_gains = numpy.round(-numpy.log10(delay_gains) / 1.5 / 4.096 * 255)
+delay_gains[0] = 255
+
+waveforms.append(
+    ('ssm2164_linearization', delay_gains.astype(int))
+)
+
+
+"""----------------------------------------------------------------------------
 Wavetables
 -----------------------------------------------------------------------------"""
 
@@ -288,3 +302,4 @@ wavetables = [
 waveforms.extend([
     ('waves', map(ord, file('shruthi/data/waves.bin', 'rb').read())),
     ('wavetables', wavetables)])
+

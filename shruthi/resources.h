@@ -112,6 +112,7 @@ extern const prog_uint8_t wav_res_expansion_sikha[] PROGMEM;
 extern const prog_uint8_t wav_res_expansion_ghana[] PROGMEM;
 extern const prog_uint8_t wav_res_distortion[] PROGMEM;
 extern const prog_uint8_t wav_res_env_expo[] PROGMEM;
+extern const prog_uint8_t wav_res_ssm2164_linearization[] PROGMEM;
 extern const prog_uint8_t wav_res_waves[] PROGMEM;
 extern const prog_uint8_t wav_res_wavetables[] PROGMEM;
 extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
@@ -709,9 +710,11 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES_DISTORTION_SIZE 256
 #define WAV_RES_ENV_EXPO 30
 #define WAV_RES_ENV_EXPO_SIZE 257
-#define WAV_RES_WAVES 31
+#define WAV_RES_SSM2164_LINEARIZATION 31
+#define WAV_RES_SSM2164_LINEARIZATION_SIZE 64
+#define WAV_RES_WAVES 32
 #define WAV_RES_WAVES_SIZE 16383
-#define WAV_RES_WAVETABLES 32
+#define WAV_RES_WAVETABLES 33
 #define WAV_RES_WAVETABLES_SIZE 324
 #define CHR_RES_SPECIAL_CHARACTERS 0
 #define CHR_RES_SPECIAL_CHARACTERS_SIZE 56

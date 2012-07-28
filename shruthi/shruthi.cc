@@ -74,9 +74,6 @@ uint32_t last_input_event_time = 0;
 
 bool aux_uart_enabled = false;
 
-uint8_t prev_cv_1 = 0xff;
-uint8_t prev_cv_2 = 0xff;
-
 // What follows is a list of "tasks" - short functions handling a particular
 // aspect of the synth (rendering audio, updating the LCD display, etc). they
 // are called in sequence, with some tasks being more frequently called than
@@ -133,7 +130,8 @@ void UpdateLedsTask() {
     leds.ShiftOutByte(w.bytes[1] | 0x90);
     aux_ss.Low();
     leds.ShiftOutByte(w.bytes[0]);
-    w.value = U8U8Mul(~engine.voice().cv_2(), 16);
+    w.value = U8U8Mul(pgm_read_byte(wav_res_ssm2164_linearization + \
+        (engine.voice().cv_2() >> 2)), 16);
     leds.ShiftOutByte(w.bytes[1] | 0x10);
     aux_ss.High();
     aux_ss.Low();
@@ -294,10 +292,6 @@ void MidiTask() {
   // flush the data at a faster rate in the audio sample interrupt.
 }
 
-static const prog_uint16_t ssm2164_attenuation[] PROGMEM = {
-  
-};
-
 void AudioRenderingTask() {
   static uint8_t cv_io_round_robin = 0;
 
@@ -358,13 +352,13 @@ void AudioRenderingTask() {
         resonance = 255;
       }
     } else if (filter_board == FILTER_BOARD_DLY) {
-      uint8_t intensity = engine.patch().filter_1_mode_;
+      uint8_t level = engine.patch().filter_1_mode_;
       uint8_t tilt = engine.patch().filter_2_mode_ << 1;
-      uint8_t cv;
-      cv = ~U8U8Mul(intensity, tilt < 16 ? tilt : 16);
-      cv_2_out.Write(U8U8MulShift8(cv, cv));
-      cv = ~U8U8Mul(intensity, tilt > 16 ? (30 - tilt) : 16);
-      cv_1_out.Write(U8U8MulShift8(cv, cv));
+      uint8_t gain;
+      gain = U8U8Mul(level, tilt < 16 ? tilt : 16);
+      cv_2_out.Write(pgm_read_byte(wav_res_ssm2164_linearization + (gain >> 2)));
+      gain = U8U8Mul(level, tilt > 16 ? (30 - tilt) : 16);
+      cv_1_out.Write(pgm_read_byte(wav_res_ssm2164_linearization + (gain >> 2)));
       // Apply a knee to the resonance curve.
       resonance = ~resonance;
       resonance = U8U8MulShift8(resonance, resonance);
