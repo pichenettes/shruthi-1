@@ -123,7 +123,7 @@ void UpdateLedsTask() {
   leds.Begin();
   if (filter_board == FILTER_BOARD_DLY) {
     Word w;
-    w.value = U8U8Mul(engine.voice().cv_1(), 4);
+    w.value = U8U8Mul(engine.voice().cv_1(), 5);
     cv_io.Disable();
     aux_ss.High();
     aux_uart_enabled = false;
@@ -337,15 +337,20 @@ void AudioRenderingTask() {
     uint8_t filter_board = engine.system_settings().expansion_filter_board;
     uint8_t resonance = engine.voice().resonance();
     uint8_t gain = engine.voice().vca();
+    uint8_t cv_1 = engine.voice().cv_1();
+    uint8_t cv_2 = engine.voice().cv_2();
     if (filter_board == FILTER_BOARD_PVK) {
-      uint8_t adjusted_cutoff = engine.voice().cutoff();
-      if (adjusted_cutoff > 24) {
-        adjusted_cutoff -= 24;
-      } else {
-        adjusted_cutoff = 0;
+      // Mirror unprocessed Cutoff/Resonance values for Shruthi-XP.
+      if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
+        uint8_t adjusted_cutoff = engine.voice().cutoff();
+        if (adjusted_cutoff > 24) {
+          adjusted_cutoff -= 24;
+        } else {
+          adjusted_cutoff = 0;
+        }
+        cv_1 = resonance;
+        cv_2 = adjusted_cutoff;
       }
-      cv_1_out.Write(resonance);
-      cv_2_out.Write(adjusted_cutoff);
       // Apply a knee to the resonance curve.
       resonance = (resonance >> 1) + (resonance < 128 ? resonance : 128);
       if (resonance >= 252) {
@@ -363,11 +368,12 @@ void AudioRenderingTask() {
       resonance = ~resonance;
       resonance = U8U8MulShift8(resonance, resonance);
       resonance = U8U8MulShift8(~resonance, 160) + 48;
-    } else {
-      cv_1_out.Write(engine.voice().cv_1());
-      cv_2_out.Write(engine.voice().cv_2());
-    }
-    if (filter_board == FILTER_BOARD_4PM) {
+    } if (filter_board == FILTER_BOARD_4PM) {
+      // Mirror unprocessed Cutoff/Resonance values for Shruthi-XP.
+      if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
+        cv_1 = resonance;
+        cv_2 = engine.voice().cutoff();
+      }
       // If the resonance overdrive mode is not selected, half the scale of
       // the resonance setting. Resonance overdrive needs a very strong control
       // current on the OTA to kick in.
@@ -381,6 +387,8 @@ void AudioRenderingTask() {
     }
     vcf_resonance_out.Write(resonance);
     vca_out.Write(gain);
+    cv_1_out.Write(cv_1);
+    cv_2_out.Write(cv_2);
   }
 }
 
