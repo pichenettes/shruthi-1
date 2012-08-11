@@ -361,9 +361,9 @@ void AudioRenderingTask() {
       uint8_t tilt = engine.patch().filter_2_mode_ << 1;
       uint8_t gain;
       gain = U8U8Mul(level, tilt < 16 ? tilt : 16);
-      cv_2_out.Write(pgm_read_byte(wav_res_ssm2164_linearization + (gain >> 2)));
+      cv_2 = pgm_read_byte(wav_res_ssm2164_linearization + (gain >> 2));
       gain = U8U8Mul(level, tilt > 16 ? (30 - tilt) : 16);
-      cv_1_out.Write(pgm_read_byte(wav_res_ssm2164_linearization + (gain >> 2)));
+      cv_1 = pgm_read_byte(wav_res_ssm2164_linearization + (gain >> 2));
       // Apply a knee to the resonance curve.
       resonance = ~resonance;
       resonance = U8U8MulShift8(resonance, resonance);
