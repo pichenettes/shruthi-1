@@ -5,6 +5,11 @@ SYNTHESIS
 - The envelopes have a different behaviour - the attack does not reset 0 at the
 beginning of each note, but rather starts from the current level of the
 envelope.
+- The way velocity is managed in the context of note priority handling has been
+changed. When you play and hold a note, play a new note and release it, the
+held note is retriggered with its original velocity.
+- Phase increments are computed using a new interpolation technique, saving
+1.3kb of code size.
 
 FILTER BOARD HANDLING
 
