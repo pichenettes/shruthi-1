@@ -1053,8 +1053,14 @@ inline void Voice::RenderOscillators() {
       ++num_shifts;
     }
     uint24_t increment;
-    increment.integral = ResourcesManager::Lookup<uint16_t, uint16_t>(
-        lut_res_oscillator_increments, ref_pitch >> 1);
+    uint16_t pitch_lookup_index_integral = U16ShiftRight4(ref_pitch);
+    uint8_t pitch_lookup_index_fractional = U8ShiftLeft4(ref_pitch);
+    uint16_t increment16 = ResourcesManager::Lookup<uint16_t, uint16_t>(
+        lut_res_oscillator_increments, pitch_lookup_index_integral);
+    uint16_t increment16_next = ResourcesManager::Lookup<uint16_t, uint16_t>(
+        lut_res_oscillator_increments, pitch_lookup_index_integral + 1);
+    increment.integral = increment16 + U16U8MulShift8(
+        increment16_next - increment16, pitch_lookup_index_fractional);
     increment.fractional = 0;
     // Divide the pitch increment by the number of octaves we had to transpose
     // to get a value in the lookup table.
