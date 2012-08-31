@@ -167,8 +167,9 @@ class Oscillator {
         RenderBandlimitedPwm(buffer);
       }
     } else {
-      RenderFn fn = fn_table_[
-          shape > WAVEFORM_VOWEL ? WAVEFORM_WAVETABLE_1 : shape];
+      uint8_t index = shape > WAVEFORM_VOWEL ? WAVEFORM_WAVETABLE_1 : shape;
+      RenderFn fn;
+      ResourcesManager::Load(fn_table_, index, &fn);
       (this->*fn)(buffer);
     }
   }

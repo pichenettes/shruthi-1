@@ -472,7 +472,7 @@ void Oscillator::RenderFilteredNoise(uint8_t* buffer) {
 
 
 /* static */
-Oscillator::RenderFn Oscillator::fn_table_[] = {
+Oscillator::RenderFn Oscillator::fn_table_[] PROGMEM = {
   &Oscillator::RenderSilence,
 
   &Oscillator::RenderSimpleWavetable,
