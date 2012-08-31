@@ -504,9 +504,7 @@ Oscillator::RenderFn Oscillator::fn_table_[] = {
   &Oscillator::RenderDirtyPwm,
   &Oscillator::RenderFilteredNoise,
 
-  &Oscillator::RenderVowel,
-
-  &Oscillator::RenderInterpolatedWavetable,
+  &Oscillator::RenderVowel
 };
 
 }  // namespace shruthi
