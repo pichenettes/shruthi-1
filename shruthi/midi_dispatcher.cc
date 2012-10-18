@@ -28,6 +28,9 @@ uint8_t MidiDispatcher::current_parameter_index_;
 uint8_t MidiDispatcher::data_entry_counter_;
 
 /* static */
+uint8_t MidiDispatcher::current_data_msb_ = 0xff;
+
+/* static */
 uint8_t MidiDispatcher::current_bank_ = 0;
 
 MidiDispatcher midi_dispatcher;

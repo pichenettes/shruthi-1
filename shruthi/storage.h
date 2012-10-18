@@ -74,6 +74,14 @@ template<> class StorageConfiguration<SequencerSettings> {
   };
 };
 
+template<> class StorageConfiguration<SystemSettings> {
+ public:
+  enum {
+    size = sizeof(SystemSettings),
+    sysex_object_id = 0x04
+  };
+};
+
 class Storage {
  public:
   static void Init();

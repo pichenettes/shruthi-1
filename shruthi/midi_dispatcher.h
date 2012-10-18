@@ -236,8 +236,10 @@ class MidiDispatcher : public midi::MidiDevice {
       current_parameter_index_ = index;
       data_entry_counter_ = 0;
     }
-    if (value & 0x80) {
-      Send3(0xb0 | channel(), midi::kDataEntryMsb, 1);
+    uint8_t msb = (value & 0x80) ? 1 : 0;
+    if (current_data_msb_ != msb) {
+      Send3(0xb0 | channel(), midi::kDataEntryMsb, msb);
+      current_data_msb_ = msb;
     }
     Send3(0xb0 | channel(), midi::kDataEntryLsb, value & 0x7f);
   }
@@ -282,6 +284,7 @@ class MidiDispatcher : public midi::MidiDevice {
   
   static uint8_t data_entry_counter_;
   static uint8_t current_parameter_index_;
+  static uint8_t current_data_msb_;
   static uint8_t current_bank_;
   
   DISALLOW_COPY_AND_ASSIGN(MidiDispatcher);

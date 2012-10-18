@@ -336,7 +336,6 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
             }
           }
         }
-        data_entry_msb_ = 0;
         break;
       case midi::kHoldPedal:
         if (value >= 64) {
@@ -459,6 +458,22 @@ void SynthesisEngine::Start() {
 /* static */
 void SynthesisEngine::Stop() {
   controller_.StopAndKillNotes();
+}
+
+/* static */
+void SynthesisEngine::SetName(uint8_t* name) {
+  memcpy(patch_.name, name, kPatchNameSize);
+  dirty_ = 1;
+}
+
+/* static */
+void SynthesisEngine::SetSequenceStep(uint8_t step, uint8_t a, uint8_t b) {
+  if (step >= kNumSteps) {
+    return;
+  }
+  sequencer_settings_.steps[step].set_raw(a, b);
+  controller_.TouchSequence();
+  dirty_ = 1;
 }
 
 /* static */

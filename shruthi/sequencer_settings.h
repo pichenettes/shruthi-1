@@ -113,7 +113,7 @@ class SequenceStep {
   }
   void set_raw(uint8_t a, uint8_t b) {
     data_[0] = a;
-    data_[0] = b;
+    data_[1] = b;
   }
   
   uint8_t gate() const {

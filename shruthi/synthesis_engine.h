@@ -113,7 +113,7 @@ class Voice {
   static Envelope* mutable_envelope(uint8_t i) { return &envelope_[i]; }
   static void TriggerEnvelope(uint8_t stage);
   static void TriggerEnvelope(uint8_t index, uint8_t stage);
-
+  
  private:
   static inline void LoadSources() __attribute__((always_inline));
   static inline void ProcessModulationMatrix() __attribute__((always_inline));
@@ -189,6 +189,9 @@ class SynthesisEngine : public midi::MidiDevice {
   static void Trigger(uint8_t index, uint8_t value) {
     voice_.set_modulation_source(MOD_SRC_TRIG_1 + index, value);
   }
+  
+  static void SetName(uint8_t* name);
+  static void SetSequenceStep(uint8_t index, uint8_t data_a, uint8_t data_b);
 
   // Patch manipulation stuff.
   static void SetParameter(
