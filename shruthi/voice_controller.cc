@@ -569,7 +569,9 @@ void VoiceController::ArpeggioStep(int8_t delta) {
       next_octave = 1;
     }
     if (next_octave) {
-      arp_octave_step_ += delta < 0 ? -arp_current_direction_ : arp_current_direction_;
+      arp_octave_step_ += delta < 0
+          ? -arp_current_direction_
+          : arp_current_direction_;
       if (arp_octave_step_ >= sequencer_settings_->arp_range ||
           arp_octave_step_ < 0) {
         if (sequencer_settings_->arp_direction == ARPEGGIO_DIRECTION_UP_DOWN) {

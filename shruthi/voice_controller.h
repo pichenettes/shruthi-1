@@ -139,7 +139,7 @@ class VoiceController {
   static uint8_t num_voices_;
 
   // After 4 beats without event, the sequencer is not active. The LED stops
-  // blinking and the sequencer will restart from the first note in the pattern. 
+  // blinking and the sequencer will restart from the first note in the pattern.
   static uint8_t active_;
   static uint8_t inactive_steps_;
   static uint8_t previous_mode_;
