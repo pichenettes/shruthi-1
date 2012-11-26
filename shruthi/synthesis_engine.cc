@@ -468,11 +468,28 @@ void SynthesisEngine::SetName(uint8_t* name) {
 }
 
 /* static */
-void SynthesisEngine::SetSequenceStep(uint8_t step, uint8_t a, uint8_t b) {
+void SynthesisEngine::SetSequenceStep(
+    uint8_t step,
+    uint8_t data_a,
+    uint8_t data_b) {
   if (step >= kNumSteps) {
     return;
   }
-  sequencer_settings_.steps[step].set_raw(a, b);
+  sequencer_settings_.steps[step].set_raw(data_a, data_b);
+  controller_.TouchSequence();
+  dirty_ = 1;
+}
+
+/* static */
+void SynthesisEngine::SetPatternRotation(uint8_t rotation) {
+  sequencer_settings_.pattern_rotation = rotation;
+  controller_.TouchSequence();
+  dirty_ = 1;
+}
+
+/* static */
+void SynthesisEngine::SetPatternLength(uint8_t length) {
+  sequencer_settings_.pattern_size = length & 0xf;
   controller_.TouchSequence();
   dirty_ = 1;
 }

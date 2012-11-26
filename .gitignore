@@ -25,5 +25,9 @@
 *.log
 *.aux
 
+# Built files
+shruthi1.size
+/build
+
 # OS X crap
 .DS_Stor?

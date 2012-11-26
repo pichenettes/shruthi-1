@@ -70,8 +70,7 @@ enum ArpeggioDirection {
   ARPEGGIO_DIRECTION_RANDOM,
 };
 
-class SequenceStep {
- public:
+struct SequenceStep {
   void set_gate(uint8_t gate) {
     if (gate) {
       data_[0] |= 0x80;
@@ -154,7 +153,6 @@ class SequenceStep {
     return (data_[0] == 0) && (data_[1] == 0);
   }
 
- private:
   uint8_t data_[2];
 };
 

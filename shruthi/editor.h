@@ -210,9 +210,17 @@ class Editor {
   static void Confirm(ConfirmPageSettings confirm_page_settings);
 
   static void BootOnPatchBrowsePage(uint8_t patch_index);
+  
+  static void RandomizeParameter(uint8_t subpage, uint8_t parameter_index);
+  static void RandomizePatch();
+  static void RandomizeSequence();
 
   static void set_current_patch_number(uint16_t patch_number) {
     current_patch_number_ = patch_number;
+  }
+  
+  static void set_current_sequence_number(uint16_t sequence_number) {
+    current_sequence_number_ = sequence_number;
   }
 
  private:
@@ -276,9 +284,6 @@ class Editor {
   
   static void LoadPatch(uint8_t index);
   static void LoadSequence(uint8_t index);
-  static void RandomizeParameter(uint8_t subpage, uint8_t parameter_index);
-  static void RandomizePatch();
-  static void RandomizeSequence();
   
   static void SaveSystemSettings();
   static void StartMidiBackup();
