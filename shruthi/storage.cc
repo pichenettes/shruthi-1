@@ -254,7 +254,7 @@ void Storage::SysExParseCommand() {
       break;
       
     case 0x50:  // Bulk transfer requests
-      sysex_rx_state_ = 0;
+      sysex_rx_expected_size_ = 0;
       break;
 
     default:
