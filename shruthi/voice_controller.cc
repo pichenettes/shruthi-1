@@ -382,7 +382,7 @@ void VoiceController::NoteOffHandlerDefault(uint8_t note) {
       if (top_note == note) {
         voices_[0].Trigger(
             notes_.most_recent_note().note,
-            notes_.most_recent_note().velocity,
+            128 + notes_.most_recent_note().velocity,
             1);
       }
     }

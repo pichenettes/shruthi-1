@@ -282,7 +282,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
     controller -= 2; // CCs for Cutoff and resonance.
     editing_controller = 1;
   } else if (controller >= 12 && controller <= 13) {
-    controller = controller - 12 + 66;  // CCs for cutoff2 and resonance2.
+    controller = controller - 12 + 70;  // CCs for cutoff2 and resonance2.
     editing_controller = 1;
   } else if (controller >= 102 && controller <= 119) {
     // CCs for filter mods, envelopes and LFOs.
@@ -749,10 +749,11 @@ void Voice::TriggerSecondNote(uint8_t note) {
 
 /* static */
 void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
-  if (!velocity && engine.patch_.osc[0].option == OP_DUO) {
+  if ((velocity >= 128) && engine.patch_.osc[0].option == OP_DUO) {
     // In duophonic mode, ignore the stack retriggering.
     return;
   }
+  velocity &= 0x7f;
   aux_pitch_ = pitch_target_;
   uint16_t pitch = NoteToPitch(note);
   if (pitch == 0) {
