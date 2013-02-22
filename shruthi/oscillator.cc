@@ -445,6 +445,9 @@ void Oscillator::RenderQuadSawPad(uint8_t* buffer) {
 // ------- Low-passed, then high-passed white noise --------------------------
 void Oscillator::RenderFilteredNoise(uint8_t* buffer) {
   uint16_t rng_state = data_.no.rng_state;
+  if (rng_state == 0) {
+    ++rng_state;
+  }
   uint8_t filter_coefficient = parameter_ << 2;
   if (filter_coefficient <= 4) {
     filter_coefficient = 4;
