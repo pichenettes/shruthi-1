@@ -318,6 +318,7 @@ class Editor {
   static uint8_t assign_in_progress_; 
   static uint8_t test_note_playing_;
   static ParameterAssignment parameter_to_assign_;
+  static bool empty_patch_;
   
   // Snap mode logic. Stores for each pot the 10-bit ADC readout that
   // corresponds to the position the knob needs to reach to unlock the pot.

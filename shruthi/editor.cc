@@ -234,6 +234,7 @@ ParameterAssignment Editor::parameter_to_assign_;
 ConfirmPageSettings Editor::confirm_page_settings_;
 uint8_t Editor::locked_value_[kNumEditingPots];
 uint8_t Editor::locked_[kNumEditingPots];
+bool Editor::empty_patch_;
 /* </static> */
 
 /* static */
@@ -591,13 +592,14 @@ void Editor::ToggleLoadSaveAction() {
   if (engine.system_settings().sequence_patch_coupling) {
     load_save_target_ = LOAD_SAVE_TARGET_BOTH;
   }
-  
+  empty_patch_ = false;
   if (current_page_ != PAGE_LOAD_SAVE) {
     BackupEditBuffer();
     action_ = ACTION_LOAD;
   } else {
     if (action_ != ACTION_SAVE) {
       action_ = ACTION_SAVE;
+      set_edited_item_number(edited_item_number());
     } else {
       action_ = ACTION_COMPARE;
     }
@@ -618,6 +620,8 @@ uint16_t Editor::edited_item_number() {
   }
 }
 
+const prog_uint8_t default_name[] PROGMEM = "user    ";
+
 /* static */
 void Editor::set_edited_item_number(int16_t value) {
   if (value < 0) {
@@ -633,6 +637,19 @@ void Editor::set_edited_item_number(int16_t value) {
       value = Storage::size<SequencerSettings>() - 1;
     }
     current_sequence_number_ = value;
+  }
+  
+  if (load_save_target_ == LOAD_SAVE_TARGET_PATCH && action_ == ACTION_SAVE) {
+    uint8_t name[8];
+    Storage::LoadPatchName(name, edited_item_number());
+    empty_patch_ = true;
+    for (uint8_t i = 0; i < 8; ++i) {
+      if (name[i] != pgm_read_byte(default_name + i)) {
+        empty_patch_ = false;
+      }
+    }
+  } else {
+    empty_patch_ = false;
   }
 }
 
@@ -750,7 +767,7 @@ void Editor::DisplayLoadSavePage() {
     }
     memset(line_buffer_ + 12, ' ', kLcdWidth - 12);
   }
-  line_buffer_[3] = ' ';
+  line_buffer_[3] = empty_patch_ ? '*' : ' ';
   if (action_ == ACTION_SAVE) {
     line_buffer_[kLcdWidth - 3] = 'o';
     line_buffer_[kLcdWidth - 2] = 'k';
@@ -1130,6 +1147,10 @@ void Editor::DisplayEditDetailsPage() {
 
 /* static */
 uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
+  if (current_page_ == PAGE_LOAD_SAVE
+      && (action_ == ACTION_SAVE || action_ == ACTION_COMPARE)) {
+    return 0xff;
+  }
   if (current_page_ == PAGE_PERFORMANCE || current_page_ == PAGE_LOAD_SAVE) {
     subpage_ = engine.mutable_patch()->assigned_parameters[knob_index].subpage;
     return engine.mutable_patch()->assigned_parameters[knob_index].id;
@@ -1156,6 +1177,9 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
 
     display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
     uint8_t index = KnobIndexToParameterId(knob_index);
+    if (index == 0xff) {
+      return;
+    }
     const ParameterDefinition& parameter = (
         ParameterDefinitions::parameter_definition(index));
     SetParameterValue(

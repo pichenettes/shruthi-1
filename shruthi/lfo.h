@@ -89,7 +89,12 @@ class Lfo {
         
       default:
         {
-          uint8_t shape_offset = shape_ - LFO_WAVEFORM_WAVE_1 + 16;
+          uint8_t shape_offset = shape_ - LFO_WAVEFORM_WAVE_1;
+          if (shape_offset == 0) {
+            shape_offset = 3;
+          } else {
+            shape_offset += 16;
+          }
           value = ResourcesManager::Lookup<uint8_t, uint8_t>(
               wav_res_waves + U8U8Mul(shape_offset, 129),
               phase_ >> 9);

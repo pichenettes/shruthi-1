@@ -123,6 +123,9 @@ class Storage {
   static void WriteSequence(uint16_t slot);
   static void LoadPatch(uint16_t slot);
   static void LoadSequence(uint16_t slot);
+  static void LoadPatchName(uint8_t* destination, uint16_t slot) {
+    LoadBytes<Patch>(destination, 68, 8, slot);
+  }
   
   template<typename T>
   static uint8_t AcceptData(T* ptr, uint8_t* data) {
@@ -165,6 +168,19 @@ class Storage {
           StorageConfiguration<T>::size);
     }
     AcceptData(ptr, load_buffer_);
+  }
+  
+  template<typename T>
+  static void LoadBytes(
+      uint8_t* destination,
+      uint16_t offset,
+      uint16_t size,
+      uint16_t slot) {
+    if (slot < StorageConfiguration<T>::num_internal) {
+      eeprom_read_block(destination, address<T>(slot) + offset, size);
+    } else {
+      ReadExternal(destination, (uint16_t)(address<T>(slot)) + offset, size);
+    }
   }
   
   template<typename T>
