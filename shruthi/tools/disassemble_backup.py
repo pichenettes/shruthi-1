@@ -81,7 +81,7 @@ def ExtractSyxData(syx_content):
     tail -= 2
     
     # Remove leading manufacturer id
-    assert packet[head:head + 3] == '\x00\x20\x77'
+    assert packet[head:head + 3] == '\x00\x21\x02'
     head += 3
     
     # Remove leading product id (Shruthi-1)

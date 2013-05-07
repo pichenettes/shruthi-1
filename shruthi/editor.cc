@@ -624,16 +624,17 @@ const prog_uint8_t default_name[] PROGMEM = "user    ";
 
 /* static */
 void Editor::set_edited_item_number(int16_t value) {
-  if (value < 0) {
-    value = 0;
-  }
   if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
     if (value >= Storage::size<Patch>()) {
+      value = 0;
+    } else if (value < 0) {
       value = Storage::size<Patch>() - 1;
     }
     current_patch_number_ = value;
   } else {
     if (value >= Storage::size<SequencerSettings>()) {
+      value = 0;
+    } else if (value < 0) {
       value = Storage::size<SequencerSettings>() - 1;
     }
     current_sequence_number_ = value;
