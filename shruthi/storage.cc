@@ -376,6 +376,18 @@ void Storage::SysExAcceptBuffer() {
           sizeof(SequencerSettings));
       break;
       
+    case 0x1a:
+      {
+        uint16_t current_indices[2];
+        current_indices[0] = editor.current_patch_number();
+        current_indices[1] = editor.current_sequence_number();
+        Storage::SysExDumpBuffer(
+            (uint8_t*)&current_indices, 0x0a,
+            0,
+            sizeof(current_indices));
+      }
+      break;
+      
     case 0x21:
       WritePatch((sysex_rx_buffer_[0] << 8) | (sysex_rx_buffer_[1]));
       success = 1;
