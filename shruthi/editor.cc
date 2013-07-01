@@ -28,6 +28,7 @@
 #include "shruthi/parameter_definitions.h"
 #include "shruthi/storage.h"
 #include "shruthi/synthesis_engine.h"
+#include "shruthi/ui.h"
 #include "avrlib/string.h"
 
 using namespace avrlib;
@@ -183,10 +184,6 @@ PageDefinition Editor::page_definition_[] = {
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
     STR_RES_PATCH, LOAD_SAVE, 0, LED_WRITE_MASK },
 
-  /* PAGE_PERFORMANCE */ { PAGE_PERFORMANCE, GROUP_PERFORMANCE,
-    PAGE_PERFORMANCE, PAGE_PERFORMANCE,
-    STR_RES_PERFORMANCE, PARAMETER_EDITOR, 0, 0 },
-    
   /* PAGE_CONFIRM */ { PAGE_CONFIRM, GROUP_CONFIRM,
     PAGE_CONFIRM, PAGE_CONFIRM,
     STR_RES_PATCH, CONFIRM, 0, 0x55 },
@@ -194,7 +191,7 @@ PageDefinition Editor::page_definition_[] = {
 
 /* <static> */
 ParameterPage Editor::current_page_ = PAGE_FILTER_FILTER;
-ParameterPage Editor::last_visited_page_[kNumGroups] = {
+ParameterPage Editor::last_visited_page_[] = {
     PAGE_OSC_OSC_1,
     PAGE_FILTER_FILTER,
     PAGE_MOD_ENV_1,
@@ -206,15 +203,14 @@ ParameterPage Editor::last_visited_page_[kNumGroups] = {
     PAGE_SYS_KBD,
 
     PAGE_LOAD_SAVE,
-    PAGE_PERFORMANCE
+    PAGE_CONFIRM
 };
 uint8_t Editor::last_visited_subpage_ = 0;
 uint8_t Editor::display_mode_ = DISPLAY_MODE_OVERVIEW;
 uint8_t Editor::editor_mode_ = EDITOR_MODE_PATCH;
-uint8_t Editor::last_visited_group_[3] = {
+uint8_t Editor::last_visited_group_[] = {
     GROUP_FILTER,
     GROUP_SEQUENCER_ARPEGGIATOR,
-    GROUP_PERFORMANCE
 };
 
 char Editor::line_buffer_[kLcdWidth * kLcdHeight + 1];
@@ -223,14 +219,11 @@ uint8_t Editor::cursor_;
 uint8_t Editor::last_knob_;
 uint8_t Editor::subpage_;
 uint8_t Editor::action_;
-uint8_t Editor::load_save_target_;
 uint8_t Editor::last_external_input_;
 uint16_t Editor::current_patch_number_ = 0;
 uint16_t Editor::current_sequence_number_ = 0;
 
 uint8_t Editor::test_note_playing_ = 0;
-uint8_t Editor::assign_in_progress_ = 0;
-ParameterAssignment Editor::parameter_to_assign_;
 ConfirmPageSettings Editor::confirm_page_settings_;
 uint8_t Editor::locked_value_[kNumEditingPots];
 uint8_t Editor::locked_[kNumEditingPots];
@@ -304,7 +297,6 @@ void Editor::PageChange() {
 /* static */
 void Editor::JumpToPageGroup(uint8_t group) {
   cursor_ = 0;
-  assign_in_progress_ = 0;
   display_mode_ = DISPLAY_MODE_OVERVIEW;
   subpage_ = 0;
   // If we move to another group, go to the last visited page in this group.
@@ -380,7 +372,6 @@ void Editor::RandomizeSequence() {
 /* static */
 void Editor::SaveSystemSettings() {
   engine.mutable_system_settings()->EepromSave();
-  engine.extra_system_settings().EepromSave();
 }
 
 /* static */
@@ -397,43 +388,33 @@ void Editor::Confirm(ConfirmPageSettings confirm_page_settings) {
 }
 
 /* static */
-void Editor::HandleKeyEvent(const KeyEvent& event) {
-  if (event.shifted) {
+void Editor::HandleSwitchEvent(const Event& event) {
+  uint8_t id = event.control_id;
+  if (id & 0x80) {
     if (current_page_ != PAGE_LOAD_SAVE) {
       return;
     }
-    switch (event.id) {
-      case KEY_1:
+    id &= 0x7f;
+    switch (id) {
+      case SWITCH_1:
         display.set_status('x');
-        if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-          engine.ResetPatch();
-        }
-        if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-          engine.ResetSequence();
-        }
+        engine.ResetPatch();
+        engine.ResetSequence();
         break;
 
-      case KEY_2:
+      case SWITCH_2:
         display.set_status('?');
-        if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-          RandomizePatch();
-        }
-        if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-          RandomizeSequence();
-        }
+        RandomizePatch();
+        RandomizeSequence();
         break;
 
-      case KEY_3:
+      case SWITCH_3:
         display.set_status('>');
-        if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-          Storage::SysExDump(engine.mutable_patch());
-        }
-        if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-          Storage::SysExDump(engine.mutable_sequencer_settings());
-        }
+        Storage::SysExDump(engine.mutable_patch());
+        Storage::SysExDump(engine.mutable_sequencer_settings());
         break;
         
-      case KEY_4:
+      case SWITCH_4:
         {
           ConfirmPageSettings confirm_midi_backup;
           confirm_midi_backup.text = STR_RES_START_FULL_MIDI;
@@ -442,48 +423,18 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
           Confirm(confirm_midi_backup);
         }
         break;
-
-      case KEY_MODE:
-        {
-          engine.mutable_system_settings()->sequence_patch_coupling ^= 1;
-          current_page_ = 0;
-          ToggleLoadSaveAction();
-        }
-        break;
     }
-  } else if (event.hold_time >= 6) {
-    switch (event.id) {
-      case KEY_1:
-        engine.NoteOn(0, 60, test_note_playing_ * 100);
-        test_note_playing_ ^= 1;
-        break;
-
-      case KEY_2:
-        if (current_page_ <= PAGE_MOD_MATRIX ||
-            current_page_ == PAGE_SEQ_CONTROLLER) {
-          parameter_to_assign_.id = page_definition_[
-              current_page_].first_parameter_index;
-          parameter_to_assign_.id += (current_page_ == PAGE_SEQ_CONTROLLER)
-              ? last_knob_
-              : cursor_;
-          parameter_to_assign_.subpage = subpage_;
-          DisplaySplashScreen(STR_RES_TOUCH_A_KNOB_TO);
-          assign_in_progress_ = 1;
-          return;  // To avoid refresh
-        }
-        break;
-        
-      case KEY_MODE:
-        editor_mode_ = EDITOR_MODE_PERFORMANCE;
-        JumpToPageGroup(GROUP_PERFORMANCE);
-        break;
+  } else if (event.value >= 6) {
+    if (id == SWITCH_1) {
+      test_note_playing_ ^= 1;
+       engine.NoteOn(0, 60, test_note_playing_ * 100);
     }
-  } else if (event.id == KEY_MODE) {
+  } else if (id == SWITCH_MODE) {
     editor_mode_ = (editor_mode_ != EDITOR_MODE_PATCH)
       ? EDITOR_MODE_PATCH
       : EDITOR_MODE_SEQUENCE;
     JumpToPageGroup(last_visited_group_[editor_mode_]);
-  } else if (event.id == KEY_LOAD_SAVE) {
+  } else if (id == SWITCH_LOAD_SAVE) {
     if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_TRIGGERS) {
       ConfirmPageSettings confirm_save_system_settings;
       confirm_save_system_settings.text = STR_RES_SAVE_MIDI_KBD;
@@ -494,13 +445,10 @@ void Editor::HandleKeyEvent(const KeyEvent& event) {
       ToggleLoadSaveAction();
     }
   } else {
-    uint8_t id = event.id;
     if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
       JumpToPageGroup(id + GROUP_SEQUENCER_ARPEGGIATOR);
     } else if (editor_mode_ == EDITOR_MODE_PATCH) {
       JumpToPageGroup(id + GROUP_OSC);
-    } else {
-      JumpToPageGroup(GROUP_PERFORMANCE);
     }
   }
   Refresh();
@@ -562,36 +510,20 @@ void Editor::Refresh() {
 
 /* static */
 void Editor::RestoreEditBuffer() {
-  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-    Storage::Restore(engine.mutable_patch());
-    engine.TouchPatch(1);
-  }
-  if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-    Storage::Restore(engine.mutable_sequencer_settings());
-    engine.TouchSequence();
-  }
+  Storage::Restore(engine.mutable_patch());
+  engine.TouchPatch(1);
+  Storage::Restore(engine.mutable_sequencer_settings());
+  engine.TouchSequence();
 }
 
 /* static */
 void Editor::BackupEditBuffer() {
-  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-    Storage::Backup(engine.mutable_patch());
-  }
-  if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-    Storage::Backup(engine.mutable_sequencer_settings());
-  }
+  Storage::Backup(engine.mutable_patch());
+  Storage::Backup(engine.mutable_sequencer_settings());
 }
 
 /* static */
 void Editor::ToggleLoadSaveAction() {
-  if (editor_mode_ == EDITOR_MODE_SEQUENCE) {
-    load_save_target_ = LOAD_SAVE_TARGET_SEQUENCE;
-  } else {
-    load_save_target_ = LOAD_SAVE_TARGET_PATCH;
-  }
-  if (engine.system_settings().sequence_patch_coupling) {
-    load_save_target_ = LOAD_SAVE_TARGET_BOTH;
-  }
   empty_patch_ = false;
   if (current_page_ != PAGE_LOAD_SAVE) {
     BackupEditBuffer();
@@ -605,7 +537,6 @@ void Editor::ToggleLoadSaveAction() {
     }
   }
   cursor_ = 0;
-  assign_in_progress_ = 0;
   display.set_cursor_position(kLcdNoCursor);
   display_mode_ = DISPLAY_MODE_OVERVIEW;
   current_page_ = PAGE_LOAD_SAVE;
@@ -613,56 +544,33 @@ void Editor::ToggleLoadSaveAction() {
 
 /* static */
 uint16_t Editor::edited_item_number() {
-  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-    return current_patch_number_;
-  } else {
-    return current_sequence_number_;
-  }
+  return current_patch_number_;
 }
 
 const prog_uint8_t default_name[] PROGMEM = "user    ";
 
 /* static */
 void Editor::set_edited_item_number(int16_t value) {
-  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-    if (value >= static_cast<int16_t>(Storage::size<Patch>())) {
-      value = 0;
-    } else if (value < 0) {
-      value = Storage::size<Patch>() - 1;
-    }
-    current_patch_number_ = value;
-  } else {
-    if (value >= static_cast<int16_t>(Storage::size<SequencerSettings>())) {
-      value = 0;
-    } else if (value < 0) {
-      value = Storage::size<SequencerSettings>() - 1;
-    }
-    current_sequence_number_ = value;
+  if (value >= static_cast<int16_t>(Storage::size<Patch>())) {
+    value = 0;
+  } else if (value < 0) {
+    value = Storage::size<Patch>() - 1;
   }
+  current_patch_number_ = value;
   
-  if (load_save_target_ == LOAD_SAVE_TARGET_PATCH && action_ == ACTION_SAVE) {
-    uint8_t name[8];
-    Storage::LoadPatchName(name, edited_item_number());
-    empty_patch_ = true;
-    for (uint8_t i = 0; i < 8; ++i) {
-      if (name[i] != pgm_read_byte(default_name + i)) {
-        empty_patch_ = false;
-      }
+  uint8_t name[8];
+  Storage::LoadPatchName(name, edited_item_number());
+  empty_patch_ = true;
+  for (uint8_t i = 0; i < 8; ++i) {
+    if (name[i] != pgm_read_byte(default_name + i)) {
+      empty_patch_ = false;
     }
-  } else {
-    empty_patch_ = false;
   }
 }
 
 /* static */
 uint8_t Editor::is_cursor_at_valid_position() {
-#ifdef PORTAMENTO_SAVE_HACK
-  uint16_t allowed_cursor_positions = load_save_target_ & LOAD_SAVE_TARGET_PATCH
-      ? 0x07f7 : 0x0007;
-#else
-  uint16_t allowed_cursor_positions = load_save_target_ & LOAD_SAVE_TARGET_PATCH
-      ? 0x0ff7 : 0x0007;
-#endif
+  uint16_t allowed_cursor_positions = 0x0ff7;
   return ((1 << cursor_) & allowed_cursor_positions) != 0;
 }
 
@@ -679,12 +587,8 @@ void Editor::HandleLoadSaveClick() {
       display_mode_ = DISPLAY_MODE_OVERVIEW;
     }
     if (cursor_ >= kLcdWidth - 4) {
-      if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-        Storage::WritePatch(edited_item_number());
-      }
-      if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-        Storage::WriteSequence(edited_item_number());
-      }
+      Storage::WritePatch(edited_item_number());
+      Storage::WriteSequence(edited_item_number());
       action_ = ACTION_LOAD;
     }
   }
@@ -701,8 +605,7 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
     } else {
       if (cursor_ <= 2) {
         set_edited_item_number(edited_item_number() + increment);
-      } else if (cursor_ >= 4 && cursor_ < 4 + kPatchNameSize &&
-                 load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
+      } else if (cursor_ >= 4 && cursor_ < 4 + kPatchNameSize) {
         uint8_t value = engine.patch().name[cursor_ - 4];
         value += increment;
         if (value >= 32 && value <= 128) {
@@ -713,20 +616,12 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
   } else {
     set_edited_item_number(edited_item_number() + increment);
     if (action_ == ACTION_LOAD) {
-      if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-        uint16_t n = edited_item_number();
-        Storage::LoadPatch(n);
-        midi_dispatcher.ProgramChange(n);
-        engine.TouchPatch(1);
-        if (engine.system_settings().patch_restore_on_boot & 0x8000) {
-          engine.mutable_system_settings()->patch_restore_on_boot = n | 0x8000;
-          engine.system_settings().EepromSave();
-        } 
-      }
-      if (load_save_target_ & LOAD_SAVE_TARGET_SEQUENCE) {
-        Storage::LoadSequence(edited_item_number());
-        engine.TouchSequence();
-      }
+      uint16_t n = edited_item_number();
+      Storage::LoadPatch(n);
+      midi_dispatcher.ProgramChange(n);
+      engine.TouchPatch(1);
+      Storage::LoadSequence(edited_item_number());
+      engine.TouchSequence();
     }
   }
 }
@@ -744,7 +639,7 @@ void Editor::DisplayLoadSavePage() {
       line_buffer_,
       8);
   ResourcesManager::LoadStringResource(
-      STR_RES_PATCH + load_save_target_ - 1,
+      STR_RES_PATCH,
       line_buffer_ + 8,
       kLcdWidth - 8);
   AlignLeft(line_buffer_, 8);
@@ -752,22 +647,13 @@ void Editor::DisplayLoadSavePage() {
   line_buffer_[7] = ':';
   display.Print(0, line_buffer_);
 
-  if (load_save_target_ & LOAD_SAVE_TARGET_PATCH) {
-    UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
-    AlignRight(line_buffer_, 3);
-    memcpy(line_buffer_ + 4, engine.patch().name, kPatchNameSize);
-    memset(
+  UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
+  AlignRight(line_buffer_, 3);
+  memcpy(line_buffer_ + 4, engine.patch().name, kPatchNameSize);
+  memset(
         line_buffer_ + 4 + kPatchNameSize,
         ' ',
         kLcdWidth - kPatchNameSize - 4);
-  } else {
-    UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
-    AlignRight(line_buffer_, 3);
-    for (uint8_t i = 0; i < 8; ++i) {
-      line_buffer_[i + 4] = engine.sequencer_settings().steps[i].character();
-    }
-    memset(line_buffer_ + 12, ' ', kLcdWidth - 12);
-  }
   line_buffer_[3] = empty_patch_ ? '*' : ' ';
   if (action_ == ACTION_SAVE) {
     line_buffer_[kLcdWidth - 3] = 'o';
@@ -831,44 +717,29 @@ void Editor::DisplayStepSequencerPage() {
 }
 
 /* static */
-uint8_t Editor::HandleKnobAssignment(uint8_t knob_index) {
-  if (assign_in_progress_) {
-    engine.mutable_patch()->assigned_parameters[knob_index] = \
-        parameter_to_assign_;
-    assign_in_progress_ = 0;
-    editor_mode_ = EDITOR_MODE_PERFORMANCE;
-    JumpToPageGroup(GROUP_PERFORMANCE);
-    return 1;
-  }
-  return 0;
-}
-
-/* static */
 void Editor::HandleSequencerNavigation(
     uint8_t knob_index,
     uint16_t value) {
-  if (!HandleKnobAssignment(knob_index)) {
-    switch (knob_index) {
-      case 1:
-        {
-          cursor_ = value >> 6;
-          uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
-          if (cursor_ > max_position) {
-            cursor_ = max_position;
-          }
+  switch (knob_index) {
+    case 1:
+      {
+        cursor_ = value >> 6;
+        uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
+        if (cursor_ > max_position) {
+          cursor_ = max_position;
         }
-        break;
-      case 3:
-        {
-          uint8_t new_size = (value >> 6) + 1;
-          if (cursor_ >= new_size) {
-            cursor_ = new_size - 1;
-          }
-          last_knob_ = 1;
-          engine.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, 0);
+      }
+      break;
+    case 3:
+      {
+        uint8_t new_size = (value >> 6) + 1;
+        if (cursor_ >= new_size) {
+          cursor_ = new_size - 1;
         }
-        break;
-    }
+        last_knob_ = 1;
+        engine.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, 0);
+      }
+      break;
   }
 }
 
@@ -1152,9 +1023,18 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
       && (action_ == ACTION_SAVE || action_ == ACTION_COMPARE)) {
     return 0xff;
   }
-  if (current_page_ == PAGE_PERFORMANCE || current_page_ == PAGE_LOAD_SAVE) {
-    subpage_ = engine.mutable_patch()->assigned_parameters[knob_index].subpage;
-    return engine.mutable_patch()->assigned_parameters[knob_index].id;
+  if (current_page_ == PAGE_LOAD_SAVE) {
+    switch (knob_index) {
+      case 0:
+        return 1;
+      case 1:
+        return PRM_FILTER_CUTOFF;
+      case 2:
+        return PRM_FILTER_RESONANCE;
+      case 3:
+        return PRM_FILTER_ENV;
+    }
+    subpage_ = 0;
   } else {
     return page_definition_[current_page_].first_parameter_index + \
         knob_index;
@@ -1163,33 +1043,31 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
 
 /* static */
 void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
-  if (!HandleKnobAssignment(knob_index)) {
-    uint8_t value_7bits = value >> 3;
+  uint8_t value_7bits = value >> 3;
     
-    // In "snap" mode, the knob is locked until we reached the value the
-    // parameter is supposed to have.
-    if (locked_[knob_index]) {
-      int8_t delta = value_7bits - locked_value_[knob_index];
-      if (delta < -4 || delta > 4) {
-        return;
-      }
-      locked_[knob_index] = 0;
-    }
-
-    display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
-    uint8_t index = KnobIndexToParameterId(knob_index);
-    if (index == 0xff) {
+  // In "snap" mode, the knob is locked until we reached the value the
+  // parameter is supposed to have.
+  if (locked_[knob_index]) {
+    int8_t delta = value_7bits - locked_value_[knob_index];
+    if (delta < -4 || delta > 4) {
       return;
     }
-    const ParameterDefinition& parameter = (
-        ParameterDefinitions::parameter_definition(index));
-    SetParameterValue(
-        parameter.id,
-        ParameterDefinitions::Scale(parameter, value_7bits));
-    cursor_ = knob_index;
-
-    last_external_input_ = 0xff;
+    locked_[knob_index] = 0;
   }
+
+  display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
+  uint8_t index = KnobIndexToParameterId(knob_index);
+  if (index == 0xff) {
+    return;
+  }
+  const ParameterDefinition& parameter = (
+      ParameterDefinitions::parameter_definition(index));
+  SetParameterValue(
+      parameter.id,
+      ParameterDefinitions::Scale(parameter, value_7bits));
+  cursor_ = knob_index;
+
+  last_external_input_ = 0xff;
 }
 
 /* static */

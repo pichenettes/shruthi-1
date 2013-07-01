@@ -401,7 +401,7 @@ static const prog_char str_res_4pm[] PROGMEM = "4pm";
 static const prog_char str_res_dly[] PROGMEM = "dly";
 static const prog_char str_res_4cv_in[] PROGMEM = "4cv in";
 static const prog_char str_res_prgm[] PROGMEM = "prgm";
-static const prog_char str_res_pedals[] PROGMEM = "pedals";
+static const prog_char str_res_xt[] PROGMEM = "xt";
 static const prog_char str_res_equal[] PROGMEM = "equal";
 static const prog_char str_res_just[] PROGMEM = "just";
 static const prog_char str_res_pythag[] PROGMEM = "pythag";
@@ -848,7 +848,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_dly,
   str_res_4cv_in,
   str_res_prgm,
-  str_res_pedals,
+  str_res_xt,
   str_res_equal,
   str_res_just,
   str_res_pythag,

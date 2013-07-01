@@ -25,7 +25,7 @@
 namespace shruthi {
 
 void Patch::PrepareForWrite() {
-  exclamation_mark_ = '!';
+  version_ = '!';
   filter_topology_ = (filter_1_mode_ << 4) | filter_2_mode_;
   op_data_[0] = ops_[0].operands[0];
   op_data_[1] = (ops_[0].operands[1] << 3) | (ops_[0].op & 0x7);
@@ -42,15 +42,7 @@ void Patch::PrepareForWrite() {
   }
   if (ops_[1].operands[1] & 0x20) {
     op_data_[2] |= 0x40;
-  }
-  
-  
-#ifdef PORTAMENTO_SAVE_HACK
-  portamento_data = \
-      0x80 | \
-      (engine.system_settings().legato ? 0x40 : 0x00) | \
-      (engine.system_settings().portamento);
-#endif  // PORTAMENTO_SAVE_HACK
+  } 
 }
 
 uint8_t Patch::CheckBuffer(uint8_t* buffer) {
@@ -73,19 +65,6 @@ void Patch::Update() {
   if (op_data_[2] == 'n' && op_data_[3] == 'g') {
     memset(saved_data() + 84, 0, 8);
   }
-#ifdef PORTAMENTO_SAVE_HACK
-  if (!(portamento_data & 0x80)) {
-    portamento_data = 0;
-  }
-  engine.mutable_system_settings()->legato = (portamento_data & 0x40) ? 1 : 0;
-  engine.mutable_system_settings()->portamento = portamento_data & 0x3f;
-#else
-  // Yuck. This is to provide some compatibility with the patches saved with the
-  // portamento hack.
-  if (name[kPatchNameSize - 1] & 0x80) {
-    name[kPatchNameSize - 1] = ' ';
-  }
-#endif  // PORTAMENTO_SAVE_HACK
   ops_[0].operands[0] = op_data_[0] & 0x3f;
   ops_[0].operands[1] = op_data_[1] >> 3;
   ops_[0].op = op_data_[1] & 0x7;

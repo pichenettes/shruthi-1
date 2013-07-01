@@ -27,13 +27,14 @@
 namespace shruthi {
 
 enum KEYS {
-  KEY_1,
-  KEY_2,
-  KEY_3,
-  KEY_4,
-  KEY_MODE,
-  KEY_LOAD_SAVE,
-  KEY_NONE,
+  SWITCH_1,
+  SWITCH_2,
+  SWITCH_3,
+  SWITCH_4,
+  SWITCH_MODE,
+  SWITCH_LOAD_SAVE,
+  SWITCH_SHIFT = SWITCH_LOAD_SAVE,
+  SWITCH_LAST,
 };
 
 enum LEDS {

@@ -185,11 +185,7 @@ class SynthesisEngine : public midi::MidiDevice {
   static void Start();
   static void Stop();
 
-  static void ProcessBlock();
-  static void Trigger(uint8_t index, uint8_t value) {
-    voice_.set_modulation_source(MOD_SRC_TRIG_1 + index, value);
-  }
-  
+  static void ProcessBlock();  
   static void SetName(uint8_t* name);
   static void SetSequenceStep(uint8_t index, uint8_t data_a, uint8_t data_b);
   static void SetPatternRotation(uint8_t rotation);
@@ -242,9 +238,6 @@ class SynthesisEngine : public midi::MidiDevice {
   static inline const SystemSettings& system_settings() {
     return system_settings_;
   }
-  static inline const ExtraSystemSettings& extra_system_settings() {
-    return extra_system_settings_;
-  }
   static inline Patch* mutable_patch() { return &patch_; }
   static inline VoiceController* mutable_voice_controller() {
     return &controller_;
@@ -272,7 +265,7 @@ class SynthesisEngine : public midi::MidiDevice {
   static inline uint8_t fx_control_byte() {
     return (patch_.filter_1_mode_ << 4) | patch_.filter_2_mode_;
   }
-  
+
   static inline uint8_t pvk_routing_byte() {
     uint8_t byte = 0;
     if (patch_.filter_1_mode_ == FILTER_MODE_LP) {
@@ -325,7 +318,6 @@ class SynthesisEngine : public midi::MidiDevice {
   static Patch patch_;
   static SequencerSettings sequencer_settings_;
   static SystemSettings system_settings_;
-  static ExtraSystemSettings extra_system_settings_;
   
   static Lfo lfo_[kNumLfos];
   static uint8_t previous_lfo_fm_[kNumLfos];

@@ -27,6 +27,7 @@
 #include "shruthi/editor.h"
 #include "shruthi/oscillator.h"
 #include "shruthi/synthesis_engine.h"
+#include "shruthi/ui.h"
 #include "avrlib/op.h"
 
 using namespace avrlib;
@@ -37,14 +38,7 @@ namespace shruthi {
 
 ExternalEeprom<kMaxNumBanks * kBankSize> external_eeprom;
 
-// We directly address the facade LEDs to show a progress bar of the data
-// dump.
-typedef ShiftRegisterOutput<
-    IOEnableLine,
-    IOClockLine,
-    IOOutputLine,
-    kNumLeds,
-    MSB_FIRST> ProgressBar;
+SpiMaster<IOEnableLine, MSB_FIRST, 4> ProgressBar;
 
 /* static */
 uint8_t Storage::load_buffer_[sizeof(Patch)];
@@ -152,9 +146,9 @@ void Storage::SysExDumpBuffer(
 void Storage::SysExBulkDump() {
   uint8_t message_id = 0x40;
   uint8_t block_id = 0;
-  uint8_t progress_leds = 1;
   uint16_t delay;
 
+  ui.BeginProgressBar();
   for (uint16_t start = 0;
        start < addressable_space_size();
        start += kSysExBulkDumpBlockSize) {
@@ -180,10 +174,10 @@ void Storage::SysExBulkDump() {
       block_id = 0;
       ++message_id;
     }
-    ProgressBar::Write(progress_leds);
-    progress_leds = progress_leds == 255 ? 1 : (progress_leds << 1) + 1;
+    ui.StepProgressBar();
     Delay(delay);
   }
+  ui.EndProgressBar();
 }
 
 /* static */
@@ -413,7 +407,6 @@ void Storage::SysExAcceptBuffer() {
     case 0x42:
     case 0x43:
       {
-        ProgressBar::Write((1 << (sysex_rx_command_[1] & 7)) * 2 - 1);
         uint16_t address = sysex_rx_command_[1] * kSysExBulkDumpBlockSize;
         while (sysex_rx_command_[0] > 0x40) {
           address += kSysExBulkDumpBlockSize * 128;
