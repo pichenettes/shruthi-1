@@ -30,11 +30,7 @@
 
 namespace shruthi {
 
-#ifdef PORTAMENTO_SAVE_HACK
-const uint8_t kPatchNameSize = 7;
-#else
 const uint8_t kPatchNameSize = 8;
-#endif  // PORTAMENTO_SAVE_HACK
 const uint8_t kModulationMatrixSize = 12;
 
 struct Modulation {
@@ -74,11 +70,6 @@ struct LfoSettings {
   uint8_t retrigger_mode;
 };
 
-struct ParameterAssignment {
-  uint8_t id;
-  uint8_t subpage;
-};
-
 #define PATCH_SIZE (sizeof(Patch) - 8)
 
 class Patch {
@@ -109,19 +100,15 @@ class Patch {
   // Offset: 68-76
   uint8_t name[kPatchNameSize];
 
-#ifdef PORTAMENTO_SAVE_HACK
-  uint8_t portamento_data;
-#endif
-
   // Offset: 76-84
-  ParameterAssignment assigned_parameters[4];
-  
+  uint8_t former_crap_[8];
+
   // Offset: 84-92
   uint8_t filter_cutoff_2;
   uint8_t filter_resonance_2;
   uint8_t filter_topology_;
   uint8_t op_data_[4];
-  uint8_t exclamation_mark_;
+  uint8_t version_;
   
   // 8 bytes of decompressed patch data.
   uint8_t filter_1_mode_;

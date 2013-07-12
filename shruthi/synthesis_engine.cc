@@ -49,7 +49,6 @@ uint8_t SynthesisEngine::data_access_byte_[1];
 Patch SynthesisEngine::patch_;
 SequencerSettings SynthesisEngine::sequencer_settings_;
 SystemSettings SynthesisEngine::system_settings_;
-ExtraSystemSettings SynthesisEngine::extra_system_settings_;
 
 Voice SynthesisEngine::voice_;
 VoiceController SynthesisEngine::controller_;
@@ -78,7 +77,6 @@ void SynthesisEngine::Init() {
     ResetSystemSettings();
     system_settings_.EepromSave();
   }
-  extra_system_settings_.EepromLoad();
   Reset();
   voice_.Init();
   nrpn_parameter_number_ = 255;
@@ -121,10 +119,10 @@ static const prog_char init_patch[] PROGMEM = {
     // Name
     'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
     // Performance page assignments.
-    1, 0,
-    PRM_FILTER_CUTOFF, 0,
-    PRM_FILTER_RESONANCE, 0,
-    PRM_FILTER_ENV, 0,
+    0, 0,
+    0, 0,
+    0, 0,
+    0, 0,
     // Settings for second filter
     0, 0, 0, 
     0, 0, 0, 0,
@@ -183,14 +181,6 @@ void SynthesisEngine::TouchPatch(uint8_t cascade) {
     if (system_settings_.midi_out_mode >= MIDI_OUT_2_1) {
       Storage::SysExDump(&patch_);
     }
-#ifdef SERIAL_PATCH_DUMP
-    Serial<CvTxPort, 4800, DISABLED, POLLED> tx_port;
-    tx_port.Init();
-    uint8_t* data = &data_access_byte_[1];
-    for (uint8_t i = 0; i < sizeof(Patch); ++i) {
-      tx_port.Write(*data++);
-    }
-#endif
   }
   volume_ = 255;
 }

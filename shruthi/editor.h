@@ -26,7 +26,7 @@
 #include "shruthi/shruthi.h"
 
 namespace avrlib {
-  class KeyEvent;
+  class Event;
 }
 
 namespace shruthi {
@@ -37,7 +37,6 @@ class ParameterDefinition;
 enum EditorMode {
   EDITOR_MODE_PATCH,
   EDITOR_MODE_SEQUENCE,
-  EDITOR_MODE_PERFORMANCE,
 };
 
 enum LoadSaveTarget {
@@ -68,9 +67,8 @@ enum Group {
   GROUP_SYS,
 
   GROUP_LOAD_SAVE,
-  GROUP_PERFORMANCE,
-  
-  GROUP_CONFIRM
+  GROUP_CONFIRM,
+  GROUP_LAST
 };
 
 enum Page {
@@ -98,7 +96,6 @@ enum Page {
   PAGE_SYS_TRIGGERS,
   
   PAGE_LOAD_SAVE,
-  PAGE_PERFORMANCE,
   PAGE_CONFIRM,
 };
 
@@ -111,9 +108,6 @@ enum Action {
 // We do not use enums here because they take 2 bytes, not 1.
 typedef uint8_t ParameterGroup;
 typedef uint8_t ParameterPage;
-
-static const uint8_t kNumPages = PAGE_PERFORMANCE + 1;
-static const uint8_t kNumGroups = GROUP_PERFORMANCE + 1;
 
 // Size (in char) of the display elements.
 static const uint8_t kCaptionWidth = 10;
@@ -168,8 +162,8 @@ class Editor {
   Editor() { }
   static void Init();
 
-  // Handles a press on a key.
-  static void HandleKeyEvent(const avrlib::KeyEvent& event);
+  // Handles a press on a switch.
+  static void HandleSwitchEvent(const avrlib::Event& event);
 
   // Handles the modification of one of the editing pots.
   static void HandleInput(uint8_t knob_index, uint16_t value);
@@ -296,18 +290,13 @@ class Editor {
   static void SaveSystemSettings();
   static void StartMidiBackup();
   
-  // Before processing a knob move, check that this move is not meant to
-  // complete a knob assignment action.
-  static uint8_t HandleKnobAssignment(uint8_t knob_index);
-
   static PageDefinition page_definition_[];
   static const UiHandler ui_handler_[];
 
   static ParameterPage current_page_;
-  static ParameterPage last_visited_page_[kNumGroups];
+  static ParameterPage last_visited_page_[GROUP_LAST];
   
-  static uint8_t load_save_target_;
-  static uint8_t last_visited_group_[3];
+  static uint8_t last_visited_group_[2];
   static uint8_t display_mode_;
   static uint8_t editor_mode_;
   static uint8_t cursor_;
@@ -323,9 +312,7 @@ class Editor {
   static uint16_t current_sequence_number_;
   static ConfirmPageSettings confirm_page_settings_;
 
-  static uint8_t assign_in_progress_; 
   static uint8_t test_note_playing_;
-  static ParameterAssignment parameter_to_assign_;
   static bool empty_patch_;
   
   // Snap mode logic. Stores for each pot the 10-bit ADC readout that

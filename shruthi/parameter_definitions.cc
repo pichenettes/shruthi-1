@@ -28,7 +28,7 @@
 namespace shruthi {
 
 static const prog_char raw_parameter_definition[
-    90 * sizeof(ParameterDefinition)] PROGMEM = {
+    86 * sizeof(ParameterDefinition)] PROGMEM = {
   // Osc 1.
   PRM_OSC_SHAPE_1,
   WAVEFORM_NONE, WAVEFORM_LAST - 1,
@@ -318,7 +318,7 @@ static const prog_char raw_parameter_definition[
   STR_RES_FILTER, STR_RES_FILTER,
   
   PRM_SYS_EXPANSION_CV_MODE,
-  CV_MODE_4CV_IN, CV_MODE_PEDALS,
+  CV_MODE_4CV_IN, CV_MODE_XT,
   UNIT_CV_MODE,
   STR_RES_CV_MODE, STR_RES_CV_MODE,
   
@@ -339,12 +339,12 @@ static const prog_char raw_parameter_definition[
   STR_RES_OP_, STR_RES_OPERATOR,
 
   PRM_OP_OP1,
-  0, kNumModulationSources - 1,
+  0, kNumModulationSources - 3,
   UNIT_MODULATION_SOURCE,
   STR_RES_IN1, STR_RES_IN1,
 
   PRM_OP_OP2,
-  0, kNumModulationSources - 1,
+  0, kNumModulationSources - 3,
   UNIT_MODULATION_SOURCE,
   STR_RES_IN2, STR_RES_IN2,
 
@@ -352,27 +352,7 @@ static const prog_char raw_parameter_definition[
   OP_CV_NONE, OP_CV_LAST - 1,
   UNIT_CV_OPERATOR,
   STR_RES_OUT, STR_RES_OUT,
-  
-  PRM_SYS_TRIGGER_1_CHANNEL,
-  1, 16,
-  UNIT_UINT8,
-  STR_RES_CH1, STR_RES_CH1,
-
-  PRM_SYS_TRIGGER_1_NOTE,
-  0, 127,
-  UNIT_RAW_UINT8,
-  STR_RES_11, STR_RES_11,
-
-  PRM_SYS_TRIGGER_2_CHANNEL,
-  1, 16,
-  UNIT_UINT8,
-  STR_RES_CH2, STR_RES_CH2,
-
-  PRM_SYS_TRIGGER_2_NOTE,
-  0, 127,
-  UNIT_RAW_UINT8,
-  STR_RES_12, STR_RES_12,
-  
+   
   // Settings for SSM2044 filter board.
   PRM_FILTER_CUTOFF,
   0, 127,

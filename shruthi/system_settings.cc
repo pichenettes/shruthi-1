@@ -51,16 +51,4 @@ uint8_t SystemSettings::EepromLoad() {
   return checksum == 0;
 }
 
-void ExtraSystemSettings::EepromSave() const {
-  uint8_t* data = (uint8_t *)(this);
-  uint8_t* destination = (uint8_t*)(E2END - 32);
-  eeprom_write_block(data, destination, sizeof(ExtraSystemSettings));
-}
-
-void ExtraSystemSettings::EepromLoad() {
-  uint8_t* data = (uint8_t *)(this);
-  uint8_t* source = (uint8_t*)(E2END - 32);
-  eeprom_read_block(data, source, sizeof(ExtraSystemSettings));
-}
-
 }  // shruthi

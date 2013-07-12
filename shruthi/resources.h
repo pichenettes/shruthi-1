@@ -526,7 +526,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_DLY 407  // dly
 #define STR_RES_4CV_IN 408  // 4cv in
 #define STR_RES_PRGM 409  // prgm
-#define STR_RES_PEDALS 410  // pedals
+#define STR_RES_XT 410  // xt
 #define STR_RES_EQUAL 411  // equal
 #define STR_RES_JUST 412  // just
 #define STR_RES_PYTHAG 413  // pythag
