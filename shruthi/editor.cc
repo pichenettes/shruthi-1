@@ -165,21 +165,17 @@ PageDefinition Editor::page_definition_[] = {
     STR_RES_STEP_SEQUENCER, STEP_SEQUENCER, 52, LED_5_MASK },
 
   /* PAGE_SYS_KBD */ { PAGE_SYS_MIDI, GROUP_SYS,
-    PAGE_SYS_TRIGGERS, PAGE_SYS_MIDI,
+    PAGE_SYS_DISPLAY, PAGE_SYS_MIDI,
     STR_RES_KEYBOARD, PARAMETER_EDITOR, 44, LED_6_MASK },
 
   /* PAGE_SYS_MIDI */ { PAGE_SYS_DISPLAY, GROUP_SYS,
     PAGE_SYS_KBD, PAGE_SYS_DISPLAY,
     STR_RES_MIDI, PARAMETER_EDITOR, 48, LED_6_MASK },
 
-  /* PAGE_SYS_DISPLAY */ { PAGE_SYS_TRIGGERS, GROUP_SYS,
-    PAGE_SYS_MIDI, PAGE_SYS_TRIGGERS,
+  /* PAGE_SYS_DISPLAY */ { PAGE_SYS_KBD, GROUP_SYS,
+    PAGE_SYS_MIDI, PAGE_SYS_KBD,
     STR_RES_SYSTEM, PARAMETER_EDITOR, 52, LED_6_MASK },
 
-  /* PAGE_SYS_TRIGGERS */ { PAGE_SYS_KBD, GROUP_SYS,
-    PAGE_SYS_DISPLAY, PAGE_SYS_KBD,
-    STR_RES_TRIGGERS, PARAMETER_EDITOR, 62, LED_6_MASK },
-    
   /* PAGE_LOAD_SAVE */ { PAGE_LOAD_SAVE, GROUP_LOAD_SAVE,
     PAGE_LOAD_SAVE, PAGE_LOAD_SAVE,
     STR_RES_PATCH, LOAD_SAVE, 0, LED_WRITE_MASK },
@@ -248,7 +244,7 @@ void Editor::ConfigureFilterMenu() {
     page_definition_[PAGE_FILTER_FILTER].next = PAGE_FILTER_MULTIMODE;
     page_definition_[PAGE_FILTER_FILTER].overall_next = PAGE_FILTER_MULTIMODE;
     page_definition_[PAGE_MOD_ENV_1].overall_previous = PAGE_FILTER_MULTIMODE;
-    page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index = 66;
+    page_definition_[PAGE_FILTER_MULTIMODE].first_parameter_index = 62;
     page_definition_[PAGE_FILTER_MULTIMODE].name = (n == FILTER_BOARD_DSP) ? \
         STR_RES_DSP : STR_RES_FILTERS;
     while (--n) {
@@ -435,7 +431,7 @@ void Editor::HandleSwitchEvent(const Event& event) {
       : EDITOR_MODE_SEQUENCE;
     JumpToPageGroup(last_visited_group_[editor_mode_]);
   } else if (id == SWITCH_LOAD_SAVE) {
-    if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_TRIGGERS) {
+    if (current_page_ >= PAGE_SYS_KBD && current_page_ <= PAGE_SYS_DISPLAY) {
       ConfirmPageSettings confirm_save_system_settings;
       confirm_save_system_settings.text = STR_RES_SAVE_MIDI_KBD;
       confirm_save_system_settings.return_group = GROUP_SYS;
@@ -455,7 +451,7 @@ void Editor::HandleSwitchEvent(const Event& event) {
 }
 
 /* static */
-void Editor::HandleInput(uint8_t knob_index, uint16_t value) {
+void Editor::HandleInput(uint8_t knob_index, uint8_t value) {
   (*ui_handler_[page_definition_[current_page_].ui_type].input_handler)(
       knob_index, value);
   Refresh();
@@ -620,8 +616,11 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
       Storage::LoadPatch(n);
       midi_dispatcher.ProgramChange(n);
       engine.TouchPatch(1);
-      Storage::LoadSequence(edited_item_number());
-      engine.TouchSequence();
+      // When we are not playing, load the sequence parameters.
+      if (!engine.voice_controller().active()) {
+        Storage::LoadSequence(edited_item_number());
+        engine.TouchSequence();
+      }
     }
   }
 }
@@ -717,13 +716,11 @@ void Editor::DisplayStepSequencerPage() {
 }
 
 /* static */
-void Editor::HandleSequencerNavigation(
-    uint8_t knob_index,
-    uint16_t value) {
+void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
   switch (knob_index) {
     case 1:
       {
-        cursor_ = value >> 6;
+        cursor_ = value >> 3;
         uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
         if (cursor_ > max_position) {
           cursor_ = max_position;
@@ -732,7 +729,7 @@ void Editor::HandleSequencerNavigation(
       break;
     case 3:
       {
-        uint8_t new_size = (value >> 6) + 1;
+        uint8_t new_size = (value >> 3) + 1;
         if (cursor_ >= new_size) {
           cursor_ = new_size - 1;
         }
@@ -744,16 +741,14 @@ void Editor::HandleSequencerNavigation(
 }
 
 /* static */
-void Editor::HandleStepSequencerInput(
-    uint8_t knob_index,
-    uint16_t value) {
+void Editor::HandleStepSequencerInput(uint8_t knob_index, uint8_t value) {
   HandleSequencerNavigation(knob_index, value);
   if (knob_index == 2) {
     SequencerSettings* seq = engine.mutable_sequencer_settings();
     seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
-        value >> 6);
+        value >> 3);
   } else if (knob_index == 0) {
-    engine.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 6, 0);
+    engine.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, 0);
     last_knob_ = 0;
   }
 }
@@ -798,13 +793,12 @@ void Editor::DisplayTrackerPage() {
 }
 
 /* static */
-void Editor::HandleTrackerInput(
-    uint8_t knob_index,
-    uint16_t value) {
+void Editor::HandleTrackerInput(uint8_t knob_index, uint8_t value) {
+  uint16_t value_16_bits = 0;
   switch (knob_index) {
     case 0:
       {
-        cursor_ = value >> 6;
+        cursor_ = value >> 3;
         uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
         if (cursor_ > max_position) {
           cursor_ = max_position;
@@ -813,26 +807,28 @@ void Editor::HandleTrackerInput(
       break;
     case 1:
       engine.mutable_sequencer_settings()->steps[cursor_].set_note(
-          24 + (value >> 4));
+          24 + (value >> 1));
       break;
     case 2:
-      value *= 10;
-      value >>= 5;
-      if (value < 64) {
+      value_16_bits = value << 3;
+      value_16_bits *= 10;
+      value_16_bits >>= 5;
+      if (value_16_bits < 64) {
         engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(0);
         engine.mutable_sequencer_settings()->steps[cursor_].set_gate(0);
         engine.mutable_sequencer_settings()->steps[cursor_].set_legato(0);
       } else {
-        value -= 64;
-        engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(value);
+        value_16_bits -= 64;
+        engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(
+            value_16_bits);
         engine.mutable_sequencer_settings()->steps[cursor_].set_gate(1);
         engine.mutable_sequencer_settings()->steps[cursor_].set_legato(
-            value >= 0x80);
+            value_16_bits >= 0x80);
       }
       break;
     case 3:
       engine.mutable_sequencer_settings()->steps[cursor_].set_controller(
-          value >> 6);
+          value >> 3);
       break;
   }
 }
@@ -881,7 +877,7 @@ void Editor::DisplayPageRPage() {
 /* static */
 void Editor::HandlePageRInput(
     uint8_t knob_index,
-    uint16_t value) {
+    uint8_t value) {
   HandleSequencerNavigation(knob_index, value);
   if (knob_index == 2) {
     HandleTrackerInput(2, value);
@@ -1042,13 +1038,11 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
 }
 
 /* static */
-void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
-  uint8_t value_7bits = value >> 3;
-    
+void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
   // In "snap" mode, the knob is locked until we reached the value the
   // parameter is supposed to have.
   if (locked_[knob_index]) {
-    int8_t delta = value_7bits - locked_value_[knob_index];
+    int8_t delta = value - locked_value_[knob_index];
     if (delta < -4 || delta > 4) {
       return;
     }
@@ -1064,16 +1058,17 @@ void Editor::HandleEditInput(uint8_t knob_index, uint16_t value) {
       ParameterDefinitions::parameter_definition(index));
   SetParameterValue(
       parameter.id,
-      ParameterDefinitions::Scale(parameter, value_7bits));
+      ParameterDefinitions::Scale(parameter, value));
   cursor_ = knob_index;
 
   last_external_input_ = 0xff;
 }
 
 /* static */
-void Editor::HandleProgrammerInput(uint8_t ui_parameter_index, uint16_t value) {
+void Editor::HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value) {
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
   last_external_input_ = ui_parameter_index;
+  engine.SetScaledParameter(ui_parameter_index, value, 1);
 }
 
 /* static */
@@ -1245,7 +1240,7 @@ void Editor::HandleConfirmIncrement(int8_t increment) {
 }
 
 /* static */
-void Editor::HandleConfirmInput(uint8_t knob_index, uint16_t value) {
+void Editor::HandleConfirmInput(uint8_t knob_index, uint8_t value) {
 }
 
 /* static */

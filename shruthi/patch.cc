@@ -25,7 +25,7 @@
 namespace shruthi {
 
 void Patch::PrepareForWrite() {
-  version_ = '!';
+  version_ = '%';
   filter_topology_ = (filter_1_mode_ << 4) | filter_2_mode_;
   op_data_[0] = ops_[0].operands[0];
   op_data_[1] = (ops_[0].operands[1] << 3) | (ops_[0].op & 0x7);
@@ -42,7 +42,23 @@ void Patch::PrepareForWrite() {
   }
   if (ops_[1].operands[1] & 0x20) {
     op_data_[2] |= 0x40;
-  } 
+  }
+  
+  // Copy sequencer settings data into patch data.
+  const SystemSettings system_settings = engine.system_settings();
+  const SequencerSettings sequencer_settings = engine.sequencer_settings();
+  
+  extra_data_[0] = system_settings.legato ? 0x40 : 0x00;
+  extra_data_[0] |= system_settings.portamento;
+  
+  extra_data_[1] = sequencer_settings.seq_mode;
+  extra_data_[2] = sequencer_settings.seq_tempo;
+  extra_data_[3] = sequencer_settings.seq_groove_template;
+  extra_data_[4] = sequencer_settings.seq_groove_amount;
+  extra_data_[5] = (sequencer_settings.arp_direction << 4) | \
+      sequencer_settings.arp_range;
+  extra_data_[6] = sequencer_settings.arp_pattern;
+  extra_data_[7] = sequencer_settings.arp_warp;
 }
 
 uint8_t Patch::CheckBuffer(uint8_t* buffer) {
@@ -52,7 +68,7 @@ uint8_t Patch::CheckBuffer(uint8_t* buffer) {
       return 0;
     }
   }
-  if (buffer[91] != '!') {
+  if (buffer[91] != '!' && buffer[91] != '%') {
     memset(name, '-', 8);
     return 0;
   }
@@ -87,6 +103,25 @@ void Patch::Update() {
     
   filter_2_mode_ = filter_topology_ & 0xf;
   filter_1_mode_ = filter_topology_ >> 4;
+  
+  if (version_ == '%') {
+    SystemSettings* system_settings = engine.mutable_system_settings();
+    SequencerSettings* sequencer_settings = engine.mutable_sequencer_settings();
+    
+    system_settings->legato = extra_data_[0] & 0x40 ? 1 : 0;
+    system_settings->portamento = extra_data_[0] & 0x3f;
+
+    if (!engine.voice_controller().active()) {
+      sequencer_settings->seq_mode = extra_data_[1];
+      sequencer_settings->seq_tempo = extra_data_[2];
+      sequencer_settings->seq_groove_template = extra_data_[3];
+      sequencer_settings->seq_groove_amount = extra_data_[4];
+      sequencer_settings->arp_direction = extra_data_[5] >> 4;
+      sequencer_settings->arp_range = extra_data_[5] & 0xf;
+      sequencer_settings->arp_pattern = extra_data_[6];
+      sequencer_settings->arp_warp = extra_data_[7];
+    }
+  }
 }
 
 }  // shruthi

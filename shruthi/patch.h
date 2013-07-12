@@ -101,7 +101,7 @@ class Patch {
   uint8_t name[kPatchNameSize];
 
   // Offset: 76-84
-  uint8_t former_crap_[8];
+  uint8_t extra_data_[8];
 
   // Offset: 84-92
   uint8_t filter_cutoff_2;

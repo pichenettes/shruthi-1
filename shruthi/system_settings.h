@@ -38,7 +38,7 @@ class SystemSettings {
   
   uint8_t display_delay;
   uint8_t expansion_filter_board;
-  uint8_t expansion_cv_mode;
+  uint8_t programmer;
   uint8_t display_snap;
 
   uint16_t patch_restore_on_boot;
@@ -59,10 +59,10 @@ enum FilterBoard {
   FILTER_BOARD_LAST
 };
 
-enum CvMode {
-  CV_MODE_4CV_IN,
-  CV_MODE_PROGRAMMER,
-  CV_MODE_XT
+enum ProgrammerMode {
+  PROGRAMMER_NONE,
+  PROGRAMMER_FCD,
+  PROGRAMMER_XT
 };
 
 enum MidiOutMode {
@@ -95,7 +95,7 @@ enum SystemParameter {
   
   PRM_SYS_DISPLAY_DELAY,
   PRM_SYS_EXPANSION_FILTER_BOARD,
-  PRM_SYS_EXPANSION_CV_MODE,
+  PRM_SYS_programmer,
   PRM_SYS_DISPLAY_SNAP
 };
 

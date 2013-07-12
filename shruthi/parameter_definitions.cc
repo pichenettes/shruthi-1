@@ -317,8 +317,8 @@ static const prog_char raw_parameter_definition[
   UNIT_FILTER_BOARD,
   STR_RES_FILTER, STR_RES_FILTER,
   
-  PRM_SYS_EXPANSION_CV_MODE,
-  CV_MODE_4CV_IN, CV_MODE_XT,
+  PRM_SYS_programmer,
+  PROGRAMMER_NONE, PROGRAMMER_XT,
   UNIT_CV_MODE,
   STR_RES_CV_MODE, STR_RES_CV_MODE,
   

@@ -440,7 +440,8 @@ void SynthesisEngine::Clock() {
 
 /* static */
 void SynthesisEngine::Start() {
-  if (sequencer_settings_.seq_mode >= SEQUENCER_MODE_RPS) {
+  if (sequencer_settings_.seq_mode >= SEQUENCER_MODE_RPS &&
+      !controller_.active()) {
     controller_.NoteOn(60, 100);
   }
   controller_.Start();

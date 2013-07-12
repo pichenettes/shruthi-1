@@ -93,7 +93,6 @@ enum Page {
   PAGE_SYS_KBD,
   PAGE_SYS_MIDI,
   PAGE_SYS_DISPLAY,
-  PAGE_SYS_TRIGGERS,
   
   PAGE_LOAD_SAVE,
   PAGE_CONFIRM,
@@ -146,7 +145,7 @@ struct PageDefinition {
 struct UiHandler {
   void (*overview_page)();
   void (*edit_page)();
-  void (*input_handler)(uint8_t knob_index, uint16_t value);
+  void (*input_handler)(uint8_t knob_index, uint8_t value);
   void (*increment_handler)(int8_t increment);
   void (*click_handler)();
 };
@@ -166,7 +165,7 @@ class Editor {
   static void HandleSwitchEvent(const avrlib::Event& event);
 
   // Handles the modification of one of the editing pots.
-  static void HandleInput(uint8_t knob_index, uint16_t value);
+  static void HandleInput(uint8_t knob_index, uint8_t value);
 
   // Handles a rotation of the encoder.
   static void HandleIncrement(int8_t increment);
@@ -182,7 +181,7 @@ class Editor {
   // When a parameter is controlled externally with the XT/Programmer
   // interface, this routine handles showing the changed parameter
   // temporarily on the display.
-  static void HandleProgrammerInput(uint8_t ui_parameter_index, uint16_t value);
+  static void HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value);
 
   // Displays variants of the current page.
   static void Refresh();
@@ -250,26 +249,26 @@ class Editor {
   static void DisplayEditOverviewPage();
   static void DisplayEditDetailsPage();
   
-  static void HandleEditInput(uint8_t knob_index, uint16_t value);
+  static void HandleEditInput(uint8_t knob_index, uint8_t value);
   static void HandleEditIncrement(int8_t increment);
 
   static void MoveSequencerCursor(int8_t increment);
-  static void HandleSequencerNavigation(uint8_t knob, uint16_t value);
+  static void HandleSequencerNavigation(uint8_t knob, uint8_t value);
   
   static void DisplayTrackerPage();
-  static void HandleTrackerInput(uint8_t knob_index, uint16_t value);
+  static void HandleTrackerInput(uint8_t knob_index, uint8_t value);
   static void HandleTrackerIncrement(int8_t increment);
 
   static void DisplayPageRPage();
-  static void HandlePageRInput(uint8_t knob_index, uint16_t value);
+  static void HandlePageRInput(uint8_t knob_index, uint8_t value);
   static void HandlePageRIncrement(int8_t increment);
 
   static void DisplayStepSequencerPage();
-  static void HandleStepSequencerInput(uint8_t knob_index, uint16_t value);
+  static void HandleStepSequencerInput(uint8_t knob_index, uint8_t value);
   static void HandleStepSequencerIncrement(int8_t increment);
   
   static void DisplayConfirmPage();
-  static void HandleConfirmInput(uint8_t knob_index, uint16_t value);
+  static void HandleConfirmInput(uint8_t knob_index, uint8_t value);
   static void HandleConfirmIncrement(int8_t increment);
   static void HandleConfirmClick();
 

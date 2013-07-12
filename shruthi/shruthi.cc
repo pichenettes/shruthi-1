@@ -113,7 +113,7 @@ void FillAudioBuffer() {
     DSPFilterBoardWrite();
   } else if (filter_board == FILTER_BOARD_PVK) {
     // Mirror unprocessed Cutoff/Resonance values for Shruthi-XP.
-    if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
+    if (engine.system_settings().programmer == PROGRAMMER_FCD) {
       uint8_t adjusted_cutoff = engine.voice().cutoff();
       if (adjusted_cutoff > 24) {
         adjusted_cutoff -= 24;
@@ -146,7 +146,7 @@ void FillAudioBuffer() {
     resonance = U8U8MulShift8(~resonance, 160) + 48;
   } if (filter_board == FILTER_BOARD_4PM) {
     // Mirror unprocessed Cutoff/Resonance values for Shruthi-XP.
-    if (engine.system_settings().expansion_cv_mode == CV_MODE_PROGRAMMER) {
+    if (engine.system_settings().programmer == PROGRAMMER_FCD) {
       cv_1 = resonance;
       cv_2 = engine.voice().cutoff();
     }

@@ -20,7 +20,7 @@
 #ifndef SHRUTHI_UI_H_
 #define SHRUTHI_UI_H_
 
-#include "avrlib/base.h"
+#include "avrlib/adc.h"
 #include "avrlib/devices/rotary_encoder.h"
 #include "avrlib/spi.h"
 #include "avrlib/time.h"
@@ -59,15 +59,17 @@ class Ui {
         queue_.AddEvent(CONTROL_ENCODER_CLICK, 0, 1);
       }
     }
-
-    // 40kHz / 32 -> LEDs IO
-    if ((sub_clock_ & 0x1f) == 1) {
+    
+    // Sub tasks at 40kHz / 32
+    uint8_t subtask = sub_clock_ & 0x1f;
+    if (subtask == 1) {
       WriteShiftRegister();
-    }
-
-    // 40kHz / 32 -> Debounce switches
-    if ((sub_clock_ & 0x1f) == 2) {
+    } else if (subtask == 2) {
       DebounceSwitches();
+    } else if (subtask == 3) {
+      ScanPotentiometers();
+    } else if (subtask == 4) {
+      TickSystemClock();
     }
   }
 
@@ -82,11 +84,14 @@ class Ui {
   static void StepProgressBar() {
     progress_bar_ = progress_bar_ == 0xff ? 1 : (progress_bar_ << 1) + 1;
   }
-
+  
+  static void LockPotentiometers();
+  
  private:
   static void WriteShiftRegister();
   static void DebounceSwitches();
   static void RefreshLeds();
+  static void ScanPotentiometers();
 
   static bool switch_inhibit_release_[SWITCH_LAST];
   static uint8_t switch_state_[SWITCH_LAST];
@@ -95,9 +100,13 @@ class Ui {
   static uint8_t progress_bar_;
   static uint8_t led_pwm_counter_;
   static uint8_t led_pattern_;
-  static uint8_t programmer_active_pot_;
+  static uint8_t pots_multiplexer_address_;
+  
+  static int16_t adc_values_[36];
+  static int8_t adc_thresholds_[36];
+  
   static EventQueue<> queue_;
-
+  static Adc adc_;
   static SpiMaster<IOEnableLine, MSB_FIRST, 4> io_;
   static SpiMaster<IOEnableLineAux, MSB_FIRST, 4> aux_io_;
   static RotaryEncoder<EncoderALine, EncoderBLine, EncoderClickLine> encoder_;
