@@ -264,7 +264,7 @@ void Editor::ShowEditCursor() {
 void Editor::RandomizeParameter(uint8_t subpage, uint8_t parameter_index) {
   const Parameter& parameter = parameter_manager.parameter(parameter_index);
   uint8_t value = parameter.RandomValue();
-  part.SetParameter(parameter.offset + subpage * 3, value, 0);
+  part.SetParameter(parameter.offset + subpage * 3, value, false);
 }
 
 /* static */
@@ -280,7 +280,7 @@ void Editor::RandomizePatch() {
       RandomizeParameter(slot, parameter);
     }
   }
-  part.TouchPatch(1);
+  part.Touch(true);
 }
 
 /* static */
@@ -432,9 +432,8 @@ void Editor::Refresh() {
 /* static */
 void Editor::RestoreEditBuffer() {
   Storage::Restore(part.mutable_patch());
-  part.TouchPatch(true);
+  part.Touch(true);
   Storage::Restore(part.mutable_sequencer_settings());
-  part.TouchSequence(true);
 }
 
 /* static */
@@ -539,12 +538,11 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
     if (action_ == ACTION_LOAD) {
       uint16_t n = edited_item_number();
       Storage::LoadPatch(n);
-      midi_dispatcher.ProgramChange(n);
-      part.TouchPatch(1);
+      midi_dispatcher.OnProgramChange(n);
+      part.Touch(true);
       // When we are not playing, load the sequence parameters.
       if (!part.running()) {
         Storage::LoadSequence(edited_item_number());
-        part.TouchSequence(true);
       }
     }
   }
@@ -659,7 +657,7 @@ void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
           cursor_ = new_size - 1;
         }
         last_knob_ = 1;
-        part.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, 0);
+        part.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, false);
       }
       break;
   }
@@ -673,7 +671,7 @@ void Editor::HandleStepSequencerInput(uint8_t knob_index, uint8_t value) {
     seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
         value >> 3);
   } else if (knob_index == 0) {
-    part.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, 0);
+    part.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, false);
     last_knob_ = 0;
   }
 }
@@ -980,7 +978,7 @@ void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
 void Editor::HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value) {
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
   last_external_input_ = ui_parameter_index;
-  part.SetScaledParameter(ui_parameter_index, value, 1);
+  part.SetScaledParameter(ui_parameter_index, value, true);
 }
 
 /* static */
@@ -1022,7 +1020,7 @@ void Editor::SetParameterValue(uint8_t id, uint8_t value) {
   } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
     subpage_ = value;
   } else {
-    part.SetParameter(id + subpage_ * 3, value, 1);
+    part.SetParameter(id + subpage_ * 3, value, true);
   }
 }
 

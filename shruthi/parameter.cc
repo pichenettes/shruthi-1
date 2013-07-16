@@ -205,7 +205,7 @@ void Parameter::PrintValue(uint8_t value, char* buffer, uint8_t width) const {
       break;
     case UNIT_TEMPO_WITH_EXTERNAL_CLOCK:
       if (value < 40) {
-        value = value - 35;
+        value = 0;
         text = STR_RES_EXTERN;
       } else if (value > 240) {
         value = ResourcesManager::Lookup<uint16_t, uint8_t>(
@@ -503,7 +503,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
   // 37
   { PRM_SEQ_TEMPO,
     UNIT_TEMPO_WITH_EXTERNAL_CLOCK,
-    35, 248,
+    39, 240,
     0,
     STR_RES_BPM, STR_RES_TEMPO }, 
 

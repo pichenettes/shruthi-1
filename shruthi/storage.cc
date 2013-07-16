@@ -277,7 +277,6 @@ void Storage::SysExAcceptBuffer() {
       success = AcceptData(
           part.mutable_sequencer_settings(),
           sysex_rx_buffer_);
-      part.TouchSequence(false);
       break;
     
     case 0x03:

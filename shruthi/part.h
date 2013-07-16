@@ -63,16 +63,11 @@ class Part : public midi::MidiDevice {
   static void SetPatternLength(uint8_t length);
 
   // Patch manipulation stuff.
-  static void SetParameter(
-      uint8_t struct_parameter_index,
-      uint8_t parameter_value,
-      uint8_t user_initiated);
-  static void SetScaledParameter(
-      uint8_t ui_parameter_index,
-      uint8_t value,
-      uint8_t user_initiated);
-  static inline uint8_t GetParameter(uint8_t parameter_index) {
-    return data_access_byte_[parameter_index + 1];
+  static void SetParameter(uint8_t offset, uint8_t value, bool user_initiated);
+  static void SetScaledParameter(uint8_t parameter_index, uint8_t value,
+      bool user_initiated);
+  static inline uint8_t GetParameter(uint8_t offset) {
+    return data_access_byte_[offset + 1];
   }
   static void set_modulation_source(uint8_t index, uint8_t value) {
     voice_.set_modulation_source(index, value);
@@ -90,8 +85,7 @@ class Part : public midi::MidiDevice {
   // loading a patch from the EEPROM)... so in this case we need to recompute
   // all the related variables. This is also a good occasion to dump by SysEx
   // the patch to polychained units.
-  static void TouchPatch(bool cascade);
-  static void TouchSequence(bool cascade) { }
+  static void Touch(bool cascade);
   static void TriggerLfos() {
     for (uint8_t i = 0; i < kNumLfos; ++i) {
       lfo_[i].Trigger();
@@ -123,9 +117,9 @@ class Part : public midi::MidiDevice {
 
   static const Voice& voice() { return voice_; }
   
-  static uint8_t dirty() {
-    uint8_t value = dirty_;
-    dirty_ = 0;
+  static inline bool dirty() {
+    bool value = dirty_;
+    dirty_ = false;
     return value;
   }
   
@@ -197,7 +191,7 @@ class Part : public midi::MidiDevice {
   static uint8_t nrpn_parameter_number_;
   static uint8_t nrpn_parameter_number_msb_;
   static uint8_t data_entry_msb_;
-  static uint8_t dirty_;
+  static bool dirty_;
   static uint8_t volume_;
   static uint8_t ignore_note_off_messages_;  // For hold pedal.
 

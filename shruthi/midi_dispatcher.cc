@@ -28,31 +28,33 @@ uint8_t MidiDispatcher::current_parameter_index_;
 uint8_t MidiDispatcher::data_entry_counter_;
 
 /* static */
-uint8_t MidiDispatcher::current_data_msb_ = 0xff;
-
-/* static */
 uint8_t MidiDispatcher::current_bank_ = 0;
 
 MidiDispatcher midi_dispatcher;
 
 /* static */
 void MidiDispatcher::Send(uint8_t status, uint8_t* data, uint8_t size) {
-  OutputBuffer::Overwrite(status);
+  OutputBufferLowPriority::Overwrite(status);
   if (size) {
-    OutputBuffer::Overwrite(*data++);
+    OutputBufferLowPriority::Overwrite(*data++);
     --size;
   }
   if (size) {
-    OutputBuffer::Overwrite(*data++);
+    OutputBufferLowPriority::Overwrite(*data++);
     --size;
   }
 }
 
 /* static */
+void MidiDispatcher::SendNow(uint8_t byte) {
+  OutputBufferHighPriority::Overwrite(byte);
+}
+
+/* static */
 void MidiDispatcher::Send3(uint8_t status, uint8_t a, uint8_t b) {
-  OutputBuffer::Overwrite(status);
-  OutputBuffer::Overwrite(a);
-  OutputBuffer::Overwrite(b);
+  OutputBufferLowPriority::Overwrite(status);
+  OutputBufferLowPriority::Overwrite(a);
+  OutputBufferLowPriority::Overwrite(b);
 }
 
 }  // namespace shruthi

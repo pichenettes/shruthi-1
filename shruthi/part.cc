@@ -52,7 +52,7 @@ uint8_t Part::data_entry_msb_;
 uint8_t Part::num_lfo_reset_steps_;
 uint8_t Part::lfo_reset_counter_;
 uint8_t Part::lfo_to_reset_;
-uint8_t Part::dirty_;
+bool Part::dirty_;
 uint8_t Part::ignore_note_off_messages_;
 uint8_t Part::volume_;
 
@@ -70,7 +70,7 @@ void Part::Init() {
   Reset();
   voice_.Init();
   nrpn_parameter_number_ = 255;
-  dirty_ = 0;
+  dirty_ = false;
 }
 
 static const prog_char init_patch[] PROGMEM = {
@@ -154,13 +154,13 @@ static const prog_char init_system_settings[] PROGMEM = {
 /* static */
 void Part::ResetPatch() {
   ResourcesManager::Load(init_patch, 0, &patch_);
-  TouchPatch(1);
+  Touch(true);
 }
 
 /* static */
-void Part::TouchPatch(bool cascade) {
+void Part::Touch(bool cascade) {
   UpdateModulationRates();
-  dirty_ = 1;
+  dirty_ = true;
   if (cascade) {
     if (system_settings_.midi_out_mode >= MIDI_OUT_2_1) {
       Storage::SysExDump(&patch_);
@@ -199,13 +199,13 @@ void Part::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     if (polychaining_allocator_.NoteOn(note) == 0) {
       voice_.Trigger(note, velocity, 0);
     } else {
-      midi_dispatcher.Send3(0x90 | channel, note, velocity);
+      midi_dispatcher.ForwardNoteOn(note, velocity);
     }
   } else {
     // If the note is above the split point, just forward it.
     if (system_settings_.midi_out_mode == MIDI_OUT_SPLIT &&
         note >= system_settings_.midi_split_point * 12) {
-      midi_dispatcher.Send3(0x90 | channel, note, velocity);
+      midi_dispatcher.ForwardNoteOn(note, velocity);
     } else {
       voice_.Trigger(note, velocity, 0);
     }
@@ -222,7 +222,7 @@ void Part::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
     if (polychaining_allocator_.NoteOff(note) == 0) {
       voice_.Release();
     } else { 
-      midi_dispatcher.Send3(0x80 | channel, note, 0);
+      midi_dispatcher.ForwardNoteOff(note);
     }
   } else {
     // If the note is above the split point, just forward it.
@@ -230,7 +230,7 @@ void Part::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
         note >= system_settings_.midi_split_point * 12) {
       midi_dispatcher.Send3(0x80 | channel, note, 0);
     } else {
-      voice_.Release();
+      midi_dispatcher.ForwardNoteOff(note);
     }
   }
 }
@@ -428,7 +428,7 @@ void Part::Stop() {
 /* static */
 void Part::SetName(uint8_t* name) {
   memcpy(patch_.name, name, kPatchNameSize);
-  dirty_ = 1;
+  dirty_ = true;
 }
 
 /* static */
@@ -441,57 +441,48 @@ void Part::SetSequenceStep(
   }
   sequencer_settings_.steps[step].set_raw(data_a, data_b);
   // controller_.TouchSequence();
-  dirty_ = 1;
+  dirty_ = true;
 }
 
 /* static */
 void Part::SetPatternRotation(uint8_t rotation) {
   sequencer_settings_.pattern_rotation = rotation;
   // controller_.TouchSequence();
-  dirty_ = 1;
+  dirty_ = true;
 }
 
 /* static */
 void Part::SetPatternLength(uint8_t length) {
   sequencer_settings_.pattern_size = length & 0xf;
   // controller_.TouchSequence();
-  dirty_ = 1;
+  dirty_ = true;
 }
 
 /* static */
 void Part::SetScaledParameter(
-    uint8_t ui_parameter_index,
+    uint8_t parameter_index,
     uint8_t value,
-    uint8_t user_initiated) {
-  dirty_ = 1;
-  /*const ParameterDefinition& parameter = (
-      ParameterDefinitions::parameter_definition(ui_parameter_index));
-  SetParameter(
-      parameter.id,
-      ParameterDefinitions::Scale(parameter, value),
-      user_initiated);*/
+    bool user_initiated) {
+  dirty_ = true;
+  const Parameter& parameter = parameter_manager.parameter(parameter_index);
+  SetParameter(parameter.offset, parameter.Scale(value), user_initiated);
 }
 
 /* static */
 void Part::SetParameter(
-    uint8_t struct_parameter_index,
-    uint8_t parameter_value,
-    uint8_t user_initiated) {
-  if (data_access_byte_[struct_parameter_index + 1] == parameter_value) {
+    uint8_t offset,
+    uint8_t value,
+    bool user_initiated) {
+  if (data_access_byte_[offset + 1] == value) {
     return;
   }
-  data_access_byte_[struct_parameter_index + 1] = parameter_value;
-  if (struct_parameter_index >= PRM_ENV_ATTACK_1 &&
-      struct_parameter_index <= PRM_LFO_RETRIGGER_2) {
+  data_access_byte_[offset + 1] = value;
+  if (offset >= PRM_ENV_ATTACK_1 && offset <= PRM_LFO_RETRIGGER_2) {
     UpdateModulationRates();
-  } else if (struct_parameter_index >= PRM_SEQ_MODE &&
-             struct_parameter_index < PRM_SYS_OCTAVE) {
-    // A copy of those parameters is stored by the note dispatcher/arpeggiator,
-    // so any parameter change must be forwarded to it.
+  } else if (offset >= PRM_SEQ_MODE && offset < PRM_SYS_OCTAVE) {
     // controller_.TouchSequence();
   }
-  midi_dispatcher.SendParameter(
-      struct_parameter_index, parameter_value, user_initiated);
+  midi_dispatcher.OnEdit(offset, value, user_initiated);
 }
 
 /* static */

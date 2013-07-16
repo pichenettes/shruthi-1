@@ -33,14 +33,27 @@ namespace shruthi {
 
 const uint8_t kDataEntryResendRate = 32;
 
-class MidiDispatcher : public midi::MidiDevice {
- public:
+
+struct LowPriorityBufferSpecs {
   enum {
     buffer_size = 128,
     data_size = 8,
   };
-  typedef avrlib::RingBuffer<MidiDispatcher> OutputBuffer;
   typedef avrlib::DataTypeForSize<data_size>::Type Value;
+};
+
+struct HighPriorityBufferSpecs {
+  enum {
+    buffer_size = 8,
+    data_size = 8,
+  };
+  typedef avrlib::DataTypeForSize<data_size>::Type Value;
+};
+
+class MidiDispatcher : public midi::MidiDevice {
+ public:
+  typedef avrlib::RingBuffer<LowPriorityBufferSpecs> OutputBufferLowPriority;
+  typedef avrlib::RingBuffer<HighPriorityBufferSpecs> OutputBufferHighPriority;
   MidiDispatcher() { }
 
   // ------ MIDI in handling ---------------------------------------------------
@@ -61,7 +74,7 @@ class MidiDispatcher : public midi::MidiDevice {
       uint8_t channel,
       uint8_t controller,
       uint8_t value) {
-    if (controller == midi::kBankLsb) {
+    if (controller == midi::kBankMsb) {
       current_bank_ = value;
     } else {
       display.set_status('\x05');
@@ -100,8 +113,7 @@ class MidiDispatcher : public midi::MidiDevice {
       editor.set_current_patch_number(n);
       Storage::LoadPatch(n);
       Storage::LoadSequence(n);
-      part.TouchPatch(false);
-      part.TouchSequence(false);
+      part.Touch(false);
     }
   }
   
@@ -120,7 +132,7 @@ class MidiDispatcher : public midi::MidiDevice {
     ProcessSysEx(0xf7);
     if (Storage::sysex_rx_state() == RECEPTION_OK) {
       display.set_status('+');
-      part.TouchPatch(false);
+      part.Touch(false);
       editor.Refresh();
     } else {
       display.set_status('#');
@@ -159,26 +171,74 @@ class MidiDispatcher : public midi::MidiDevice {
     // Report that some data has been received. The MIDI Out filter might
     // propagate it directly to the output if "Soft Thru" is enabled.
     if (mode() == MIDI_OUT_SOFT_THRU) {
-      OutputBuffer::Overwrite(byte);
+      OutputBufferLowPriority::Overwrite(byte);
     }
   }
   
+  static uint8_t readable_high_priority() {
+    return OutputBufferHighPriority::readable();
+  }
+  
+  static uint8_t readable_low_priority() {
+    return OutputBufferLowPriority::readable();
+  }
+
+  static uint8_t ImmediateReadHighPriority() {
+    return OutputBufferHighPriority::ImmediateRead();
+  }
+  
+  static uint8_t ImmediateReadLowPriority() {
+    return OutputBufferLowPriority::ImmediateRead();
+  }
+  
   // ------ MIDI out handling --------------------------------------------------
-  static inline void NoteKilled(uint8_t note) {
+  static inline void OnInternalNoteOff(uint8_t note) {
     if (mode() == MIDI_OUT_SEQUENCER) {
       Send3(0x90 | channel(), note, 0);
     }
   }
-  static inline void NoteTriggered(uint8_t note, uint8_t velocity) {
+  
+  static inline void OnInternalNoteOn(uint8_t note, uint8_t velocity) {
     if (mode() == MIDI_OUT_SEQUENCER) {
       Send3(0x90 | channel(), note, velocity);
     }
   }
+  
+  static inline void ForwardNoteOn(uint8_t note, uint8_t velocity) {
+    Send3(0x90 | channel(), note, velocity);
+  }
+  
+  static inline void ForwardNoteOff(uint8_t note) {
+    Send3(0x90 | channel(), note, 0);
+  }
 
-  static inline void SendParameter(
-      uint8_t index,
-      uint8_t value,
-      uint8_t user_initiated) {
+  static inline void OnStart() {
+    if (mode() == MIDI_OUT_SEQUENCER) {
+      SendNow(0xfa);
+    }
+  }
+
+  static inline void OnStop() {
+    if (mode() == MIDI_OUT_SEQUENCER) {
+      SendNow(0xfc);
+    }
+  }
+  
+  static inline void OnClock() {
+    if (mode() == MIDI_OUT_SEQUENCER) {
+      SendNow(0xf8);
+    }
+  }
+  
+  static inline void OnProgramChange(uint16_t n) {
+    uint8_t channel = (part.system_settings().midi_channel - 1) & 0xf;
+    if (mode() == MIDI_OUT_CTRL || mode() == MIDI_OUT_FULL) {
+      Send3(0xb0 | channel, midi::kBankMsb, n >> 7);
+      Send3(0xc0 | channel, n & 0x7f, 0xfe /* Dummy active sensing */);
+    }
+  }
+  
+  static inline void OnEdit(uint8_t index, uint8_t value, bool user_initiated) {
     // Do not forward changes of system settings!
     if (index >= sizeof(Patch)) {
       return;
@@ -189,44 +249,24 @@ class MidiDispatcher : public midi::MidiDevice {
     if (mode() == MIDI_OUT_CTRL && !user_initiated) {
       return;
     }
+    
+    // TODO: whenever possible, transmit as CC.
     ++data_entry_counter_;
-    if (current_parameter_index_ != index || \
-        data_entry_counter_ >= 32) {
+    if (current_parameter_index_ != index || data_entry_counter_ >= 16) {
       Send3(0xb0 | channel(), midi::kNrpnLsb, index);
       current_parameter_index_ = index;
       data_entry_counter_ = 0;
     }
     uint8_t msb = (value & 0x80) ? 1 : 0;
-    if (current_data_msb_ != msb) {
-      Send3(0xb0 | channel(), midi::kDataEntryMsb, msb);
-      current_data_msb_ = msb;
-    }
+    Send3(0xb0 | channel(), midi::kDataEntryMsb, msb);
     Send3(0xb0 | channel(), midi::kDataEntryLsb, value & 0x7f);
   }
-
-  static inline void ProgramChange(uint16_t n) {
-    uint8_t channel = (part.system_settings().midi_channel - 1) & 0xf;
-    if (mode() == MIDI_OUT_CTRL || mode() == MIDI_OUT_FULL) {
-      Send3(0xb0 | channel, 0x20, n >> 7);
-      // We send a program change + an active sensing message that does
-      // strictly nothing. This way, we can use the already unrolled
-      // Send3 function.
-      Send3(0xc0 | channel, n & 0x7f, 0xfe);
-    }
-  }
-
-  static uint8_t readable() {
-    return OutputBuffer::readable();
-  }
-
-  static uint8_t ImmediateRead() {
-    return OutputBuffer::ImmediateRead();
-  }
   
-  static void Send3(uint8_t status, uint8_t a, uint8_t b);
+  static void Send3(uint8_t a, uint8_t b, uint8_t c);
   
  private:
   static void Send(uint8_t status, uint8_t* data, uint8_t size);
+  static void SendNow(uint8_t byte);
   
   static void ProcessSysEx(uint8_t byte) {
     if (mode() >= MIDI_OUT_SPLIT) {
@@ -244,7 +284,6 @@ class MidiDispatcher : public midi::MidiDevice {
   
   static uint8_t data_entry_counter_;
   static uint8_t current_parameter_index_;
-  static uint8_t current_data_msb_;
   static uint8_t current_bank_;
   
   DISALLOW_COPY_AND_ASSIGN(MidiDispatcher);

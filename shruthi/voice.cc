@@ -76,12 +76,12 @@ void Voice::Init() {
   modulation_sources_[MOD_SRC_VALUE_16] = 16;
   modulation_sources_[MOD_SRC_VALUE_32] = 32;
   
-  
   // Fill the "user" wavetable with data from an existing wavetable.
   ResourcesManager::Load(
       wav_res_waves,
       user_wavetable,
       kUserWavetableSize);
+  Release();
 }
 
 /* static */
