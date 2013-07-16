@@ -209,7 +209,7 @@ void Ui::DebounceSwitches() {
     } else if (switch_state_[i] == 0x7f) {
       if (!switch_inhibit_release_[i]) {
         if (switch_state_[SWITCH_SHIFT] == 0x00) {
-          queue_.AddEvent(CONTROL_SWITCH, i | 0x80, 0);
+          queue_.AddEvent(CONTROL_SWITCH, i, 0xff);
           switch_inhibit_release_[SWITCH_SHIFT] = true;
         } else {
           queue_.AddEvent(CONTROL_SWITCH, i, 0);

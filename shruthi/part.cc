@@ -187,6 +187,10 @@ void Part::ResetSystemSettings() {
 
 /* static */
 void Part::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
+  if (!velocity) {
+    NoteOff(channel, note, 0);
+    return;
+  }
   if (system_settings_.midi_out_mode >= MIDI_OUT_1_0) {
     polychaining_allocator_.set_size(
         system_settings_.midi_out_mode - MIDI_OUT_1_0 + 1);

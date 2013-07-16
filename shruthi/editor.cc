@@ -316,11 +316,10 @@ void Editor::Confirm(ConfirmPageSettings confirm_page_settings) {
 /* static */
 void Editor::HandleSwitchEvent(const Event& event) {
   uint8_t id = event.control_id;
-  if (id & 0x80) {
+  if (event.value == 0xff) {
     if (current_page_ != PAGE_LOAD_SAVE) {
       return;
     }
-    id &= 0x7f;
     switch (id) {
       case SWITCH_1:
         display.set_status('x');
@@ -353,7 +352,7 @@ void Editor::HandleSwitchEvent(const Event& event) {
   } else if (event.value >= 6) {
     if (id == SWITCH_1) {
       test_note_playing_ ^= 1;
-       part.NoteOn(0, 60, test_note_playing_ * 100);
+      part.NoteOn(0, 60, test_note_playing_ * 100);
     }
   } else if (id == SWITCH_MODE) {
     editor_mode_ = (editor_mode_ != EDITOR_MODE_PATCH)
