@@ -79,7 +79,7 @@ chn
 midi out
 pause
 snap
-cv.mode
+programmer
 oscillator 1
 oscillator 2
 mixer
@@ -101,7 +101,6 @@ step sequencer
 keyboard
 midi
 system
-triggers
 performance
 param. 1
 param. 2
@@ -247,8 +246,6 @@ gat
 aud
 op1
 op2
-tr1
-tr2
 =4
 =8
 =16
@@ -304,7 +301,7 @@ compare
 ----
 
 v
-mutable    v0.97
+mutable    v1.00
 instruments \x06\x07-1
 
 extern
@@ -451,8 +448,8 @@ pvk
 4pm
 dly
 
-4cv in
-prgm
+   off
+fcd
 xt
 
 equal

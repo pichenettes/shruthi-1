@@ -17,8 +17,8 @@
 //
 // Parameter definitions.
 
-#ifndef SHRUTHI_PARAMETER_DEFINITIONS_H_
-#define SHRUTHI_PARAMETER_DEFINITIONS_H_
+#ifndef SHRUTHI_PARAMETER_H_
+#define SHRUTHI_PARAMETER_H_
 
 #include "avrlib/base.h"
 #include "shruthi/resources.h"
@@ -61,36 +61,45 @@ enum Unit {
   UNIT_LAST
 };
 
-typedef uint8_t ParameterUnit;
-
-struct ParameterDefinition {
-  uint8_t id;
+struct Parameter {
+  uint8_t offset;
+  uint8_t unit;
   uint8_t min_value;
   uint8_t max_value;
-  ParameterUnit unit;
+  uint8_t midi_cc;
   uint8_t short_name;
   uint8_t long_name;
+  
+  uint8_t Scale(uint8_t value_7bits) const;
+  uint8_t Clamp(uint8_t value) const;
+  uint8_t Increment(uint8_t value, int8_t increment) const;
+  uint8_t RandomValue() const;
+  
+  uint8_t is_snapped(uint8_t current_value, uint8_t value_7bits) const;
+  
+  void PrintValue(uint8_t value, char* buffer, uint8_t width) const;
 };
 
-class ParameterDefinitions {
+typedef Parameter PROGMEM prog_Parameter;
+const uint8_t kNumParameters = 86;
+
+class ParameterManager {
  public:
-  ParameterDefinitions() { }
+  ParameterManager() { }
   static void Init();
-  static const ParameterDefinition& parameter_definition(uint8_t index);
-  static uint8_t Scale(const ParameterDefinition& parameter, uint8_t value);
-  static uint8_t Increment(
-      const ParameterDefinition& parameter,
-      uint8_t value,
-      int8_t increment);
-  static uint8_t MemoryOffsetToId(uint8_t i);
- private:
-  static ParameterDefinition parameter_definition_;
-  static uint8_t parameter_definition_index_;
-  static uint8_t offset_to_id_map_[128];
   
-  DISALLOW_COPY_AND_ASSIGN(ParameterDefinitions);
+  static const Parameter& parameter(uint8_t index);
+
+ private:
+  static Parameter cached_definition_;
+  static Parameter dummy_parameter_;
+  static uint8_t cached_index_;
+  
+  DISALLOW_COPY_AND_ASSIGN(ParameterManager);
 };
+
+extern ParameterManager parameter_manager;
 
 }  // namespace shruthi
 
-#endif // SHRUTHI_PARAMETER_DEFINITIONS_H_
+#endif // SHRUTHI_PARAMETER_H_

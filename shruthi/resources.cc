@@ -84,7 +84,7 @@ static const prog_char str_res_chn[] PROGMEM = "chn";
 static const prog_char str_res_midi_out[] PROGMEM = "midi out";
 static const prog_char str_res_pause[] PROGMEM = "pause";
 static const prog_char str_res_snap[] PROGMEM = "snap";
-static const prog_char str_res_cv_mode[] PROGMEM = "cv.mode";
+static const prog_char str_res_programmer[] PROGMEM = "programmer";
 static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
 static const prog_char str_res_oscillator_2[] PROGMEM = "oscillator 2";
 static const prog_char str_res_mixer[] PROGMEM = "mixer";
@@ -106,7 +106,6 @@ static const prog_char str_res_step_sequencer[] PROGMEM = "step sequencer";
 static const prog_char str_res_keyboard[] PROGMEM = "keyboard";
 static const prog_char str_res_midi[] PROGMEM = "midi";
 static const prog_char str_res_system[] PROGMEM = "system";
-static const prog_char str_res_triggers[] PROGMEM = "triggers";
 static const prog_char str_res_performance[] PROGMEM = "performance";
 static const prog_char str_res_param__1[] PROGMEM = "param. 1";
 static const prog_char str_res_param__2[] PROGMEM = "param. 2";
@@ -234,8 +233,6 @@ static const prog_char str_res_gat[] PROGMEM = "gat";
 static const prog_char str_res_aud[] PROGMEM = "aud";
 static const prog_char str_res_op1[] PROGMEM = "op1";
 static const prog_char str_res_op2[] PROGMEM = "op2";
-static const prog_char str_res_tr1[] PROGMEM = "tr1";
-static const prog_char str_res_tr2[] PROGMEM = "tr2";
 static const prog_char str_res_e4[] PROGMEM = "=4";
 static const prog_char str_res_e8[] PROGMEM = "=8";
 static const prog_char str_res_e16[] PROGMEM = "=16";
@@ -280,7 +277,7 @@ static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v0_97[] PROGMEM = "mutable    v0.97";
+static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_x2_ext[] PROGMEM = "x2 ext";
@@ -353,7 +350,9 @@ static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
 static const prog_char str_res___[] PROGMEM = "?";
 static const prog_char str_res_on[] PROGMEM = "on";
+static const prog_char str_res_tr1[] PROGMEM = "tr1";
 static const prog_char str_res_pl1[] PROGMEM = "pl1";
+static const prog_char str_res_tr2[] PROGMEM = "tr2";
 static const prog_char str_res_pl2[] PROGMEM = "pl2";
 static const prog_char str_res_click[] PROGMEM = "click";
 static const prog_char str_res_glitch[] PROGMEM = "glitch";
@@ -399,8 +398,7 @@ static const prog_char str_res_dsp[] PROGMEM = "dsp";
 static const prog_char str_res_pvk[] PROGMEM = "pvk";
 static const prog_char str_res_4pm[] PROGMEM = "4pm";
 static const prog_char str_res_dly[] PROGMEM = "dly";
-static const prog_char str_res_4cv_in[] PROGMEM = "4cv in";
-static const prog_char str_res_prgm[] PROGMEM = "prgm";
+static const prog_char str_res_fcd[] PROGMEM = "fcd";
 static const prog_char str_res_xt[] PROGMEM = "xt";
 static const prog_char str_res_equal[] PROGMEM = "equal";
 static const prog_char str_res_just[] PROGMEM = "just";
@@ -497,7 +495,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_midi_out,
   str_res_pause,
   str_res_snap,
-  str_res_cv_mode,
+  str_res_programmer,
   str_res_oscillator_1,
   str_res_oscillator_2,
   str_res_mixer,
@@ -519,7 +517,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_keyboard,
   str_res_midi,
   str_res_system,
-  str_res_triggers,
   str_res_performance,
   str_res_param__1,
   str_res_param__2,
@@ -658,8 +655,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_aud,
   str_res_op1,
   str_res_op2,
-  str_res_tr1,
-  str_res_tr2,
   str_res_e4,
   str_res_e8,
   str_res_e16,
@@ -712,7 +707,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_compare,
   str_res_,
   str_res_v,
-  str_res_mutable____v0_97,
+  str_res_mutable____v1_00,
   str_res_instruments_671,
   str_res_extern,
   str_res_x2_ext,
@@ -846,8 +841,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_pvk,
   str_res_4pm,
   str_res_dly,
-  str_res_4cv_in,
-  str_res_prgm,
+  str_res___off,
+  str_res_fcd,
   str_res_xt,
   str_res_equal,
   str_res_just,

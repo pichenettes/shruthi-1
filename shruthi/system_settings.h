@@ -95,7 +95,7 @@ enum SystemParameter {
   
   PRM_SYS_DISPLAY_DELAY,
   PRM_SYS_EXPANSION_FILTER_BOARD,
-  PRM_SYS_programmer,
+  PRM_SYS_PROGRAMMER,
   PRM_SYS_DISPLAY_SNAP
 };
 

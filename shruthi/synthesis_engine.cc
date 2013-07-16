@@ -25,7 +25,7 @@
 #include "shruthi/audio_out.h"
 #include "shruthi/midi_dispatcher.h"
 #include "shruthi/oscillator.h"
-#include "shruthi/parameter_definitions.h"
+#include "shruthi/parameter.h"
 #include "shruthi/storage.h"
 #include "shruthi/sub_oscillator.h"
 #include "shruthi/transient_generator.h"
@@ -260,7 +260,7 @@ void SynthesisEngine::NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
 /* static */
 void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
                                     uint8_t value) {
-  uint8_t editing_controller = 0;
+  /*uint8_t editing_controller = 0;
   if (controller >= midi::kAssignableCcA &&
       controller <= midi::kAssignableCcD) {
     set_modulation_source(MOD_SRC_CC_A + controller -
@@ -370,7 +370,7 @@ void SynthesisEngine::ControlChange(uint8_t channel, uint8_t controller,
   }
   if (editing_controller) {
     SetScaledParameter(controller, value, 0);
-  }
+  }*/
 }
 
 /* static */
@@ -491,12 +491,12 @@ void SynthesisEngine::SetScaledParameter(
     uint8_t value,
     uint8_t user_initiated) {
   dirty_ = 1;
-  const ParameterDefinition& parameter = (
+  /*const ParameterDefinition& parameter = (
       ParameterDefinitions::parameter_definition(ui_parameter_index));
   SetParameter(
       parameter.id,
       ParameterDefinitions::Scale(parameter, value),
-      user_initiated);
+      user_initiated);*/
 }
 
 /* static */

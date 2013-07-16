@@ -25,7 +25,7 @@
 #include "avrlib/deprecated/devices/switch_array.h"
 #include "shruthi/display.h"
 #include "shruthi/midi_dispatcher.h"
-#include "shruthi/parameter_definitions.h"
+#include "shruthi/parameter.h"
 #include "shruthi/storage.h"
 #include "shruthi/synthesis_engine.h"
 #include "shruthi/ui.h"
@@ -40,45 +40,6 @@ namespace shruthi {
 
 /* extern */
 Editor editor;
-
-static const prog_uint16_t units_definitions[UNIT_LAST]
-    PROGMEM = {
-  0,               // UNIT_RAW_UINT8
-  0,               // UNIT_UINT8
-  0,               // UNIT_INT8
-  STR_RES_OFF,     // UNIT_BOOLEAN
-  STR_RES_NONE,    // UNIT_WAVEFORM
-  STR_RES_SQ1,     // UNIT_SUB_OSC_WAVEFORM
-  STR_RES_SUM,     // UNIT_OPERATOR
-  STR_RES_TRI,     // UNIT_LFO_WAVEFORM
-  0,               // UNIT_LFO_RATE
-  0,               // UNIT_INDEX
-  STR_RES_LFO_1,   // UNIT_MODULATION_SOURCE
-  STR_RES_CUTOFF,  // UNIT_MODULATION_DESTINATION
-  STR_RES_3,       // UNIT_ARPEGGIO_DIRECTION
-  STR_RES_EQUAL,   // UNIT_RAGA
-  0,               // UNIT_TEMPO_WITH_EXTERNAL_CLOCK
-  STR_RES__OFF,    // UNIT_MIDI_MODE
-  STR_RES_STP,     // UNIT_SEQUENCER_MODE
-  STR_RES_T,       // UNIT_SEQUENCER_WARP
-  STR_RES_SWING,   // UNIT_GROOVE_TEMPLATE
-  0,               // UNIT_ARPEGGIO_PATTERN
-  STR_RES_FREE,    // UNIT_LFO_RETRIGGER_MODE
-  0,               // UNIT_SPLIT_POINT
-  STR_RES__LPF,    // UNIT_FILTER_BOARD
-  STR_RES_4CV_IN,  // UNIT_CV_MODE
-  STR_RES_LPF,     // UNIT_FILTER_1_MODE
-  STR_RES_SLP,     // UNIT_FILTER_2_MODE
-  STR_RES___OFF,   // UNIT_CV_OPERATOR
-  STR_RES_DISTRT,  // UNIT_FX_PROGRAM
-  STR_RES_LGF,     // UNIT_FILTER_FX_MODE
-  STR_RES_LP4,     // UNIT_FILTER_4P_MODE
-  STR_RES_LIQUID,   // UNIT_FILTER_4P_FLAVOUR
-};  // UNIT_LAST
-
-static const prog_char arp_pattern_prefix[4] PROGMEM = {
-  0x03, 0x04, 0x05, '?'  // Up, Down, UpDown, Random
-};
 
 /* static */
 const UiHandler Editor::ui_handler_[] = {
@@ -221,14 +182,13 @@ uint16_t Editor::current_sequence_number_ = 0;
 
 uint8_t Editor::test_note_playing_ = 0;
 ConfirmPageSettings Editor::confirm_page_settings_;
-uint8_t Editor::locked_value_[kNumEditingPots];
-uint8_t Editor::locked_[kNumEditingPots];
+bool Editor::snapped_[36];
 bool Editor::empty_patch_;
 /* </static> */
 
 /* static */
 void Editor::Init() {
-  ParameterDefinitions::Init();
+  parameter_manager.Init();
   
   line_buffer_[kLcdWidth] = '\0';
   ConfigureFilterMenu();
@@ -262,30 +222,7 @@ void Editor::PageChange() {
   last_visited_group_[editor_mode_] = page_definition_[current_page_].group;
   
   if (page_definition_[current_page_].ui_type == PARAMETER_EDITOR) {
-    if (engine.system_settings().display_snap) {
-      for (uint8_t i = 0; i < kNumEditingPots; ++i) {
-        locked_[i] = 1;
-        uint8_t index = KnobIndexToParameterId(i);
-        const ParameterDefinition& parameter = (
-            ParameterDefinitions::parameter_definition(index));
-        if (parameter.unit == UNIT_INT8) {
-          int16_t value = GetParameterValue(parameter.id);
-          value -= static_cast<int8_t>(parameter.min_value);
-          value <<= 8;
-          value /= (static_cast<int8_t>(parameter.max_value) - 
-                    static_cast<int8_t>(parameter.min_value));
-          locked_value_[i] = value >> 1;
-        } else {
-          uint16_t value = GetParameterValue(parameter.id);
-          value -= parameter.min_value;
-          value <<= 8;
-          value /= (parameter.max_value - parameter.min_value);
-          locked_value_[i] = value >> 1;
-        }
-      }
-    } else {
-      memset(locked_, 0, kNumEditingPots);
-    }
+    memset(snapped_, false, sizeof(snapped_));
   }
   display.set_cursor_position(kLcdNoCursor);
 }
@@ -326,15 +263,9 @@ void Editor::ShowEditCursor() {
 
 /* static */
 void Editor::RandomizeParameter(uint8_t subpage, uint8_t parameter_index) {
-  const ParameterDefinition& parameter = (
-      ParameterDefinitions::parameter_definition(parameter_index));
-  uint8_t range = parameter.max_value - parameter.min_value + 1;
-  uint8_t value = Random::GetByte();
-  while (value >= range) {
-    value -= range;
-  }
-  value += parameter.min_value;
-  engine.SetParameter(parameter.id + subpage * 3, value, 0);
+  const Parameter& parameter = parameter_manager.parameter(parameter_index);
+  uint8_t value = parameter.RandomValue();
+  engine.SetParameter(parameter.offset + subpage * 3, value, 0);
 }
 
 /* static */
@@ -907,8 +838,7 @@ void Editor::DisplayEditOverviewPage() {
   }
   for (uint8_t i = 0; i < kNumEditingPots; ++i) {
     uint8_t index = KnobIndexToParameterId(i);
-    const ParameterDefinition& parameter = (
-        ParameterDefinitions::parameter_definition(index));
+    const Parameter& parameter = parameter_manager.parameter(index);
     uint8_t caption_position = i * kColumnWidth;
     uint8_t text_position = i * kColumnWidth + kLcdWidth + 1;
     ResourcesManager::LoadStringResource(
@@ -918,10 +848,8 @@ void Editor::DisplayEditOverviewPage() {
     line_buffer_[caption_position + kColumnWidth - 1] = '\0';
     line_buffer_[text_position + kColumnWidth - 1] = '\0';
     AlignRight(line_buffer_ + caption_position, kColumnWidth);
-    PrettyPrintParameterValue(
-        parameter,
-        line_buffer_ + text_position,
-        kColumnWidth - 1);
+    uint8_t value = GetParameterValue(parameter.offset);
+    parameter.PrintValue(value, line_buffer_ + text_position, kColumnWidth - 1);
     AlignRight(line_buffer_ + text_position, kColumnWidth);
   }
 
@@ -955,20 +883,14 @@ void Editor::DisplayEditDetailsPage() {
   // mod src>dst
   // amount        63
   if (current_page_ == PAGE_MOD_MATRIX) {
-    const ParameterDefinition& current_source = (
-        ParameterDefinitions::parameter_definition(
-            page_definition_[PAGE_MOD_MATRIX].first_parameter_index + 1));
-    PrettyPrintParameterValue(
-        current_source,
-        line_buffer_ + 4,
-        kColumnWidth - 1);
-    const ParameterDefinition& current_destination = (
-        ParameterDefinitions::parameter_definition(
-          page_definition_[PAGE_MOD_MATRIX].first_parameter_index + 2));
-    PrettyPrintParameterValue(
-        current_destination,
-        line_buffer_ + kColumnWidth + 4,
-        kColumnWidth);
+    const Parameter& current_source = parameter_manager.parameter(
+            page_definition_[PAGE_MOD_MATRIX].first_parameter_index + 1);
+    uint8_t value = GetParameterValue(current_source.offset);
+    current_source.PrintValue(value, line_buffer_ + 4, kColumnWidth - 1);
+    const Parameter& current_destination = parameter_manager.parameter(
+          page_definition_[PAGE_MOD_MATRIX].first_parameter_index + 2);
+    value = GetParameterValue(current_destination.offset);
+    current_destination.PrintValue(value, line_buffer_ + kColumnWidth + 4, kColumnWidth);
     line_buffer_[0] = 'm';
     line_buffer_[1] = 'o';
     line_buffer_[2] = 'd';
@@ -981,8 +903,7 @@ void Editor::DisplayEditDetailsPage() {
   if (last_external_input_ != 0xff) {
     index = last_external_input_;
   }
-  const ParameterDefinition& parameter = (
-      ParameterDefinitions::parameter_definition(index));
+  const Parameter& parameter = parameter_manager.parameter(index);
   const PageDefinition& page = page_definition_[current_page_];
 
   if (current_page_ != PAGE_MOD_MATRIX && last_external_input_ == 0xff) {
@@ -1004,11 +925,9 @@ void Editor::DisplayEditDetailsPage() {
       line_buffer_,
       kCaptionWidth);
   AlignLeft(line_buffer_, kCaptionWidth);
-
-  PrettyPrintParameterValue(
-      parameter,
-      line_buffer_ + kCaptionWidth,
-      kValueWidth);
+  
+  uint8_t value = GetParameterValue(parameter.offset);
+  parameter.PrintValue(value, line_buffer_ + kCaptionWidth, kValueWidth);
   AlignRight(line_buffer_ + kCaptionWidth, kValueWidth);
   display.Print(1, line_buffer_);
 }
@@ -1041,26 +960,25 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
 void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
   // In "snap" mode, the knob is locked until we reached the value the
   // parameter is supposed to have.
-  if (locked_[knob_index]) {
-    int8_t delta = value - locked_value_[knob_index];
-    if (delta < -4 || delta > 4) {
-      return;
-    }
-    locked_[knob_index] = 0;
-  }
-
-  display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
   uint8_t index = KnobIndexToParameterId(knob_index);
   if (index == 0xff) {
     return;
   }
-  const ParameterDefinition& parameter = (
-      ParameterDefinitions::parameter_definition(index));
-  SetParameterValue(
-      parameter.id,
-      ParameterDefinitions::Scale(parameter, value));
+  const Parameter& parameter = parameter_manager.parameter(index);
+  
+  if (engine.system_settings().display_snap) {
+    if (!snapped_[knob_index]) {
+      uint8_t current_value = GetParameterValue(parameter.offset);
+      if (parameter.is_snapped(current_value, value)) {
+        snapped_[knob_index] = true;
+      } else {
+        return;
+      }
+    }
+  }
+  display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
+  SetParameterValue(parameter.offset, parameter.Scale(value));
   cursor_ = knob_index;
-
   last_external_input_ = 0xff;
 }
 
@@ -1092,16 +1010,11 @@ void Editor::HandleEditIncrement(int8_t increment) {
     PageChange();
   } else {
     uint8_t index = KnobIndexToParameterId(cursor_);
-    locked_[cursor_] = 0;
-    const ParameterDefinition& parameter = (
-        ParameterDefinitions::parameter_definition(index));
-    uint8_t old_value = GetParameterValue(parameter.id);
-    uint8_t new_value = ParameterDefinitions::Increment(
-        parameter,
-        old_value,
-        increment);
+    const Parameter& parameter = parameter_manager.parameter(index);
+    uint8_t old_value = GetParameterValue(parameter.offset);
+    uint8_t new_value = parameter.Increment(old_value, increment);
     if (new_value != old_value) {
-      SetParameterValue(parameter.id, new_value);
+      SetParameterValue(parameter.offset, new_value);
     }
   }
 }
@@ -1144,84 +1057,6 @@ void Editor::DisplaySplashScreen(ResourceId first_line) {
         kLcdWidth);
     AlignLeft(line_buffer_, kLcdWidth);
     display.Print(i, line_buffer_);
-  }
-}
-
-/* static */
-void Editor::PrettyPrintParameterValue(const ParameterDefinition& parameter,
-                                       char* buffer, uint8_t width) {
-  int16_t value = GetParameterValue(parameter.id);
-  ResourceId text = ResourcesManager::Lookup<uint16_t, uint8_t>(
-      units_definitions,
-      parameter.unit);
-  char prefix = '\0';
-  switch (parameter.unit) {
-    case UNIT_INT8:
-      value = int16_t(int8_t(value));
-      break;
-    case UNIT_BOOLEAN:
-      if (value > 0) {
-        value = 1;
-      }
-      break;
-    case UNIT_INDEX:
-      value++;
-      break;
-    case UNIT_MODULATION_SOURCE:
-      if (width <= 4) {
-        text = STR_RES_LF1;
-      }
-      break;
-    case UNIT_MODULATION_DESTINATION:
-      if (width <= 4) {
-        text = STR_RES_CUT;
-      }
-      break;
-    case UNIT_LFO_RATE:
-      if (value >= 16) {
-        value = value - 16;
-      } else {
-        ++value;
-        prefix = 'x';
-      }
-      break;
-    case UNIT_LFO_WAVEFORM:
-      if (value >= LFO_WAVEFORM_WAVE_1) {
-        text = NULL;
-        value = value - LFO_WAVEFORM_WAVE_1 + 1;
-        prefix = '\x05';
-      }
-      break;
-    case UNIT_TEMPO_WITH_EXTERNAL_CLOCK:
-      if (value < 40) {
-        value = value - 35;
-        text = STR_RES_EXTERN;
-      } else if (value > 240) {
-        value = ResourcesManager::Lookup<uint16_t, uint8_t>(
-            lut_res_turbo_tempi, value - 240 - 1);
-      }
-      break;
-    case UNIT_ARPEGGIO_PATTERN:
-      if (value == kNumArpeggiatorPatterns) {
-        value = 0;
-        text = STR_RES_SEQUENCER;
-      } else {
-        ++value;
-      }
-      break;
-    case UNIT_SPLIT_POINT:
-      --value;
-      prefix = 'C';
-      break;
-  }
-  if (prefix) {
-    *buffer++ = prefix;
-    --width;
-  }
-  if (text) {
-    ResourcesManager::LoadStringResource(text + value, buffer, width);
-  } else {
-    UnsafeItoa<int16_t>(value, width, buffer);
   }
 }
 

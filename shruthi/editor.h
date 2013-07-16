@@ -229,10 +229,6 @@ class Editor {
   // upcoming multimode filters.
   static void ConfigureFilterMenu();
    
-  // This is called whenever we move to another page.
-  static void PrettyPrintParameterValue(const ParameterDefinition& parameter,
-                                        char* buffer, uint8_t width);
-
   // A bunch of hacks for special values/pages.
   static void SetParameterValue(uint8_t id, uint8_t value);
   static uint8_t GetParameterValue(uint8_t id);
@@ -314,10 +310,7 @@ class Editor {
   static uint8_t test_note_playing_;
   static bool empty_patch_;
   
-  // Snap mode logic. Stores for each pot the 10-bit ADC readout that
-  // corresponds to the position the knob needs to reach to unlock the pot.
-  static uint8_t locked_value_[kNumEditingPots];
-  static uint8_t locked_[kNumEditingPots];
+  static bool snapped_[36];
 
   DISALLOW_COPY_AND_ASSIGN(Editor);
 };
