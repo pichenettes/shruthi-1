@@ -12,158 +12,29 @@
 // GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-// -----------------------------------------------------------------------------
-//
-// Main synthesis engine. Everything is in static methods because this allows
-// the compiler to compute in advance the address of all objects, and use direct
-// addressing like:
-// lds r18, 0x04e4
-//
-// instead of ugly indirect addressing like:
-// subi r28, 0xf1
-// sbci r29, 0xfD
-// ld r18, Y
-// ldd  r19, Y+1  ; 0x01
-//
-// This transformation from a class that would be used as a singleton anyway,
-// to a "class" with only static methods/member variables yielded faster, leaner
-// code in many places and has since been widely adopted in the code.
-//
-// Note that a polyphonic synth would need several voices object - in this case
-// this transformation should not be applied to the Voice class. Since, for now
-// only the monophonic mode is supported, Voice is also "static'ified".
 
-#ifndef SHRUTHI_SYNTHESIS_ENGINE_H_
-#define SHRUTHI_SYNTHESIS_ENGINE_H_
+#ifndef SHRUTHI_PART_H_
+#define SHRUTHI_PART_H_
 
 #include "shruthi/shruthi.h"
 
 #include "midi/midi.h"
 #include "shruthi/envelope.h"
 #include "shruthi/lfo.h"
+#include "shruthi/part.h"
 #include "shruthi/patch.h"
 #include "shruthi/sequencer_settings.h"
 #include "shruthi/system_settings.h"
+#include "shruthi/voice.h"
 #include "shruthi/voice_allocator.h"
-#include "shruthi/voice_controller.h"
 
 namespace shruthi {
 
-// Used for MIDI -> oscillator increment conversion.
-static const int16_t kLowestNote = 0 * 128;
-static const int16_t kHighestNote = 128 * 128;
-static const int16_t kOctave = 12 * 128;
-static const int16_t kPitchTableStart = 116 * 128;
-
-static const uint8_t kNumLfos = 2;
-static const uint8_t kNumEnvelopes = 2;
-static const uint8_t kNumOscillators = 2;
-
-class Voice {
- public:
-  Voice() { }
-  static void Init();
-
-  // Called whenever a new note is played, manually or through the arpeggiator.
-  static void Trigger(uint8_t note, uint8_t velocity, uint8_t legato);
-  static void TriggerSecondNote(uint8_t note);
-
-  // Move this voice to the release stage.
-  static void Release();
-
-  // Move this voice to the release stage.
-  static void Kill() { TriggerEnvelope(DEAD); }
-
-  static void ProcessBlock();
-
-  // Called whenever a write to the CV analog outputs has to be made.
-  static inline uint8_t cutoff()  {
-    return modulation_destinations_[MOD_DST_FILTER_CUTOFF];
-  }
-  static inline uint8_t vca()  {
-    return modulation_destinations_[MOD_DST_VCA];
-  }
-  static inline uint8_t resonance()  {
-    return modulation_destinations_[MOD_DST_FILTER_RESONANCE];
-  }
-  static inline uint8_t cv_1()  {
-    return modulation_destinations_[MOD_DST_CV_1];
-  }
-  static inline uint8_t cv_2()  {
-    return modulation_destinations_[MOD_DST_CV_2];
-  }
-  static inline uint8_t modulation_source(uint8_t i) {
-    return modulation_sources_[i];
-  }
-  static uint8_t modulation_destination(uint8_t i) {
-    return modulation_destinations_[i];
-  }
-  
-  static inline void set_modulation_source(uint8_t i, uint8_t value) {
-    modulation_sources_[i] = value;
-  }
-
-  static inline void set_unregistered_modulation_source(
-      uint8_t i,
-      uint8_t value) {
-    unregistered_modulation_sources_[i] = value;
-  }
-  
-  static Envelope* mutable_envelope(uint8_t i) { return &envelope_[i]; }
-  static void TriggerEnvelope(uint8_t stage);
-  static void TriggerEnvelope(uint8_t index, uint8_t stage);
-  
- private:
-  static inline void LoadSources() __attribute__((always_inline));
-  static inline void ProcessModulationMatrix() __attribute__((always_inline));
-  static inline void UpdateDestinations() __attribute__((always_inline));
-  static inline void RenderOscillators() __attribute__((always_inline));
-  
-  static uint16_t NoteToPitch(uint8_t note);
-   
-  // Envelope generators.
-  static Envelope envelope_[kNumEnvelopes];
-  static uint8_t disable_envelope_auto_retriggering_[kNumEnvelopes];
-  static uint8_t gate_;
-  static int16_t dst_[kNumModulationDestinations];
-
-  // Counters/phases for the pitch envelope generator (portamento).
-  // Pitches are stored on 14 bits, the 7 highest bits are the MIDI note value,
-  // the 7 lowest bits are used for fine-tuning.
-  static int16_t pitch_increment_;
-  static int16_t pitch_target_;
-  static int16_t pitch_value_;
-  static int16_t aux_pitch_;
-
-  // The voice-specific modulation sources are from MOD_SRC_ENV_1 to
-  // MOD_SRC_GATE.
-  static uint8_t modulation_sources_[kNumModulationSources];
-  static uint8_t unregistered_modulation_sources_[1];
-
-  // Value of all the stuff controlled by the modulators, scaled to the value
-  // they will be used for. MOD_DST_FILTER_RESONANCE is the last entry
-  // in the modulation destinations enum.
-  static int8_t modulation_destinations_[kNumModulationDestinations];
-
-  static uint8_t last_note_;
-  static uint8_t osc1_phase_msb_;
-  
-  static uint8_t buffer_[kAudioBlockSize];
-  static uint8_t osc2_buffer_[kAudioBlockSize];
-  static uint8_t sync_state_[kAudioBlockSize];
-  static uint8_t no_sync_[kAudioBlockSize];
-  static uint8_t dummy_sync_state_[kAudioBlockSize];
-  static uint8_t trigger_count_;
-
-  DISALLOW_COPY_AND_ASSIGN(Voice);
-};
-
-class SynthesisEngine : public midi::MidiDevice {
+class Part : public midi::MidiDevice {
   friend class Voice;
 
  public:
-  SynthesisEngine() { }
+  Part() { }
   static void Init();
 
   // Forwarded to the controller.
@@ -219,19 +90,18 @@ class SynthesisEngine : public midi::MidiDevice {
   // loading a patch from the EEPROM)... so in this case we need to recompute
   // all the related variables. This is also a good occasion to dump by SysEx
   // the patch to polychained units.
-  static void TouchPatch(uint8_t cascade);
-  static inline void TouchSequence() {
-    controller_.TouchSequence();
-  }
+  static void TouchPatch(bool cascade);
+  static void TouchSequence(bool cascade) { }
   static void TriggerLfos() {
     for (uint8_t i = 0; i < kNumLfos; ++i) {
       lfo_[i].Trigger();
     }
   }
+  
+  static inline bool running() { return false; }
+  static inline uint8_t step() { return 0; }
+  
   static inline const Patch& patch() { return patch_; }
-  static inline const VoiceController& voice_controller() {
-    return controller_;
-  }
   static inline const SequencerSettings& sequencer_settings() {
     return sequencer_settings_;
   }
@@ -239,9 +109,6 @@ class SynthesisEngine : public midi::MidiDevice {
     return system_settings_;
   }
   static inline Patch* mutable_patch() { return &patch_; }
-  static inline VoiceController* mutable_voice_controller() {
-    return &controller_;
-  }
   static inline SequencerSettings* mutable_sequencer_settings() {
     return &sequencer_settings_;
   }
@@ -326,9 +193,7 @@ class SynthesisEngine : public midi::MidiDevice {
   static uint8_t lfo_reset_counter_;
   static uint8_t lfo_to_reset_;
   static Voice voice_;
-  static VoiceController controller_;
   static VoiceAllocator polychaining_allocator_;
-  static VoiceAllocator duophonic_allocator_;
   static uint8_t nrpn_parameter_number_;
   static uint8_t nrpn_parameter_number_msb_;
   static uint8_t data_entry_msb_;
@@ -341,11 +206,11 @@ class SynthesisEngine : public midi::MidiDevice {
   static void UpdateModulationRates();
   static void UpdateLfoRate(uint8_t i);
 
-  DISALLOW_COPY_AND_ASSIGN(SynthesisEngine);
+  DISALLOW_COPY_AND_ASSIGN(Part);
 };
 
-extern SynthesisEngine engine;
+extern Part part;
 
 }  // namespace shruthi
 
-#endif // SHRUTHI_SYNTHESIS_ENGINE_H_
+#endif // SHRUTHI_PART_H_

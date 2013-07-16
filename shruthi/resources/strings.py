@@ -279,18 +279,13 @@ gate
 audio
 op. 1
 op. 2
-trg 1
-trg 2
 = 4
 = 8
 = 16
 = 32
 
-touch a knob to
-assign parameter
 patch
 sequence
-combo
 save midi/kbd
 settings?
 start full midi

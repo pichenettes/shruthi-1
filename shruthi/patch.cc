@@ -18,7 +18,7 @@
 // Patch data.
 
 #include "shruthi/patch.h"
-#include "shruthi/synthesis_engine.h"
+#include "shruthi/part.h"
 
 #include <string.h>
 
@@ -45,8 +45,8 @@ void Patch::PrepareForWrite() {
   }
   
   // Copy sequencer settings data into patch data.
-  const SystemSettings system_settings = engine.system_settings();
-  const SequencerSettings sequencer_settings = engine.sequencer_settings();
+  const SystemSettings system_settings = part.system_settings();
+  const SequencerSettings sequencer_settings = part.sequencer_settings();
   
   extra_data_[0] = system_settings.legato ? 0x40 : 0x00;
   extra_data_[0] |= system_settings.portamento;
@@ -105,13 +105,13 @@ void Patch::Update() {
   filter_1_mode_ = filter_topology_ >> 4;
   
   if (version_ == '%') {
-    SystemSettings* system_settings = engine.mutable_system_settings();
-    SequencerSettings* sequencer_settings = engine.mutable_sequencer_settings();
+    SystemSettings* system_settings = part.mutable_system_settings();
+    SequencerSettings* sequencer_settings = part.mutable_sequencer_settings();
     
     system_settings->legato = extra_data_[0] & 0x40 ? 1 : 0;
     system_settings->portamento = extra_data_[0] & 0x3f;
 
-    if (!engine.voice_controller().active()) {
+    if (!part.running()) {
       sequencer_settings->seq_mode = extra_data_[1];
       sequencer_settings->seq_tempo = extra_data_[2];
       sequencer_settings->seq_groove_template = extra_data_[3];

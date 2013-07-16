@@ -27,7 +27,7 @@
 #include "shruthi/midi_dispatcher.h"
 #include "shruthi/parameter.h"
 #include "shruthi/storage.h"
-#include "shruthi/synthesis_engine.h"
+#include "shruthi/part.h"
 #include "shruthi/ui.h"
 #include "avrlib/string.h"
 
@@ -195,7 +195,7 @@ void Editor::Init() {
 }
 
 void Editor::ConfigureFilterMenu() {
-  uint8_t n = engine.system_settings().expansion_filter_board;
+  uint8_t n = part.system_settings().expansion_filter_board;
   if (n == 0) {
     page_definition_[PAGE_FILTER_FILTER].next = PAGE_FILTER_FILTER;
     page_definition_[PAGE_FILTER_FILTER].overall_next = PAGE_MOD_ENV_1;
@@ -250,7 +250,6 @@ void Editor::Relax() {
   if (display_mode_ == DISPLAY_MODE_EDIT_TEMPORARY &&
       display.cursor_position() == kLcdNoCursor) {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
-    Refresh();
   }
 }
 
@@ -265,7 +264,7 @@ void Editor::ShowEditCursor() {
 void Editor::RandomizeParameter(uint8_t subpage, uint8_t parameter_index) {
   const Parameter& parameter = parameter_manager.parameter(parameter_index);
   uint8_t value = parameter.RandomValue();
-  engine.SetParameter(parameter.offset + subpage * 3, value, 0);
+  part.SetParameter(parameter.offset + subpage * 3, value, 0);
 }
 
 /* static */
@@ -281,13 +280,13 @@ void Editor::RandomizePatch() {
       RandomizeParameter(slot, parameter);
     }
   }
-  engine.TouchPatch(1);
+  part.TouchPatch(1);
 }
 
 /* static */
 void Editor::RandomizeSequence() {
   for (uint8_t i = 0; i < kNumSteps; ++i) {
-    SequencerSettings* settings = engine.mutable_sequencer_settings();
+    SequencerSettings* settings = part.mutable_sequencer_settings();
     settings->steps[i].set_raw(
         Random::GetByte(),
         Random::GetByte());
@@ -298,7 +297,7 @@ void Editor::RandomizeSequence() {
 
 /* static */
 void Editor::SaveSystemSettings() {
-  engine.mutable_system_settings()->EepromSave();
+  part.mutable_system_settings()->EepromSave();
 }
 
 /* static */
@@ -325,8 +324,8 @@ void Editor::HandleSwitchEvent(const Event& event) {
     switch (id) {
       case SWITCH_1:
         display.set_status('x');
-        engine.ResetPatch();
-        engine.ResetSequence();
+        part.ResetPatch();
+        part.ResetSequence();
         break;
 
       case SWITCH_2:
@@ -337,8 +336,8 @@ void Editor::HandleSwitchEvent(const Event& event) {
 
       case SWITCH_3:
         display.set_status('>');
-        Storage::SysExDump(engine.mutable_patch());
-        Storage::SysExDump(engine.mutable_sequencer_settings());
+        Storage::SysExDump(part.mutable_patch());
+        Storage::SysExDump(part.mutable_sequencer_settings());
         break;
         
       case SWITCH_4:
@@ -354,7 +353,7 @@ void Editor::HandleSwitchEvent(const Event& event) {
   } else if (event.value >= 6) {
     if (id == SWITCH_1) {
       test_note_playing_ ^= 1;
-       engine.NoteOn(0, 60, test_note_playing_ * 100);
+       part.NoteOn(0, 60, test_note_playing_ * 100);
     }
   } else if (id == SWITCH_MODE) {
     editor_mode_ = (editor_mode_ != EDITOR_MODE_PATCH)
@@ -378,21 +377,18 @@ void Editor::HandleSwitchEvent(const Event& event) {
       JumpToPageGroup(id + GROUP_OSC);
     }
   }
-  Refresh();
 }
 
 /* static */
 void Editor::HandleInput(uint8_t knob_index, uint8_t value) {
   (*ui_handler_[page_definition_[current_page_].ui_type].input_handler)(
       knob_index, value);
-  Refresh();
 }
 
 /* static */
 void Editor::HandleIncrement(int8_t increment) {
   (*ui_handler_[page_definition_[current_page_].ui_type].increment_handler)(
       increment);
-  Refresh();
 }
 
 /* static */
@@ -406,17 +402,16 @@ void Editor::HandleClick() {
   if (ui_handler_[page_definition_[current_page_].ui_type].click_handler) {
     (*ui_handler_[page_definition_[current_page_].ui_type].click_handler)();
   }
-  Refresh();
 }
 
 /* static */
 uint8_t Editor::HandleNoteOn(uint8_t note, uint16_t velocity) {
   uint8_t handled = 0;
   if (current_page_ == PAGE_SEQ_TRACKER && display_mode_ == DISPLAY_MODE_EDIT) {
-    engine.mutable_sequencer_settings()->steps[cursor_].set_note(note);
-    engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(velocity);
+    part.mutable_sequencer_settings()->steps[cursor_].set_note(note);
+    part.mutable_sequencer_settings()->steps[cursor_].set_velocity(velocity);
     ++cursor_;
-    if (cursor_ >= engine.sequencer_settings().pattern_size) {
+    if (cursor_ >= part.sequencer_settings().pattern_size) {
       cursor_ = 0;
     }
     Refresh();
@@ -437,16 +432,16 @@ void Editor::Refresh() {
 
 /* static */
 void Editor::RestoreEditBuffer() {
-  Storage::Restore(engine.mutable_patch());
-  engine.TouchPatch(1);
-  Storage::Restore(engine.mutable_sequencer_settings());
-  engine.TouchSequence();
+  Storage::Restore(part.mutable_patch());
+  part.TouchPatch(true);
+  Storage::Restore(part.mutable_sequencer_settings());
+  part.TouchSequence(true);
 }
 
 /* static */
 void Editor::BackupEditBuffer() {
-  Storage::Backup(engine.mutable_patch());
-  Storage::Backup(engine.mutable_sequencer_settings());
+  Storage::Backup(part.mutable_patch());
+  Storage::Backup(part.mutable_sequencer_settings());
 }
 
 /* static */
@@ -533,10 +528,10 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
       if (cursor_ <= 2) {
         set_edited_item_number(edited_item_number() + increment);
       } else if (cursor_ >= 4 && cursor_ < 4 + kPatchNameSize) {
-        uint8_t value = engine.patch().name[cursor_ - 4];
+        uint8_t value = part.patch().name[cursor_ - 4];
         value += increment;
         if (value >= 32 && value <= 128) {
-          engine.mutable_patch()->name[cursor_ - 4] = value;
+          part.mutable_patch()->name[cursor_ - 4] = value;
         }
       }
     }
@@ -546,11 +541,11 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
       uint16_t n = edited_item_number();
       Storage::LoadPatch(n);
       midi_dispatcher.ProgramChange(n);
-      engine.TouchPatch(1);
+      part.TouchPatch(1);
       // When we are not playing, load the sequence parameters.
-      if (!engine.voice_controller().active()) {
+      if (!part.running()) {
         Storage::LoadSequence(edited_item_number());
-        engine.TouchSequence();
+        part.TouchSequence(true);
       }
     }
   }
@@ -560,7 +555,7 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
 void Editor::DisplayLoadSavePage() {
   if (display_mode_ == DISPLAY_MODE_EDIT_TEMPORARY
       && action_ != ACTION_SAVE
-      && engine.system_settings().display_delay) {
+      && part.system_settings().display_delay) {
     DisplayEditDetailsPage();
     return;
   }
@@ -579,7 +574,7 @@ void Editor::DisplayLoadSavePage() {
 
   UnsafeItoa<int16_t>(edited_item_number() + 1, 3, line_buffer_);
   AlignRight(line_buffer_, 3);
-  memcpy(line_buffer_ + 4, engine.patch().name, kPatchNameSize);
+  memcpy(line_buffer_ + 4, part.patch().name, kPatchNameSize);
   memset(
         line_buffer_ + 4 + kPatchNameSize,
         ' ',
@@ -605,7 +600,7 @@ void Editor::DisplayLoadSavePage() {
 void Editor::MoveSequencerCursor(int8_t increment) {
   int8_t new_cursor = cursor_;
   new_cursor += increment;
-  const SequencerSettings& seq = engine.sequencer_settings();
+  const SequencerSettings& seq = part.sequencer_settings();
   if (new_cursor < 0) {
     cursor_ = 0xff;
     current_page_ = page_definition_[current_page_].overall_previous;
@@ -624,7 +619,7 @@ void Editor::DisplayStepSequencerPage() {
   // 0123456789abcdef
   // step sequencer
   // 0000ffff44449999
-  const SequencerSettings& seq = engine.sequencer_settings();
+  const SequencerSettings& seq = part.sequencer_settings();
   if (cursor_ > seq.pattern_size - 1) {
     cursor_ = seq.pattern_size - 1;
   }
@@ -652,7 +647,7 @@ void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
     case 1:
       {
         cursor_ = value >> 3;
-        uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
+        uint8_t max_position = part.sequencer_settings().pattern_size - 1;
         if (cursor_ > max_position) {
           cursor_ = max_position;
         }
@@ -665,7 +660,7 @@ void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
           cursor_ = new_size - 1;
         }
         last_knob_ = 1;
-        engine.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, 0);
+        part.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, 0);
       }
       break;
   }
@@ -675,11 +670,11 @@ void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
 void Editor::HandleStepSequencerInput(uint8_t knob_index, uint8_t value) {
   HandleSequencerNavigation(knob_index, value);
   if (knob_index == 2) {
-    SequencerSettings* seq = engine.mutable_sequencer_settings();
+    SequencerSettings* seq = part.mutable_sequencer_settings();
     seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
         value >> 3);
   } else if (knob_index == 0) {
-    engine.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, 0);
+    part.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, 0);
     last_knob_ = 0;
   }
 }
@@ -689,7 +684,7 @@ void Editor::HandleStepSequencerIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(increment);
   } else {
-    SequencerSettings* seq = engine.mutable_sequencer_settings();
+    SequencerSettings* seq = part.mutable_sequencer_settings();
     uint8_t position = (cursor_ + seq->pattern_rotation) & 0x0f;
     seq->steps[position].set_controller(
         seq->steps[position].controller() + \
@@ -700,11 +695,11 @@ void Editor::HandleStepSequencerIncrement(int8_t increment) {
 /* static */
 void Editor::DisplayTrackerPage() {
   memset(line_buffer_, ' ', kLcdWidth);
-  if (cursor_ > engine.sequencer_settings().pattern_size - 1) {
-    cursor_ = engine.sequencer_settings().pattern_size - 1;
+  if (cursor_ > part.sequencer_settings().pattern_size - 1) {
+    cursor_ = part.sequencer_settings().pattern_size - 1;
   }
   if (cursor_ > 0) {
-    engine.sequencer_settings().PrintStep(cursor_ - 1, line_buffer_);
+    part.sequencer_settings().PrintStep(cursor_ - 1, line_buffer_);
   } else {
     // This is an invisible character. It is just there to prevent the status
     // indicator to be printed on the last column instead of the first.
@@ -712,7 +707,7 @@ void Editor::DisplayTrackerPage() {
   }
   display.Print(0, line_buffer_);
 
-  engine.sequencer_settings().PrintStep(cursor_, line_buffer_);
+  part.sequencer_settings().PrintStep(cursor_, line_buffer_);
   line_buffer_[0] = 0x7e;
   display.Print(1, line_buffer_);
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
@@ -730,14 +725,14 @@ void Editor::HandleTrackerInput(uint8_t knob_index, uint8_t value) {
     case 0:
       {
         cursor_ = value >> 3;
-        uint8_t max_position = engine.sequencer_settings().pattern_size - 1;
+        uint8_t max_position = part.sequencer_settings().pattern_size - 1;
         if (cursor_ > max_position) {
           cursor_ = max_position;
         }
       }
       break;
     case 1:
-      engine.mutable_sequencer_settings()->steps[cursor_].set_note(
+      part.mutable_sequencer_settings()->steps[cursor_].set_note(
           24 + (value >> 1));
       break;
     case 2:
@@ -745,20 +740,20 @@ void Editor::HandleTrackerInput(uint8_t knob_index, uint8_t value) {
       value_16_bits *= 10;
       value_16_bits >>= 5;
       if (value_16_bits < 64) {
-        engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(0);
-        engine.mutable_sequencer_settings()->steps[cursor_].set_gate(0);
-        engine.mutable_sequencer_settings()->steps[cursor_].set_legato(0);
+        part.mutable_sequencer_settings()->steps[cursor_].set_velocity(0);
+        part.mutable_sequencer_settings()->steps[cursor_].set_gate(0);
+        part.mutable_sequencer_settings()->steps[cursor_].set_legato(0);
       } else {
         value_16_bits -= 64;
-        engine.mutable_sequencer_settings()->steps[cursor_].set_velocity(
+        part.mutable_sequencer_settings()->steps[cursor_].set_velocity(
             value_16_bits);
-        engine.mutable_sequencer_settings()->steps[cursor_].set_gate(1);
-        engine.mutable_sequencer_settings()->steps[cursor_].set_legato(
+        part.mutable_sequencer_settings()->steps[cursor_].set_gate(1);
+        part.mutable_sequencer_settings()->steps[cursor_].set_legato(
             value_16_bits >= 0x80);
       }
       break;
     case 3:
-      engine.mutable_sequencer_settings()->steps[cursor_].set_controller(
+      part.mutable_sequencer_settings()->steps[cursor_].set_controller(
           value >> 3);
       break;
   }
@@ -769,37 +764,37 @@ void Editor::HandleTrackerIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(increment);
   } else {
-    int8_t note = engine.mutable_sequencer_settings()->steps[cursor_].note();
+    int8_t note = part.mutable_sequencer_settings()->steps[cursor_].note();
     note += increment;
     if (note >= 12 && note < 108) {
-      engine.mutable_sequencer_settings()->steps[cursor_].set_note(note);
+      part.mutable_sequencer_settings()->steps[cursor_].set_note(note);
     }
   }
 }
 
 /* static */
 void Editor::DisplayPageRPage() {
-  if (cursor_ > engine.sequencer_settings().pattern_size - 1) {
-    cursor_ = engine.sequencer_settings().pattern_size - 1;
+  if (cursor_ > part.sequencer_settings().pattern_size - 1) {
+    cursor_ = part.sequencer_settings().pattern_size - 1;
   }
   memset(line_buffer_, ' ', kLcdWidth);
   memset(line_buffer_, ' ', kLcdWidth);
-  for (uint8_t i = 0; i < engine.sequencer_settings().pattern_size; ++i) {
-    line_buffer_[i] = engine.mutable_sequencer_settings()->steps[i].character();
+  for (uint8_t i = 0; i < part.sequencer_settings().pattern_size; ++i) {
+    line_buffer_[i] = part.mutable_sequencer_settings()->steps[i].character();
   }
-  if (engine.sequencer_settings().pattern_size != kLcdWidth) {
-    line_buffer_[engine.sequencer_settings().pattern_size] = '|';
+  if (part.sequencer_settings().pattern_size != kLcdWidth) {
+    line_buffer_[part.sequencer_settings().pattern_size] = '|';
   }
   display.Print(0, line_buffer_);
 
-  for (uint8_t i = 0; i < engine.sequencer_settings().pattern_size; ++i) {
-    if (engine.mutable_sequencer_settings()->steps[i].gate()) {
+  for (uint8_t i = 0; i < part.sequencer_settings().pattern_size; ++i) {
+    if (part.mutable_sequencer_settings()->steps[i].gate()) {
       line_buffer_[i] = NibbleToAscii(
-          engine.mutable_sequencer_settings()->steps[i].velocity() >> 4);
+          part.mutable_sequencer_settings()->steps[i].velocity() >> 4);
     }
   }
-  if (engine.sequencer_settings().pattern_size != kLcdWidth) {
-    line_buffer_[engine.sequencer_settings().pattern_size] = '|';
+  if (part.sequencer_settings().pattern_size != kLcdWidth) {
+    line_buffer_[part.sequencer_settings().pattern_size] = '|';
   }
   display.Print(1, line_buffer_);
   ShowEditCursor();
@@ -820,10 +815,10 @@ void Editor::HandlePageRIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(increment);
   } else {
-    int8_t flags = engine.mutable_sequencer_settings()->steps[cursor_].flags();
+    int8_t flags = part.mutable_sequencer_settings()->steps[cursor_].flags();
     flags += increment;
     if (flags >= 0 && flags <= 16) {
-      engine.mutable_sequencer_settings()->steps[cursor_].set_flags(flags);
+      part.mutable_sequencer_settings()->steps[cursor_].set_flags(flags);
     }
   }
 }
@@ -865,7 +860,7 @@ void Editor::DisplayEditOverviewPage() {
 
 /* static */
 void Editor::DisplayEditDetailsPage() {
-  if (engine.system_settings().display_delay == 0) {
+  if (part.system_settings().display_delay == 0) {
     DisplayEditOverviewPage();
     return;
   }
@@ -966,7 +961,7 @@ void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
   }
   const Parameter& parameter = parameter_manager.parameter(index);
   
-  if (engine.system_settings().display_snap) {
+  if (part.system_settings().display_snap) {
     if (!snapped_[knob_index]) {
       uint8_t current_value = GetParameterValue(parameter.offset);
       if (parameter.is_snapped(current_value, value)) {
@@ -986,7 +981,7 @@ void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
 void Editor::HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value) {
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
   last_external_input_ = ui_parameter_index;
-  engine.SetScaledParameter(ui_parameter_index, value, 1);
+  part.SetScaledParameter(ui_parameter_index, value, 1);
 }
 
 /* static */
@@ -1028,7 +1023,7 @@ void Editor::SetParameterValue(uint8_t id, uint8_t value) {
   } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
     subpage_ = value;
   } else {
-    engine.SetParameter(id + subpage_ * 3, value, 1);
+    part.SetParameter(id + subpage_ * 3, value, 1);
   }
 }
 
@@ -1040,7 +1035,7 @@ uint8_t Editor::GetParameterValue(uint8_t id) {
   } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
     value = subpage_;
   } else {
-    value = engine.GetParameter(id + subpage_ * 3);
+    value = part.GetParameter(id + subpage_ * 3);
   }
   return value;
 }

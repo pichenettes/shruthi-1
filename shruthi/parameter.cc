@@ -475,7 +475,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
   // 33
   { PRM_MOD_SOURCE,
     UNIT_MODULATION_SOURCE,
-    0, MOD_SRC_TRIG_2,
+    0, MOD_SRC_OP_2,
     0,
     STR_RES_SRC, STR_RES_SOURCE }, 
 

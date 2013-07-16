@@ -20,7 +20,7 @@
 #include "shruthi/ui.h"
 
 #include "shruthi/editor.h"
-#include "shruthi/synthesis_engine.h"
+#include "shruthi/part.h"
 
 namespace shruthi {
 
@@ -81,7 +81,7 @@ void Ui::Init() {
 
 /* static */
 void Ui::LockPotentiometers() {
-  uint8_t programmer = engine.system_settings().programmer;
+  uint8_t programmer = part.system_settings().programmer;
   adc_thresholds_[0] = kAdcThresholdLocked;
   adc_thresholds_[1] = kAdcThresholdLocked;
   adc_thresholds_[2] = kAdcThresholdLocked;
@@ -94,14 +94,14 @@ void Ui::ScanPotentiometers() {
   int16_t value = adc_.ReadOut();
   bool generate_ui_event = true;
   
-  if (engine.system_settings().programmer == PROGRAMMER_NONE) {
+  if (part.system_settings().programmer == PROGRAMMER_NONE) {
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 7;
     adc_.StartConversion(pots_multiplexer_address_);
     if (address >= 4) {
       generate_ui_event = false;
-      engine.set_modulation_source(MOD_SRC_CV_1 + address - 4, value >> 2);
+      part.set_modulation_source(MOD_SRC_CV_1 + address - 4, value >> 2);
     }
-  } else if (engine.system_settings().programmer == PROGRAMMER_FCD) {
+  } else if (part.system_settings().programmer == PROGRAMMER_FCD) {
     pots_multiplexer_address_++;
     if (pots_multiplexer_address_ >= 36) {
       pots_multiplexer_address_ = 0;
@@ -112,7 +112,7 @@ void Ui::ScanPotentiometers() {
       WriteShiftRegister();
       adc_.StartConversion(4);
     }
-  } else if (engine.system_settings().expansion_filter_board == PROGRAMMER_XT) {
+  } else if (part.system_settings().expansion_filter_board == PROGRAMMER_XT) {
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 31;
     // TODO: writer address counters.
     adc_.StartConversion(0);
@@ -139,7 +139,7 @@ void Ui::ScanPotentiometers() {
 
 /* static */
 void Ui::WriteShiftRegister() {
-  uint8_t filter_board = engine.system_settings().expansion_filter_board;
+  uint8_t filter_board = part.system_settings().expansion_filter_board;
   led_pwm_counter_ += 16;
   io_.Begin();
 
@@ -147,14 +147,14 @@ void Ui::WriteShiftRegister() {
     case FILTER_BOARD_DLY:
       {
         Word w;
-        w.value = U8U8Mul(engine.voice().cv_1(), 5);
+        w.value = U8U8Mul(part.voice().cv_1(), 5);
         aux_io_.End();
         aux_io_.Send(w.bytes[1] | 0x90);
         aux_io_.Begin();
         aux_io_.Send(w.bytes[0]);
 
         w.value = U8U8Mul(pgm_read_byte(wav_res_ssm2164_linearization + \
-            (engine.voice().cv_2() >> 2)), 16);
+            (part.voice().cv_2() >> 2)), 16);
         aux_io_.Send(w.bytes[1] | 0x10);
         aux_io_.End();
         aux_io_.Begin();
@@ -163,19 +163,19 @@ void Ui::WriteShiftRegister() {
       break;
 
     case FILTER_BOARD_SVF:
-      io_.Send(engine.svf_routing_byte());
+      io_.Send(part.svf_routing_byte());
       break;
 
     case FILTER_BOARD_PVK:
-      io_.Send(engine.pvk_routing_byte());
+      io_.Send(part.pvk_routing_byte());
       break;
 
     case FILTER_BOARD_4PM:
-      io_.Send(engine.four_pole_routing_byte());
+      io_.Send(part.four_pole_routing_byte());
       break;
   }
 
-  if (engine.system_settings().programmer == PROGRAMMER_FCD) {
+  if (part.system_settings().programmer == PROGRAMMER_FCD) {
     io_.Send(
         pots_multiplexer_address_ >= 4 ? pots_multiplexer_address_ - 4 : 0);
   }
@@ -229,22 +229,22 @@ void Ui::RefreshLeds() {
 
   uint8_t led_pattern = editor.leds_pattern();
   if (editor.current_mode() == EDITOR_MODE_SEQUENCE) {
-    if (engine.voice_controller().active()) {
-      if (!(engine.voice_controller().step() & 3)) {
+    if (part.running()) {
+      if (!(part.step() & 3)) {
         led_pattern |= LED_MODE_MASK;
       }
     }
   } else {
     led_pattern |= LED_MODE_MASK;
     if (editor.current_page() == PAGE_MOD_MATRIX) {
-      uint8_t current_modulation_source_value = engine.modulation_source(0,
-          engine.patch().modulation_matrix.modulation[
+      uint8_t current_modulation_source_value = part.modulation_source(0,
+          part.patch().modulation_matrix.modulation[
               editor.subpage()].source);
       if (current_modulation_source_value > led_pwm_counter_) {
         led_pattern |= LED_6_MASK;
       }
     } else if (editor.current_page() == PAGE_MOD_OPERATORS) {
-      uint8_t current_operator_value = engine.modulation_source(0,
+      uint8_t current_operator_value = part.modulation_source(0,
           MOD_SRC_OP_1 + editor.subpage());
       if (current_operator_value > led_pwm_counter_) {
         led_pattern |= LED_6_MASK;
@@ -291,12 +291,9 @@ void Ui::DoEvents() {
     LockPotentiometers();
   }
 
-  if (queue_.idle_time_ms() > (engine.system_settings().display_delay << 7)) {
+  if (queue_.idle_time_ms() > (part.system_settings().display_delay << 7)) {
     queue_.Touch();
     editor.Relax();
-  }
-
-  if (engine.dirty()) {
     refresh_display = true;
   }
 

@@ -26,8 +26,8 @@
 #include "midi/midi.h"
 #include "shruthi/display.h"
 #include "shruthi/editor.h"
+#include "shruthi/part.h"
 #include "shruthi/storage.h"
-#include "shruthi/synthesis_engine.h"
 
 namespace shruthi {
 
@@ -49,11 +49,11 @@ class MidiDispatcher : public midi::MidiDevice {
   static inline void NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     display.set_status('\x01');
     if (!editor.HandleNoteOn(note, velocity)) {
-      engine.NoteOn(channel, note, velocity);
+      part.NoteOn(channel, note, velocity);
     }
   }
   static inline void NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
-    engine.NoteOff(channel, note, velocity);
+    part.NoteOff(channel, note, velocity);
   }
 
   // Handled.
@@ -65,33 +65,33 @@ class MidiDispatcher : public midi::MidiDevice {
       current_bank_ = value;
     } else {
       display.set_status('\x05');
-      engine.ControlChange(channel, controller, value);
+      part.ControlChange(channel, controller, value);
     }
   }
   static inline void PitchBend(uint8_t channel, uint16_t pitch_bend) {
     display.set_status('\x02');
-    engine.PitchBend(channel, pitch_bend);
+    part.PitchBend(channel, pitch_bend);
   }
   static void Aftertouch(uint8_t channel, uint8_t note, uint8_t velocity) {
-    engine.Aftertouch(channel, note, velocity);
+    part.Aftertouch(channel, note, velocity);
   }
   static void Aftertouch(uint8_t channel, uint8_t velocity) {
-    engine.Aftertouch(channel, velocity);
+    part.Aftertouch(channel, velocity);
   }
   static void AllSoundOff(uint8_t channel) {
-    engine.AllSoundOff(channel);
+    part.AllSoundOff(channel);
   }
   static void ResetAllControllers(uint8_t channel) {
-    engine.ResetAllControllers(channel);
+    part.ResetAllControllers(channel);
   }
   static void AllNotesOff(uint8_t channel) {
-    engine.AllNotesOff(channel);
+    part.AllNotesOff(channel);
   }
   static void OmniModeOff(uint8_t channel) {
-    engine.OmniModeOff(channel);
+    part.OmniModeOff(channel);
   }
   static void OmniModeOn(uint8_t channel) {
-    engine.OmniModeOn(channel);
+    part.OmniModeOn(channel);
   }
   
   static void ProgramChange(uint8_t channel, uint8_t program) {
@@ -100,15 +100,15 @@ class MidiDispatcher : public midi::MidiDevice {
       editor.set_current_patch_number(n);
       Storage::LoadPatch(n);
       Storage::LoadSequence(n);
-      engine.TouchPatch(0);
-      engine.TouchSequence();
+      part.TouchPatch(false);
+      part.TouchSequence(false);
     }
   }
   
-  static void Reset() { engine.Reset(); }
-  static void Clock() { engine.Clock(); }
-  static void Start() { engine.Start(); }
-  static void Stop() { engine.Stop(); }
+  static void Reset() { part.Reset(); }
+  static void Clock() { part.Clock(); }
+  static void Start() { part.Start(); }
+  static void Stop() { part.Stop(); }
   
   static void SysExStart() {
     ProcessSysEx(0xf0);
@@ -120,7 +120,7 @@ class MidiDispatcher : public midi::MidiDevice {
     ProcessSysEx(0xf7);
     if (Storage::sysex_rx_state() == RECEPTION_OK) {
       display.set_status('+');
-      engine.TouchPatch(0);
+      part.TouchPatch(false);
       editor.Refresh();
     } else {
       display.set_status('#');
@@ -128,7 +128,7 @@ class MidiDispatcher : public midi::MidiDevice {
   }
   
   static uint8_t CheckChannel(uint8_t channel) {
-    const SystemSettings& settings = engine.system_settings();
+    const SystemSettings& settings = part.system_settings();
     return settings.midi_channel == 0 ||
            settings.midi_channel == (channel + 1);
   }
@@ -205,7 +205,7 @@ class MidiDispatcher : public midi::MidiDevice {
   }
 
   static inline void ProgramChange(uint16_t n) {
-    uint8_t channel = (engine.system_settings().midi_channel - 1) & 0xf;
+    uint8_t channel = (part.system_settings().midi_channel - 1) & 0xf;
     if (mode() == MIDI_OUT_CTRL || mode() == MIDI_OUT_FULL) {
       Send3(0xb0 | channel, 0x20, n >> 7);
       // We send a program change + an active sensing message that does
@@ -235,11 +235,11 @@ class MidiDispatcher : public midi::MidiDevice {
     Storage::SysExReceive(byte);
   }
   
-  static uint8_t mode() { return engine.system_settings().midi_out_mode; }
+  static uint8_t mode() { return part.system_settings().midi_out_mode; }
   static uint8_t channel() {
-    return engine.system_settings().midi_channel == 0
+    return part.system_settings().midi_channel == 0
         ? 0
-        : engine.system_settings().midi_channel - 1;
+        : part.system_settings().midi_channel - 1;
   }
   
   static uint8_t data_entry_counter_;

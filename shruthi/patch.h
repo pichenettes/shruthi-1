@@ -155,8 +155,6 @@ enum ModulationSource {
   MOD_SRC_OP_2,
   
   /* Some newly added modulations */
-  MOD_SRC_TRIG_1,
-  MOD_SRC_TRIG_2,
   MOD_SRC_VALUE_4,
   MOD_SRC_VALUE_8,
   MOD_SRC_VALUE_16,

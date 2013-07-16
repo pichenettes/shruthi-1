@@ -26,7 +26,7 @@
 #include "shruthi/display.h"
 #include "shruthi/editor.h"
 #include "shruthi/oscillator.h"
-#include "shruthi/synthesis_engine.h"
+#include "shruthi/part.h"
 #include "shruthi/ui.h"
 #include "avrlib/op.h"
 
@@ -97,22 +97,22 @@ static const prog_char sysex_rx_header_old[] PROGMEM = {
 
 /* static */
 void Storage::WritePatch(uint16_t slot) {
-  Write(engine.mutable_patch(), slot);
+  Write(part.mutable_patch(), slot);
 }
 
 /* static */
 void Storage::WriteSequence(uint16_t slot) {
-  Write(engine.mutable_sequencer_settings(), slot);
+  Write(part.mutable_sequencer_settings(), slot);
 }
 
 /* static */
 void Storage::LoadPatch(uint16_t slot) {
-  Load(engine.mutable_patch(), slot);
+  Load(part.mutable_patch(), slot);
 }
 
 /* static */
 void Storage::LoadSequence(uint16_t slot) {
-  Load(engine.mutable_sequencer_settings(), slot);
+  Load(part.mutable_sequencer_settings(), slot);
 }
 
 /* static */
@@ -270,14 +270,14 @@ void Storage::SysExAcceptBuffer() {
   
   switch (sysex_rx_command_[0]) {
     case 0x01:  // Patch transfer
-      success = AcceptData(engine.mutable_patch(), sysex_rx_buffer_);
+      success = AcceptData(part.mutable_patch(), sysex_rx_buffer_);
       break;
       
     case 0x02:  // Sequence transfer
       success = AcceptData(
-          engine.mutable_sequencer_settings(),
+          part.mutable_sequencer_settings(),
           sysex_rx_buffer_);
-      engine.TouchSequence();
+      part.TouchSequence(false);
       break;
     
     case 0x03:
@@ -286,17 +286,17 @@ void Storage::SysExAcceptBuffer() {
       
     case 0x04:
       memcpy(
-          (uint8_t*) engine.mutable_system_settings(),
+          (uint8_t*) part.mutable_system_settings(),
           sysex_rx_buffer_,
           sizeof(SystemSettings));
-      engine.mutable_system_settings()->EepromSave();
+      part.mutable_system_settings()->EepromSave();
       success = 1;
       break;
       
     case 0x05:
       {
         uint8_t step_index = sysex_rx_command_[1] & 0x0f;
-        engine.SetSequenceStep(
+        part.SetSequenceStep(
             step_index,
             sysex_rx_buffer_[0],
             sysex_rx_buffer_[1]);
@@ -304,39 +304,39 @@ void Storage::SysExAcceptBuffer() {
       break;
       
     case 0x06:
-      engine.SetName(sysex_rx_buffer_);
+      part.SetName(sysex_rx_buffer_);
       break;
     
     case 0x07:
       memcpy(
-          (uint8_t*) engine.mutable_sequencer_settings(),
+          (uint8_t*) part.mutable_sequencer_settings(),
           sysex_rx_buffer_,
          sizeof(SequencerSettings));
-      engine.mutable_sequencer_settings()->Update();
+      part.mutable_sequencer_settings()->Update();
       success = 1;
       break;
       
     case 0x08:
-      engine.SetPatternLength(sysex_rx_command_[1] & 0x0f);
+      part.SetPatternLength(sysex_rx_command_[1] & 0x0f);
       success = 1;
       break;
       
     case 0x09:
-      engine.SetPatternRotation(sysex_rx_command_[1] & 0x0f);
+      part.SetPatternRotation(sysex_rx_command_[1] & 0x0f);
       success = 1;
       break;
     
     case 0x11:
-      Storage::SysExDump(engine.mutable_patch());
+      Storage::SysExDump(part.mutable_patch());
       break;
 
     case 0x12:
-      Storage::SysExDump(engine.mutable_sequencer_settings());
+      Storage::SysExDump(part.mutable_sequencer_settings());
       break;
       
     case 0x14:
       Storage::SysExDumpBuffer(
-          (uint8_t*) engine.mutable_system_settings(),
+          (uint8_t*) part.mutable_system_settings(),
           0x04,
           0,
           sizeof(SystemSettings));
@@ -346,7 +346,7 @@ void Storage::SysExAcceptBuffer() {
       {
         uint8_t step_index = sysex_rx_command_[1] & 0x0f;
         Storage::SysExDumpBuffer(
-            engine.mutable_sequencer_settings()-> \
+            part.mutable_sequencer_settings()-> \
             steps[step_index].data_,
             0x05,
             step_index,
@@ -356,7 +356,7 @@ void Storage::SysExAcceptBuffer() {
       
     case 0x16:
       Storage::SysExDumpBuffer(
-          (uint8_t*) engine.mutable_patch()->name,
+          (uint8_t*) part.mutable_patch()->name,
           0x06,
           0,
           kPatchNameSize);
@@ -364,7 +364,7 @@ void Storage::SysExAcceptBuffer() {
       
     case 0x17:
       Storage::SysExDumpBuffer(
-          (uint8_t*) engine.mutable_sequencer_settings(),
+          (uint8_t*) part.mutable_sequencer_settings(),
           0x07,
           0,
           sizeof(SequencerSettings));

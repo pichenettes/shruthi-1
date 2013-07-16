@@ -21,8 +21,8 @@
 #include "midi/midi.h"
 #include "shruthi/audio_out.h"
 #include "shruthi/midi_dispatcher.h"
+#include "shruthi/part.h"
 #include "shruthi/storage.h"
-#include "shruthi/synthesis_engine.h"
 #include "shruthi/ui.h"
 
 using namespace avrlib;
@@ -73,18 +73,18 @@ void DSPFilterBoardWrite() {
   if (cv_io_round_robin == 0) {
     cv_io.Overwrite(0xff);
   } else if (cv_io_round_robin == 1) {
-    cv_io.Overwrite(engine.fx_control_byte());
+    cv_io.Overwrite(part.fx_control_byte());
   } else if (cv_io_round_robin == 2) {
-    cv_io.Overwrite(engine.sequencer_settings().seq_tempo);
+    cv_io.Overwrite(part.sequencer_settings().seq_tempo);
   } else {
-    v = engine.voice().modulation_destination(
+    v = part.voice().modulation_destination(
         MOD_DST_FILTER_RESONANCE + cv_io_round_robin - 3);
     if (v == 0xff) {
       v = 0xfe;
     }
     cv_io.Overwrite(v);
   }
-  v = engine.voice().modulation_destination(
+  v = part.voice().modulation_destination(
       MOD_DST_FILTER_CUTOFF + (cv_io_round_robin & 1));
   if (v == 0xff) {
     v = 0xfe;
@@ -101,20 +101,20 @@ void FillAudioBuffer() {
     return;
   }
 
-  engine.ProcessBlock();
-  uint8_t filter_board = engine.system_settings().expansion_filter_board;
-  uint8_t resonance = engine.voice().resonance();
-  uint8_t gain = engine.voice().vca();
-  uint8_t cv_1 = engine.voice().cv_1();
-  uint8_t cv_2 = engine.voice().cv_2();
-  vcf_cutoff_out.Write(engine.voice().cutoff());
+  part.ProcessBlock();
+  uint8_t filter_board = part.system_settings().expansion_filter_board;
+  uint8_t resonance = part.voice().resonance();
+  uint8_t gain = part.voice().vca();
+  uint8_t cv_1 = part.voice().cv_1();
+  uint8_t cv_2 = part.voice().cv_2();
+  vcf_cutoff_out.Write(part.voice().cutoff());
 
   if (filter_board == FILTER_BOARD_DSP) {
     DSPFilterBoardWrite();
   } else if (filter_board == FILTER_BOARD_PVK) {
     // Mirror unprocessed Cutoff/Resonance values for Shruthi-XP.
-    if (engine.system_settings().programmer == PROGRAMMER_FCD) {
-      uint8_t adjusted_cutoff = engine.voice().cutoff();
+    if (part.system_settings().programmer == PROGRAMMER_FCD) {
+      uint8_t adjusted_cutoff = part.voice().cutoff();
       if (adjusted_cutoff > 24) {
         adjusted_cutoff -= 24;
       } else {
@@ -133,8 +133,8 @@ void FillAudioBuffer() {
       cv_io.Disable();
       aux_uart_enabled = false;
     }
-    uint8_t level = engine.patch().filter_1_mode_;
-    uint8_t tilt = engine.patch().filter_2_mode_ << 1;
+    uint8_t level = part.patch().filter_1_mode_;
+    uint8_t tilt = part.patch().filter_2_mode_ << 1;
     uint8_t gain;
     gain = U8U8Mul(level, tilt < 16 ? tilt : 16);
     cv_2 = pgm_read_byte(wav_res_ssm2164_linearization + (gain >> 2));
@@ -146,14 +146,14 @@ void FillAudioBuffer() {
     resonance = U8U8MulShift8(~resonance, 160) + 48;
   } if (filter_board == FILTER_BOARD_4PM) {
     // Mirror unprocessed Cutoff/Resonance values for Shruthi-XP.
-    if (engine.system_settings().programmer == PROGRAMMER_FCD) {
+    if (part.system_settings().programmer == PROGRAMMER_FCD) {
       cv_1 = resonance;
-      cv_2 = engine.voice().cutoff();
+      cv_2 = part.voice().cutoff();
     }
     // If the resonance overdrive mode is not selected, half the scale of
     // the resonance setting. Resonance overdrive needs a very strong control
     // current on the OTA to kick in.
-    if ((engine.patch().filter_2_mode_ & 1) == 0) {
+    if ((part.patch().filter_2_mode_ & 1) == 0) {
       resonance = U8U8MulShift8(resonance, 92);
     } else {
       gain = ~gain;
@@ -200,7 +200,7 @@ void Init() {
   ui.Init();
   Storage::Init();
 
-  engine.Init();
+  part.Init();
   Timer<2>::Start();
 }
 

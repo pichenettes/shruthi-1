@@ -43,9 +43,11 @@ class Ui {
 
   static inline void Poll() {
     ++sub_clock_;
+    uint8_t sub_clock_2500 = sub_clock_ & 0x0f;
+    uint8_t sub_clock_1250 = sub_clock_ & 0x1f;
+    uint8_t sub_clock_625 = sub_clock_ & 0x3f;
 
-    // 40kHz / 16 -> refresh LCD and debounce encoder.
-    if ((sub_clock_ & 0xf) == 0) {
+    if (sub_clock_2500 == 0) {
       lcd.Tick();
       int8_t increment = encoder_.Read();
       if (increment != 0) {        
@@ -60,15 +62,13 @@ class Ui {
       }
     }
     
-    // Sub tasks at 40kHz / 32
-    uint8_t subtask = sub_clock_ & 0x1f;
-    if (subtask == 1) {
+    if (sub_clock_625 == 1) {
       WriteShiftRegister();
-    } else if (subtask == 2) {
+    } else if (sub_clock_625 == 2) {
       DebounceSwitches();
-    } else if (subtask == 3) {
+    } else if (sub_clock_1250 == 3) {
       ScanPotentiometers();
-    } else if (subtask == 4) {
+    } else if (sub_clock_1250 == 4) {
       TickSystemClock();
     }
   }

@@ -23,7 +23,6 @@
 
 #include "shruthi/patch.h"
 #include "shruthi/resources.h"
-#include "shruthi/synthesis_engine.h"
 #include "avrlib/op.h"
 
 using namespace avrlib;
