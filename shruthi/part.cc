@@ -46,15 +46,7 @@ Voice Part::voice_;
 VoiceAllocator Part::polychaining_allocator_;
 Lfo Part::lfo_[kNumLfos] = { };
 uint8_t Part::previous_lfo_fm_[kNumLfos];
-uint8_t Part::nrpn_parameter_number_msb_;
-uint8_t Part::nrpn_parameter_number_;
-uint8_t Part::data_entry_msb_;
-uint8_t Part::num_lfo_reset_steps_;
-uint8_t Part::lfo_reset_counter_;
-uint8_t Part::lfo_to_reset_;
 bool Part::dirty_;
-uint8_t Part::ignore_note_off_messages_;
-uint8_t Part::volume_;
 
 /* </static> */
 
@@ -69,7 +61,6 @@ void Part::Init() {
   }
   Reset();
   voice_.Init();
-  nrpn_parameter_number_ = 255;
   dirty_ = false;
 }
 
@@ -166,7 +157,6 @@ void Part::Touch(bool cascade) {
       Storage::SysExDump(&patch_);
     }
   }
-  volume_ = 255;
 }
 
 /* static */
@@ -262,7 +252,6 @@ void Part::ControlChange(uint8_t channel, uint8_t controller,
         set_modulation_source(MOD_SRC_WHEEL, value << 1);
         break;
       case midi::kModulationWheelJoystickMsb:
-        set_unregistered_modulation_source(0, value << 1);
         break;
       case midi::kDataEntryMsb:
         data_entry_msb_ = value << 7;
@@ -352,24 +341,6 @@ void Part::ControlChange(uint8_t channel, uint8_t controller,
 }
 
 /* static */
-void Part::PitchBend(uint8_t channel, uint16_t pitch_bend) {
-  uint8_t value = U14ShiftRight6(pitch_bend);
-  set_modulation_source(MOD_SRC_PITCH_BEND, value);
-}
-
-/* static */
-void Part::Aftertouch(uint8_t channel, uint8_t note,
-                                 uint8_t velocity) {
-                                   
-  set_modulation_source(MOD_SRC_AFTERTOUCH, velocity << 1);
-}
-
-/* static */
-void Part::Aftertouch(uint8_t channel, uint8_t velocity) {
-  set_modulation_source(MOD_SRC_AFTERTOUCH, velocity << 1);
-}
-
-/* static */
 void Part::AllSoundOff(uint8_t channel) {
   // controller_.AllSoundOff();
 }
@@ -381,11 +352,7 @@ void Part::AllNotesOff(uint8_t channel) {
 
 /* static */
 void Part::ResetAllControllers(uint8_t channel) {
-  set_modulation_source(MOD_SRC_PITCH_BEND, 128);
-  set_modulation_source(MOD_SRC_WHEEL, 0);
-  set_unregistered_modulation_source(0, 0);
-  set_modulation_source(MOD_SRC_OFFSET, 255);
-  volume_ = 255;
+  voice_.ResetAllControllers();
 }
 
 // When in Omni mode, disable Omni and enable reception only on the channel on
@@ -488,15 +455,13 @@ void Part::SetParameter(
 /* static */
 void Part::UpdateModulationRates() {
   // Update the LFO increments.
-  num_lfo_reset_steps_ = 0;
-  lfo_to_reset_ = 0;
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    if (patch_.lfo[i].rate < 16) {
+    /*if (patch_.lfo[i].rate < 16) {
       num_lfo_reset_steps_ = U8U8Mul(
           num_lfo_reset_steps_ ? num_lfo_reset_steps_ : 1,
           1 + patch_.lfo[i].rate);
       lfo_to_reset_ |= _BV(i);
-    }
+    }*/
     UpdateLfoRate(i);
   }
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
@@ -563,48 +528,26 @@ uint8_t Part::four_pole_routing_byte() {
 /* static */
 void Part::ProcessBlock() {
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    set_modulation_source(MOD_SRC_LFO_1 + i, lfo_[i].Render(
+    voice_.set_modulation_source(MOD_SRC_LFO_1 + i, lfo_[i].Render(
         sequencer_settings_));
   }
-  set_modulation_source(MOD_SRC_NOISE, Random::state_msb());
-
-  // Update the arpeggiator / step sequencer.
-  /*if (controller_.Control()) {
-    // We need to do a couple of things when the step sequencer advances to the
-    // next step:
-    // - periodically (eg whenever we move to step 0), recompute the LFO
-    // increments from the tempo, (if the LFO follows the tempo), since the
-    // tempo might have been modified by the user or the rate of the MIDI clock
-    // messages.
-    // - Reset the LFO value to 0 every n-th step. Otherwise, there might be a
-    // "synchronization drift" because of rounding errors.
-    ++lfo_reset_counter_;
-    if (lfo_reset_counter_ == num_lfo_reset_steps_) {
-      UpdateModulationRates();
-      for (uint8_t i = 0; i < kNumLfos; ++i) {
-        if (lfo_to_reset_ & _BV(i)) {
-          lfo_[i].ResetPhase();
-        }
-      }
-      lfo_reset_counter_ = 0;
-    }
-  }*/
+  voice_.set_modulation_source(MOD_SRC_NOISE, Random::state_msb());
 
   // Read/shift the value of the step sequencer.
   /*uint8_t step = (controller_.step() + \
       sequencer_settings_.pattern_rotation) & 0x0f;*/
   uint8_t step = 0;
-  set_modulation_source(
+  voice_.set_modulation_source(
       MOD_SRC_SEQ,
       sequencer_settings_.steps[step].controller() << 4);
   step &= 0x7;
-  set_modulation_source(
+  voice_.set_modulation_source(
       MOD_SRC_SEQ_1,
       sequencer_settings_.steps[step].controller() << 4);
-  set_modulation_source(
+  voice_.set_modulation_source(
       MOD_SRC_SEQ_2,
       sequencer_settings_.steps[step + 8].controller() << 4);
-  set_modulation_source(
+  voice_.set_modulation_source(
       MOD_SRC_STEP,
       /*controller_.has_arpeggiator_note() ? 255 : 0*/ 255);
       

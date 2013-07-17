@@ -99,7 +99,8 @@ void Ui::ScanPotentiometers() {
     adc_.StartConversion(pots_multiplexer_address_);
     if (address >= 4) {
       generate_ui_event = false;
-      part.set_modulation_source(MOD_SRC_CV_1 + address - 4, value >> 2);
+      part.mutable_voice()->set_modulation_source(
+          MOD_SRC_CV_1 + address - 4, value >> 2);
     }
   } else if (part.system_settings().programmer == PROGRAMMER_FCD) {
     pots_multiplexer_address_++;

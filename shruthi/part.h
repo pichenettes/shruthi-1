@@ -43,9 +43,15 @@ class Part : public midi::MidiDevice {
 
   // Handled.
   static void ControlChange(uint8_t channel, uint8_t controller, uint8_t value);
-  static void PitchBend(uint8_t channel, uint16_t pitch_bend);
-  static void Aftertouch(uint8_t channel, uint8_t note, uint8_t velocity);
-  static void Aftertouch(uint8_t channel, uint8_t velocity);
+  static void PitchBend(uint8_t channel, uint16_t pitch_bend) {
+    voice_.PitchBend(pitch_bend);
+  }
+  static void Aftertouch(uint8_t channel, uint8_t note, uint8_t velocity) {
+    voice_.Aftertouch(velocity);
+  }
+  static void Aftertouch(uint8_t channel, uint8_t velocity) {
+    voice_.Aftertouch(velocity);
+  }
   static void AllSoundOff(uint8_t channel);
   static void ResetAllControllers(uint8_t channel);
   static void AllNotesOff(uint8_t channel);
@@ -68,12 +74,6 @@ class Part : public midi::MidiDevice {
       bool user_initiated);
   static inline uint8_t GetParameter(uint8_t offset) {
     return data_access_byte_[offset + 1];
-  }
-  static void set_modulation_source(uint8_t index, uint8_t value) {
-    voice_.set_modulation_source(index, value);
-  }
-  static void set_unregistered_modulation_source(uint8_t index, uint8_t value) {
-    voice_.set_unregistered_modulation_source(index, value);
   }
   static void ResetPatch();
   static void ResetSequencerSettings();
@@ -116,6 +116,7 @@ class Part : public midi::MidiDevice {
   }
 
   static const Voice& voice() { return voice_; }
+  static Voice* mutable_voice() { return &voice_; }
   
   static inline bool dirty() {
     bool value = dirty_;
@@ -183,17 +184,12 @@ class Part : public midi::MidiDevice {
   static Lfo lfo_[kNumLfos];
   static uint8_t previous_lfo_fm_[kNumLfos];
 
-  static uint8_t num_lfo_reset_steps_;  // resync the LFO every n-th step.
-  static uint8_t lfo_reset_counter_;
   static uint8_t lfo_to_reset_;
+
   static Voice voice_;
   static VoiceAllocator polychaining_allocator_;
-  static uint8_t nrpn_parameter_number_;
-  static uint8_t nrpn_parameter_number_msb_;
-  static uint8_t data_entry_msb_;
+
   static bool dirty_;
-  static uint8_t volume_;
-  static uint8_t ignore_note_off_messages_;  // For hold pedal.
 
   // Called whenever a parameter related to LFOs/envelopes is modified (for now
   // everytime a parameter is modified by the user).

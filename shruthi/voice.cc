@@ -61,6 +61,7 @@ uint8_t Voice::sync_state_[kAudioBlockSize];
 uint8_t Voice::no_sync_[kAudioBlockSize];
 uint8_t Voice::dummy_sync_state_[kAudioBlockSize];
 uint8_t Voice::trigger_count_;
+uint8_t Voice::volume_;
 /* </static> */
 
 /* static */
@@ -71,10 +72,6 @@ void Voice::Init() {
     envelope_[i].Init();
   }
   memset(no_sync_, 0, kAudioBlockSize);
-  modulation_sources_[MOD_SRC_VALUE_4] = 4;
-  modulation_sources_[MOD_SRC_VALUE_8] = 8;
-  modulation_sources_[MOD_SRC_VALUE_16] = 16;
-  modulation_sources_[MOD_SRC_VALUE_32] = 32;
   
   // Fill the "user" wavetable with data from an existing wavetable.
   ResourcesManager::Load(
@@ -82,6 +79,8 @@ void Voice::Init() {
       user_wavetable,
       kUserWavetableSize);
   Release();
+  
+  ResetAllControllers();
 }
 
 /* static */
@@ -94,6 +93,24 @@ void Voice::TriggerEnvelope(uint8_t stage) {
 /* static */
 void Voice::TriggerEnvelope(uint8_t index, uint8_t stage) {
   envelope_[index].Trigger(stage);
+}
+
+/* static */
+void Voice::PitchBend(uint16_t value) {
+  modulation_sources_[MOD_SRC_PITCH_BEND] = U14ShiftRight6(value);
+}
+
+/* static */
+void Voice::ResetAllControllers() {
+  modulation_sources_[MOD_SRC_VALUE_4] = 4;
+  modulation_sources_[MOD_SRC_VALUE_8] = 8;
+  modulation_sources_[MOD_SRC_VALUE_16] = 16;
+  modulation_sources_[MOD_SRC_VALUE_32] = 32;
+  modulation_sources_[MOD_SRC_PITCH_BEND] = 128;
+  modulation_sources_[MOD_SRC_WHEEL] = 0;
+  modulation_sources_[MOD_SRC_OFFSET] = 255;
+  unregistered_modulation_sources_[0] = 0;
+  volume_ = 255;
 }
 
 /* static */
@@ -235,7 +252,7 @@ inline void Voice::LoadSources() {
     }
   }
 
-  modulation_destinations_[MOD_DST_VCA] = part.volume_;
+  modulation_destinations_[MOD_DST_VCA] = volume_;
   
   // Load and scale to 0-16383 the initial value of each modulated parameter.
   dst_[MOD_DST_FILTER_CUTOFF] = U8U8Mul(

@@ -79,15 +79,19 @@ class Voice {
     modulation_sources_[i] = value;
   }
 
-  static inline void set_unregistered_modulation_source(
-      uint8_t i,
-      uint8_t value) {
-    unregistered_modulation_sources_[i] = value;
+  static inline void set_volume(uint8_t volume) {
+    volume_ = volume;
   }
   
   static Envelope* mutable_envelope(uint8_t i) { return &envelope_[i]; }
   static void TriggerEnvelope(uint8_t stage);
   static void TriggerEnvelope(uint8_t index, uint8_t stage);
+  
+  static void Aftertouch(uint8_t value) {
+    modulation_sources_[MOD_SRC_AFTERTOUCH] = value << 1;
+  }
+  static void PitchBend(uint16_t value);
+  static void ResetAllControllers();
   
  private:
   static inline void LoadSources() __attribute__((always_inline));
@@ -130,6 +134,8 @@ class Voice {
   static uint8_t no_sync_[kAudioBlockSize];
   static uint8_t dummy_sync_state_[kAudioBlockSize];
   static uint8_t trigger_count_;
+  
+  static uint8_t volume_;
 
   DISALLOW_COPY_AND_ASSIGN(Voice);
 };
