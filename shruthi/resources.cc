@@ -68,8 +68,7 @@ static const prog_char str_res_bpm[] PROGMEM = "bpm";
 static const prog_char str_res_groove[] PROGMEM = "groove";
 static const prog_char str_res_direction[] PROGMEM = "direction";
 static const prog_char str_res_pattern[] PROGMEM = "pattern";
-static const prog_char str_res_warp[] PROGMEM = "warp";
-static const prog_char str_res_wrp[] PROGMEM = "wrp";
+static const prog_char str_res_division[] PROGMEM = "division";
 static const prog_char str_res_start[] PROGMEM = "start";
 static const prog_char str_res_split[] PROGMEM = "split";
 static const prog_char str_res_length[] PROGMEM = "length";
@@ -275,10 +274,6 @@ static const prog_char str_res_v[] PROGMEM = "v";
 static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_extern[] PROGMEM = "extern";
-static const prog_char str_res_x2_ext[] PROGMEM = "x2 ext";
-static const prog_char str_res__2_ext[] PROGMEM = "/2 ext";
-static const prog_char str_res__4_ext[] PROGMEM = "/4 ext";
-static const prog_char str_res__8_ext[] PROGMEM = "/8 ext";
 static const prog_char str_res_sum[] PROGMEM = "sum";
 static const prog_char str_res_sync[] PROGMEM = "sync";
 static const prog_char str_res_ring[] PROGMEM = "ring";
@@ -293,39 +288,27 @@ static const prog_char str_res_4steps[] PROGMEM = "4steps";
 static const prog_char str_res_8steps[] PROGMEM = "8steps";
 static const prog_char str_res_seqmix[] PROGMEM = "seqmix";
 static const prog_char str_res_stp[] PROGMEM = "stp";
-static const prog_char str_res_arpSlt[] PROGMEM = "arp+lt";
-static const prog_char str_res_seqSlt[] PROGMEM = "seq+lt";
-static const prog_char str_res_rec[] PROGMEM = "rec";
-static const prog_char str_res_impro[] PROGMEM = "impro";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
-static const prog_char str_res_T[] PROGMEM = "~";
-static const prog_char str_res__[] PROGMEM = "";
-static const prog_char str_res_T_[] PROGMEM = "~-";
-static const prog_char str_res__T_[] PROGMEM = "~";
-static const prog_char str_res_glass[] PROGMEM = "glass";
-static const prog_char str_res_krama[] PROGMEM = "krama";
-static const prog_char str_res_jata[] PROGMEM = "jata";
-static const prog_char str_res_sikha[] PROGMEM = "sikha";
-static const prog_char str_res_ghana[] PROGMEM = "ghana";
-static const prog_char str_res_2glass[] PROGMEM = "2glass";
-static const prog_char str_res_2krama[] PROGMEM = "2krama";
-static const prog_char str_res_2jata[] PROGMEM = "2jata";
-static const prog_char str_res_2sikha[] PROGMEM = "2sikha";
-static const prog_char str_res_2ghana[] PROGMEM = "2ghana";
-static const prog_char str_res_4glass[] PROGMEM = "4glass";
-static const prog_char str_res_4krama[] PROGMEM = "4krama";
-static const prog_char str_res_4jata[] PROGMEM = "4jata";
-static const prog_char str_res_4sikha[] PROGMEM = "4sikha";
-static const prog_char str_res_4ghana[] PROGMEM = "4ghana";
+static const prog_char str_res_1_1[] PROGMEM = "1/1";
+static const prog_char str_res_1_2[] PROGMEM = "1/2";
+static const prog_char str_res_1_3[] PROGMEM = "1/3";
+static const prog_char str_res_1_4[] PROGMEM = "1/4";
+static const prog_char str_res_1_6[] PROGMEM = "1/6";
+static const prog_char str_res_1_8[] PROGMEM = "1/8";
+static const prog_char str_res__12[] PROGMEM = "/12";
+static const prog_char str_res__16[] PROGMEM = "/16";
+static const prog_char str_res__24[] PROGMEM = "/24";
+static const prog_char str_res__32[] PROGMEM = "/32";
+static const prog_char str_res__48[] PROGMEM = "/48";
+static const prog_char str_res__96[] PROGMEM = "/96";
 static const prog_char str_res_swing[] PROGMEM = "swing";
 static const prog_char str_res_shuffle[] PROGMEM = "shuffle";
 static const prog_char str_res_push[] PROGMEM = "push";
 static const prog_char str_res_human[] PROGMEM = "human";
 static const prog_char str_res_monkey[] PROGMEM = "monkey";
 static const prog_char str_res_thru[] PROGMEM = "thru";
-static const prog_char str_res_ctrl[] PROGMEM = "ctrl";
 static const prog_char str_res_full[] PROGMEM = "full";
 static const prog_char str_res_1Tv[] PROGMEM = "1~|";
 static const prog_char str_res_2T1[] PROGMEM = "2~1";
@@ -343,7 +326,8 @@ static const prog_char str_res_step[] PROGMEM = "step";
 static const prog_char str_res_3[] PROGMEM = "";
 static const prog_char str_res_4[] PROGMEM = "";
 static const prog_char str_res_34[] PROGMEM = "";
-static const prog_char str_res___[] PROGMEM = "?";
+static const prog_char str_res__[] PROGMEM = "?";
+static const prog_char str_res_played[] PROGMEM = "played";
 static const prog_char str_res_on[] PROGMEM = "on";
 static const prog_char str_res_tr1[] PROGMEM = "tr1";
 static const prog_char str_res_pl1[] PROGMEM = "pl1";
@@ -474,8 +458,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_groove,
   str_res_direction,
   str_res_pattern,
-  str_res_warp,
-  str_res_wrp,
+  str_res_division,
   str_res_start,
   str_res_split,
   str_res_length,
@@ -700,10 +683,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_mutable____v1_00,
   str_res_instruments_671,
   str_res_extern,
-  str_res_x2_ext,
-  str_res__2_ext,
-  str_res__4_ext,
-  str_res__8_ext,
   str_res_sum,
   str_res_sync,
   str_res_ring,
@@ -720,33 +699,22 @@ PROGMEM const prog_char* string_table[] = {
   str_res_seqmix,
   str_res_stp,
   str_res_arp,
-  str_res_arpSlt,
   str_res_seq,
-  str_res_seqSlt,
-  str_res_rec,
-  str_res_impro,
   str_res_free,
   str_res_slave,
   str_res_master,
-  str_res_T,
-  str_res__,
-  str_res_T_,
-  str_res__T_,
-  str_res_glass,
-  str_res_krama,
-  str_res_jata,
-  str_res_sikha,
-  str_res_ghana,
-  str_res_2glass,
-  str_res_2krama,
-  str_res_2jata,
-  str_res_2sikha,
-  str_res_2ghana,
-  str_res_4glass,
-  str_res_4krama,
-  str_res_4jata,
-  str_res_4sikha,
-  str_res_4ghana,
+  str_res_1_1,
+  str_res_1_2,
+  str_res_1_3,
+  str_res_1_4,
+  str_res_1_6,
+  str_res_1_8,
+  str_res__12,
+  str_res__16,
+  str_res__24,
+  str_res__32,
+  str_res__48,
+  str_res__96,
   str_res_swing,
   str_res_shuffle,
   str_res_push,
@@ -756,8 +724,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res___off,
   str_res_thru,
   str_res_seq,
-  str_res_ctrl,
-  str_res_split,
   str_res_full,
   str_res_1Tv,
   str_res_2T1,
@@ -775,7 +741,8 @@ PROGMEM const prog_char* string_table[] = {
   str_res_3,
   str_res_4,
   str_res_34,
-  str_res___,
+  str_res__,
+  str_res_played,
   str_res___off,
   str_res_on,
   str_res__sq1,
@@ -1050,10 +1017,6 @@ const prog_uint16_t lut_res_arpeggiator_patterns[] PROGMEM = {
    21845,  30583,  62965,  46517,  28527,   2313,  18761,  21065,
    18725,  56283,  30431,  43281,  54553,  28609,  53505,
 };
-const prog_uint16_t lut_res_turbo_tempi[] PROGMEM = {
-     270,    300,    330,    360,    420,    480,    600,    720,
-     960,
-};
 const prog_uint16_t lut_res_groove_swing[] PROGMEM = {
      127,    127,   -127,   -127,    127,    127,   -127,   -127,
      127,    127,   -127,   -127,    127,    127,   -127,   -127,
@@ -1118,13 +1081,46 @@ PROGMEM const prog_uint16_t* lookup_table_table[] = {
   lut_res_scale_jogeshwari,
   lut_res_scale_yaman,
   lut_res_arpeggiator_patterns,
-  lut_res_turbo_tempi,
   lut_res_groove_swing,
   lut_res_groove_shuffle,
   lut_res_groove_push,
   lut_res_groove_lag,
   lut_res_groove_human,
   lut_res_groove_monkey,
+};
+
+const prog_uint32_t lut_res_tempo_phase_increment[] PROGMEM = {
+  3504693, 3592310, 3679927, 3767545, 3855162, 3942779, 4030397, 4118014,
+  4205631, 4293249, 4380866, 4468483, 4556101, 4643718, 4731335, 4818953,
+  4906570, 4994187, 5081805, 5169422, 5257039, 5344657, 5432274, 5519891,
+  5607509, 5695126, 5782743, 5870361, 5957978, 6045595, 6133213, 6220830,
+  6308447, 6396065, 6483682, 6571299, 6658917, 6746534, 6834151, 6921769,
+  7009386, 7097003, 7184621, 7272238, 7359855, 7447473, 7535090, 7622707,
+  7710325, 7797942, 7885559, 7973177, 8060794, 8148411, 8236029, 8323646,
+  8411263, 8498881, 8586498, 8674115, 8761733, 8849350, 8936967, 9024585,
+  9112202, 9199819, 9287437, 9375054, 9462671, 9550289, 9637906, 9725523,
+  9813141, 9900758, 9988375, 10075993, 10163610, 10251227, 10338845, 10426462,
+  10514079, 10601697, 10689314, 10776931, 10864549, 10952166, 11039783, 11127401,
+  11215018, 11302635, 11390253, 11477870, 11565487, 11653105, 11740722, 11828339,
+  11915957, 12003574, 12091191, 12178809, 12266426, 12354043, 12441661, 12529278,
+  12616895, 12704513, 12792130, 12879747, 12967365, 13054982, 13142599, 13230217,
+  13317834, 13405451, 13493069, 13580686, 13668303, 13755921, 13843538, 13931155,
+  14018773, 14106390, 14194007, 14281625, 14369242, 14456859, 14544477, 14632094,
+  14719711, 14807329, 14894946, 14982563, 15070181, 15157798, 15245415, 15333033,
+  15420650, 15508267, 15595885, 15683502, 15771119, 15858737, 15946354, 16033971,
+  16121589, 16209206, 16296823, 16384441, 16472058, 16559675, 16647293, 16734910,
+  16822527, 16910145, 16997762, 17085379, 17172997, 17260614, 17348231, 17435849,
+  17523466, 17611083, 17698701, 17786318, 17873935, 17961553, 18049170, 18136787,
+  18224405, 18312022, 18399639, 18487257, 18574874, 18662491, 18750109, 18837726,
+  18925343, 19012961, 19100578, 19188195, 19275813, 19363430, 19451047, 19538665,
+  19626282, 19713899, 19801517, 19889134, 19976751, 20064369, 20151986, 20239603,
+  20327221, 20414838, 20502455, 20590073, 20677690, 20765307, 20852925, 20940542,
+  21028159,
+};
+
+
+const prog_uint32_t* lookup_table32_table[] = {
+  lut_res_tempo_phase_increment,
 };
 
 const prog_uint8_t wav_res_formant_sine[] PROGMEM = {
@@ -1799,69 +1795,6 @@ const prog_uint8_t wav_res_vowel_data[] PROGMEM = {
        0,      0,      6,     46,     81,     12,      3,      0,
        0,      9,     51,     95,     15,      3,      0,      3,
        6,     73,     99,      7,      3,     14,      9,
-};
-const prog_uint8_t wav_res_expansion_krama[] PROGMEM = {
-       0,      1,      1,      2,      2,      3,      3,      4,
-       4,      5,      5,      6,      6,      7,      7,      8,
-       8,      9,      9,     10,     10,     11,     11,     12,
-      12,     13,     13,     14,     14,     15,
-};
-const prog_uint8_t wav_res_expansion_jata[] PROGMEM = {
-       0,      1,      1,      0,      0,      1,      1,      2,
-       2,      1,      1,      2,      2,      3,      3,      2,
-       2,      3,      3,      4,      4,      3,      3,      4,
-       4,      5,      5,      4,      4,      5,      5,      6,
-       6,      5,      5,      6,      6,      7,      7,      6,
-       6,      7,      7,      8,      8,      7,      7,      8,
-       8,      9,      9,      8,      8,      9,      9,     10,
-      10,      9,      9,     10,     10,     11,     11,     10,
-      10,     11,     11,     12,     12,     11,     11,     12,
-      12,     13,     13,     12,     12,     13,     13,     14,
-      14,     13,     13,     14,     14,     15,     15,     14,
-      14,     15,
-};
-const prog_uint8_t wav_res_expansion_sikha[] PROGMEM = {
-       0,      1,      2,      2,      1,      0,      0,      1,
-       2,      1,      2,      3,      3,      2,      1,      1,
-       2,      3,      2,      3,      4,      4,      3,      2,
-       2,      3,      4,      3,      4,      5,      5,      4,
-       3,      3,      4,      5,      4,      5,      6,      6,
-       5,      4,      4,      5,      6,      5,      6,      7,
-       7,      6,      5,      5,      6,      7,      6,      7,
-       8,      8,      7,      6,      6,      7,      8,      7,
-       8,      9,      9,      8,      7,      7,      8,      9,
-       8,      9,     10,     10,      9,      8,      8,      9,
-      10,      9,     10,     11,     11,     10,      9,      9,
-      10,     11,     10,     11,     12,     12,     11,     10,
-      10,     11,     12,     11,     12,     13,     13,     12,
-      11,     11,     12,     13,     12,     13,     14,     14,
-      13,     12,     12,     13,     14,     13,     14,     15,
-      15,     14,     13,     13,     14,     15,
-};
-const prog_uint8_t wav_res_expansion_ghana[] PROGMEM = {
-       0,      1,      1,      0,      0,      1,      2,      2,
-       1,      0,      0,      1,      2,      1,      2,      2,
-       1,      1,      2,      3,      3,      2,      1,      1,
-       2,      3,      2,      3,      3,      2,      2,      3,
-       4,      4,      3,      2,      2,      3,      4,      3,
-       4,      4,      3,      3,      4,      5,      5,      4,
-       3,      3,      4,      5,      4,      5,      5,      4,
-       4,      5,      6,      6,      5,      4,      4,      5,
-       6,      5,      6,      6,      5,      5,      6,      7,
-       7,      6,      5,      5,      6,      7,      6,      7,
-       7,      6,      6,      7,      8,      8,      7,      6,
-       6,      7,      8,      7,      8,      8,      7,      7,
-       8,      9,      9,      8,      7,      7,      8,      9,
-       8,      9,      9,      8,      8,      9,     10,     10,
-       9,      8,      8,      9,     10,      9,     10,     10,
-       9,      9,     10,     11,     11,     10,      9,      9,
-      10,     11,     10,     11,     11,     10,     10,     11,
-      12,     12,     11,     10,     10,     11,     12,     11,
-      12,     12,     11,     11,     12,     13,     13,     12,
-      11,     11,     12,     13,     12,     13,     13,     12,
-      12,     13,     14,     14,     13,     12,     12,     13,
-      14,     13,     14,     14,     13,     13,     14,     15,
-      15,     14,     13,     13,     14,     15,
 };
 const prog_uint8_t wav_res_distortion[] PROGMEM = {
        2,      2,      2,      2,      2,      2,      2,      2,
@@ -4063,10 +3996,6 @@ const prog_uint8_t* waveform_table[] = {
   wav_res_bandlimited_triangle_5,
   wav_res_sine,
   wav_res_vowel_data,
-  wav_res_expansion_krama,
-  wav_res_expansion_jata,
-  wav_res_expansion_sikha,
-  wav_res_expansion_ghana,
   wav_res_distortion,
   wav_res_env_expo,
   wav_res_ssm2164_linearization,

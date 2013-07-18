@@ -41,11 +41,14 @@ class Voice {
   static void Init();
 
   // Called whenever a new note is played, manually or through the arpeggiator.
-  static void Trigger(uint8_t note, uint8_t velocity, uint8_t legato);
-  static void TriggerSecondNote(uint8_t note);
+  static void NoteOn(
+      uint16_t note,
+      uint8_t velocity,
+      uint8_t portamento,
+      bool trigger);
 
   // Move this voice to the release stage.
-  static void Release();
+  static void NoteOff();
 
   // Move this voice to the release stage.
   static void Kill() { TriggerEnvelope(DEAD); }

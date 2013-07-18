@@ -43,7 +43,7 @@
 
 #include "avrlib/base.h"
 
-static const uint8_t kNoteStackSize = 16;
+static const uint8_t kNoteStackSize = 8;
 
 namespace shruthi {
 
@@ -56,32 +56,42 @@ struct NoteEntry {
 class NoteStack {
  public: 
   NoteStack() { }
-  static void Init() { Clear(); }
+  void Init() { Clear(); }
 
-  static void NoteOn(uint8_t note, uint8_t velocity);
-  static void NoteOff(uint8_t note);
-  static void Clear();
+  void NoteOn(uint8_t note, uint8_t velocity);
+  void NoteOff(uint8_t note);
+  void Clear();
 
-  static uint8_t size() { return size_; }
-  static const NoteEntry& most_recent_note() { return pool_[root_ptr_]; }
-  static const NoteEntry& least_recent_note() {
+  uint8_t size() { return size_; }
+  uint8_t max_size() { return kNoteStackSize; }
+  const NoteEntry& most_recent_note() { return pool_[root_ptr_]; }
+  const NoteEntry& least_recent_note() {
     uint8_t current = root_ptr_;
     while (current && pool_[current].next_ptr) {
       current = pool_[current].next_ptr;
     }
     return pool_[current];
   }
-  static const NoteEntry& sorted_note(uint8_t index) {
+  const NoteEntry& sorted_note(uint8_t index) {
     return pool_[sorted_ptr_[index]];
   }
-  static const NoteEntry& note(uint8_t index) { return pool_[index]; }
-  static const NoteEntry& dummy() { return pool_[0]; }
+  const NoteEntry& played_note(uint8_t index) const {
+    uint8_t current = root_ptr_;
+    index = size_ - index - 1;
+    for (uint8_t i = 0; i < index; ++i) {
+      current = pool_[current].next_ptr;
+    }
+    return pool_[current];
+  }
+  const NoteEntry& note(uint8_t index) { return pool_[index]; }
+  NoteEntry* mutable_note(uint8_t index) { return &pool_[index]; }
+  const NoteEntry& dummy() { return pool_[0]; }
 
  private:
-  static uint8_t size_;
-  static NoteEntry pool_[kNoteStackSize + 1];  // First element is a dummy node!
-  static uint8_t root_ptr_;  // Base 1.
-  static uint8_t sorted_ptr_[kNoteStackSize + 1];  // Base 1.
+  uint8_t size_;
+  NoteEntry pool_[kNoteStackSize + 1];  // First element is a dummy node!
+  uint8_t root_ptr_;  // Base 1.
+  uint8_t sorted_ptr_[kNoteStackSize + 1];  // Base 1.
 
   DISALLOW_COPY_AND_ASSIGN(NoteStack);
 };

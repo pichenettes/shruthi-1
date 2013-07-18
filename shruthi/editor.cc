@@ -264,7 +264,7 @@ void Editor::ShowEditCursor() {
 void Editor::RandomizeParameter(uint8_t subpage, uint8_t parameter_index) {
   const Parameter& parameter = parameter_manager.parameter(parameter_index);
   uint8_t value = parameter.RandomValue();
-  part.SetParameter(parameter.offset + subpage * 3, value, false);
+  part.SetParameter(parameter.offset + subpage * 3, value, true);
 }
 
 /* static */
@@ -388,6 +388,15 @@ void Editor::HandleInput(uint8_t knob_index, uint8_t value) {
 void Editor::HandleIncrement(int8_t increment) {
   (*ui_handler_[page_definition_[current_page_].ui_type].increment_handler)(
       increment);
+}
+
+/* static */
+void Editor::HandleLongClick() {
+  if (!part.latched()) {
+    part.Latch();
+  } else {
+    part.Unlatch();
+  }
 }
 
 /* static */
@@ -657,7 +666,7 @@ void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
           cursor_ = new_size - 1;
         }
         last_knob_ = 1;
-        part.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, false);
+        part.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, true);
       }
       break;
   }
@@ -671,7 +680,7 @@ void Editor::HandleStepSequencerInput(uint8_t knob_index, uint8_t value) {
     seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
         value >> 3);
   } else if (knob_index == 0) {
-    part.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, false);
+    part.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, true);
     last_knob_ = 0;
   }
 }

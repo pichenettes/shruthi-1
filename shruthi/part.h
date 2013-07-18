@@ -18,9 +18,9 @@
 
 #include "shruthi/shruthi.h"
 
-#include "midi/midi.h"
 #include "shruthi/envelope.h"
 #include "shruthi/lfo.h"
+#include "shruthi/note_stack.h"
 #include "shruthi/part.h"
 #include "shruthi/patch.h"
 #include "shruthi/sequencer_settings.h"
@@ -30,7 +30,7 @@
 
 namespace shruthi {
 
-class Part : public midi::MidiDevice {
+class Part {
   friend class Voice;
 
  public:
@@ -39,7 +39,7 @@ class Part : public midi::MidiDevice {
 
   // Forwarded to the controller.
   static void NoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
-  static void NoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
+  static void NoteOff(uint8_t channel, uint8_t note);
 
   // Handled.
   static void ControlChange(uint8_t channel, uint8_t controller, uint8_t value);
@@ -58,9 +58,9 @@ class Part : public midi::MidiDevice {
   static void OmniModeOff(uint8_t channel);
   static void OmniModeOn(uint8_t channel);
   static void Reset();
-  static void Clock();
-  static void Start();
-  static void Stop();
+  static void Clock(bool internal);
+  static void Start(bool internal);
+  static void Stop(bool internal);
 
   static void ProcessBlock();  
   static void SetName(uint8_t* name);
@@ -92,8 +92,8 @@ class Part : public midi::MidiDevice {
     }
   }
   
-  static inline bool running() { return false; }
-  static inline uint8_t step() { return 0; }
+  static inline bool running() { return arp_seq_running_; }
+  static inline uint8_t step() { return arp_seq_step_; }
   
   static inline const Patch& patch() { return patch_; }
   static inline const SequencerSettings& sequencer_settings() {
@@ -175,26 +175,61 @@ class Part : public midi::MidiDevice {
     return byte;
   }
   
- private:
-  static uint8_t data_access_byte_[1];
-  static Patch patch_;
-  static SequencerSettings sequencer_settings_;
-  static SystemSettings system_settings_;
+  inline bool latched() { return ignore_note_off_messages_; }
+  inline static void Latch() {
+    ignore_note_off_messages_ = true;
+    release_latched_keys_on_next_note_on_ = true;
+  }
   
-  static Lfo lfo_[kNumLfos];
-  static uint8_t previous_lfo_fm_[kNumLfos];
-
-  static uint8_t lfo_to_reset_;
-
-  static Voice voice_;
-  static VoiceAllocator polychaining_allocator_;
-
-  static bool dirty_;
-
+  inline static void Unlatch() {
+    ignore_note_off_messages_ = false;
+    release_latched_keys_on_next_note_on_ = true;
+  }
+  
+ private:
   // Called whenever a parameter related to LFOs/envelopes is modified (for now
   // everytime a parameter is modified by the user).
   static void UpdateModulationRates();
   static void UpdateLfoRate(uint8_t i);
+  static void AllNotesOff();
+  static void StopSequencerArpeggiatorNotes();
+  static void ReleaseLatchedNotes();
+  static void InternalNoteOn(uint8_t note, uint8_t velocity);
+  static void InternalNoteOff(uint8_t note);
+  static void ClockArpeggiator();
+  static void ClockSequencer();
+  
+  static uint16_t Tune(uint8_t note);
+  static uint8_t step_duration();
+   
+  static uint8_t data_access_byte_[1];
+  static Patch patch_;
+  static SequencerSettings sequencer_settings_;
+  static SystemSettings system_settings_;
+  static bool dirty_;
+  
+  static Voice voice_;
+  static NoteStack mono_allocator_;
+  static NoteStack pressed_keys_;
+  static NoteStack generated_notes_;
+  static VoiceAllocator poly_allocator_;
+  static bool release_latched_keys_on_next_note_on_;
+  static bool ignore_note_off_messages_;
+
+  static Lfo lfo_[kNumLfos];
+  static uint8_t previous_lfo_fm_[kNumLfos];
+
+  // Sequencer stuff
+  static bool arp_seq_running_;
+  static uint8_t arp_seq_prescaler_;
+  static uint8_t arp_seq_step_;
+  static int8_t arp_note_;
+  static int8_t arp_octave_;
+  static int8_t arp_direction_;
+  static uint16_t arp_seq_gate_length_counter_;
+  static int8_t swing_amount_;
+  static uint8_t internal_clock_blank_ticks_;
+  static int8_t seq_transposition_;
 
   DISALLOW_COPY_AND_ASSIGN(Part);
 };

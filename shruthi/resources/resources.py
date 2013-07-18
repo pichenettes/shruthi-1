@@ -65,6 +65,8 @@ resources = [
    'string', 'STR_RES', 'prog_char', str, False),
   (lookup_tables.lookup_tables,
    'lookup_table', 'LUT_RES', 'prog_uint16_t', int, False),
+  (lookup_tables.lookup_tables32,
+   'lookup_table32', 'LUT_RES', 'prog_uint32_t', int, True),
   (waveforms.waveforms,
    'waveform', 'WAV_RES', 'prog_uint8_t', int, True),
   (characters.characters, 'character', 'CHR_RES', 'prog_uint8_t', int, True),

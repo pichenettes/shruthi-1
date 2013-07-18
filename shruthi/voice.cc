@@ -48,7 +48,6 @@ uint8_t Voice::gate_;
 int16_t Voice::pitch_increment_;
 int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
-int16_t Voice::aux_pitch_;
 uint8_t Voice::modulation_sources_[kNumModulationSources];
 uint8_t Voice::unregistered_modulation_sources_[1];
 int8_t Voice::modulation_destinations_[kNumModulationDestinations];
@@ -78,7 +77,7 @@ void Voice::Init() {
       wav_res_waves,
       user_wavetable,
       kUserWavetableSize);
-  Release();
+  NoteOff();
   
   ResetAllControllers();
 }
@@ -114,56 +113,22 @@ void Voice::ResetAllControllers() {
 }
 
 /* static */
-uint16_t Voice::NoteToPitch(uint8_t note) {
-  if (part.system_settings_.raga) {
-    int16_t pitch_shift = ResourcesManager::Lookup<int16_t, uint8_t>(
-        ResourceId(LUT_RES_SCALE_JUST + part.system_settings_.raga - 1),
-        note % 12);
-    if (pitch_shift != 32767) {
-      return U8U8Mul(note, 128) + pitch_shift;
-    } else {
-      // Some scales/raga settings might have muted notes. Do not trigger
-      // anything in this case!
-      return 0;
-    }
-  } else {
-    return U8U8Mul(note, 128);
-  }
-}
-
-/* static */
-void Voice::TriggerSecondNote(uint8_t note) {
-  aux_pitch_ = NoteToPitch(note);
-  if (aux_pitch_ == pitch_target_) {
-    aux_pitch_ = 0;
-  }
-}
-
-/* static */
-void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
-  if ((velocity >= 128) && part.patch_.osc[0].option == OP_DUO) {
-    // In duophonic mode, ignore the stack retriggering.
+void Voice::NoteOn(
+    uint16_t pitch,
+    uint8_t velocity,
+    uint8_t portamento,
+    bool trigger) {
+  if (pitch == 0) {
     return;
   }
-  velocity &= 0x7f;
-  aux_pitch_ = pitch_target_;
-  uint16_t pitch = NoteToPitch(note);
-  if (pitch == 0) {
-    if (legato) {
-      legato = 255;
-    }
-  } else {
-    pitch_target_ = pitch;
-  }
-  if (!legato || (!part.system_settings_.legato && legato != 255)) {
+  
+  pitch_target_ = pitch;
+  if (trigger || pitch_value_ == 0) {
     for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
       if (!disable_envelope_auto_retriggering_[i]) {
         envelope_[i].Trigger(ATTACK);
       }
     }
-    /*if (part.voice_controller().notes().size() == 1 && !legato) {
-      aux_pitch_ = 0;
-    }*/
     ++trigger_count_;
     gate_ = 255;
     // The LFOs are shared by all voices, so if there are other voices still
@@ -174,30 +139,31 @@ void Voice::Trigger(uint8_t note, uint8_t velocity, uint8_t legato) {
     transient_generator.Trigger();
     modulation_sources_[MOD_SRC_VELOCITY] = velocity << 1;
     modulation_sources_[MOD_SRC_RANDOM] = Random::state_msb();
+    osc_1.Reset();
     osc_2.Reset();
   }
-  // At boot up, or when the note is not played legato and the portamento
-  // is in auto mode, do not ramp up the pitch but jump straight to the target
-  // pitch.
-  if (pitch_value_ == 0 || (!legato && part.system_settings_.legato)) {
-    pitch_value_ = pitch_target_;
-  }
-  int16_t delta = pitch_target_ - pitch_value_;
-  int32_t increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
-      lut_res_env_portamento_increments,
-      part.system_settings_.portamento);
-  pitch_increment_ = (delta * increment) >> 16;
-  if (pitch_increment_ == 0) {
-    if (delta < 0) {
-      pitch_increment_ = -1;
-    } else {
-      pitch_increment_ = 1;
+  
+  if (portamento) {
+    int16_t delta = pitch_target_ - pitch_value_;
+    int32_t increment = ResourcesManager::Lookup<uint16_t, uint8_t>(
+        lut_res_env_portamento_increments,
+        portamento);
+    pitch_increment_ = (delta * increment) >> 16;
+    if (pitch_increment_ == 0) {
+      if (delta < 0) {
+        pitch_increment_ = -1;
+      } else {
+        pitch_increment_ = 1;
+      }
     }
+  } else {
+    pitch_value_ = pitch_target_;
+    pitch_increment_ = 1;
   }
 }
 
 /* static */
-void Voice::Release() {
+void Voice::NoteOff() {
   gate_ = 0;
   TriggerEnvelope(RELEASE);
 }
@@ -431,10 +397,9 @@ inline void Voice::RenderOscillators() {
     
     // This is where we look up the list of most recently pressed notes for
     // the duophonic mode.
-    if (part.patch_.osc[0].option == OP_DUO && i == 1) {
+    /*if (part.patch_.osc[0].option == OP_DUO && i == 1) {
       pitch -= pitch_value_;
-      pitch += aux_pitch_;
-    }
+    }*/
     
     // -24 / +24 semitones by the range controller.
     int8_t range = 0;
@@ -495,13 +460,9 @@ inline void Voice::RenderOscillators() {
     } else {
       uint8_t shape = part.patch_.osc[1].shape;
       // The sub always plays the lowest note.
-      if (part.patch_.osc[0].option == OP_DUO) {
-        if (aux_pitch_ > 0) {
-          sub_osc.set_increment(U24ShiftRight(increment));
-        } else {
-          shape = 0;
-        }
-      }
+      /*if (part.patch_.osc[0].option == OP_DUO) {
+        
+      }*/
       osc_2.Render(
           shape,
           midi_note,

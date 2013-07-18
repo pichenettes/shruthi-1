@@ -63,8 +63,7 @@ bpm
 groove
 direction
 pattern
-warp
-wrp
+division
 start
 split
 length
@@ -317,35 +316,24 @@ seqmix
 
 stp
 arp
-arp+lt
 seq
-seq+lt
-rec
-impro
 
 free
 slave
 master
 
-\x7e
-\x7f
-\x7e-\x7f
-\x7e\x7f
-glass
-krama
-jata
-sikha
-ghana
-2glass
-2krama
-2jata
-2sikha
-2ghana
-4glass
-4krama
-4jata
-4sikha
-4ghana
+1/1
+1/2
+1/3
+1/4
+1/6
+1/8
+/12
+/16
+/24
+/32
+/48
+/96
 
 swing
 shuffle
@@ -357,8 +345,6 @@ monkey
  off
 thru
 seq
-ctrl
-split
 full
 1~|
 2~1
@@ -378,6 +364,7 @@ step
 \x04
 \x03\x04
 ?
+played
 
 off
 on

@@ -191,13 +191,16 @@ void Ui::DebounceSwitches() {
   io_.End();
   uint8_t bits = io_.Receive();
   uint8_t mask = 0x20;
-  for (uint8_t i = 0; i < SWITCH_LAST; ++i) {
+  for (uint8_t i = 0; i <= SWITCH_LOAD_SAVE; ++i) {
     switch_state_[i] <<= 1;
     if (bits & mask) {
       switch_state_[i] |= 1;
     }
     mask >>= 1;
+  }
+  switch_state_[SWITCH_ENCODER] = encoder_.ReadSwitch();
 
+  for (uint8_t i = 0; i < SWITCH_LAST; ++i) {
     if (switch_state_[i] == 0x80) {
       switch_press_time_[i] = milliseconds();
       switch_inhibit_release_[i] = false;
@@ -265,16 +268,20 @@ void Ui::DoEvents() {
     Event e = queue_.PullEvent();
     queue_.Touch();
     switch (e.control_type) {
-      case CONTROL_ENCODER_CLICK:
-        editor.HandleClick();
-        break;
-
       case CONTROL_ENCODER:
         editor.HandleIncrement(e.value);
         break;
 
       case CONTROL_SWITCH:
-        editor.HandleSwitchEvent(e);
+        if (e.control_id <= SWITCH_LOAD_SAVE) {
+          editor.HandleSwitchEvent(e);
+        } else {
+          if (e.value < 6) {
+            editor.HandleClick();
+          } else {
+            editor.HandleLongClick();
+          }
+        }
         break;
 
       case CONTROL_POT:

@@ -144,7 +144,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   0,               // UNIT_TEMPO_WITH_EXTERNAL_CLOCK
   STR_RES__OFF,    // UNIT_MIDI_MODE
   STR_RES_STP,     // UNIT_SEQUENCER_MODE
-  STR_RES_T,       // UNIT_SEQUENCER_WARP
+  STR_RES_1_1,     // UNIT_SEQUENCER_DIVISION
   STR_RES_SWING,   // UNIT_GROOVE_TEMPLATE
   0,               // UNIT_ARPEGGIO_PATTERN
   STR_RES_FREE,    // UNIT_LFO_RETRIGGER_MODE
@@ -207,9 +207,6 @@ void Parameter::PrintValue(uint8_t value, char* buffer, uint8_t width) const {
       if (value < 40) {
         value = 0;
         text = STR_RES_EXTERN;
-      } else if (value > 240) {
-        value = ResourcesManager::Lookup<uint16_t, uint8_t>(
-            lut_res_turbo_tempi, value - 240 - 1);
       }
       break;
     case UNIT_ARPEGGIO_PATTERN:
@@ -324,8 +321,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_NOI, STR_RES_NOISE }, 
 
   // 12
-  { // Filter.
-  PRM_FILTER_CUTOFF,
+  { PRM_FILTER_CUTOFF,
     UNIT_RAW_UINT8,
     0, 127,
     0,
@@ -353,8 +349,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_LFO2TVCF, STR_RES_LFO2TVCF }, 
 
   // 16
-  { // Env 1.
-  PRM_ENV_ATTACK_1,
+  { PRM_ENV_ATTACK_1,
     UNIT_RAW_UINT8,
     0, 127,
     0,
@@ -496,7 +491,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
   // 36
   { PRM_SEQ_MODE,
     UNIT_SEQUENCER_MODE,
-    SEQUENCER_MODE_STEP, SEQUENCER_MODE_IMPROVISATION,
+    SEQUENCER_MODE_STEP, SEQUENCER_MODE_SEQ,
     0,
     STR_RES_MODE, STR_RES_MODE }, 
 
@@ -524,7 +519,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
   // 40
   { PRM_ARP_DIRECTION,
     UNIT_ARPEGGIO_DIRECTION,
-    ARPEGGIO_DIRECTION_UP, ARPEGGIO_DIRECTION_RANDOM,
+    ARPEGGIO_DIRECTION_UP, ARPEGGIO_DIRECTION_PLAYED,
     0,
     STR_RES_DIRECTION, STR_RES_DIRECTION }, 
 
@@ -543,11 +538,11 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_PATTERN, STR_RES_PATTERN }, 
 
   // 43
-  { PRM_ARP_WARP,
-    UNIT_SEQUENCER_WARP,
-    WARP_NORMAL, WARP_GHANA_4,
+  { PRM_ARP_DIVISION,
+    UNIT_SEQUENCER_DIVISION,
+    0, 11,
     0,
-    STR_RES_WRP, STR_RES_WARP }, 
+    STR_RES_DIVISION, STR_RES_DIVISION }, 
 
   // 44
   { PRM_SYS_OCTAVE,

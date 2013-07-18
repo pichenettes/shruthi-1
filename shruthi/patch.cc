@@ -58,7 +58,7 @@ void Patch::PrepareForWrite() {
   extra_data_[5] = (sequencer_settings.arp_direction << 4) | \
       sequencer_settings.arp_range;
   extra_data_[6] = sequencer_settings.arp_pattern;
-  extra_data_[7] = sequencer_settings.arp_warp;
+  extra_data_[7] = sequencer_settings.arp_clock_division;
 }
 
 uint8_t Patch::CheckBuffer(uint8_t* buffer) {
@@ -119,7 +119,7 @@ void Patch::Update() {
       sequencer_settings->arp_direction = extra_data_[5] >> 4;
       sequencer_settings->arp_range = extra_data_[5] & 0xf;
       sequencer_settings->arp_pattern = extra_data_[6];
-      sequencer_settings->arp_warp = extra_data_[7];
+      sequencer_settings->arp_clock_division = extra_data_[7];
     }
   }
 }

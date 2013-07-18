@@ -42,18 +42,9 @@ struct LowPriorityBufferSpecs {
   typedef avrlib::DataTypeForSize<data_size>::Type Value;
 };
 
-struct HighPriorityBufferSpecs {
-  enum {
-    buffer_size = 8,
-    data_size = 8,
-  };
-  typedef avrlib::DataTypeForSize<data_size>::Type Value;
-};
-
 class MidiDispatcher : public midi::MidiDevice {
  public:
-  typedef avrlib::RingBuffer<LowPriorityBufferSpecs> OutputBufferLowPriority;
-  typedef avrlib::RingBuffer<HighPriorityBufferSpecs> OutputBufferHighPriority;
+  typedef avrlib::RingBuffer<LowPriorityBufferSpecs> OutputBuffer;
   MidiDispatcher() { }
 
   // ------ MIDI in handling ---------------------------------------------------
@@ -66,7 +57,7 @@ class MidiDispatcher : public midi::MidiDevice {
     }
   }
   static inline void NoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
-    part.NoteOff(channel, note, velocity);
+    part.NoteOff(channel, note);
   }
 
   // Handled.
@@ -118,9 +109,9 @@ class MidiDispatcher : public midi::MidiDevice {
   }
   
   static void Reset() { part.Reset(); }
-  static void Clock() { part.Clock(); }
-  static void Start() { part.Start(); }
-  static void Stop() { part.Stop(); }
+  static void Clock() { part.Clock(false); }
+  static void Start() { part.Start(false); }
+  static void Stop() { part.Stop(false); }
   
   static void SysExStart() {
     ProcessSysEx(0xf0);
@@ -156,7 +147,7 @@ class MidiDispatcher : public midi::MidiDevice {
     // - When the data is a channel different from the RX channel.
     // - When we are in "Full" mode.
     // - When the midi message is not a note on/note off.
-    if (mode() >= MIDI_OUT_SPLIT) {
+    if (mode() >= MIDI_OUT_FULL) {
       if (status != 0xf0 && status != 0xf7) {
         if ((hi != 0x80 && hi != 0x90) ||
             mode() == MIDI_OUT_FULL ||
@@ -171,24 +162,16 @@ class MidiDispatcher : public midi::MidiDevice {
     // Report that some data has been received. The MIDI Out filter might
     // propagate it directly to the output if "Soft Thru" is enabled.
     if (mode() == MIDI_OUT_SOFT_THRU) {
-      OutputBufferLowPriority::Overwrite(byte);
+      OutputBuffer::Overwrite(byte);
     }
   }
   
-  static uint8_t readable_high_priority() {
-    return OutputBufferHighPriority::readable();
-  }
-  
-  static uint8_t readable_low_priority() {
-    return OutputBufferLowPriority::readable();
+  static uint8_t readable() {
+    return OutputBuffer::readable();
   }
 
-  static uint8_t ImmediateReadHighPriority() {
-    return OutputBufferHighPriority::ImmediateRead();
-  }
-  
-  static uint8_t ImmediateReadLowPriority() {
-    return OutputBufferLowPriority::ImmediateRead();
+  static uint8_t ImmediateRead() {
+    return OutputBuffer::ImmediateRead();
   }
   
   // ------ MIDI out handling --------------------------------------------------
@@ -204,12 +187,15 @@ class MidiDispatcher : public midi::MidiDevice {
     }
   }
   
-  static inline void ForwardNoteOn(uint8_t note, uint8_t velocity) {
-    Send3(0x90 | channel(), note, velocity);
+  static inline void ForwardNoteOn(
+      uint8_t channel,
+      uint8_t note,
+      uint8_t velocity) {
+    Send3(0x90 | channel, note, velocity);
   }
   
-  static inline void ForwardNoteOff(uint8_t note) {
-    Send3(0x90 | channel(), note, 0);
+  static inline void ForwardNoteOff(uint8_t channel, uint8_t note) {
+    Send3(0x90 | channel, note, 0);
   }
 
   static inline void OnStart() {
@@ -232,21 +218,18 @@ class MidiDispatcher : public midi::MidiDevice {
   
   static inline void OnProgramChange(uint16_t n) {
     uint8_t channel = (part.system_settings().midi_channel - 1) & 0xf;
-    if (mode() == MIDI_OUT_CTRL || mode() == MIDI_OUT_FULL) {
+    if (mode() >= MIDI_OUT_FULL) {
       Send3(0xb0 | channel, midi::kBankMsb, n >> 7);
       Send3(0xc0 | channel, n & 0x7f, 0xfe /* Dummy active sensing */);
     }
   }
   
-  static inline void OnEdit(uint8_t index, uint8_t value, bool user_initiated) {
+  static inline void OnEdit(uint8_t index, uint8_t value) {
     // Do not forward changes of system settings!
     if (index >= sizeof(Patch)) {
       return;
     }
-    if (mode() < MIDI_OUT_CTRL) {
-      return;
-    }
-    if (mode() == MIDI_OUT_CTRL && !user_initiated) {
+    if (mode() < MIDI_OUT_FULL) {
       return;
     }
     
@@ -263,24 +246,24 @@ class MidiDispatcher : public midi::MidiDevice {
   }
   
   static void Send3(uint8_t a, uint8_t b, uint8_t c);
+  static uint8_t channel() {
+    return part.system_settings().midi_channel == 0
+        ? 0
+        : part.system_settings().midi_channel - 1;
+  }
   
  private:
   static void Send(uint8_t status, uint8_t* data, uint8_t size);
   static void SendNow(uint8_t byte);
   
   static void ProcessSysEx(uint8_t byte) {
-    if (mode() >= MIDI_OUT_SPLIT) {
+    if (mode() >= MIDI_OUT_FULL) {
       Send(byte, NULL, 0);
     }
     Storage::SysExReceive(byte);
   }
   
   static uint8_t mode() { return part.system_settings().midi_out_mode; }
-  static uint8_t channel() {
-    return part.system_settings().midi_channel == 0
-        ? 0
-        : part.system_settings().midi_channel - 1;
-  }
   
   static uint8_t data_entry_counter_;
   static uint8_t current_parameter_index_;

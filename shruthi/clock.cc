@@ -1,4 +1,4 @@
-// Copyright 2009 Olivier Gillet.
+// Copyright 2011 Olivier Gillet.
 //
 // Author: Olivier Gillet (ol.gillet@gmail.com)
 //
@@ -15,46 +15,28 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Instance of the midi out filter class.
+// Global clock.
 
-#include "shruthi/midi_dispatcher.h"
+#include "shruthi/clock.h"
+
+#include "shruthi/resources.h"
 
 namespace shruthi {
 
-/* static */
-uint8_t MidiDispatcher::current_parameter_index_;
+Clock clock;
 
 /* static */
-uint8_t MidiDispatcher::data_entry_counter_;
+uint16_t Clock::bpm_;
 
 /* static */
-uint8_t MidiDispatcher::current_bank_ = 0;
-
-MidiDispatcher midi_dispatcher;
+uint32_t Clock::phase_;
 
 /* static */
-void MidiDispatcher::Send(uint8_t status, uint8_t* data, uint8_t size) {
-  OutputBuffer::Overwrite(status);
-  if (size) {
-    OutputBuffer::Overwrite(*data++);
-    --size;
-  }
-  if (size) {
-    OutputBuffer::Overwrite(*data++);
-    --size;
-  }
-}
+uint32_t Clock::phase_increment_;
 
 /* static */
-void MidiDispatcher::SendNow(uint8_t byte) {
-  OutputBuffer::Overwrite(byte);
-}
-
-/* static */
-void MidiDispatcher::Send3(uint8_t status, uint8_t a, uint8_t b) {
-  OutputBuffer::Overwrite(status);
-  OutputBuffer::Overwrite(a);
-  OutputBuffer::Overwrite(b);
+void Clock::Update(uint8_t bpm) {
+  phase_increment_ = pgm_read_dword(lut_res_tempo_phase_increment + bpm - 40);
 }
 
 }  // namespace shruthi

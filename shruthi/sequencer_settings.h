@@ -26,41 +26,7 @@ namespace shruthi {
 enum SequencerMode {
   SEQUENCER_MODE_STEP,
   SEQUENCER_MODE_ARP,
-  SEQUENCER_MODE_ARP_LATCH,
-  SEQUENCER_MODE_RPS,
-  SEQUENCER_MODE_RPS_LATCH,
-  SEQUENCER_MODE_REC,
-  SEQUENCER_MODE_IMPROVISATION,
-};
-
-enum ArpeggioVelocitySource {
-  ARPEGGIO_VELOCITY_SOURCE_KEYBOARD,
-  ARPEGGIO_VELOCITY_SOURCE_SEQUENCE
-};
-
-enum Flow {
-  WARP_NORMAL,
-  WARP_REVERSE,
-  WARP_BACK_FORTH_1,
-  WARP_BACK_FORTH_2,
-  
-  WARP_GLASS,
-  WARP_KRAMA,
-  WARP_JATA,
-  WARP_SIKHA,
-  WARP_GHANA,
-
-  WARP_GLASS_2,
-  WARP_KRAMA_2,
-  WARP_JATA_2,
-  WARP_SIKHA_2,
-  WARP_GHANA_2,
-
-  WARP_GLASS_4,
-  WARP_KRAMA_4,
-  WARP_JATA_4,
-  WARP_SIKHA_4,
-  WARP_GHANA_4,
+  SEQUENCER_MODE_SEQ
 };
 
 enum ArpeggioDirection {
@@ -68,6 +34,7 @@ enum ArpeggioDirection {
   ARPEGGIO_DIRECTION_DOWN,
   ARPEGGIO_DIRECTION_UP_DOWN,
   ARPEGGIO_DIRECTION_RANDOM,
+  ARPEGGIO_DIRECTION_PLAYED,
 };
 
 struct SequenceStep {
@@ -168,11 +135,18 @@ struct SequencerSettings {
   uint8_t arp_direction;
   uint8_t arp_range;
   uint8_t arp_pattern;
-  uint8_t arp_warp;
+  uint8_t arp_clock_division;
   
   uint8_t pattern_size;
   uint8_t pattern_rotation;
   SequenceStep steps[kNumSteps];
+  
+  uint8_t mode() {
+    return seq_mode;
+  }
+  bool internal_clock() {
+    return seq_tempo >= 40;
+  }
   
   void PrintStep(uint8_t step, char* buffer) const;
   
@@ -199,7 +173,7 @@ enum SequencerParameter {
   PRM_ARP_DIRECTION,
   PRM_ARP_RANGE,
   PRM_ARP_PATTERN,
-  PRM_ARP_WARP,
+  PRM_ARP_DIVISION,
   
   PRM_SEQ_PATTERN_SIZE,
   PRM_SEQ_PATTERN_ROTATION,

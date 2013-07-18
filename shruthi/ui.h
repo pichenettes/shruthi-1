@@ -26,8 +26,9 @@
 #include "avrlib/time.h"
 #include "avrlib/ui/event_queue.h"
 
-#include "shruthi/hardware_config.h"
+#include "shruthi/clock.h"
 #include "shruthi/display.h"
+#include "shruthi/hardware_config.h"
 
 namespace shruthi {
 
@@ -43,13 +44,17 @@ class Ui {
 
   static inline void Poll() {
     ++sub_clock_;
+    
+    uint8_t sub_clock_10k = sub_clock_ & 0x03;
+    if (sub_clock_10k == 0) {
+      clock.Tick();
+      return;
+    }
+    
     uint8_t sub_clock_2500 = sub_clock_ & 0x0f;
-    uint8_t sub_clock_1250 = sub_clock_ & 0x1f;
-    uint8_t sub_clock_625 = sub_clock_ & 0x3f;
-
-    if (sub_clock_2500 == 0) {
+    if (sub_clock_2500 == 1) {
       lcd.Tick();
-      int8_t increment = encoder_.Read();
+      int8_t increment = encoder_.ReadEncoder();
       if (increment != 0) {        
         if (switch_state_[SWITCH_SHIFT] == 0x00) {
           increment = increment < 0 ? -10 : 10;
@@ -57,18 +62,18 @@ class Ui {
         }
         queue_.AddEvent(CONTROL_ENCODER, 0, increment);
       }
-      if (encoder_.clicked()) {
-        queue_.AddEvent(CONTROL_ENCODER_CLICK, 0, 1);
-      }
+      return;
     }
-    
-    if (sub_clock_625 == 1) {
+    uint8_t sub_clock_1250 = sub_clock_ & 0x1f;
+    uint8_t sub_clock_625 = sub_clock_ & 0x3f;
+
+    if (sub_clock_625 == 2) {
       WriteShiftRegister();
-    } else if (sub_clock_625 == 2) {
+    } else if (sub_clock_625 == 3) {
       DebounceSwitches();
-    } else if (sub_clock_1250 == 3) {
+    } else if (sub_clock_1250 == 5) {
       ScanPotentiometers();
-    } else if (sub_clock_1250 == 4) {
+    } else if (sub_clock_1250 == 6) {
       TickSystemClock();
     }
   }
@@ -96,6 +101,8 @@ class Ui {
   static bool switch_inhibit_release_[SWITCH_LAST];
   static uint8_t switch_state_[SWITCH_LAST];
   static uint32_t switch_press_time_[SWITCH_LAST];
+  static uint32_t encoder_press_time_;
+  static bool inhibit_encoder_release_;
   static uint8_t sub_clock_;
   static uint8_t progress_bar_;
   static uint8_t led_pwm_counter_;

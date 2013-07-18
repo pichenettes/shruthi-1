@@ -190,54 +190,6 @@ waveforms.append(('vowel_data', vowel_data))
 
 
 """----------------------------------------------------------------------------
-Pattern generation expansions
------------------------------------------------------------------------------"""
-
-def ExpandKrama(num_steps):
-  l = []
-  for i in xrange(num_steps - 1):
-    l.extend([i, i + 1])
-  return l
-
-
-def ExpandJata(num_steps):
-  l = []
-  for i in xrange(num_steps - 1):
-    l.extend([i, i + 1])
-    l.extend([i + 1, i])
-    l.extend([i, i + 1])
-  return l
-
-
-def ExpandSikha(num_steps):
-  l = []
-  for i in xrange(num_steps - 2):
-    l.extend([i, i + 1, i + 2])
-    l.extend([i + 2, i + 1, i])
-    l.extend([i, i + 1, i + 2])
-  return l
-
-
-def ExpandGhana(num_steps):
-  l = []
-  for i in xrange(num_steps - 2):
-    l.extend([i, i + 1])
-    l.extend([i + 1, i])
-    l.extend([i, i + 1, i + 2])
-    l.extend([i + 2, i + 1, i])
-    l.extend([i, i + 1, i + 2])
-  return l
-
-
-waveforms.extend([
-    ('expansion_krama', ExpandKrama(16)),
-    ('expansion_jata', ExpandJata(16)),
-    ('expansion_sikha', ExpandSikha(16)),
-    ('expansion_ghana', ExpandGhana(16))
-])
-
-
-"""----------------------------------------------------------------------------
 Waveshaper/distorsion
 -----------------------------------------------------------------------------"""
 

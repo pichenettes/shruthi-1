@@ -172,6 +172,8 @@ class Editor {
 
   // Handles a click on the encoder.
   static void HandleClick();
+  // Handles a long click on the encoder.
+  static void HandleLongClick();
   
   // The editor can react to a note on. This is used for step-by-step
   // pattern programming. This function returns true when the note has been

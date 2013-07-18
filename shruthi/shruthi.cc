@@ -50,15 +50,9 @@ TIMER_2_TICK {
     midi_buffer.NonBlockingWrite(midi_io.ImmediateRead());
   }
 
-  if (midi_dispatcher.readable_high_priority()) {
+  if (midi_dispatcher.readable()) {
     if (midi_io.writable()) {
-      midi_io.Overwrite(midi_dispatcher.ImmediateReadHighPriority());
-    }
-  } else {
-    if (midi_dispatcher.readable_low_priority()) {
-      if (midi_io.writable()) {
-        midi_io.Overwrite(midi_dispatcher.ImmediateReadLowPriority());
-      }
+      midi_io.Overwrite(midi_dispatcher.ImmediateRead());
     }
   }
 

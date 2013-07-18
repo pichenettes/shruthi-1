@@ -36,6 +36,7 @@ class VoiceAllocator {
  public: 
   VoiceAllocator() { }
   static void Init() { size_ = 0; Clear(); }
+  static void Clear();
   static void set_size(uint8_t size) {
     size_ = size;
   }
@@ -43,7 +44,6 @@ class VoiceAllocator {
   static uint8_t NoteOff(uint8_t note);
 
  private:
-  static void Clear();
   static void Touch(uint8_t voice);
    
   static VoiceEntry pool_[kMaxPolyphony];
