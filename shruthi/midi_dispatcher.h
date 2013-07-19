@@ -167,6 +167,10 @@ class MidiDispatcher : public midi::MidiDevice {
           Send(status, data, data_size);
         }
       }
+    } else if (mode() == MIDI_OUT_SEQUENCER) {
+      if ((hi == 0xf0) && status != 0xf0 && status != 0xf7) {
+        Send(status, NULL, 0);
+      }
     }
   }
   
