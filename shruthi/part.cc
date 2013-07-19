@@ -55,6 +55,9 @@ bool Part::ignore_note_off_messages_;
 
 Lfo Part::lfo_[kNumLfos];
 uint8_t Part::previous_lfo_fm_[kNumLfos];
+uint16_t Part::lfo_step_[kNumLfos];
+uint16_t Part::lfo_limit_[kNumLfos];
+uint16_t Part::lfo_increment_[kNumLfos];
 
 bool Part::arp_seq_running_;
 uint8_t Part::arp_seq_prescaler_;
@@ -90,8 +93,8 @@ void Part::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_SAW, 0, 0, OP_DUO,
-    WAVEFORM_SQUARE, 16, -12, 12,
+    WAVEFORM_SAW, 0, 0, 0,
+    WAVEFORM_NONE, 16, -12, 12,
     // Mixer
     32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
     // Filter
@@ -131,7 +134,7 @@ static const prog_char init_patch[] PROGMEM = {
 
 static const prog_char init_sequence[] PROGMEM = {
     // Sequencer
-    SEQUENCER_MODE_ARP, 120, 0, 0,
+    SEQUENCER_MODE_STEP, 120, 0, 0,
     ARPEGGIO_DIRECTION_UP, 1, 0, 7,
     
     // Pattern size and pattern
@@ -401,29 +404,53 @@ void Part::Reset() {
   AllNotesOff();
 }
 
+static const prog_uint16_t lfo_phase_increment[] PROGMEM = {
+  10922,  5461,  3640,  2730,  2184,  1820,  1560,  1365,
+  1213,   1092,   992,   910,   840,   780,   728,   682
+};
+
 /* static */
 void Part::Clock(bool internal) {
-  if (internal) {
-    midi_dispatcher.OnClock();
-    if (!pressed_keys_.size()) {
-      ++internal_clock_blank_ticks_;
-      if (internal_clock_blank_ticks_ >= 12) {
-        Stop(true);
-        return;
+  if (running()) {
+    if (internal) {
+      midi_dispatcher.OnClock();
+      if (!pressed_keys_.size()) {
+        ++internal_clock_blank_ticks_;
+        if (internal_clock_blank_ticks_ >= 12) {
+          Stop(true);
+          return;
+        }
+      } else {
+        internal_clock_blank_ticks_ = 0;
       }
+    }
+    if (!arp_seq_prescaler_) {
+      ClockArpeggiator();
+      ClockSequencer();
+    }
+    if (!arp_seq_gate_length_counter_ && generated_notes_.size()) {
+      StopSequencerArpeggiatorNotes();
     } else {
-      internal_clock_blank_ticks_ = 0;
+      --arp_seq_gate_length_counter_;
     }
   }
-  if (!arp_seq_prescaler_) {
-    ClockArpeggiator();
-    ClockSequencer();
+
+  for (uint8_t i = 0; i < kNumLfos; ++i) {
+    uint8_t rate = patch_.lfo[i].rate;
+    if (rate < 16) {
+      uint16_t limit = U8U8Mul(step_duration(), rate + 1);
+      while (lfo_step_[i] >= limit) {
+        lfo_step_[i] -= limit;
+      }
+      if (limit != lfo_limit_[i]) {
+        lfo_limit_[i] = limit;
+        lfo_increment_[i] = 65536 / limit;
+      }
+      lfo_[i].set_target_phase(lfo_step_[i] * lfo_increment_[i]);
+    }
+    ++lfo_step_[i];
   }
-  if (!arp_seq_gate_length_counter_ && generated_notes_.size()) {
-    StopSequencerArpeggiatorNotes();
-  } else {
-    --arp_seq_gate_length_counter_;
-  }
+  
   ++arp_seq_prescaler_;
   if (arp_seq_prescaler_ >= step_duration()) {
     arp_seq_prescaler_ = 0;
@@ -434,6 +461,9 @@ void Part::Start(bool internal) {
   if (internal) {
     midi_dispatcher.OnStart();
   }
+  
+  lfo_step_[0] = 0;
+  lfo_step_[1] = 0;
   
   poly_allocator_.Clear();
   mono_allocator_.Clear();
@@ -619,21 +649,18 @@ void Part::SetSequenceStep(
     return;
   }
   sequencer_settings_.steps[step].set_raw(data_a, data_b);
-  // controller_.TouchSequence();
   dirty_ = true;
 }
 
 /* static */
 void Part::SetPatternRotation(uint8_t rotation) {
   sequencer_settings_.pattern_rotation = rotation;
-  // controller_.TouchSequence();
   dirty_ = true;
 }
 
 /* static */
 void Part::SetPatternLength(uint8_t length) {
   sequencer_settings_.pattern_size = length & 0xf;
-  // controller_.TouchSequence();
   dirty_ = true;
 }
 
@@ -671,12 +698,6 @@ void Part::SetParameter(
 void Part::UpdateModulationRates() {
   // Update the LFO increments.
   for (uint8_t i = 0; i < kNumLfos; ++i) {
-    /*if (patch_.lfo[i].rate < 16) {
-      num_lfo_reset_steps_ = U8U8Mul(
-          num_lfo_reset_steps_ ? num_lfo_reset_steps_ : 1,
-          1 + patch_.lfo[i].rate);
-      lfo_to_reset_ |= _BV(i);
-    }*/
     UpdateLfoRate(i);
   }
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
@@ -694,7 +715,7 @@ void Part::UpdateLfoRate(uint8_t i) {
   // The LFO rates 0 to 15 are translated into a multiple of the step
   // sequencer/arpeggiator step size.
   if (patch_.lfo[i].rate < 16) {
-    
+    phase_increment = 0;
   } else {
     int16_t rate = patch_.lfo[i].rate;
     rate += voice_.modulation_destination(MOD_DST_LFO_1 + i);
@@ -740,7 +761,7 @@ uint8_t Part::four_pole_routing_byte() {
 
 /* static */
 void Part::ProcessBlock() {
-  if (sequencer_settings_.internal_clock() && running()) {
+  if (sequencer_settings_.internal_clock()) {
     if (clock.Wrap(swing_amount_)) {
       swing_amount_ = S8U8MulShift8(
           ResourcesManager::Lookup<int16_t, uint8_t>(
