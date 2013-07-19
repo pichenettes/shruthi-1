@@ -406,7 +406,7 @@ void Part::Clock(bool internal) {
     midi_dispatcher.OnClock();
     if (!pressed_keys_.size()) {
       ++internal_clock_blank_ticks_;
-      if (internal_clock_blank_ticks_ == 12) {
+      if (internal_clock_blank_ticks_ >= 12) {
         Stop(true);
         return;
       }
