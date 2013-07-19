@@ -406,7 +406,7 @@ void Part::Clock(bool internal) {
     midi_dispatcher.OnClock();
     if (!pressed_keys_.size()) {
       ++internal_clock_blank_ticks_;
-      if (internal_clock_blank_ticks_ == 24) {
+      if (internal_clock_blank_ticks_ == 12) {
         Stop(true);
         return;
       }
@@ -433,12 +433,17 @@ void Part::Start(bool internal) {
   if (internal) {
     midi_dispatcher.OnStart();
   }
+  
+  poly_allocator_.Clear();
+  mono_allocator_.Clear();
+  voice_.NoteOff();
+  release_latched_keys_on_next_note_on_ = false;
+  ignore_note_off_messages_ = false;
+  
   arp_seq_prescaler_ = 0;
   arp_seq_step_ = 0;
   arp_seq_running_ = true;
   seq_transposition_ = 0;
-  release_latched_keys_on_next_note_on_ = false;
-  ignore_note_off_messages_ = false;
   if (sequencer_settings_.arp_direction == ARPEGGIO_DIRECTION_DOWN) {
     arp_note_ = pressed_keys_.size() - 1;
     arp_octave_ = sequencer_settings_.arp_range - 1;

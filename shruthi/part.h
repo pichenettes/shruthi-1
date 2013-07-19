@@ -175,6 +175,7 @@ class Part {
     return byte;
   }
   
+  inline bool internal_clock() { return sequencer_settings_.internal_clock(); }
   inline bool latched() { return ignore_note_off_messages_; }
   inline static void Latch() {
     ignore_note_off_messages_ = true;
