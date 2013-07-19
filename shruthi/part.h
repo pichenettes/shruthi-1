@@ -227,6 +227,7 @@ class Part {
   static int8_t arp_note_;
   static int8_t arp_octave_;
   static int8_t arp_direction_;
+  static int8_t arp_previous_note_;
   static uint16_t arp_seq_gate_length_counter_;
   static int8_t swing_amount_;
   static uint8_t internal_clock_blank_ticks_;

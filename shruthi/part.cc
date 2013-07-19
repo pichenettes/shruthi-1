@@ -62,6 +62,7 @@ uint8_t Part::arp_seq_step_;
 int8_t Part::arp_note_;
 int8_t Part::arp_octave_;
 int8_t Part::arp_direction_;
+int8_t Part::arp_previous_note_;
 uint16_t Part::arp_seq_gate_length_counter_;
 int8_t Part::swing_amount_;
 uint8_t Part::internal_clock_blank_ticks_;
@@ -130,7 +131,7 @@ static const prog_char init_patch[] PROGMEM = {
 
 static const prog_char init_sequence[] PROGMEM = {
     // Sequencer
-    SEQUENCER_MODE_STEP, 120, 0, 0,
+    SEQUENCER_MODE_ARP, 120, 0, 0,
     ARPEGGIO_DIRECTION_UP, 1, 0, 7,
     
     // Pattern size and pattern
@@ -443,6 +444,7 @@ void Part::Start(bool internal) {
   arp_seq_prescaler_ = 0;
   arp_seq_step_ = 0;
   arp_seq_running_ = true;
+  arp_previous_note_ = 0;
   seq_transposition_ = 0;
   if (sequencer_settings_.arp_direction == ARPEGGIO_DIRECTION_DOWN) {
     arp_note_ = pressed_keys_.size() - 1;
@@ -539,6 +541,16 @@ void Part::ClockArpeggiator() {
     }
     generated_notes_.NoteOn(note, velocity);
     InternalNoteOn(note, velocity);
+    
+    // Big hack to allow the arpeggiator to work polyphonically in DUO mode.
+    if (arp_previous_note_ &&
+        patch_.osc[0].option == OP_DUO
+        && arp_previous_note_ != note) {
+      generated_notes_.NoteOn(arp_previous_note_, velocity);
+      InternalNoteOn(arp_previous_note_, velocity);
+    }
+
+    arp_previous_note_ = note;
     arp_note_ += arp_direction_;
     arp_seq_gate_length_counter_ = (step_duration() >> 1) + 1;
   }
@@ -837,12 +849,8 @@ void Part::InternalNoteOn(uint8_t note, uint8_t velocity) {
           after.velocity,
           !system_settings_.legato || legato ? system_settings_.portamento : 0,
           !system_settings_.legato || !legato);
-      if (sequencer_settings_.mode() == SEQUENCER_MODE_ARP) {
-        voice_.set_bass_note(pressed_keys_.least_recent_note().note);
-      } else {
-        uint8_t bass_note = mono_allocator_.least_recent_note().note;
-        voice_.set_bass_note(bass_note != after.note ? Tune(bass_note) : 0);
-      }
+      uint8_t bass_note = mono_allocator_.least_recent_note().note;
+      voice_.set_bass_note(bass_note != after.note ? Tune(bass_note) : 0);
     }
   }
 }
