@@ -48,11 +48,10 @@ uint8_t Voice::gate_;
 int16_t Voice::pitch_increment_;
 int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
+int16_t Voice::pitch_bass_note_;
 uint8_t Voice::modulation_sources_[kNumModulationSources];
 uint8_t Voice::unregistered_modulation_sources_[1];
 int8_t Voice::modulation_destinations_[kNumModulationDestinations];
-uint8_t Voice::osc1_phase_msb_;
-uint8_t Voice::last_note_;
 int16_t Voice::dst_[kNumModulationDestinations];
 uint8_t Voice::buffer_[kAudioBlockSize];
 uint8_t Voice::osc2_buffer_[kAudioBlockSize];
@@ -66,7 +65,6 @@ uint8_t Voice::volume_;
 /* static */
 void Voice::Init() {
   pitch_value_ = 0;
-  last_note_ = 0;
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
     envelope_[i].Init();
   }
@@ -397,9 +395,10 @@ inline void Voice::RenderOscillators() {
     
     // This is where we look up the list of most recently pressed notes for
     // the duophonic mode.
-    /*if (part.patch_.osc[0].option == OP_DUO && i == 1) {
+    if (part.patch_.osc[0].option == OP_DUO && i == 0 && pitch_bass_note_) {
       pitch -= pitch_value_;
-    }*/
+      pitch += pitch_bass_note_;
+    }
     
     // -24 / +24 semitones by the range controller.
     int8_t range = 0;
@@ -460,9 +459,11 @@ inline void Voice::RenderOscillators() {
     } else {
       uint8_t shape = part.patch_.osc[1].shape;
       // The sub always plays the lowest note.
-      /*if (part.patch_.osc[0].option == OP_DUO) {
-        
-      }*/
+      if (part.patch_.osc[0].option == OP_DUO) {
+        if (!pitch_bass_note_) {
+          shape = 0;
+        }
+      }
       osc_2.Render(
           shape,
           midi_note,

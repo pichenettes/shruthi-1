@@ -86,6 +86,10 @@ class Voice {
     volume_ = volume;
   }
   
+  static inline void set_bass_note(int16_t bass_note) {
+    pitch_bass_note_ = bass_note;
+  }
+  
   static Envelope* mutable_envelope(uint8_t i) { return &envelope_[i]; }
   static void TriggerEnvelope(uint8_t stage);
   static void TriggerEnvelope(uint8_t index, uint8_t stage);
@@ -116,7 +120,7 @@ class Voice {
   static int16_t pitch_increment_;
   static int16_t pitch_target_;
   static int16_t pitch_value_;
-  static int16_t aux_pitch_;
+  static int16_t pitch_bass_note_;
 
   // The voice-specific modulation sources are from MOD_SRC_ENV_1 to
   // MOD_SRC_GATE.
@@ -128,9 +132,6 @@ class Voice {
   // in the modulation destinations enum.
   static int8_t modulation_destinations_[kNumModulationDestinations];
 
-  static uint8_t last_note_;
-  static uint8_t osc1_phase_msb_;
-  
   static uint8_t buffer_[kAudioBlockSize];
   static uint8_t osc2_buffer_[kAudioBlockSize];
   static uint8_t sync_state_[kAudioBlockSize];

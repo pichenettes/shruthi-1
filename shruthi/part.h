@@ -193,7 +193,7 @@ class Part {
   static void UpdateModulationRates();
   static void UpdateLfoRate(uint8_t i);
   static void AllNotesOff();
-  static void StopSequencerArpeggiatorNotes();
+  static void StopSequencerArpeggiatorNotes(uint8_t notes_left);
   static void ReleaseLatchedNotes();
   static void InternalNoteOn(uint8_t note, uint8_t velocity);
   static void InternalNoteOff(uint8_t note);

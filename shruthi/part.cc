@@ -90,7 +90,7 @@ void Part::Init() {
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
     WAVEFORM_SAW, 0, 0, OP_DUO,
-    WAVEFORM_NONE, 16, -12, 12,
+    WAVEFORM_SQUARE, 16, -12, 12,
     // Mixer
     32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
     // Filter
@@ -419,7 +419,7 @@ void Part::Clock(bool internal) {
     ClockSequencer();
   }
   if (!arp_seq_gate_length_counter_ && generated_notes_.size()) {
-    StopSequencerArpeggiatorNotes();
+    //StopSequencerArpeggiatorNotes(0);
   } else {
     --arp_seq_gate_length_counter_;
   }
@@ -459,7 +459,7 @@ void Part::Start(bool internal) {
 /* static */
 void Part::Stop(bool internal) {
   arp_seq_running_ = false;
-  StopSequencerArpeggiatorNotes();
+  StopSequencerArpeggiatorNotes(0);
   AllNotesOff();
   if (internal) {
     midi_dispatcher.OnStop();
@@ -521,8 +521,12 @@ void Part::ClockArpeggiator() {
       }
     }
 
-    // Kill pending notes (if any).
-    StopSequencerArpeggiatorNotes();
+    // Kill pending notes (if any). There is a HUGE hack here... The arpeggiator
+    // in the previous version of the firmware had a kind of bug that created
+    // beautiful moving chords when the synth was in duophonic mode. To
+    // reproduce this all notes from the previous steps are cleared...
+    // except one.
+    StopSequencerArpeggiatorNotes(patch_.osc[0].option == OP_DUO ? 1 : 0);
     const NoteEntry* arpeggio_note = \
       sequencer_settings_.arp_direction == ARPEGGIO_DIRECTION_PLAYED ?
       &pressed_keys_.played_note(arp_note_) :
@@ -537,6 +541,11 @@ void Part::ClockArpeggiator() {
     InternalNoteOn(note, velocity);
     arp_note_ += arp_direction_;
     arp_seq_gate_length_counter_ = (step_duration() >> 1) + 1;
+    
+    // Yet another hack for these beautiful moving chords...
+    if (patch_.osc[0].option == OP_DUO) {
+      arp_seq_gate_length_counter_ += step_duration();
+    }
   }
 }
 
@@ -564,12 +573,12 @@ void Part::ClockSequencer() {
       while (note < 0) note += 12;
       while (note > 127)  note -= 12;
       if (!step.legato()) {
-        StopSequencerArpeggiatorNotes();
+        StopSequencerArpeggiatorNotes(0);
         InternalNoteOn(note, step.velocity());
       } else {
         if (generated_notes_.most_recent_note().note != note) {
           InternalNoteOn(note, step.velocity());
-          StopSequencerArpeggiatorNotes();
+          StopSequencerArpeggiatorNotes(0);
         }
       }
       generated_notes_.NoteOn(note, step.velocity());
@@ -773,8 +782,8 @@ void Part::AllNotesOff() {
 }
 
 /* sattic */
-void Part::StopSequencerArpeggiatorNotes() {
-  while (generated_notes_.size()) {
+void Part::StopSequencerArpeggiatorNotes(uint8_t notes_left) {
+  while (generated_notes_.size() > notes_left) {
     uint8_t note = generated_notes_.sorted_note(0).note;
     generated_notes_.NoteOff(note);
     InternalNoteOff(note);
@@ -818,6 +827,7 @@ void Part::InternalNoteOn(uint8_t note, uint8_t velocity) {
     poly_allocator_.set_size(system_settings_.midi_out_mode - MIDI_OUT_1_0 + 1);
     if (poly_allocator_.NoteOn(note) == 0) {
       voice_.NoteOn(Tune(note), velocity, 0, true);
+      voice_.set_bass_note(0);
     } else { 
       midi_dispatcher.ForwardNoteOn(midi_dispatcher.channel(), note, velocity);
     }
@@ -832,6 +842,8 @@ void Part::InternalNoteOn(uint8_t note, uint8_t velocity) {
           after.velocity,
           !system_settings_.legato || legato ? system_settings_.portamento : 0,
           !system_settings_.legato || !legato);
+      uint8_t bass_note = mono_allocator_.least_recent_note().note;
+      voice_.set_bass_note(bass_note != after.note ? Tune(bass_note) : 0);
     }
   }
 }
@@ -863,7 +875,7 @@ void Part::InternalNoteOff(uint8_t note) {
     const NoteEntry& after = mono_allocator_.most_recent_note();
     if (mono_allocator_.size() == 0) {
       voice_.NoteOff();
-    } else if (before.note != after.note) {
+    } else if (before.note != after.note && patch_.osc[0].option != OP_DUO) {
       voice_.NoteOn(
           Tune(after.note),
           after.velocity,
