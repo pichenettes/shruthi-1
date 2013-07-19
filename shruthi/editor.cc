@@ -549,6 +549,8 @@ void Editor::HandleLoadSaveIncrement(int8_t increment) {
       Storage::LoadPatch(n);
       midi_dispatcher.OnProgramChange(n);
       part.Touch(true);
+      part.mutable_system_settings()->last_patch = n;
+      part.system_settings().EepromSave();
       // When we are not playing, load the sequence parameters.
       if (!part.running()) {
         Storage::LoadSequence(edited_item_number());
@@ -1102,7 +1104,7 @@ void Editor::DisplayConfirmPage() {
 }
 
 /* static */
-void Editor::BootOnPatchBrowsePage(uint8_t index) {
+void Editor::BootOnPatchBrowsePage(uint16_t index) {
   if (index >= Storage::size<Patch>()) {
     index = Storage::size<Patch>() - 1;
   } 

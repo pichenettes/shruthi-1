@@ -148,7 +148,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   STR_RES_SWING,   // UNIT_GROOVE_TEMPLATE
   0,               // UNIT_ARPEGGIO_PATTERN
   STR_RES_FREE,    // UNIT_LFO_RETRIGGER_MODE
-  0,               // UNIT_SPLIT_POINT
+  STR_RES_SPLASH,  // UNIT_START_PAGE
   STR_RES__LPF,    // UNIT_FILTER_BOARD
   STR_RES____OFF,  // UNIT_CV_MODE
   STR_RES_LPF,     // UNIT_FILTER_1_MODE
@@ -216,10 +216,6 @@ void Parameter::PrintValue(uint8_t value, char* buffer, uint8_t width) const {
       } else {
         ++value;
       }
-      break;
-    case UNIT_SPLIT_POINT:
-      --value;
-      prefix = 'C';
       break;
   }
   if (prefix) {
@@ -594,11 +590,11 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_MIDI_OUT, STR_RES_MIDI_OUT }, 
 
   // 51
-  { PRM_SYS_MIDI_SPLIT_POINT,
-    UNIT_SPLIT_POINT,
-    0, 7,
+  { PRM_SYS_START_PAGE,
+    UNIT_START_PAGE,
+    0, 2,
     0,
-    STR_RES_SPLIT, STR_RES_SPLIT }, 
+    STR_RES_STARTPAGE, STR_RES_STARTPAGE }, 
 
   // 52
   { PRM_SYS_DISPLAY_DELAY,

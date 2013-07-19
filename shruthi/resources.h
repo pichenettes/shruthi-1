@@ -36,15 +36,15 @@ namespace shruthi {
 
 typedef uint16_t ResourceId;
 
-extern const prog_char* string_table[];
+extern const prog_char* const string_table[];
 
-extern const prog_uint16_t* lookup_table_table[];
+extern const prog_uint16_t* const lookup_table_table[];
 
-extern const prog_uint32_t* lookup_table32_table[];
+extern const prog_uint32_t* const lookup_table32_table[];
 
-extern const prog_uint8_t* waveform_table[];
+extern const prog_uint8_t* const waveform_table[];
 
-extern const prog_uint8_t* character_table[];
+extern const prog_uint8_t* const character_table[];
 
 extern const prog_uint16_t lut_res_lfo_increments[] PROGMEM;
 extern const prog_uint16_t lut_res_env_portamento_increments[] PROGMEM;
@@ -159,18 +159,18 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_PATTERN 42  // pattern
 #define STR_RES_DIVISION 43  // division
 #define STR_RES_START 44  // start
-#define STR_RES_SPLIT 45  // split
-#define STR_RES_LENGTH 46  // length
-#define STR_RES_OCTAVE 47  // octave
-#define STR_RES_RAGA 48  // raga
-#define STR_RES_PORTA 49  // porta
-#define STR_RES_PRT 50  // prt
-#define STR_RES_LEGATO 51  // legato
-#define STR_RES_TUNING 52  // tuning
-#define STR_RES_MIDI_CHAN 53  // midi chan
-#define STR_RES_CHN 54  // chn
-#define STR_RES_MIDI_OUT 55  // midi out
-#define STR_RES_PAUSE 56  // pause
+#define STR_RES_LENGTH 45  // length
+#define STR_RES_OCTAVE 46  // octave
+#define STR_RES_RAGA 47  // raga
+#define STR_RES_PORTA 48  // porta
+#define STR_RES_PRT 49  // prt
+#define STR_RES_LEGATO 50  // legato
+#define STR_RES_TUNING 51  // tuning
+#define STR_RES_MIDI_CHAN 52  // midi chan
+#define STR_RES_CHN 53  // chn
+#define STR_RES_MIDI_OUT 54  // midi out
+#define STR_RES_PAUSE 55  // pause
+#define STR_RES_STARTPAGE 56  // startpage
 #define STR_RES_SNAP 57  // snap
 #define STR_RES_PROGRAMMER 58  // programmer
 #define STR_RES_OSCILLATOR_1 59  // oscillator 1
@@ -497,42 +497,45 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_PVK 380  // pvk
 #define STR_RES_4PM 381  // 4pm
 #define STR_RES_DLY 382  // dly
-#define STR_RES____OFF 383  // off
-#define STR_RES_FCD 384  // fcd
-#define STR_RES_XT 385  // xt
-#define STR_RES_EQUAL 386  // equal
-#define STR_RES_JUST 387  // just
-#define STR_RES_PYTHAG 388  // pythag
-#define STR_RES_1_4_EB 389  // 1/4 eb
-#define STR_RES_1_4_E 390  // 1/4 e
-#define STR_RES_1_4_EA 391  // 1/4 ea
-#define STR_RES_BHAIRA 392  // bhaira
-#define STR_RES_GUNAKR 393  // gunakr
-#define STR_RES_MARWA 394  // marwa
-#define STR_RES_SHREE 395  // shree
-#define STR_RES_PURVI 396  // purvi
-#define STR_RES_BILAWA 397  // bilawa
-#define STR_RES_YAMAN 398  // yaman
-#define STR_RES_KAFI 399  // kafi
-#define STR_RES_BHIMPA 400  // bhimpa
-#define STR_RES_DARBAR 401  // darbar
-#define STR_RES_BAGESH 402  // bagesh
-#define STR_RES_RAGESH 403  // ragesh
-#define STR_RES_KHAMAJ 404  // khamaj
-#define STR_RES_MIMAL 405  // mi'mal
-#define STR_RES_PARAME 406  // parame
-#define STR_RES_RANGES 407  // ranges
-#define STR_RES_GANGES 408  // ganges
-#define STR_RES_KAMESH 409  // kamesh
-#define STR_RES_PALAS_ 410  // palas
-#define STR_RES_NATBHA 411  // natbha
-#define STR_RES_M_KAUN 412  // m.kaun
-#define STR_RES_BAIRAG 413  // bairag
-#define STR_RES_B_TODI 414  // b.todi
-#define STR_RES_CHANDR 415  // chandr
-#define STR_RES_KAUSHI 416  // kaushi
-#define STR_RES_JOGESH 417  // jogesh
-#define STR_RES_RASIA 418  // rasia
+#define STR_RES_SPLASH 383  // splash
+#define STR_RES__FILTER 384  // filter
+#define STR_RES_PRESET 385  // preset
+#define STR_RES____OFF 386  // off
+#define STR_RES_FCD 387  // fcd
+#define STR_RES_XT 388  // xt
+#define STR_RES_EQUAL 389  // equal
+#define STR_RES_JUST 390  // just
+#define STR_RES_PYTHAG 391  // pythag
+#define STR_RES_1_4_EB 392  // 1/4 eb
+#define STR_RES_1_4_E 393  // 1/4 e
+#define STR_RES_1_4_EA 394  // 1/4 ea
+#define STR_RES_BHAIRA 395  // bhaira
+#define STR_RES_GUNAKR 396  // gunakr
+#define STR_RES_MARWA 397  // marwa
+#define STR_RES_SHREE 398  // shree
+#define STR_RES_PURVI 399  // purvi
+#define STR_RES_BILAWA 400  // bilawa
+#define STR_RES_YAMAN 401  // yaman
+#define STR_RES_KAFI 402  // kafi
+#define STR_RES_BHIMPA 403  // bhimpa
+#define STR_RES_DARBAR 404  // darbar
+#define STR_RES_BAGESH 405  // bagesh
+#define STR_RES_RAGESH 406  // ragesh
+#define STR_RES_KHAMAJ 407  // khamaj
+#define STR_RES_MIMAL 408  // mi'mal
+#define STR_RES_PARAME 409  // parame
+#define STR_RES_RANGES 410  // ranges
+#define STR_RES_GANGES 411  // ganges
+#define STR_RES_KAMESH 412  // kamesh
+#define STR_RES_PALAS_ 413  // palas
+#define STR_RES_NATBHA 414  // natbha
+#define STR_RES_M_KAUN 415  // m.kaun
+#define STR_RES_BAIRAG 416  // bairag
+#define STR_RES_B_TODI 417  // b.todi
+#define STR_RES_CHANDR 418  // chandr
+#define STR_RES_KAUSHI 419  // kaushi
+#define STR_RES_JOGESH 420  // jogesh
+#define STR_RES_RASIA 421  // rasia
 #define LUT_RES_LFO_INCREMENTS 0
 #define LUT_RES_LFO_INCREMENTS_SIZE 128
 #define LUT_RES_ENV_PORTAMENTO_INCREMENTS 1

@@ -204,7 +204,7 @@ class Editor {
   
   static void Confirm(ConfirmPageSettings confirm_page_settings);
 
-  static void BootOnPatchBrowsePage(uint8_t patch_index);
+  static void BootOnPatchBrowsePage(uint16_t patch_index);
   
   static void RandomizeParameter(uint8_t subpage, uint8_t parameter_index);
   static void RandomizePatch();

@@ -89,7 +89,7 @@ void Part::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_SAW, 0, 0, 0,
+    WAVEFORM_SAW, 0, 0, OP_DUO,
     WAVEFORM_NONE, 16, -12, 12,
     // Mixer
     32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
@@ -130,7 +130,7 @@ static const prog_char init_patch[] PROGMEM = {
 
 static const prog_char init_sequence[] PROGMEM = {
     // Sequencer
-    SEQUENCER_MODE_SEQ, 120, 0, 0,
+    SEQUENCER_MODE_STEP, 120, 0, 0,
     ARPEGGIO_DIRECTION_UP, 1, 0, 7,
     
     // Pattern size and pattern

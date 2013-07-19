@@ -65,7 +65,6 @@ direction
 pattern
 division
 start
-split
 length
 octave
 raga
@@ -77,6 +76,7 @@ midi chan
 chn
 midi out
 pause
+startpage
 snap
 programmer
 oscillator 1
@@ -424,6 +424,10 @@ dsp
 pvk
 4pm
 dly
+
+splash
+filter
+preset
 
    off
 fcd

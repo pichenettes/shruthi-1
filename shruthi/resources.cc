@@ -70,7 +70,6 @@ static const prog_char str_res_direction[] PROGMEM = "direction";
 static const prog_char str_res_pattern[] PROGMEM = "pattern";
 static const prog_char str_res_division[] PROGMEM = "division";
 static const prog_char str_res_start[] PROGMEM = "start";
-static const prog_char str_res_split[] PROGMEM = "split";
 static const prog_char str_res_length[] PROGMEM = "length";
 static const prog_char str_res_octave[] PROGMEM = "octave";
 static const prog_char str_res_raga[] PROGMEM = "raga";
@@ -82,6 +81,7 @@ static const prog_char str_res_midi_chan[] PROGMEM = "midi chan";
 static const prog_char str_res_chn[] PROGMEM = "chn";
 static const prog_char str_res_midi_out[] PROGMEM = "midi out";
 static const prog_char str_res_pause[] PROGMEM = "pause";
+static const prog_char str_res_startpage[] PROGMEM = "startpage";
 static const prog_char str_res_snap[] PROGMEM = "snap";
 static const prog_char str_res_programmer[] PROGMEM = "programmer";
 static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
@@ -377,6 +377,8 @@ static const prog_char str_res_dsp[] PROGMEM = "dsp";
 static const prog_char str_res_pvk[] PROGMEM = "pvk";
 static const prog_char str_res_4pm[] PROGMEM = "4pm";
 static const prog_char str_res_dly[] PROGMEM = "dly";
+static const prog_char str_res_splash[] PROGMEM = "splash";
+static const prog_char str_res_preset[] PROGMEM = "preset";
 static const prog_char str_res_fcd[] PROGMEM = "fcd";
 static const prog_char str_res_xt[] PROGMEM = "xt";
 static const prog_char str_res_equal[] PROGMEM = "equal";
@@ -414,7 +416,7 @@ static const prog_char str_res_jogesh[] PROGMEM = "jogesh";
 static const prog_char str_res_rasia[] PROGMEM = "rasia";
 
 
-PROGMEM const prog_char* string_table[] = {
+PROGMEM const prog_char* const string_table[] = {
   str_res_shape,
   str_res_parameter,
   str_res_resonance,
@@ -460,7 +462,6 @@ PROGMEM const prog_char* string_table[] = {
   str_res_pattern,
   str_res_division,
   str_res_start,
-  str_res_split,
   str_res_length,
   str_res_octave,
   str_res_raga,
@@ -472,6 +473,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_chn,
   str_res_midi_out,
   str_res_pause,
+  str_res_startpage,
   str_res_snap,
   str_res_programmer,
   str_res_oscillator_1,
@@ -798,6 +800,9 @@ PROGMEM const prog_char* string_table[] = {
   str_res_pvk,
   str_res_4pm,
   str_res_dly,
+  str_res_splash,
+  str_res_filter,
+  str_res_preset,
   str_res___off,
   str_res_fcd,
   str_res_xt,
@@ -1043,7 +1048,7 @@ const prog_uint16_t lut_res_groove_monkey[] PROGMEM = {
 };
 
 
-PROGMEM const prog_uint16_t* lookup_table_table[] = {
+PROGMEM const prog_uint16_t* const lookup_table_table[] = {
   lut_res_lfo_increments,
   lut_res_env_portamento_increments,
   lut_res_oscillator_increments,
@@ -1119,7 +1124,7 @@ const prog_uint32_t lut_res_tempo_phase_increment[] PROGMEM = {
 };
 
 
-const prog_uint32_t* lookup_table32_table[] = {
+const prog_uint32_t* const lookup_table32_table[] = {
   lut_res_tempo_phase_increment,
 };
 
@@ -3970,7 +3975,7 @@ const prog_uint8_t wav_res_wavetables[] PROGMEM = {
 };
 
 
-const prog_uint8_t* waveform_table[] = {
+const prog_uint8_t* const waveform_table[] = {
   wav_res_formant_sine,
   wav_res_formant_square,
   wav_res_sine,
@@ -4014,7 +4019,7 @@ const prog_uint8_t chr_res_special_characters[] PROGMEM = {
 };
 
 
-const prog_uint8_t* character_table[] = {
+const prog_uint8_t* const character_table[] = {
   chr_res_special_characters,
 };
 

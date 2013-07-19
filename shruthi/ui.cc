@@ -57,8 +57,6 @@ void Ui::Init() {
   lcd.SetCustomCharMapRes(character_table[0], 7, 1);
 
   editor.Init();
-  editor.DisplaySplashScreen(STR_RES_V + 1);
-
   queue_.Flush();
 
   progress_bar_ = 0;
@@ -76,6 +74,17 @@ void Ui::Init() {
   for (uint8_t i = 0; i < 36; ++i) {
     adc_values_[i] = -1;
     adc_thresholds_[i] = kAdcThresholdUnlocked;
+  }
+}
+
+/* static */
+void Ui::ShowSplash() {
+  if (part.system_settings().start_page == 0) {
+    editor.DisplaySplashScreen(STR_RES_V + 1);
+  } else if (part.system_settings().start_page == 2) {
+    editor.BootOnPatchBrowsePage(part.system_settings().last_patch);
+  } else {
+    editor.Refresh();
   }
 }
 

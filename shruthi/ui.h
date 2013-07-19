@@ -91,6 +91,7 @@ class Ui {
   }
   
   static void LockPotentiometers();
+  static void ShowSplash();
   
  private:
   static void WriteShiftRegister();

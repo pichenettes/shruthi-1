@@ -199,8 +199,9 @@ void Init() {
 
   ui.Init();
   Storage::Init();
-
   part.Init();
+  
+  ui.ShowSplash();
   Timer<2>::Start();
 }
 

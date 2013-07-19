@@ -34,15 +34,15 @@ class SystemSettings {
   int8_t master_tuning;
   uint8_t midi_channel;
   uint8_t midi_out_mode;
-  uint8_t midi_split_point;
   
+  uint8_t start_page;
   uint8_t display_delay;
   uint8_t expansion_filter_board;
   uint8_t programmer;
   uint8_t display_snap;
 
-  uint16_t patch_restore_on_boot;
-  uint8_t sequence_patch_coupling;
+  uint16_t last_patch;
+  uint8_t padding;
   
   void EepromSave() const;
   uint8_t EepromLoad();
@@ -89,8 +89,8 @@ enum SystemParameter {
   PRM_SYS_MASTER_TUNING,
   PRM_SYS_MIDI_CHANNEL,
   PRM_SYS_MIDI_OUT_MODE,
-  PRM_SYS_MIDI_SPLIT_POINT,
-  
+
+  PRM_SYS_START_PAGE,
   PRM_SYS_DISPLAY_DELAY,
   PRM_SYS_EXPANSION_FILTER_BOARD,
   PRM_SYS_PROGRAMMER,
