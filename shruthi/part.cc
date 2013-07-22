@@ -526,7 +526,7 @@ void Part::ClockArpeggiator() {
   } else {
     uint8_t n = (arp_seq_step_ + sequencer_settings_.pattern_rotation) & 0x0f;
     SequenceStep& step = sequencer_settings_.steps[n];
-    has_note = step.gate();
+    has_note = step.gate() && !step.legato();
   }
   voice_.set_modulation_source(MOD_SRC_STEP, has_note ? 255 : 0);
   
@@ -608,7 +608,8 @@ void Part::ClockArpeggiator() {
     arp_seq_gate_length_counter_ = (step_duration() >> 1) + 1;
   }
   
-  if (sequencer_settings_.mode() == SEQUENCER_MODE_ARP && num_notes) {
+  if (sequencer_settings_.mode() == SEQUENCER_MODE_ARP && num_notes &&
+      sequencer_settings_.arp_pattern == kNumArpeggiatorPatterns) {
     uint8_t n = arp_seq_step_ + 1;
     if (n >= sequencer_settings_.pattern_size) {
       n = 0;
