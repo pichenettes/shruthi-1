@@ -66,7 +66,7 @@ struct Parameter {
   uint8_t unit;
   uint8_t min_value;
   uint8_t max_value;
-  uint8_t midi_cc;
+  uint8_t midi_cc[2];
   uint8_t short_name;
   uint8_t long_name;
   
@@ -89,11 +89,16 @@ class ParameterManager {
   static void Init();
   
   static const Parameter& parameter(uint8_t index);
+  static uint8_t for_cc(uint8_t cc) { return cc_to_id_[cc]; }
+  static uint8_t at_offset(uint8_t offset) { return offset_to_id_[offset]; }
 
  private:
   static Parameter cached_definition_;
   static Parameter dummy_parameter_;
   static uint8_t cached_index_;
+
+  static uint8_t offset_to_id_[128];
+  static uint8_t cc_to_id_[128];
   
   DISALLOW_COPY_AND_ASSIGN(ParameterManager);
 };

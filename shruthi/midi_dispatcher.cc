@@ -22,19 +22,22 @@
 namespace shruthi {
 
 /* static */
-uint8_t MidiDispatcher::current_parameter_index_;
-
-/* static */
-uint8_t MidiDispatcher::data_entry_counter_;
-
-/* static */
 uint8_t MidiDispatcher::current_bank_ = 0;
+
+/* static */
+uint8_t MidiDispatcher::running_status_ = 0;
 
 MidiDispatcher midi_dispatcher;
 
 /* static */
 void MidiDispatcher::Send(uint8_t status, uint8_t* data, uint8_t size) {
-  OutputBuffer::Overwrite(status);
+  if ((status & 0xf0) == 0xf0) {
+    running_status_ = 0;
+  }
+  if (status != running_status_) {
+    OutputBuffer::Overwrite(status);
+    running_status_ = status;
+  }
   if (size) {
     OutputBuffer::Overwrite(*data++);
     --size;
@@ -52,7 +55,13 @@ void MidiDispatcher::SendNow(uint8_t byte) {
 
 /* static */
 void MidiDispatcher::Send3(uint8_t status, uint8_t a, uint8_t b) {
-  OutputBuffer::Overwrite(status);
+  if ((status & 0xf0) == 0xf0) {
+    running_status_ = 0;
+  }
+  if (status != running_status_) {
+    OutputBuffer::Overwrite(status);
+    running_status_ = status;
+  }
   OutputBuffer::Overwrite(a);
   OutputBuffer::Overwrite(b);
 }

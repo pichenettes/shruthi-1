@@ -253,38 +253,32 @@ void Part::NoteOff(uint8_t channel, uint8_t note) {
 }
 
 /* static */
-void Part::ControlChange(uint8_t channel, uint8_t controller,
-                                    uint8_t value) {
+void Part::ControlChange(uint8_t controller, uint8_t value) {
+  switch (controller) {
+    case midi::kHoldPedal:
+      if (value >= 64) {
+        ignore_note_off_messages_ = true;
+      } else {
+        ignore_note_off_messages_ = false;
+        ReleaseLatchedNotes();
+      }
+      break;
+      
+    default:
+      {
+        uint8_t index = parameter_manager.for_cc(controller);
+        if (index == 0xff) {
+          voice_.ControlChange(controller, value);
+        } else {
+          SetScaledParameter(index, value, false);          
+        }
+      }
+      break;
+  }
   /*uint8_t editing_controller = 0;
-  if (controller >= midi::kAssignableCcA &&
-      controller <= midi::kAssignableCcD) {
-    set_modulation_source(MOD_SRC_CC_A + controller -
-        midi::kAssignableCcA, value << 1);
-  } else if (controller >= 20 && controller <= 31) {
-    controller -= 20;  // CCs for oscillators and mixer.
-    editing_controller = 1;
-  } else if (controller >= 14 && controller <= 15) {
-    controller -= 2; // CCs for Cutoff and resonance.
-    editing_controller = 1;
-  } else if (controller >= 12 && controller <= 13) {
-    controller = controller - 12 + 70;  // CCs for cutoff2 and resonance2.
-    editing_controller = 1;
-  } else if (controller >= 102 && controller <= 119) {
-    // CCs for filter mods, envelopes and LFOs.
-    controller = controller - 102 + 14;
-    editing_controller = 1;
   } else {
-    switch (controller) {
-      case midi::kModulationWheelMsb:
-        set_modulation_source(MOD_SRC_WHEEL, value << 1);
-        break;
-      case midi::kModulationWheelJoystickMsb:
-        break;
       case midi::kDataEntryMsb:
         data_entry_msb_ = value << 7;
-        break;
-      case midi::kVolume:
-        volume_ = value << 1;
         break;
       case midi::kDataEntryLsb:
       case midi::kDataIncrement:
@@ -322,35 +316,6 @@ void Part::ControlChange(uint8_t channel, uint8_t controller,
           }
         }
         break;
-      case midi::kHoldPedal:
-        if (value >= 64) {
-          ignore_note_off_messages_ = 1;
-        } else {
-          ignore_note_off_messages_ = 0;
-          controller_.AllNotesOff();
-        }
-        break;
-      case midi::kPortamentoTimeMsb:
-        system_settings_.portamento = value;
-        break;
-      case midi::kRelease:
-        SetParameter(PRM_ENV_RELEASE_2, value, 0);
-        break;
-      case midi::kAttack:
-        SetParameter(PRM_ENV_ATTACK_2, value, 0);
-        break;
-      case midi::kHarmonicIntensity:
-        patch_.filter_resonance = value >> 1;
-        break;
-      case midi::kBrightness + 16:
-        patch_.filter_cutoff_2 = value;
-        break;
-      case midi::kHarmonicIntensity + 16:
-        patch_.filter_resonance_2 = value >> 1;
-        break;
-      case midi::kBrightness:
-        patch_.filter_cutoff = value;
-        break;
       case midi::kNrpnLsb:
         nrpn_parameter_number_ = value | nrpn_parameter_number_msb_;
         nrpn_parameter_number_msb_ = 0;
@@ -368,17 +333,12 @@ void Part::ControlChange(uint8_t channel, uint8_t controller,
 }
 
 /* static */
-void Part::AllSoundOff(uint8_t channel) {
+void Part::AllSoundOff() {
   AllNotesOff();
 }
 
 /* static */
-void Part::AllNotesOff(uint8_t channel) {
-  AllNotesOff();
-}
-
-/* static */
-void Part::ResetAllControllers(uint8_t channel) {
+void Part::ResetAllControllers() {
   ignore_note_off_messages_ = false;
   voice_.ResetAllControllers();
 }
@@ -392,13 +352,13 @@ void Part::OmniModeOff(uint8_t channel) {
 
 // Enable Omni mode.
 /* static */
-void Part::OmniModeOn(uint8_t channel) {
+void Part::OmniModeOn() {
   system_settings_.midi_channel = 0;
 }
 
 /* static */
 void Part::Reset() {
-  ResetAllControllers(0);
+  ResetAllControllers();
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     lfo_[i].Reset();
   }
@@ -707,11 +667,16 @@ void Part::SetScaledParameter(
     bool user_initiated) {
   dirty_ = true;
   const Parameter& parameter = parameter_manager.parameter(parameter_index);
-  SetParameter(parameter.offset, parameter.Scale(value), user_initiated);
+  SetParameter(
+      parameter_index,
+      parameter.offset,
+      parameter.Scale(value),
+      user_initiated);
 }
 
 /* static */
 void Part::SetParameter(
+    uint8_t parameter_index,
     uint8_t offset,
     uint8_t value,
     bool user_initiated) {
@@ -726,7 +691,7 @@ void Part::SetParameter(
         sequencer_settings_.arp_direction == ARPEGGIO_DIRECTION_DOWN ? -1 : 1;
   }
   if (user_initiated) {
-    midi_dispatcher.OnEdit(offset, value);
+    midi_dispatcher.OnEdit(parameter_index, offset, value);
   }
 }
 

@@ -313,6 +313,11 @@ void Ui::DoEvents() {
     editor.Relax();
     refresh_display = true;
   }
+  
+  if (queue_.idle_time_ms() > 100 && part.dirty()) {
+    queue_.Touch();
+    refresh_display = true;
+  }
 
   if (refresh_display) {
     editor.Refresh();

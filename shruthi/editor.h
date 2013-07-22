@@ -232,7 +232,7 @@ class Editor {
   static void ConfigureFilterMenu();
    
   // A bunch of hacks for special values/pages.
-  static void SetParameterValue(uint8_t id, uint8_t value);
+  static void SetParameterValue(uint8_t id, uint8_t offset, uint8_t value);
   static uint8_t GetParameterValue(uint8_t id);
 
   // Returns the parameter id of the parameter that should be edited when

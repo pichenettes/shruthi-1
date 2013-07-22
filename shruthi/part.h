@@ -42,21 +42,21 @@ class Part {
   static void NoteOff(uint8_t channel, uint8_t note);
 
   // Handled.
-  static void ControlChange(uint8_t channel, uint8_t controller, uint8_t value);
-  static void PitchBend(uint8_t channel, uint16_t pitch_bend) {
+  static void ControlChange(uint8_t controller, uint8_t value);
+  static void PitchBend(uint16_t pitch_bend) {
     voice_.PitchBend(pitch_bend);
   }
-  static void Aftertouch(uint8_t channel, uint8_t note, uint8_t velocity) {
+  static void Aftertouch(uint8_t note, uint8_t velocity) {
     voice_.Aftertouch(velocity);
   }
-  static void Aftertouch(uint8_t channel, uint8_t velocity) {
+  static void Aftertouch(uint8_t velocity) {
     voice_.Aftertouch(velocity);
   }
-  static void AllSoundOff(uint8_t channel);
-  static void ResetAllControllers(uint8_t channel);
-  static void AllNotesOff(uint8_t channel);
+  static void AllSoundOff();
+  static void ResetAllControllers();
+  static void AllNotesOff();
   static void OmniModeOff(uint8_t channel);
-  static void OmniModeOn(uint8_t channel);
+  static void OmniModeOn();
   static void Reset();
   static void Clock(bool internal);
   static void Start(bool internal);
@@ -69,8 +69,9 @@ class Part {
   static void SetPatternLength(uint8_t length);
 
   // Patch manipulation stuff.
-  static void SetParameter(uint8_t offset, uint8_t value, bool user_initiated);
-  static void SetScaledParameter(uint8_t parameter_index, uint8_t value,
+  static void SetParameter(uint8_t index, uint8_t offset, uint8_t value,
+      bool user_initiated);
+  static void SetScaledParameter(uint8_t index, uint8_t value,
       bool user_initiated);
   static inline uint8_t GetParameter(uint8_t offset) {
     return data_access_byte_[offset + 1];
@@ -195,7 +196,6 @@ class Part {
   // everytime a parameter is modified by the user).
   static void UpdateModulationRates();
   static void UpdateLfoRate(uint8_t i);
-  static void AllNotesOff();
   static void StopSequencerArpeggiatorNotes();
   static void ReleaseLatchedNotes();
   static void InternalNoteOn(uint8_t note, uint8_t velocity);

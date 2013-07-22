@@ -94,6 +94,7 @@ class Voice {
   static void TriggerEnvelope(uint8_t stage);
   static void TriggerEnvelope(uint8_t index, uint8_t stage);
   
+  static void ControlChange(uint8_t controller, uint8_t value);
   static void Aftertouch(uint8_t value) {
     modulation_sources_[MOD_SRC_AFTERTOUCH] = value << 1;
   }

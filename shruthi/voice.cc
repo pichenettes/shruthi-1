@@ -247,6 +247,27 @@ inline void Voice::LoadSources() {
 }
 
 /* static */
+void Voice::ControlChange(uint8_t controller, uint8_t value) {
+  if (controller >= midi::kAssignableCcA &&
+      controller <= midi::kAssignableCcD) {
+    uint8_t modulation = MOD_SRC_CC_A + controller - midi::kAssignableCcA; 
+    modulation_sources_[modulation] = value << 1;
+  } else {
+    switch (controller) {
+      case midi::kModulationWheelMsb:
+        modulation_sources_[MOD_SRC_WHEEL] = value << 1;
+        break;
+      case midi::kModulationWheelJoystickMsb:
+        unregistered_modulation_sources_[0] = value << 1;
+        break;
+      case midi::kVolume:
+        volume_ = value << 1;
+        break;
+    }
+  }
+}
+
+/* static */
 inline void Voice::ProcessModulationMatrix() {
   // Apply the modulations in the modulation matrix.
   for (uint8_t i = 0; i < kNumEnvelopes; ++i) {

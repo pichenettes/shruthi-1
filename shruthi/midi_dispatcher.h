@@ -26,6 +26,7 @@
 #include "midi/midi.h"
 #include "shruthi/display.h"
 #include "shruthi/editor.h"
+#include "shruthi/parameter.h"
 #include "shruthi/part.h"
 #include "shruthi/storage.h"
 
@@ -69,33 +70,33 @@ class MidiDispatcher : public midi::MidiDevice {
       current_bank_ = value;
     } else {
       display.set_status('\x05');
-      part.ControlChange(channel, controller, value);
+      part.ControlChange(controller, value);
     }
   }
   static inline void PitchBend(uint8_t channel, uint16_t pitch_bend) {
     display.set_status('\x02');
-    part.PitchBend(channel, pitch_bend);
+    part.PitchBend(pitch_bend);
   }
   static void Aftertouch(uint8_t channel, uint8_t note, uint8_t velocity) {
-    part.Aftertouch(channel, note, velocity);
+    part.Aftertouch(note, velocity);
   }
   static void Aftertouch(uint8_t channel, uint8_t velocity) {
-    part.Aftertouch(channel, velocity);
+    part.Aftertouch(velocity);
   }
   static void AllSoundOff(uint8_t channel) {
-    part.AllSoundOff(channel);
+    part.AllSoundOff();
   }
   static void ResetAllControllers(uint8_t channel) {
-    part.ResetAllControllers(channel);
+    part.ResetAllControllers();
   }
   static void AllNotesOff(uint8_t channel) {
-    part.AllNotesOff(channel);
+    part.AllNotesOff();
   }
   static void OmniModeOff(uint8_t channel) {
     part.OmniModeOff(channel);
   }
   static void OmniModeOn(uint8_t channel) {
-    part.OmniModeOn(channel);
+    part.OmniModeOn();
   }
   
   static void ProgramChange(uint8_t channel, uint8_t program) {
@@ -240,25 +241,30 @@ class MidiDispatcher : public midi::MidiDevice {
     }
   }
   
-  static inline void OnEdit(uint8_t index, uint8_t value) {
+  static inline void OnEdit(uint8_t index, uint8_t offset, uint8_t value) {
     // Do not forward changes of system settings!
-    if (index >= sizeof(Patch)) {
+    if (offset >= PRM_SYS_MASTER_TUNING) {
       return;
     }
     if (mode() < MIDI_OUT_FULL) {
       return;
     }
     
-    // TODO: whenever possible, transmit as CC.
-    ++data_entry_counter_;
-    if (current_parameter_index_ != index || data_entry_counter_ >= 16) {
+    const Parameter& parameter = parameter_manager.parameter(index);
+    if (parameter.midi_cc[0]) {
+      if (parameter.unit != UNIT_RAW_UINT8) {
+        value -= parameter.min_value;
+        uint8_t range = parameter.max_value - parameter.min_value + 1;
+        value = U8U8Mul(value, 128) / range;
+      }
+      Send3(0xb0 | channel(), parameter.midi_cc[0], value);
+    } else {
+      Send3(0xb0 | channel(), midi::kNrpnMsb, 0);
       Send3(0xb0 | channel(), midi::kNrpnLsb, index);
-      current_parameter_index_ = index;
-      data_entry_counter_ = 0;
+      uint8_t msb = (value & 0x80) ? 1 : 0;
+      Send3(0xb0 | channel(), midi::kDataEntryMsb, msb);
+      Send3(0xb0 | channel(), midi::kDataEntryLsb, value & 0x7f);
     }
-    uint8_t msb = (value & 0x80) ? 1 : 0;
-    Send3(0xb0 | channel(), midi::kDataEntryMsb, msb);
-    Send3(0xb0 | channel(), midi::kDataEntryLsb, value & 0x7f);
   }
   
   static void Send3(uint8_t a, uint8_t b, uint8_t c);
@@ -281,9 +287,8 @@ class MidiDispatcher : public midi::MidiDevice {
   
   static uint8_t mode() { return part.system_settings().midi_out_mode; }
   
-  static uint8_t data_entry_counter_;
-  static uint8_t current_parameter_index_;
   static uint8_t current_bank_;
+  static uint8_t running_status_;
   
   DISALLOW_COPY_AND_ASSIGN(MidiDispatcher);
 };

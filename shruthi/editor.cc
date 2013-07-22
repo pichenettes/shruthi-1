@@ -264,7 +264,11 @@ void Editor::ShowEditCursor() {
 void Editor::RandomizeParameter(uint8_t subpage, uint8_t parameter_index) {
   const Parameter& parameter = parameter_manager.parameter(parameter_index);
   uint8_t value = parameter.RandomValue();
-  part.SetParameter(parameter.offset + subpage * 3, value, true);
+  part.SetParameter(
+      parameter_index,
+      parameter.offset + subpage * 3,
+      value,
+      true);
 }
 
 /* static */
@@ -670,7 +674,7 @@ void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
           cursor_ = new_size - 1;
         }
         last_knob_ = 1;
-        part.SetParameter(PRM_SEQ_PATTERN_SIZE, new_size, true);
+        part.SetParameter(57, PRM_SEQ_PATTERN_SIZE, new_size, true);
       }
       break;
   }
@@ -684,7 +688,7 @@ void Editor::HandleStepSequencerInput(uint8_t knob_index, uint8_t value) {
     seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
         value >> 3);
   } else if (knob_index == 0) {
-    part.SetParameter(PRM_SEQ_PATTERN_ROTATION, value >> 3, true);
+    part.SetParameter(56, PRM_SEQ_PATTERN_ROTATION, value >> 3, true);
     last_knob_ = 0;
   }
 }
@@ -991,7 +995,7 @@ void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
     }
   }
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
-  SetParameterValue(parameter.offset, parameter.Scale(value));
+  SetParameterValue(index, parameter.offset, parameter.Scale(value));
   cursor_ = knob_index;
   last_external_input_ = 0xff;
 }
@@ -1028,21 +1032,21 @@ void Editor::HandleEditIncrement(int8_t increment) {
     uint8_t old_value = GetParameterValue(parameter.offset);
     uint8_t new_value = parameter.Increment(old_value, increment);
     if (new_value != old_value) {
-      SetParameterValue(parameter.offset, new_value);
+      SetParameterValue(index, parameter.offset, new_value);
     }
   }
 }
 
 /* static */
-void Editor::SetParameterValue(uint8_t id, uint8_t value) {
+void Editor::SetParameterValue(uint8_t index, uint8_t offset, uint8_t value) {
   // Dirty hack for the modulation page.
-  if (current_page_ == PAGE_MOD_MATRIX && id == PRM_MOD_ROW) {
+  if (current_page_ == PAGE_MOD_MATRIX && offset == PRM_MOD_ROW) {
     subpage_ = value;
     last_visited_subpage_ = value;
-  } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
+  } else if (current_page_ == PAGE_MOD_OPERATORS && offset == PRM_OP_ROW ) {
     subpage_ = value;
   } else {
-    part.SetParameter(id + subpage_ * 3, value, true);
+    part.SetParameter(index, offset + subpage_ * 3, value, true);
   }
 }
 
