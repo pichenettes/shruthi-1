@@ -181,6 +181,9 @@ class Part {
     ignore_note_off_messages_ = true;
     release_latched_keys_on_next_note_on_ = true;
   }
+  static inline uint8_t num_notes() {
+    return pressed_keys_.size();
+  }
   
   inline static void Unlatch() {
     ignore_note_off_messages_ = false;

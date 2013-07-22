@@ -102,8 +102,6 @@ class Ui {
   static bool switch_inhibit_release_[SWITCH_LAST];
   static uint8_t switch_state_[SWITCH_LAST];
   static uint32_t switch_press_time_[SWITCH_LAST];
-  static uint32_t encoder_press_time_;
-  static bool inhibit_encoder_release_;
   static uint8_t sub_clock_;
   static uint8_t progress_bar_;
   static uint8_t led_pwm_counter_;

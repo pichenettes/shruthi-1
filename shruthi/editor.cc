@@ -180,7 +180,7 @@ uint8_t Editor::last_external_input_;
 uint16_t Editor::current_patch_number_ = 0;
 uint16_t Editor::current_sequence_number_ = 0;
 
-uint8_t Editor::test_note_playing_ = 0;
+int8_t Editor::jam_note_ = 0;
 ConfirmPageSettings Editor::confirm_page_settings_;
 bool Editor::snapped_[36];
 bool Editor::empty_patch_;
@@ -349,11 +349,6 @@ void Editor::HandleSwitchEvent(const Event& event) {
         }
         break;
     }
-  } else if (event.value >= 6) {
-    if (id == SWITCH_1) {
-      test_note_playing_ ^= 1;
-      part.NoteOn(0, 60, test_note_playing_ * 100);
-    }
   } else if (id == SWITCH_MODE) {
     editor_mode_ = (editor_mode_ != EDITOR_MODE_PATCH)
       ? EDITOR_MODE_PATCH
@@ -393,9 +388,16 @@ void Editor::HandleIncrement(int8_t increment) {
 /* static */
 void Editor::HandleLongClick() {
   if (!part.latched()) {
+    if (part.num_notes() == 0) {
+      jam_note_ = 60;
+      part.NoteOn(0, 60, 100);
+    }
     part.Latch();
   } else {
     part.Unlatch();
+    if (jam_note_) {
+      part.NoteOn(0, jam_note_, 0);
+    }
   }
 }
 
@@ -860,6 +862,15 @@ void Editor::DisplayEditOverviewPage() {
   uint8_t pos = cursor_ * kColumnWidth + 1;
   if (line_buffer_[pos] > 96 && line_buffer_[pos] <= 122) {
     line_buffer_[pos] -= 32;
+  }
+  
+  // If we are in latched mode, show it.
+  if (part.latched()) {
+    for (uint8_t i = 1; i < kLcdWidth; ++i) {
+      if (line_buffer_[i] == ' ') {
+        line_buffer_[i] = '-';
+      }
+    }
   }
 
   display.Print(0, line_buffer_);

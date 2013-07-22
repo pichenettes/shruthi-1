@@ -309,7 +309,7 @@ class Editor {
   static uint16_t current_sequence_number_;
   static ConfirmPageSettings confirm_page_settings_;
 
-  static uint8_t test_note_playing_;
+  static int8_t jam_note_;
   static bool empty_patch_;
   
   static bool snapped_[36];
