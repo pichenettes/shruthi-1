@@ -110,25 +110,9 @@ class Lfo {
     ) + 128;
   }
   
-  inline void set_target_phase(uint16_t target_phase) {
-    // This is a simple P.D. corrector to get the LFO to track the phase and
-    // frequency of the pseudo-sawtooth given by the MIDI clock.
-    /*uint16_t phi = phase_ >> 16;
-    int16_t d_error = (65536 / 24) - (phi - previous_phase_);
-    int16_t p_error = target_phase - phi;
-    int32_t error = 0;
-    error += d_error;
-    error += p_error;
-    phase_increment_ += (error >> 8);
-    if (phase_increment_ < 6) {
-      phase_increment_ = 6;
-    } else if (phase_increment_ > 1040) {
-      phase_increment_ = 1040;
-    }
-    previous_phase_ = phi;*/
-    phase_ = target_phase;
-    phase_increment_ = 0;  
-  } 
+  inline void set_target_increment(uint16_t increment) {
+    phase_increment_ = increment;
+  }
 
   void Reset() {
     ResetPhase();
@@ -165,6 +149,7 @@ class Lfo {
   uint16_t phase_increment_;
   uint16_t previous_phase_;
   uint16_t intensity_increment_;
+  uint16_t target_increment_;
   uint16_t intensity_;
 
   // Current phase of the lfo.

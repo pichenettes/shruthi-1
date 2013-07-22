@@ -58,6 +58,7 @@ uint8_t Part::previous_lfo_fm_[kNumLfos];
 uint16_t Part::lfo_step_[kNumLfos];
 uint16_t Part::lfo_limit_[kNumLfos];
 uint16_t Part::lfo_increment_[kNumLfos];
+uint32_t Part::lfo_tap_[kNumLfos];
 
 bool Part::arp_seq_running_;
 uint8_t Part::arp_seq_prescaler_;
@@ -134,7 +135,7 @@ static const prog_char init_patch[] PROGMEM = {
 
 static const prog_char init_sequence[] PROGMEM = {
     // Sequencer
-    SEQUENCER_MODE_STEP, 120, 0, 0,
+    SEQUENCER_MODE_ARP, 120, 0, 0,
     ARPEGGIO_DIRECTION_UP, 1, 0, 7,
     
     // Pattern size and pattern
@@ -446,9 +447,21 @@ void Part::Clock(bool internal) {
         lfo_limit_[i] = limit;
         lfo_increment_[i] = 65536 / limit;
       }
-      lfo_[i].set_target_phase(lfo_step_[i] * lfo_increment_[i]);
+      if (lfo_step_[i] == 0) {
+        uint32_t now = milliseconds();
+        uint32_t delta = now - lfo_tap_[i];
+        if (delta && lfo_tap_[i]) {
+          lfo_[i].set_target_increment(66847L / delta);
+          lfo_[i].Reset();
+        }
+        lfo_tap_[i] = now;
+      }
+      // lfo_[i].set_target_phase(lfo_step_[i] * lfo_increment_[i]);
     }
     ++lfo_step_[i];
+    if (lfo_step_[i] >= 1536) {
+      lfo_step_[i] = 0;
+    }
   }
   
   ++arp_seq_prescaler_;
@@ -464,6 +477,8 @@ void Part::Start(bool internal) {
   
   lfo_step_[0] = 0;
   lfo_step_[1] = 0;
+  lfo_tap_[0] = 0;
+  lfo_tap_[1] = 0;
   
   poly_allocator_.Clear();
   mono_allocator_.Clear();
@@ -501,15 +516,23 @@ void Part::Stop(bool internal) {
 
 /* static */
 void Part::ClockArpeggiator() {
-  uint16_t pattern_mask = 1 << arp_seq_step_;
-  uint16_t pattern = ResourcesManager::Lookup<uint16_t, uint8_t>(
-        lut_res_arpeggiator_patterns,
-        sequencer_settings_.arp_pattern);
-  voice_.set_modulation_source(MOD_SRC_STEP, pattern_mask & pattern ? 255 : 0);
-
+  bool has_note = false;
+  if (sequencer_settings_.arp_pattern < kNumArpeggiatorPatterns) {
+    uint16_t pattern_mask = 1 << arp_seq_step_;
+    uint16_t pattern = ResourcesManager::Lookup<uint16_t, uint8_t>(
+          lut_res_arpeggiator_patterns,
+          sequencer_settings_.arp_pattern);
+    has_note = pattern_mask & pattern;
+  } else {
+    uint8_t n = (arp_seq_step_ + sequencer_settings_.pattern_rotation) & 0x0f;
+    SequenceStep& step = sequencer_settings_.steps[n];
+    has_note = step.gate();
+  }
+  voice_.set_modulation_source(MOD_SRC_STEP, has_note ? 255 : 0);
+  
   uint8_t num_notes = pressed_keys_.size();
   if (sequencer_settings_.mode() == SEQUENCER_MODE_ARP && 
-      (pattern_mask & pattern) && num_notes) {
+      has_note && num_notes) {
     // Update arepggiator note/octave counter.
     if (num_notes == 1 && sequencer_settings_.arp_range == 1) {
       // This is a corner case for the Up/down pattern code.
@@ -583,6 +606,18 @@ void Part::ClockArpeggiator() {
     arp_previous_note_ = note;
     arp_note_ += arp_direction_;
     arp_seq_gate_length_counter_ = (step_duration() >> 1) + 1;
+  }
+  
+  if (sequencer_settings_.mode() == SEQUENCER_MODE_ARP && num_notes) {
+    uint8_t n = arp_seq_step_ + 1;
+    if (n >= sequencer_settings_.pattern_size) {
+      n = 0;
+    }
+    n = (n + sequencer_settings_.pattern_rotation) & 0x0f;
+    SequenceStep& step = sequencer_settings_.steps[n];
+    if (sequencer_settings_.steps[n].legato()) {
+      arp_seq_gate_length_counter_ += step_duration();
+    }
   }
 }
 
