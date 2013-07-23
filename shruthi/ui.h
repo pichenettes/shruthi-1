@@ -42,42 +42,31 @@ class Ui {
   static void Init();
   static void DoEvents();
 
-  static inline void Poll() {
-    ++sub_clock_;
-    
-    uint8_t sub_clock_10k = sub_clock_ & 0x03;
-    if (sub_clock_10k == 0) {
-      clock.Tick();
-      return;
-    }
-    
-    uint8_t sub_clock_2500 = sub_clock_ & 0x0f;
-    if (sub_clock_2500 == 1) {
-      lcd.Tick();
-      int8_t increment = encoder_.ReadEncoder();
-      if (increment != 0) {        
-        if (switch_state_[SWITCH_SHIFT] == 0x00) {
-          increment = increment < 0 ? -10 : 10;
-          switch_inhibit_release_[SWITCH_SHIFT] == true;
-        }
-        queue_.AddEvent(CONTROL_ENCODER, 0, increment);
-      }
-      return;
-    }
-    uint8_t sub_clock_1250 = sub_clock_ & 0x1f;
-    uint8_t sub_clock_625 = sub_clock_ & 0x3f;
+  static void Poll() {
+    // Refresh LCD at 2kHz.
+    lcd.Tick();
 
-    if (sub_clock_625 == 2) {
-      WriteShiftRegister();
-    } else if (sub_clock_625 == 3) {
-      DebounceSwitches();
-    } else if (sub_clock_1250 == 5) {
-      ScanPotentiometers();
-    } else if (sub_clock_1250 == 6) {
+    // Debounce encoder at 2kHz.
+    int8_t increment = encoder_.ReadEncoder();
+    if (increment != 0) {        
+      if (switch_state_[SWITCH_SHIFT] == 0x00) {
+        increment = increment < 0 ? -10 : 10;
+        switch_inhibit_release_[SWITCH_SHIFT] == true;
+      }
+      queue_.AddEvent(CONTROL_ENCODER, 0, increment);
+    }
+    
+    if (sub_clock_) {
       TickSystemClock();
+      ScanPotentiometers();
+      sub_clock_ = 0;
+    } else {
+      WriteShiftRegister();
+      DebounceSwitches();
+      sub_clock_ = 1;
     }
   }
-
+  
   static void BeginProgressBar() {
     progress_bar_ = 1;
   }
@@ -95,6 +84,7 @@ class Ui {
   
  private:
   static void WriteShiftRegister();
+  static void DebounceEncoder();
   static void DebounceSwitches();
   static void RefreshLeds();
   static void ScanPotentiometers();

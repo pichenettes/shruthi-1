@@ -318,7 +318,12 @@ void Editor::Confirm(ConfirmPageSettings confirm_page_settings) {
 }
 
 /* static */
-void Editor::HandleSwitchEvent(const Event& event) {
+void Editor::HandleProgrammerSwitch(const Event& event) {
+  return;
+}
+
+/* static */
+void Editor::HandleSwitch(const Event& event) {
   uint8_t id = event.control_id;
   if (event.value == 0xff) {
     if (current_page_ != PAGE_LOAD_SAVE) {
@@ -922,9 +927,16 @@ void Editor::DisplayEditDetailsPage() {
     index = last_external_input_;
   }
   const Parameter& parameter = parameter_manager.parameter(index);
-  const PageDefinition& page = page_definition_[current_page_];
-
-  if (current_page_ != PAGE_MOD_MATRIX && last_external_input_ == 0xff) {
+  uint8_t page_index = current_page_;
+  
+  if (last_external_input_ != 0xff) {
+    page_index = last_external_input_ >> 2;
+    if (page_index >= PAGE_FILTER_MULTIMODE) {
+      ++page_index;
+    }
+  }
+  const PageDefinition& page = page_definition_[page_index];
+  if (current_page_ != PAGE_MOD_MATRIX) {
     ResourcesManager::LoadStringResource(
         page.name,
         line_buffer_,
@@ -932,12 +944,6 @@ void Editor::DisplayEditDetailsPage() {
     AlignLeft(line_buffer_, kLcdWidth);
     display.Print(0, line_buffer_);
   }
-  if (last_external_input_ != 0xff) {
-    strcpy_P(line_buffer_, PSTR("programmer"));
-    AlignLeft(line_buffer_, kLcdWidth);
-    display.Print(0, line_buffer_);
-  }
-
   ResourcesManager::LoadStringResource(
       parameter.long_name,
       line_buffer_,

@@ -421,7 +421,7 @@ Phase increment for tempo.
 ----------------------------------------------------------------------------"""
 
 lookup_tables32 = []
-clock_rate = sample_rate / 4
+clock_rate = sample_rate / 40
 width = 1 << 31
 tempo_values = numpy.arange(40, 241.0)
 lookup_tables32.append(

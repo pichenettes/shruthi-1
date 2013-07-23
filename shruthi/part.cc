@@ -805,6 +805,7 @@ uint8_t Part::four_pole_routing_byte() {
 /* static */
 void Part::ProcessBlock() {
   if (sequencer_settings_.internal_clock()) {
+    clock.Tick();
     if (clock.Wrap(swing_amount_)) {
       swing_amount_ = S8U8MulShift8(
           ResourcesManager::Lookup<int16_t, uint8_t>(

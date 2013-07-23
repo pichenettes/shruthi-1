@@ -97,13 +97,53 @@ void Ui::LockPotentiometers() {
   adc_thresholds_[3] = kAdcThresholdLocked;
 }
 
+const prog_uint8_t xp_parameter_mapping[] PROGMEM = {
+  4 + 30,  // PRM_LFO_ATTACK_2
+  4 + 29,  // PRM_LFO_RATE_2
+  4 + 25,  // PRM_LFO_RATE_1
+  4 + 26,  // PRM_LFO_ATTACK_1
+  4 + 20,  // PRM_ENV_ATTACK_2
+  4 + 23,  // PRM_ENV_RELEASE_2
+  4 + 21,  // PRM_ENV_DECAY_2
+  4 + 22,  // PRM_ENV_SUSTAIN_2
+  
+  4 + 18,  // PRM_ENV_SUSTAIN_1
+  4 + 17,  // PRM_ENV_DECAY_1
+  0xff,  // Software volume... TODO
+  4 + 19,  // PRM_ENV_RELEASE_1
+  4 + 16,  // PRM_ENV_ATTACK_1
+  0xff,  // Unassigned
+  0xff,  // Unassigned
+  0xff,  // Unassigned
+  
+  4 + 6,  // PRM_OSC_RANGE_2
+  4 + 1,  // PRM_OSC_PARAMETER_1
+  4 + 5,  // PRM_OSC_PARAMETER_2
+  4 + 2,  // PRM_OSC_RANGE_1
+  4 + 7,  // PRM_OSC_OPTION_2
+  4 + 10, // PRM_MIX_SUB_OSC
+  4 + 9,  // PRM_MIX_BALANCE
+  4 + 11, // PRM_MIX_NOISE
+  
+  0,
+  1,
+  2,
+  3,
+  4 + 12,  // PRM_FILTER_CUTOFF
+  4 + 13,  // PRM_FILTER_RESONANCE
+  4 + 14,  // PRM_FILTER_ENV
+  4 + 15,  // PRM_FILTER_LFO
+};
+
 /* static */
 void Ui::ScanPotentiometers() {
+  adc_.Wait();
   uint8_t address = pots_multiplexer_address_;
   int16_t value = adc_.ReadOut();
   bool generate_ui_event = true;
   
   if (part.system_settings().programmer == PROGRAMMER_NONE) {
+    *PortA::Mode::ptr() = 0x00;
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 7;
     adc_.StartConversion(pots_multiplexer_address_);
     if (address >= 4) {
@@ -112,6 +152,7 @@ void Ui::ScanPotentiometers() {
           MOD_SRC_CV_1 + address - 4, value >> 2);
     }
   } else if (part.system_settings().programmer == PROGRAMMER_FCD) {
+    *PortA::Mode::ptr() = 0x00;
     pots_multiplexer_address_++;
     if (pots_multiplexer_address_ >= 36) {
       pots_multiplexer_address_ = 0;
@@ -122,12 +163,16 @@ void Ui::ScanPotentiometers() {
       WriteShiftRegister();
       adc_.StartConversion(4);
     }
-  } else if (part.system_settings().expansion_filter_board == PROGRAMMER_XT) {
+  } else if (part.system_settings().programmer == PROGRAMMER_XT) {
+    *PortA::Mode::ptr() = 0xfe;
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 31;
-    // TODO: writer address counters.
+    uint8_t byte = (pots_multiplexer_address_ << 1) & 0x0f;
+    uint8_t range = pots_multiplexer_address_ >> 3;
+    byte |= (~(0x10 << range)) & 0xf0;
+    *PortA::Output::ptr() = byte;
     adc_.StartConversion(0);
-    // TODO: apply address conversion table.
-    address = address;
+    address = pgm_read_byte(xp_parameter_mapping + address);
+    generate_ui_event = address != 0xff;
   }
   
   if (generate_ui_event) {
@@ -198,18 +243,43 @@ void Ui::WriteShiftRegister() {
 void Ui::DebounceSwitches() {
   io_.Begin();
   io_.End();
-  uint8_t bits = io_.Receive();
+  
+  uint8_t last_switch;
+  uint8_t switch_data[3];
+  
+  if (part.system_settings().programmer == PROGRAMMER_XT) {
+    switch_data[1] = io_.Receive();
+    switch_data[0] = io_.Receive();
+    switch_data[2] = io_.Receive();
+    last_switch = SWITCH_LFO_2_SYNC;
+  } else {
+    switch_data[0] = io_.Receive();
+    switch_data[1] = 0xff;
+    switch_data[2] = 0xff;
+    last_switch = SWITCH_ENCODER;
+  }
+  
+  uint8_t data = switch_data[0];
   uint8_t mask = 0x20;
-  for (uint8_t i = 0; i <= SWITCH_LOAD_SAVE; ++i) {
+  for (uint8_t i = 0; i <= last_switch; ++i) {
+    if (i == SWITCH_ENCODER) {
+      switch_state_[i] = encoder_.ReadSwitch();
+      continue;
+    } else if (i == SWITCH_OSC_2_MINUS) {
+      data = switch_data[1];
+      mask = 0x80;
+    } else if (i == SWITCH_LFO_1_SHAPE_MINUS) {
+      data = switch_data[2];
+      mask = 0x10;
+    }
     switch_state_[i] <<= 1;
-    if (bits & mask) {
+    if (data & mask) {
       switch_state_[i] |= 1;
     }
     mask >>= 1;
   }
-  switch_state_[SWITCH_ENCODER] = encoder_.ReadSwitch();
 
-  for (uint8_t i = 0; i < SWITCH_LAST; ++i) {
+  for (uint8_t i = 0; i <= last_switch; ++i) {
     if (switch_state_[i] == 0x80) {
       switch_press_time_[i] = milliseconds();
       switch_inhibit_release_[i] = false;
@@ -283,13 +353,15 @@ void Ui::DoEvents() {
 
       case CONTROL_SWITCH:
         if (e.control_id <= SWITCH_LOAD_SAVE) {
-          editor.HandleSwitchEvent(e);
-        } else {
+          editor.HandleSwitch(e);
+        } else if (e.control_id == SWITCH_ENCODER) {
           if (e.value < 6) {
             editor.HandleClick();
           } else {
             editor.HandleLongClick();
           }
+        } else {
+          editor.HandleProgrammerSwitch(e);
         }
         break;
 
@@ -297,7 +369,7 @@ void Ui::DoEvents() {
         if (e.control_id < 4) {
           editor.HandleInput(e.control_id, e.value);
         } else {
-          editor.HandleProgrammerInput(e.control_id, e.value);
+          editor.HandleProgrammerInput(e.control_id - 4, e.value);
         }
         break;
     }

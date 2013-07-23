@@ -43,19 +43,52 @@ MidiStreamParser<MidiDispatcher> midi_parser;
 
 bool aux_uart_enabled = false;
 
-TIMER_2_TICK {
+ISR(TIMER2_OVF_vect) {
+  static uint8_t clock_divider_midi = 0;
+  static uint8_t clock_divider_ui = 0;
+
+  // 40kHz: audio sample
   audio_out.EmitSample();
 
-  if (midi_io.readable()) {
-    midi_buffer.NonBlockingWrite(midi_io.ImmediateRead());
-  }
-
-  if (midi_dispatcher.readable()) {
-    if (midi_io.writable()) {
-      midi_io.Overwrite(midi_dispatcher.ImmediateRead());
+  // 10kHz: MIDI I/O
+  --clock_divider_midi;
+  if (!clock_divider_midi) {
+    if (midi_io.readable()) {
+      midi_buffer.NonBlockingWrite(midi_io.ImmediateRead());
     }
+    if (midi_dispatcher.readable()) {
+      if (midi_io.writable()) {
+        midi_io.Overwrite(midi_dispatcher.ImmediateRead());
+      }
+    }
+    clock_divider_midi = 4;
   }
+  
+  // 2.0kHz: UI polling
+  --clock_divider_ui;
+  if (!clock_divider_ui) {
+    clock_divider_ui = 20;
+    
+    // The absolutely insane line of code that follows deserves a comment.
+    // Ideally, we would have written: ui.Poll() to call the UI polling
+    // routine. The problem is that the code in ui.Poll() thrash almost all
+    // registers. gcc would have detected this and would have made sure that
+    // (almost) all registers would have been pushed/popped in this ISR
+    // prelude/postlude. As a result, 19 out 20 calls to the ISR, we
+    // push/pop a dozen of register for absolutely no useful purpose. This has
+    // a cost of 40 CPU cycles per sample, and we dont' want to spend that.
+    // We want ui.Poll() [and all the necessary push/pop] to run in a different
+    // context than this ISR - but still outside of the main loop.
+    // Ideally, we would have liked to use user interrupts for that, but the AVR
+    // doesn't have anything like this, so we enable a timer interrupt to jump
+    // into its ISR ASAP...
+    Timer<1>::Start();
+  }
+}
 
+ISR(TIMER1_OVF_vect, ISR_NOBLOCK) {
+  // ... and we disable the timer immediately!
+  Timer<1>::Stop();
   ui.Poll();
 }
 
@@ -200,6 +233,7 @@ void Init() {
   ui.Init();
   Storage::Init();
   part.Init();
+  part.mutable_system_settings()->programmer = PROGRAMMER_XT;
   
   ui.ShowSplash();
   Timer<2>::Start();

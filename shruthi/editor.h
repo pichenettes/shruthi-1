@@ -162,7 +162,7 @@ class Editor {
   static void Init();
 
   // Handles a press on a switch.
-  static void HandleSwitchEvent(const avrlib::Event& event);
+  static void HandleSwitch(const avrlib::Event& event);
 
   // Handles the modification of one of the editing pots.
   static void HandleInput(uint8_t knob_index, uint8_t value);
@@ -184,6 +184,7 @@ class Editor {
   // interface, this routine handles showing the changed parameter
   // temporarily on the display.
   static void HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value);
+  static void HandleProgrammerSwitch(const avrlib::Event& event);
 
   // Displays variants of the current page.
   static void Refresh();
