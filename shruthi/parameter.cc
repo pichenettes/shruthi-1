@@ -847,18 +847,18 @@ Parameter ParameterManager::dummy_parameter_ = {
 uint8_t ParameterManager::cached_index_ = 0xff;
 
 /* static */
-uint8_t ParameterManager::offset_to_id_[128];
+uint8_t ParameterManager::offset_to_id_[160];
 
 /* static */
 uint8_t ParameterManager::cc_to_id_[128];
 
 /* static */
 void ParameterManager::Init() {
-  memset(offset_to_id_, 0xff, 128);
+  memset(offset_to_id_, 0xff, 192);
   memset(cc_to_id_, 0xff, 128);
   for (uint8_t i = 0; i < kNumParameters; ++i) {
     const Parameter& p = parameter(i);
-    if (p.offset < 128) {
+    if (p.offset < 160) {
       offset_to_id_[p.offset] = i;
     }
     if (p.midi_cc[0]) {
@@ -870,11 +870,17 @@ void ParameterManager::Init() {
   }
   
   // Fill modulation matrix gaps
-  for (uint8_t i = 0; i < sizeof(Patch); ++i) {
-    if (offset_to_id_[i + 3] == 0xff) {
-      offset_to_id_[i + 3] = offset_to_id_[i];
-    }
+  for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
+    offset_to_id_[PRM_MOD_SOURCE + i * 3] = 33;
+    offset_to_id_[PRM_MOD_SOURCE + i * 3 + 1] = 34;
+    offset_to_id_[PRM_MOD_SOURCE + i * 3 + 2] = 35;
   }
+  for (uint8_t i = 0; i < 2; ++i) {
+    offset_to_id_[PRM_OP_OP1 + i * 3] = 59;
+    offset_to_id_[PRM_OP_OP1 + i * 3 + 1] = 60;
+    offset_to_id_[PRM_OP_OP1 + i * 3 + 2] = 61;
+  }
+  
 }
 
 /* static */

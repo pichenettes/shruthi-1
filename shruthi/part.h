@@ -212,6 +212,10 @@ class Part {
   static SystemSettings system_settings_;
   static bool dirty_;
   
+  static uint8_t nrpn_parameter_number_;
+  static uint8_t nrpn_parameter_number_msb_;
+  static uint8_t data_entry_msb_;
+  
   static Voice voice_;
   static NoteStack mono_allocator_;
   static NoteStack pressed_keys_;

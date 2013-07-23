@@ -53,6 +53,10 @@ VoiceAllocator Part::poly_allocator_;
 bool Part::release_latched_keys_on_next_note_on_;
 bool Part::ignore_note_off_messages_;
 
+uint8_t Part::data_entry_msb_;
+uint8_t Part::nrpn_parameter_number_;
+uint8_t Part::nrpn_parameter_number_msb_;
+
 Lfo Part::lfo_[kNumLfos];
 uint8_t Part::previous_lfo_fm_[kNumLfos];
 uint16_t Part::lfo_step_[kNumLfos];
@@ -90,6 +94,7 @@ void Part::Init() {
   dirty_ = false;
   arp_seq_running_ = false;
   clock.Update(120);
+  nrpn_parameter_number_ = 0xff;
 }
 
 static const prog_char init_patch[] PROGMEM = {
@@ -264,6 +269,56 @@ void Part::ControlChange(uint8_t controller, uint8_t value) {
       }
       break;
       
+    case midi::kDataEntryMsb:
+      data_entry_msb_ = value << 7;
+      break;
+    
+    case midi::kNrpnLsb:
+      nrpn_parameter_number_ = value | nrpn_parameter_number_msb_;
+      nrpn_parameter_number_msb_ = 0;
+      data_entry_msb_ = 0;
+      break;
+    case midi::kNrpnMsb:
+      nrpn_parameter_number_msb_ = value << 7;
+      data_entry_msb_ = 0;
+      break;
+    
+    case midi::kDataEntryLsb:
+    case midi::kDataIncrement:
+    case midi::kDataDecrement:
+      value |= data_entry_msb_;
+      if (nrpn_parameter_number_ != 0xff) {
+        uint8_t parameter_index = parameter_manager.at_offset(
+            nrpn_parameter_number_);
+        if (parameter_index != 0xff) {
+          dirty_ = true;
+          const Parameter& p = parameter_manager.parameter(parameter_index);
+          if (controller == midi::kDataEntryLsb) {
+            if (p.unit == UNIT_INT8) {
+              int8_t signed_value = static_cast<int8_t>(value);
+              if (signed_value >= static_cast<int8_t>(p.min_value) &&
+                  signed_value <= static_cast<int8_t>(p.max_value)) {
+                SetParameter(parameter_index, nrpn_parameter_number_, value, 0);
+              }
+            } else {
+              if (value >= p.min_value && value <= p.max_value) {
+                SetParameter(parameter_index, nrpn_parameter_number_, value, 0);
+              }
+            }
+          } else {
+            const Parameter& p = parameter_manager.parameter(parameter_index);
+            uint8_t old_value = GetParameter(nrpn_parameter_number_);
+            uint8_t value = p.Increment(
+                old_value,
+                controller == midi::kDataIncrement ? 1 : -1);
+            if (value != old_value) {
+              SetParameter(parameter_index, nrpn_parameter_number_, value, 0);
+            }
+          }
+        }
+      }
+      break;
+      
     default:
       {
         uint8_t index = parameter_manager.for_cc(controller);
@@ -275,61 +330,6 @@ void Part::ControlChange(uint8_t controller, uint8_t value) {
       }
       break;
   }
-  /*uint8_t editing_controller = 0;
-  } else {
-      case midi::kDataEntryMsb:
-        data_entry_msb_ = value << 7;
-        break;
-      case midi::kDataEntryLsb:
-      case midi::kDataIncrement:
-      case midi::kDataDecrement:
-        value |= data_entry_msb_;
-        if (nrpn_parameter_number_ != 255) {
-          dirty_ = 1;
-          // Finds the parameter definition id matching this parameter id.
-          uint8_t parameter_definition_id = \
-              ParameterDefinitions::MemoryOffsetToId(nrpn_parameter_number_);
-          const ParameterDefinition& p = (
-              ParameterDefinitions::parameter_definition(
-                  parameter_definition_id));
-          if (controller == midi::kDataEntryLsb) {
-            if (p.unit == UNIT_INT8) {
-              int8_t signed_value = static_cast<int8_t>(value);
-              if (signed_value >= static_cast<int8_t>(p.min_value) &&
-                  signed_value <= static_cast<int8_t>(p.max_value)) {
-                SetParameter(nrpn_parameter_number_, value, 0);
-              }
-            } else {
-              if (value >= p.min_value && value <= p.max_value) {
-                SetParameter(nrpn_parameter_number_, value, 0);
-              }
-            }
-          } else {
-            uint8_t old_value = GetParameter(nrpn_parameter_number_);
-            uint8_t new_value = ParameterDefinitions::Increment(
-                p,
-                old_value,
-                controller == midi::kDataIncrement ? 1 : -1);
-            if (new_value != old_value) {
-              SetParameter(nrpn_parameter_number_, new_value, 0);
-            }
-          }
-        }
-        break;
-      case midi::kNrpnLsb:
-        nrpn_parameter_number_ = value | nrpn_parameter_number_msb_;
-        nrpn_parameter_number_msb_ = 0;
-        data_entry_msb_ = 0;
-        break;
-      case midi::kNrpnMsb:
-        nrpn_parameter_number_msb_ = value << 7;
-        data_entry_msb_ = 0;
-        break;
-    }
-  }
-  if (editing_controller) {
-    SetScaledParameter(controller, value, 0);
-  }*/
 }
 
 /* static */
