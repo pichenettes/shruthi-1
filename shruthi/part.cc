@@ -99,10 +99,10 @@ void Part::Init() {
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
-    WAVEFORM_SAW, 0, 0, 0,
-    WAVEFORM_NONE, 16, -12, 12,
+    WAVEFORM_SAW, 0, 0, 4,
+    WAVEFORM_SAW, 0, -12, 12,
     // Mixer
-    32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
+    32, 8, 8, WAVEFORM_SUB_OSC_SQUARE_1,
     // Filter
     96, 0, 32, 0,
     // ADSR
@@ -112,12 +112,12 @@ static const prog_char init_patch[] PROGMEM = {
     LFO_WAVEFORM_TRIANGLE, 80, 0, 0,
     LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
     // Routing
-    MOD_SRC_LFO_1, MOD_DST_VCO_1, 0,
-    MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,
-    MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
-    MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
-    MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
-    MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 0,
+    MOD_SRC_LFO_1, MOD_DST_VCO_1, 1,
+    MOD_SRC_ENV_1, MOD_DST_VCO_2, 1,
+    MOD_SRC_ENV_1, MOD_DST_PWM_1, 1,
+    MOD_SRC_LFO_1, MOD_DST_PWM_2, 1,
+    MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 1,
+    MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 1,
     MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
     MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
@@ -138,9 +138,51 @@ static const prog_char init_patch[] PROGMEM = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+
+// static const prog_char init_patch[] PROGMEM = {
+//     // Oscillators
+//     WAVEFORM_SAW, 0, 0, 0,
+//     WAVEFORM_SAW, 16, -12, 12,
+//     // Mixer
+//     32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
+//     // Filter
+//     96, 0, 32, 0,
+//     // ADSR
+//     0, 50, 20, 60,
+//     0, 40, 90, 30,
+//     // LFO
+//     LFO_WAVEFORM_TRIANGLE, 80, 0, 0,
+//     LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
+//     // Routing
+//     MOD_SRC_LFO_1, MOD_DST_VCO_1, 0,
+//     MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,
+//     MOD_SRC_ENV_1, MOD_DST_PWM_1, 0,
+//     MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
+//     MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
+//     MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 0,
+//     MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
+//     MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
+//     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
+//     MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
+//     MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_COARSE, 32,
+//     MOD_SRC_LFO_1, MOD_DST_VCO_1_2_COARSE, 16,
+//     // Name
+//     'i', 'n', 'i', 't', ' ', ' ', ' ', ' ',
+//     // Performance page assignments.
+//     0, 0,
+//     0, 0,
+//     0, 0,
+//     0, 0,
+//     // Settings for second filter
+//     0, 0, 0, 
+//     0, 0, 0, 0,
+//     '!',
+//     0, 0, 0, 0, 0, 0, 0, 0,
+// };
+
 static const prog_char init_sequence[] PROGMEM = {
     // Sequencer
-    SEQUENCER_MODE_ARP, 120, 0, 0,
+    SEQUENCER_MODE_STEP, 120, 0, 0,
     ARPEGGIO_DIRECTION_UP, 1, 0, 7,
     
     // Pattern size and pattern
