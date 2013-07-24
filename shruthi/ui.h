@@ -98,6 +98,7 @@ class Ui {
   static uint8_t led_pattern_;
   static uint8_t pots_multiplexer_address_;
   
+  static uint8_t adc_warm_up_cycles_;
   static int16_t adc_values_[36];
   static int8_t adc_thresholds_[36];
   

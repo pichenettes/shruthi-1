@@ -176,7 +176,7 @@ uint8_t Editor::cursor_;
 uint8_t Editor::last_knob_;
 uint8_t Editor::subpage_;
 uint8_t Editor::action_;
-uint8_t Editor::last_external_input_;
+uint8_t Editor::programmer_parameter_;
 uint16_t Editor::current_patch_number_ = 0;
 uint16_t Editor::current_sequence_number_ = 0;
 
@@ -414,7 +414,7 @@ void Editor::HandleLongClick() {
 void Editor::HandleClick() {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     display_mode_ = DISPLAY_MODE_EDIT;
-    last_external_input_ = 0xff;
+    programmer_parameter_ = 0xff;
   } else {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
   }
@@ -923,14 +923,14 @@ void Editor::DisplayEditDetailsPage() {
     display.Print(0, line_buffer_);
   }
   uint8_t index = KnobIndexToParameterId(cursor_);
-  if (last_external_input_ != 0xff) {
-    index = last_external_input_;
+  if (programmer_parameter_ != 0xff) {
+    index = programmer_parameter_;
   }
   const Parameter& parameter = parameter_manager.parameter(index);
   uint8_t page_index = current_page_;
   
-  if (last_external_input_ != 0xff) {
-    page_index = last_external_input_ >> 2;
+  if (programmer_parameter_ != 0xff) {
+    page_index = programmer_parameter_ >> 2;
     if (page_index >= PAGE_FILTER_MULTIMODE) {
       ++page_index;
     }
@@ -1003,13 +1003,13 @@ void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
   SetParameterValue(index, parameter.offset, parameter.Scale(value));
   cursor_ = knob_index;
-  last_external_input_ = 0xff;
+  programmer_parameter_ = 0xff;
 }
 
 /* static */
 void Editor::HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value) {
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
-  last_external_input_ = ui_parameter_index;
+  programmer_parameter_ = ui_parameter_index;
   part.SetScaledParameter(ui_parameter_index, value, true);
 }
 
@@ -1033,7 +1033,9 @@ void Editor::HandleEditIncrement(int8_t increment) {
     }
     PageChange();
   } else {
-    uint8_t index = KnobIndexToParameterId(cursor_);
+    uint8_t index = programmer_parameter_ != 0xff
+        ? programmer_parameter_
+        : KnobIndexToParameterId(cursor_);
     const Parameter& parameter = parameter_manager.parameter(index);
     uint8_t old_value = GetParameterValue(parameter.offset);
     uint8_t new_value = parameter.Increment(old_value, increment);

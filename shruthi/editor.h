@@ -298,9 +298,9 @@ class Editor {
   static uint8_t display_mode_;
   static uint8_t editor_mode_;
   static uint8_t cursor_;
+  static uint8_t programmer_parameter_;
   static uint8_t last_knob_;
   static uint8_t last_visited_subpage_;
-  static uint8_t last_external_input_;
 
   static char line_buffer_[kLcdWidth * kLcdHeight + 1];
 

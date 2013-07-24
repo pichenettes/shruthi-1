@@ -37,6 +37,7 @@ uint8_t Ui::led_pwm_counter_;
 uint8_t Ui::pots_multiplexer_address_;
 int16_t Ui::adc_values_[36];
 int8_t Ui::adc_thresholds_[36];
+uint8_t Ui::adc_warm_up_cycles_;
 Adc Ui::adc_;
 EventQueue<> Ui::queue_;
 SpiMaster<IOEnableLine, MSB_FIRST, 4> Ui::io_;
@@ -75,6 +76,7 @@ void Ui::Init() {
     adc_values_[i] = -1;
     adc_thresholds_[i] = kAdcThresholdUnlocked;
   }
+  adc_warm_up_cycles_ = 8;
 }
 
 /* static */
@@ -98,10 +100,10 @@ void Ui::LockPotentiometers() {
 }
 
 const prog_uint8_t xp_parameter_mapping[] PROGMEM = {
-  4 + 30,  // PRM_LFO_ATTACK_2
-  4 + 29,  // PRM_LFO_RATE_2
-  4 + 25,  // PRM_LFO_RATE_1
-  4 + 26,  // PRM_LFO_ATTACK_1
+  4 + 29,  // PRM_LFO_ATTACK_2
+  4 + 30,  // PRM_LFO_RATE_2
+  4 + 26,  // PRM_LFO_RATE_1
+  4 + 25,  // PRM_LFO_ATTACK_1
   4 + 20,  // PRM_ENV_ATTACK_2
   4 + 23,  // PRM_ENV_RELEASE_2
   4 + 21,  // PRM_ENV_DECAY_2
@@ -140,16 +142,15 @@ void Ui::ScanPotentiometers() {
   adc_.Wait();
   uint8_t address = pots_multiplexer_address_;
   int16_t value = adc_.ReadOut();
-  bool generate_ui_event = true;
   
   if (part.system_settings().programmer == PROGRAMMER_NONE) {
     *PortA::Mode::ptr() = 0x00;
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 7;
     adc_.StartConversion(pots_multiplexer_address_);
     if (address >= 4) {
-      generate_ui_event = false;
       part.mutable_voice()->set_modulation_source(
           MOD_SRC_CV_1 + address - 4, value >> 2);
+      address = 0xff;
     }
   } else if (part.system_settings().programmer == PROGRAMMER_FCD) {
     *PortA::Mode::ptr() = 0x00;
@@ -172,15 +173,17 @@ void Ui::ScanPotentiometers() {
     *PortA::Output::ptr() = byte;
     adc_.StartConversion(0);
     address = pgm_read_byte(xp_parameter_mapping + address);
-    generate_ui_event = address != 0xff;
   }
   
-  if (generate_ui_event) {
-    int16_t previous_value = adc_values_[address];
-    if (previous_value == -1) {
+  if (address != 0xff) {
+    if (adc_warm_up_cycles_) {
       // Register the value and move on.
       adc_values_[address] = value;
+      if (address == 0) {
+        --adc_warm_up_cycles_;
+      }
     } else {
+      int16_t previous_value = adc_values_[address];
       int16_t delta = value - previous_value;
       int16_t threshold = adc_thresholds_[address];
       if (delta > threshold || delta < -threshold) {
