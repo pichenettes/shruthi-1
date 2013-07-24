@@ -288,8 +288,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_TUNING, STR_RES_DETUNE }, 
 
   // 8
-  { // Mix balance.
-  PRM_OSC_OPTION_1,
+  { PRM_OSC_OPTION_1,
     UNIT_OPERATOR,
     0, OP_LAST - 1,
     { 28, 0 },

@@ -317,10 +317,39 @@ void Editor::Confirm(ConfirmPageSettings confirm_page_settings) {
   Refresh();
 }
 
+const prog_uint8_t programmer_switch_mapping[] PROGMEM = {
+  3,
+  3 | 0x80,
+  8 | 0x80,
+  8,
+  4 | 0x80,
+  4,
+  0 | 0x80,
+  0,
+  
+  28 | 0x80,
+  28,
+  24 | 0x80,
+  24,
+  
+  0xff
+};
+
 /* static */
 void Editor::HandleProgrammerSwitch(const Event& event) {
-  return;
-}
+  uint8_t id = event.control_id - SWITCH_OSC_2_MINUS;
+  uint8_t parameter_index = pgm_read_byte(programmer_switch_mapping + id);
+  if (parameter_index != 0xff) {
+    int8_t increment = parameter_index & 0x80 ? -1 : 1;
+    parameter_index = parameter_index & 0x7f;
+
+    display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
+    programmer_parameter_ = parameter_index;
+    IncrementParameterValue(parameter_index, increment);
+  } else {
+    HandleLongClick();
+  }
+};
 
 /* static */
 void Editor::HandleSwitch(const Event& event) {
@@ -1033,15 +1062,20 @@ void Editor::HandleEditIncrement(int8_t increment) {
     }
     PageChange();
   } else {
-    uint8_t index = programmer_parameter_ != 0xff
+    uint8_t parameter_index = programmer_parameter_ != 0xff
         ? programmer_parameter_
         : KnobIndexToParameterId(cursor_);
-    const Parameter& parameter = parameter_manager.parameter(index);
-    uint8_t old_value = GetParameterValue(parameter.offset);
-    uint8_t new_value = parameter.Increment(old_value, increment);
-    if (new_value != old_value) {
-      SetParameterValue(index, parameter.offset, new_value);
-    }
+    IncrementParameterValue(parameter_index, increment);
+  }
+}
+
+/* static */
+void Editor::IncrementParameterValue(uint8_t index, int8_t increment) {
+  const Parameter& parameter = parameter_manager.parameter(index);
+  uint8_t old_value = GetParameterValue(parameter.offset);
+  uint8_t new_value = parameter.Increment(old_value, increment);
+  if (new_value != old_value) {
+    SetParameterValue(index, parameter.offset, new_value);
   }
 }
 

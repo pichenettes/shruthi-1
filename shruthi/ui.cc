@@ -254,7 +254,7 @@ void Ui::DebounceSwitches() {
     switch_data[1] = io_.Receive();
     switch_data[0] = io_.Receive();
     switch_data[2] = io_.Receive();
-    last_switch = SWITCH_LFO_2_SYNC;
+    last_switch = SWITCH_LAST - 1;
   } else {
     switch_data[0] = io_.Receive();
     switch_data[1] = 0xff;
