@@ -39,6 +39,18 @@ void SequencerSettings::PrepareForWrite() {
   }
 }
 
+/* static */
+void SequencerSettings::PrintNote(uint8_t note, char* buffer) {
+  uint8_t octave = 0;
+  while (note >= 12) {
+    ++octave;
+    note -= 12;
+  }
+  buffer[0] = ResourcesManager::Lookup<char, uint8_t>(note_names, note << 1);
+  buffer[1] = ResourcesManager::Lookup<char, uint8_t>(note_names, 1 + (note << 1));
+  buffer[2] = ResourcesManager::Lookup<char, uint8_t>(octaves, octave);
+}
+
 void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
   buffer[1] = 0x7c;
   UnsafeItoa<int16_t>(step, 2, buffer + 2);
@@ -46,17 +58,8 @@ void SequencerSettings::PrintStep(uint8_t step, char* buffer) const {
   if (buffer[2] == ' ') {
     buffer[2] = '0';
   }
-  uint8_t note = steps[step].note();
-  uint8_t octave = 0;
-  while (note >= 12) {
-    ++octave;
-    note -= 12;
-  }
   buffer[4] = 0x7c;
-  buffer[5] = ResourcesManager::Lookup<char, uint8_t>(note_names, note << 1);
-  buffer[6] = ResourcesManager::Lookup<char, uint8_t>(note_names,
-                                                      1 + (note << 1));
-  buffer[7] = ResourcesManager::Lookup<char, uint8_t>(octaves, octave);
+  PrintNote(steps[step].note(), buffer + 5);
   buffer[9] = steps[step].character();
   if (steps[step].gate()) {
     buffer[11] = NibbleToAscii(steps[step].velocity() >> 4);

@@ -51,7 +51,7 @@ class Ui {
     if (increment != 0) {        
       if (switch_state_[SWITCH_SHIFT] == 0x00) {
         increment = increment < 0 ? -10 : 10;
-        switch_inhibit_release_[SWITCH_SHIFT] == true;
+        inhibit_shift_release_ = true;
       }
       queue_.AddEvent(CONTROL_ENCODER, 0, increment);
     }
@@ -89,9 +89,10 @@ class Ui {
   static void RefreshLeds();
   static void ScanPotentiometers();
 
-  static bool switch_inhibit_release_[SWITCH_LAST];
   static uint8_t switch_state_[SWITCH_LAST];
-  static uint32_t switch_press_time_[SWITCH_LAST];
+  static uint32_t switch_delay_[SWITCH_LAST];
+  static bool inhibit_shift_release_;
+  static bool inhibit_encoder_release_;
   static uint8_t sub_clock_;
   static uint8_t progress_bar_;
   static uint8_t led_pwm_counter_;

@@ -27,9 +27,10 @@ namespace shruthi {
 using namespace avrlib;
 
 /* static */
-bool Ui::switch_inhibit_release_[SWITCH_LAST];
+bool Ui::inhibit_shift_release_;
+bool Ui::inhibit_encoder_release_;
 uint8_t Ui::switch_state_[SWITCH_LAST];
-uint32_t Ui::switch_press_time_[SWITCH_LAST];
+uint32_t Ui::switch_delay_[SWITCH_LAST];
 uint8_t Ui::sub_clock_;
 uint8_t Ui::progress_bar_;
 uint8_t Ui::led_pattern_;
@@ -63,7 +64,7 @@ void Ui::Init() {
   progress_bar_ = 0;
   pots_multiplexer_address_ = 0;
 
-  memset(switch_inhibit_release_, 0, sizeof(switch_inhibit_release_));
+  inhibit_shift_release_ = false;
   memset(switch_state_, 0xff, sizeof(switch_state_));
   
   adc_.Init();
@@ -287,26 +288,55 @@ void Ui::DebounceSwitches() {
     }
     mask >>= 1;
   }
-
-  for (uint8_t i = 0; i <= last_switch; ++i) {
+  
+  // Handle basic switches
+  for (uint8_t i = 0; i <= SWITCH_MODE; ++i) {
     if (switch_state_[i] == 0x80) {
-      switch_press_time_[i] = milliseconds();
-      switch_inhibit_release_[i] = false;
-    } else if (switch_state_[i] == 0x00) {
-      int8_t hold_time = static_cast<int8_t>(
-          (milliseconds() - switch_press_time_[i]) >> 8);
-      if (hold_time > 6 && !switch_inhibit_release_[i]) {
-        queue_.AddEvent(CONTROL_SWITCH, i, hold_time);
-        switch_inhibit_release_[i] = true;
+      if (switch_state_[SWITCH_SHIFT] == 0x00) {
+        queue_.AddEvent(CONTROL_SWITCH, i, 0xff);
+        inhibit_shift_release_ = true;
+      } else {
+        queue_.AddEvent(CONTROL_SWITCH, i, 0);
       }
-    } else if (switch_state_[i] == 0x7f) {
-      if (!switch_inhibit_release_[i]) {
-        if (switch_state_[SWITCH_SHIFT] == 0x00) {
-          queue_.AddEvent(CONTROL_SWITCH, i, 0xff);
-          switch_inhibit_release_[SWITCH_SHIFT] = true;
-        } else {
-          queue_.AddEvent(CONTROL_SWITCH, i, 0);
-        }
+    }
+  }
+  
+  // Handle shift switch
+  if (switch_state_[SWITCH_SHIFT] == 0x7f) {
+    if (!inhibit_shift_release_) {
+      queue_.AddEvent(CONTROL_SWITCH, SWITCH_SHIFT, 0);
+    }
+    inhibit_shift_release_ = false;
+  }
+  
+  // Handle encoder
+  if (switch_state_[SWITCH_ENCODER] == 0x80) {
+    switch_delay_[SWITCH_ENCODER] = milliseconds() + 1000;
+    inhibit_encoder_release_ = false;
+  } else if (switch_state_[SWITCH_ENCODER] == 0x00) {
+    uint32_t now = milliseconds();
+    int32_t delta = now - switch_delay_[SWITCH_ENCODER];
+    if (!inhibit_encoder_release_ && delta > 0) {
+      queue_.AddEvent(CONTROL_SWITCH, SWITCH_ENCODER, 6);
+      inhibit_encoder_release_ = true;
+    }
+  } else if (switch_state_[SWITCH_ENCODER] == 0x7f) {
+    if (!inhibit_encoder_release_) {
+      queue_.AddEvent(CONTROL_SWITCH, SWITCH_ENCODER, 0);
+    }
+    inhibit_encoder_release_ = false;
+  }
+  
+  for (uint8_t i = SWITCH_OSC_2_MINUS; i <= last_switch; ++i) {
+    if (switch_state_[i] == 0x80) {
+      switch_delay_[i] = milliseconds() + 640;
+      queue_.AddEvent(CONTROL_SWITCH, i, 0);
+    } else if (switch_state_[i] == 0x00) {
+      uint32_t now = milliseconds();
+      int32_t delta = now - switch_delay_[i];
+      if (delta > 0) {
+        queue_.AddEvent(CONTROL_SWITCH, i, 0);
+        switch_delay_[i] = now + 90;
       }
     }
   }
@@ -376,13 +406,11 @@ void Ui::DoEvents() {
         break;
 
       case CONTROL_POT:
-        if (e.control_id < 4) {
-          editor.OnInput(e.control_id, e.value);
-        } else if (e.control_id == 35 &&
-                   part.system_settings().programmer == PROGRAMMER_XT) {
+        if (e.control_id == 35 &&
+            part.system_settings().programmer == PROGRAMMER_XT) {
           editor.OnVolume(e.value);
         } else {
-          editor.OnProgrammerInput(e.control_id - 4, e.value);
+          editor.OnInput(e.control_id, e.value);
         }
         break;
     }

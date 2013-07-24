@@ -68,6 +68,8 @@ enum Group {
 
   GROUP_LOAD_SAVE,
   GROUP_CONFIRM,
+  
+  GROUP_JAM,
   GROUP_LAST
 };
 
@@ -96,6 +98,7 @@ enum Page {
   
   PAGE_LOAD_SAVE,
   PAGE_CONFIRM,
+  PAGE_JAM
 };
 
 enum Action {
@@ -120,6 +123,7 @@ enum PageUiType {
   STEP_SEQUENCER,
   LOAD_SAVE,
   CONFIRM,
+  JAM,
 };
 
 struct PageDefinition {
@@ -180,10 +184,6 @@ class Editor {
   // recorded in the sequence. In this case, it is not processed!
   static uint8_t OnNoteOn(uint8_t note, uint16_t velocity);
 
-  // When a parameter is controlled externally with the XT/Programmer
-  // interface, this routine handles showing the changed parameter
-  // temporarily on the display.
-  static void OnProgrammerInput(uint8_t ui_parameter_index, uint8_t value);
   static void OnProgrammerSwitch(const avrlib::Event& event);
   static void OnVolume(uint8_t value);
 
@@ -277,6 +277,11 @@ class Editor {
   static void ToggleLoadSaveAction();
   static void OnLoadSaveIncrement(int8_t increment);
   static void OnLoadSaveClick();
+
+  static void DisplayJamPage();
+  static void OnJamPageInput(uint8_t knob_index, uint8_t value);
+  static void OnJamPageIncrement(int8_t increment);
+  static void OnJamPageClick();
   
   static void BackupEditBuffer();
   static void RestoreEditBuffer();
@@ -289,6 +294,8 @@ class Editor {
   
   static void SaveSystemSettings();
   static void StartMidiBackup();
+  
+  static void UpdateJamNote();
   
   static PageDefinition page_definition_[];
   static const UiHandler ui_handler_[];
@@ -312,8 +319,12 @@ class Editor {
   static uint16_t current_sequence_number_;
   static ConfirmPageSettings confirm_page_settings_;
 
-  static int8_t jam_note_;
   static bool empty_patch_;
+
+  static int8_t jam_note_;
+  static int8_t jam_note_root_;
+  static uint8_t jam_mode_previous_page_;
+  static int8_t jam_mode_shifts_[4];
   
   static bool snapped_[36];
 

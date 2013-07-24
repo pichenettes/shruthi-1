@@ -273,6 +273,7 @@ static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
 static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
+static const prog_char str_res_lets_jam_[] PROGMEM = "let's jam!";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_sum[] PROGMEM = "sum";
 static const prog_char str_res_sync[] PROGMEM = "sync";
@@ -684,6 +685,7 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_v,
   str_res_mutable____v1_00,
   str_res_instruments_671,
+  str_res_lets_jam_,
   str_res_extern,
   str_res_sum,
   str_res_sync,
