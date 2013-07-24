@@ -43,10 +43,8 @@ class Ui {
   static void DoEvents();
 
   static void Poll() {
-    // Refresh LCD at 2kHz.
     lcd.Tick();
 
-    // Debounce encoder at 2kHz.
     int8_t increment = encoder_.ReadEncoder();
     if (increment != 0) {        
       if (switch_state_[SWITCH_SHIFT] == 0x00) {
@@ -113,7 +111,10 @@ class Ui {
   static Adc adc_;
   static SpiMaster<IOEnableLine, MSB_FIRST, 4> io_;
   static SpiMaster<IOEnableLineAux, MSB_FIRST, 4> aux_io_;
-  static RotaryEncoder<EncoderALine, EncoderBLine, EncoderClickLine> encoder_;
+  static RotaryEncoder<
+      EncoderALine,
+      EncoderBLine,
+      EncoderClickLine> encoder_;
 
   DISALLOW_COPY_AND_ASSIGN(Ui);
 };

@@ -229,7 +229,6 @@ class Part {
   static uint16_t lfo_step_[kNumLfos];
   static uint16_t lfo_limit_[kNumLfos];
   static uint16_t lfo_increment_[kNumLfos];
-  static uint32_t lfo_tap_[kNumLfos];
 
   // Sequencer stuff
   static bool arp_seq_running_;

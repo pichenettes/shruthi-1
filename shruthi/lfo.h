@@ -110,6 +110,25 @@ class Lfo {
     ) + 128;
   }
   
+  inline void set_target_phase(uint16_t step, uint16_t increment) {
+    // PLL for aligning the LFO to the phase dictated by the MIDI sync.
+    uint16_t phi = phase_;
+    int16_t d_error = increment - (phi - previous_phase_);
+    int16_t p_error = (step * increment) - phi;
+    int32_t error = 0;
+    error += d_error;
+    error += p_error;
+    int32_t new_increment = phase_increment_ + (error >> 8);
+    // The tracking range is 15 BPM .. 960 BPM.
+    if (new_increment < 6) {
+      new_increment = 6;
+    } else if (new_increment > 1040) {
+      new_increment = 1040;
+    }
+    phase_increment_ = new_increment;
+    previous_phase_ = phi;
+  }
+  
   inline void set_target_increment(uint16_t increment) {
     phase_increment_ = increment;
   }
