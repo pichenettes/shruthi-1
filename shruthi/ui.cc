@@ -32,6 +32,7 @@ bool Ui::inhibit_encoder_release_;
 uint8_t Ui::switch_state_[SWITCH_LAST];
 uint32_t Ui::switch_delay_[SWITCH_LAST];
 uint8_t Ui::sub_clock_;
+uint8_t Ui::sub_clock_2_;
 uint8_t Ui::progress_bar_;
 uint8_t Ui::led_pattern_;
 uint8_t Ui::led_pwm_counter_;
@@ -351,7 +352,9 @@ void Ui::RefreshLeds() {
   }
 
   uint8_t led_pattern = editor.leds_pattern();
-  if (editor.current_mode() == EDITOR_MODE_SEQUENCE) {
+  if (editor.current_page() == PAGE_JAM) {
+    led_pattern |= 1 << (part.step() & 0x7);
+  } else if (editor.current_mode() == EDITOR_MODE_SEQUENCE) {
     if (part.running()) {
       if (!(part.step() & 3)) {
         led_pattern |= LED_MODE_MASK;

@@ -424,8 +424,12 @@ void Editor::OnSwitch(const Event& event) {
 
 /* static */
 void Editor::OnInput(uint8_t knob_index, uint8_t value) {
-  (*ui_handler_[page_definition_[current_page_].ui_type].input_handler)(
-      knob_index, value);
+  if (knob_index < 4) {
+    (*ui_handler_[page_definition_[current_page_].ui_type].input_handler)(
+        knob_index, value);
+  } else {
+    OnEditInput(knob_index, value);
+  }
 }
 
 /* static */
@@ -951,7 +955,7 @@ void Editor::DisplayEditDetailsPage() {
   //
   // mod src>dst
   // amount        63
-  if (current_page_ == PAGE_MOD_MATRIX) {
+  if (current_page_ == PAGE_MOD_MATRIX && programmer_parameter_ == 0xff) {
     const Parameter& current_source = parameter_manager.parameter(
             page_definition_[PAGE_MOD_MATRIX].first_parameter_index + 1);
     uint8_t value = GetParameterValue(current_source.offset);
@@ -982,7 +986,7 @@ void Editor::DisplayEditDetailsPage() {
     }
   }
   const PageDefinition& page = page_definition_[page_index];
-  if (current_page_ != PAGE_MOD_MATRIX) {
+  if (current_page_ != PAGE_MOD_MATRIX || programmer_parameter_ != 0xff) {
     ResourcesManager::LoadStringResource(
         page.name,
         line_buffer_,

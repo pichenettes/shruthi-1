@@ -55,14 +55,19 @@ class Ui {
       }
       queue_.AddEvent(CONTROL_ENCODER, 0, increment);
     }
-    
+
     if (sub_clock_) {
       TickSystemClock();
       ScanPotentiometers();
       sub_clock_ = 0;
     } else {
       WriteShiftRegister();
-      DebounceSwitches();
+      if (sub_clock_2_) {
+        DebounceSwitches();
+        sub_clock_2_ = 0;
+      } else {
+        sub_clock_2_ = 1;
+      }
       sub_clock_ = 1;
     }
   }
@@ -94,6 +99,7 @@ class Ui {
   static bool inhibit_shift_release_;
   static bool inhibit_encoder_release_;
   static uint8_t sub_clock_;
+  static uint8_t sub_clock_2_;
   static uint8_t progress_bar_;
   static uint8_t led_pwm_counter_;
   static uint8_t led_pattern_;
