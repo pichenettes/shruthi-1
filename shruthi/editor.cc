@@ -44,20 +44,20 @@ Editor editor;
 /* static */
 const UiHandler Editor::ui_handler_[] = {
   { &Editor::DisplayEditOverviewPage, &Editor::DisplayEditDetailsPage,
-    &Editor::HandleEditInput, &Editor::HandleEditIncrement, NULL },
+    &Editor::OnEditInput, &Editor::OnEditIncrement, NULL },
   { &Editor::DisplayTrackerPage, &Editor::DisplayTrackerPage,
-    &Editor::HandleTrackerInput, &Editor::HandleTrackerIncrement, NULL },
+    &Editor::OnTrackerInput, &Editor::OnTrackerIncrement, NULL },
   { &Editor::DisplayPageRPage, &Editor::DisplayPageRPage,
-    &Editor::HandlePageRInput, &Editor::HandlePageRIncrement, NULL },
+    &Editor::OnPageRInput, &Editor::OnPageRIncrement, NULL },
   { &Editor::DisplayStepSequencerPage, &Editor::DisplayStepSequencerPage,
-    &Editor::HandleStepSequencerInput, &Editor::HandleStepSequencerIncrement,
+    &Editor::OnStepSequencerInput, &Editor::OnStepSequencerIncrement,
     NULL },
   { &Editor::DisplayLoadSavePage, &Editor::DisplayLoadSavePage,
-    &Editor::HandleEditInput, &Editor::HandleLoadSaveIncrement,
-    &Editor::HandleLoadSaveClick },
+    &Editor::OnEditInput, &Editor::OnLoadSaveIncrement,
+    &Editor::OnLoadSaveClick },
   { &Editor::DisplayConfirmPage, &Editor::DisplayConfirmPage,
-    &Editor::HandleConfirmInput, &Editor::HandleConfirmIncrement,
-    &Editor::HandleConfirmClick },
+    &Editor::OnConfirmInput, &Editor::OnConfirmIncrement,
+    &Editor::OnConfirmClick },
 };
 
 PageDefinition Editor::page_definition_[] = {
@@ -336,7 +336,7 @@ const prog_uint8_t programmer_switch_mapping[] PROGMEM = {
 };
 
 /* static */
-void Editor::HandleProgrammerSwitch(const Event& event) {
+void Editor::OnProgrammerSwitch(const Event& event) {
   uint8_t id = event.control_id - SWITCH_OSC_2_MINUS;
   uint8_t parameter_index = pgm_read_byte(programmer_switch_mapping + id);
   if (parameter_index != 0xff) {
@@ -347,12 +347,12 @@ void Editor::HandleProgrammerSwitch(const Event& event) {
     programmer_parameter_ = parameter_index;
     IncrementParameterValue(parameter_index, increment);
   } else {
-    HandleLongClick();
+    OnLongClick();
   }
 };
 
 /* static */
-void Editor::HandleSwitch(const Event& event) {
+void Editor::OnSwitch(const Event& event) {
   uint8_t id = event.control_id;
   if (event.value == 0xff) {
     if (current_page_ != PAGE_LOAD_SAVE) {
@@ -412,19 +412,19 @@ void Editor::HandleSwitch(const Event& event) {
 }
 
 /* static */
-void Editor::HandleInput(uint8_t knob_index, uint8_t value) {
+void Editor::OnInput(uint8_t knob_index, uint8_t value) {
   (*ui_handler_[page_definition_[current_page_].ui_type].input_handler)(
       knob_index, value);
 }
 
 /* static */
-void Editor::HandleIncrement(int8_t increment) {
+void Editor::OnIncrement(int8_t increment) {
   (*ui_handler_[page_definition_[current_page_].ui_type].increment_handler)(
       increment);
 }
 
 /* static */
-void Editor::HandleLongClick() {
+void Editor::OnLongClick() {
   if (!part.latched()) {
     if (part.num_notes() == 0) {
       jam_note_ = 60;
@@ -440,7 +440,7 @@ void Editor::HandleLongClick() {
 }
 
 /* static */
-void Editor::HandleClick() {
+void Editor::OnClick() {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     display_mode_ = DISPLAY_MODE_EDIT;
     programmer_parameter_ = 0xff;
@@ -453,7 +453,7 @@ void Editor::HandleClick() {
 }
 
 /* static */
-uint8_t Editor::HandleNoteOn(uint8_t note, uint16_t velocity) {
+uint8_t Editor::OnNoteOn(uint8_t note, uint16_t velocity) {
   uint8_t handled = 0;
   if (current_page_ == PAGE_SEQ_TRACKER && display_mode_ == DISPLAY_MODE_EDIT) {
     part.mutable_sequencer_settings()->steps[cursor_].set_note(note);
@@ -544,13 +544,13 @@ uint8_t Editor::is_cursor_at_valid_position() {
 }
 
 /* static */
-void Editor::HandleLoadSaveClick() {
+void Editor::OnLoadSaveClick() {
   if (action_ == ACTION_LOAD) {
     action_ = ACTION_COMPARE;
     RestoreEditBuffer();
   } else if (action_ == ACTION_COMPARE) {
     action_ = ACTION_LOAD;
-    HandleLoadSaveIncrement(0);
+    OnLoadSaveIncrement(0);
   } else {
     if (!is_cursor_at_valid_position()) {
       display_mode_ = DISPLAY_MODE_OVERVIEW;
@@ -564,7 +564,7 @@ void Editor::HandleLoadSaveClick() {
 }
 
 /* static */
-void Editor::HandleLoadSaveIncrement(int8_t increment) {
+void Editor::OnLoadSaveIncrement(int8_t increment) {
   if (action_ == ACTION_SAVE) {
     if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
       int8_t new_cursor = static_cast<int8_t>(cursor_) + increment;
@@ -690,7 +690,7 @@ void Editor::DisplayStepSequencerPage() {
 }
 
 /* static */
-void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
+void Editor::OnSequencerNavigation(uint8_t knob_index, uint8_t value) {
   switch (knob_index) {
     case 1:
       {
@@ -715,8 +715,8 @@ void Editor::HandleSequencerNavigation(uint8_t knob_index, uint8_t value) {
 }
 
 /* static */
-void Editor::HandleStepSequencerInput(uint8_t knob_index, uint8_t value) {
-  HandleSequencerNavigation(knob_index, value);
+void Editor::OnStepSequencerInput(uint8_t knob_index, uint8_t value) {
+  OnSequencerNavigation(knob_index, value);
   if (knob_index == 2) {
     SequencerSettings* seq = part.mutable_sequencer_settings();
     seq->steps[(cursor_ + seq->pattern_rotation) & 0x0f].set_controller(
@@ -728,7 +728,7 @@ void Editor::HandleStepSequencerInput(uint8_t knob_index, uint8_t value) {
 }
 
 /* static */
-void Editor::HandleStepSequencerIncrement(int8_t increment) {
+void Editor::OnStepSequencerIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(increment);
   } else {
@@ -767,7 +767,7 @@ void Editor::DisplayTrackerPage() {
 }
 
 /* static */
-void Editor::HandleTrackerInput(uint8_t knob_index, uint8_t value) {
+void Editor::OnTrackerInput(uint8_t knob_index, uint8_t value) {
   uint16_t value_16_bits = 0;
   switch (knob_index) {
     case 0:
@@ -808,7 +808,7 @@ void Editor::HandleTrackerInput(uint8_t knob_index, uint8_t value) {
 }
 
 /* static */
-void Editor::HandleTrackerIncrement(int8_t increment) {
+void Editor::OnTrackerIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(increment);
   } else {
@@ -849,17 +849,17 @@ void Editor::DisplayPageRPage() {
 }
 
 /* static */
-void Editor::HandlePageRInput(
+void Editor::OnPageRInput(
     uint8_t knob_index,
     uint8_t value) {
-  HandleSequencerNavigation(knob_index, value);
+  OnSequencerNavigation(knob_index, value);
   if (knob_index == 2) {
-    HandleTrackerInput(2, value);
+    OnTrackerInput(2, value);
   }
 }
 
 /* static */
-void Editor::HandlePageRIncrement(int8_t increment) {
+void Editor::OnPageRIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     MoveSequencerCursor(increment);
   } else {
@@ -1010,7 +1010,7 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
 }
 
 /* static */
-void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
+void Editor::OnEditInput(uint8_t knob_index, uint8_t value) {
   // In "snap" mode, the knob is locked until we reached the value the
   // parameter is supposed to have.
   uint8_t index = KnobIndexToParameterId(knob_index);
@@ -1036,14 +1036,23 @@ void Editor::HandleEditInput(uint8_t knob_index, uint8_t value) {
 }
 
 /* static */
-void Editor::HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value) {
+void Editor::OnProgrammerInput(uint8_t ui_parameter_index, uint8_t value) {
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
   programmer_parameter_ = ui_parameter_index;
   part.SetScaledParameter(ui_parameter_index, value, true);
 }
 
 /* static */
-void Editor::HandleEditIncrement(int8_t increment) {
+void Editor::OnVolume(uint8_t value) {
+  if (value >= 120) {
+    part.mutable_voice()->set_volume(255);
+  } else {
+    part.mutable_voice()->set_volume(16 + (value << 1));
+  }
+}
+
+/* static */
+void Editor::OnEditIncrement(int8_t increment) {
   if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
     int8_t new_cursor = static_cast<int8_t>(cursor_) + increment;
     if (current_page_ == PAGE_MOD_MATRIX) {
@@ -1121,7 +1130,7 @@ void Editor::DisplaySplashScreen(ResourceId first_line) {
 }
 
 /* static */
-void Editor::HandleConfirmClick() {
+void Editor::OnConfirmClick() {
   if (cursor_) {
     (*confirm_page_settings_.callback)();
   }
@@ -1130,12 +1139,12 @@ void Editor::HandleConfirmClick() {
 }
 
 /* static */
-void Editor::HandleConfirmIncrement(int8_t increment) {
+void Editor::OnConfirmIncrement(int8_t increment) {
   cursor_ = !cursor_;
 }
 
 /* static */
-void Editor::HandleConfirmInput(uint8_t knob_index, uint8_t value) {
+void Editor::OnConfirmInput(uint8_t knob_index, uint8_t value) {
 }
 
 /* static */
@@ -1168,7 +1177,7 @@ void Editor::BootOnPatchBrowsePage(uint16_t index) {
   current_patch_number_ = index;
   current_page_ = 0;
   ToggleLoadSaveAction();
-  HandleLoadSaveIncrement(0);
+  OnLoadSaveIncrement(0);
   Refresh();
 }
 

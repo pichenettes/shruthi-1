@@ -161,30 +161,31 @@ class Editor {
   Editor() { }
   static void Init();
 
-  // Handles a press on a switch.
-  static void HandleSwitch(const avrlib::Event& event);
+  // Ons a press on a switch.
+  static void OnSwitch(const avrlib::Event& event);
 
-  // Handles the modification of one of the editing pots.
-  static void HandleInput(uint8_t knob_index, uint8_t value);
+  // Ons the modification of one of the editing pots.
+  static void OnInput(uint8_t knob_index, uint8_t value);
 
-  // Handles a rotation of the encoder.
-  static void HandleIncrement(int8_t increment);
+  // Ons a rotation of the encoder.
+  static void OnIncrement(int8_t increment);
 
-  // Handles a click on the encoder.
-  static void HandleClick();
-  // Handles a long click on the encoder.
-  static void HandleLongClick();
+  // Ons a click on the encoder.
+  static void OnClick();
+  // Ons a long click on the encoder.
+  static void OnLongClick();
   
   // The editor can react to a note on. This is used for step-by-step
   // pattern programming. This function returns true when the note has been
   // recorded in the sequence. In this case, it is not processed!
-  static uint8_t HandleNoteOn(uint8_t note, uint16_t velocity);
+  static uint8_t OnNoteOn(uint8_t note, uint16_t velocity);
 
   // When a parameter is controlled externally with the XT/Programmer
   // interface, this routine handles showing the changed parameter
   // temporarily on the display.
-  static void HandleProgrammerInput(uint8_t ui_parameter_index, uint8_t value);
-  static void HandleProgrammerSwitch(const avrlib::Event& event);
+  static void OnProgrammerInput(uint8_t ui_parameter_index, uint8_t value);
+  static void OnProgrammerSwitch(const avrlib::Event& event);
+  static void OnVolume(uint8_t value);
 
   // Displays variants of the current page.
   static void Refresh();
@@ -249,33 +250,33 @@ class Editor {
   static void DisplayEditOverviewPage();
   static void DisplayEditDetailsPage();
   
-  static void HandleEditInput(uint8_t knob_index, uint8_t value);
-  static void HandleEditIncrement(int8_t increment);
+  static void OnEditInput(uint8_t knob_index, uint8_t value);
+  static void OnEditIncrement(int8_t increment);
 
   static void MoveSequencerCursor(int8_t increment);
-  static void HandleSequencerNavigation(uint8_t knob, uint8_t value);
+  static void OnSequencerNavigation(uint8_t knob, uint8_t value);
   
   static void DisplayTrackerPage();
-  static void HandleTrackerInput(uint8_t knob_index, uint8_t value);
-  static void HandleTrackerIncrement(int8_t increment);
+  static void OnTrackerInput(uint8_t knob_index, uint8_t value);
+  static void OnTrackerIncrement(int8_t increment);
 
   static void DisplayPageRPage();
-  static void HandlePageRInput(uint8_t knob_index, uint8_t value);
-  static void HandlePageRIncrement(int8_t increment);
+  static void OnPageRInput(uint8_t knob_index, uint8_t value);
+  static void OnPageRIncrement(int8_t increment);
 
   static void DisplayStepSequencerPage();
-  static void HandleStepSequencerInput(uint8_t knob_index, uint8_t value);
-  static void HandleStepSequencerIncrement(int8_t increment);
+  static void OnStepSequencerInput(uint8_t knob_index, uint8_t value);
+  static void OnStepSequencerIncrement(int8_t increment);
   
   static void DisplayConfirmPage();
-  static void HandleConfirmInput(uint8_t knob_index, uint8_t value);
-  static void HandleConfirmIncrement(int8_t increment);
-  static void HandleConfirmClick();
+  static void OnConfirmInput(uint8_t knob_index, uint8_t value);
+  static void OnConfirmIncrement(int8_t increment);
+  static void OnConfirmClick();
 
   static void DisplayLoadSavePage();
   static void ToggleLoadSaveAction();
-  static void HandleLoadSaveIncrement(int8_t increment);
-  static void HandleLoadSaveClick();
+  static void OnLoadSaveIncrement(int8_t increment);
+  static void OnLoadSaveClick();
   
   static void BackupEditBuffer();
   static void RestoreEditBuffer();

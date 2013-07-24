@@ -53,7 +53,7 @@ class MidiDispatcher : public midi::MidiDevice {
   // Forwarded to the controller.
   static inline void NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     display.set_status('\x01');
-    if (!editor.HandleNoteOn(note, velocity)) {
+    if (!editor.OnNoteOn(note, velocity)) {
       part.NoteOn(channel, note, velocity);
     }
   }

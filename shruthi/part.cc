@@ -102,7 +102,7 @@ static const prog_char init_patch[] PROGMEM = {
     WAVEFORM_SAW, 0, 0, 4,
     WAVEFORM_SAW, 0, -12, 12,
     // Mixer
-    32, 8, 8, WAVEFORM_SUB_OSC_SQUARE_1,
+    32, 8, 8, WAVEFORM_SUB_OSC_BLOW,
     // Filter
     96, 0, 32, 0,
     // ADSR
@@ -182,7 +182,7 @@ static const prog_char init_patch[] PROGMEM = {
 
 static const prog_char init_sequence[] PROGMEM = {
     // Sequencer
-    SEQUENCER_MODE_STEP, 120, 0, 0,
+    SEQUENCER_MODE_ARP, 120, 0, 0,
     ARPEGGIO_DIRECTION_UP, 1, 0, 7,
     
     // Pattern size and pattern

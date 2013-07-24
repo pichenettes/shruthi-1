@@ -111,7 +111,7 @@ const prog_uint8_t xp_parameter_mapping[] PROGMEM = {
   
   4 + 18,  // PRM_ENV_SUSTAIN_1
   4 + 17,  // PRM_ENV_DECAY_1
-  0xff,  // Software volume... TODO
+  4 + 31,  // SOFTWARE VOLUME
   4 + 19,  // PRM_ENV_RELEASE_1
   4 + 16,  // PRM_ENV_ATTACK_1
   0xff,  // Unassigned
@@ -181,6 +181,12 @@ void Ui::ScanPotentiometers() {
       adc_values_[address] = value;
       if (address == 0) {
         --adc_warm_up_cycles_;
+        if (adc_warm_up_cycles_ == 0) {
+          // Send a message for the volume knob
+          if (part.system_settings().programmer == PROGRAMMER_XT) {
+            queue_.AddEvent(CONTROL_POT, 35, adc_values_[35]);
+          }
+        }
       }
     } else {
       int16_t previous_value = adc_values_[address];
@@ -287,7 +293,8 @@ void Ui::DebounceSwitches() {
       switch_press_time_[i] = milliseconds();
       switch_inhibit_release_[i] = false;
     } else if (switch_state_[i] == 0x00) {
-      int8_t hold_time = static_cast<int8_t>((milliseconds() - switch_press_time_[i]) >> 8);
+      int8_t hold_time = static_cast<int8_t>(
+          (milliseconds() - switch_press_time_[i]) >> 8);
       if (hold_time > 6 && !switch_inhibit_release_[i]) {
         queue_.AddEvent(CONTROL_SWITCH, i, hold_time);
         switch_inhibit_release_[i] = true;
@@ -351,28 +358,31 @@ void Ui::DoEvents() {
     queue_.Touch();
     switch (e.control_type) {
       case CONTROL_ENCODER:
-        editor.HandleIncrement(e.value);
+        editor.OnIncrement(e.value);
         break;
 
       case CONTROL_SWITCH:
         if (e.control_id <= SWITCH_LOAD_SAVE) {
-          editor.HandleSwitch(e);
+          editor.OnSwitch(e);
         } else if (e.control_id == SWITCH_ENCODER) {
           if (e.value < 6) {
-            editor.HandleClick();
+            editor.OnClick();
           } else {
-            editor.HandleLongClick();
+            editor.OnLongClick();
           }
         } else {
-          editor.HandleProgrammerSwitch(e);
+          editor.OnProgrammerSwitch(e);
         }
         break;
 
       case CONTROL_POT:
         if (e.control_id < 4) {
-          editor.HandleInput(e.control_id, e.value);
+          editor.OnInput(e.control_id, e.value);
+        } else if (e.control_id == 35 &&
+                   part.system_settings().programmer == PROGRAMMER_XT) {
+          editor.OnVolume(e.value);
         } else {
-          editor.HandleProgrammerInput(e.control_id - 4, e.value);
+          editor.OnProgrammerInput(e.control_id - 4, e.value);
         }
         break;
     }
