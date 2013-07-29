@@ -449,12 +449,17 @@ void Editor::OnLongClick() {
     }
     part.Latch();
   } else {
-    part.Unlatch();
-    if (jam_note_) {
-      part.NoteOn(0, jam_note_, 0);
-      jam_note_ = 0;
-      if (current_page_ == PAGE_JAM) {
-        current_page_ = jam_mode_previous_page_;
+    if (jam_note_ && current_page_ != PAGE_JAM) {
+      display_mode_ = DISPLAY_MODE_OVERVIEW;
+      current_page_ = PAGE_JAM;
+    } else {
+      part.Unlatch();
+      if (jam_note_) {
+        part.NoteOn(0, jam_note_, 0);
+        jam_note_ = 0;
+        if (current_page_ == PAGE_JAM) {
+          current_page_ = jam_mode_previous_page_;
+        }
       }
     }
   }
