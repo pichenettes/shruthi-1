@@ -233,7 +233,6 @@ void Init() {
   ui.Init();
   Storage::Init();
   part.Init();
-  part.mutable_system_settings()->programmer = PROGRAMMER_XT;
   
   ui.ShowSplash();
   Timer<2>::Start();
