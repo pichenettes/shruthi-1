@@ -146,7 +146,7 @@ static const prog_char init_patch[] PROGMEM = {
     // Mixer
     32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
     // Filter
-    96, 0, 32, 63,
+    96, 0, 32, 0,
     // ADSR
     0, 50, 20, 60,
     0, 40, 90, 30,

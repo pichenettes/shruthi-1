@@ -333,10 +333,10 @@ const prog_uint8_t programmer_switch_mapping[] PROGMEM = {
   3 | 0x80,
   8 | 0x80,
   8,
-  4 | 0x80,
-  4,
   0 | 0x80,
   0,
+  4 | 0x80,
+  4,
   
   28 | 0x80,
   28,

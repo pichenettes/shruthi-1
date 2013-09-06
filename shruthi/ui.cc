@@ -40,6 +40,8 @@ uint8_t Ui::pots_multiplexer_address_;
 int16_t Ui::adc_values_[36];
 int8_t Ui::adc_thresholds_[36];
 uint8_t Ui::adc_warm_up_cycles_;
+uint8_t Ui::adc_hot_address_;
+uint8_t Ui::adc_resume_scan_to_;
 Adc Ui::adc_;
 EventQueue<> Ui::queue_;
 SpiMaster<IOEnableLine, MSB_FIRST, 4> Ui::io_;
@@ -79,6 +81,8 @@ void Ui::Init() {
     adc_thresholds_[i] = kAdcThresholdUnlocked;
   }
   adc_warm_up_cycles_ = 8;
+  adc_hot_address_ = 0;
+  adc_resume_scan_to_ = 0;
 }
 
 /* static */
@@ -143,6 +147,7 @@ const prog_uint8_t xp_parameter_mapping[] PROGMEM = {
 void Ui::ScanPotentiometers() {
   adc_.Wait();
   uint8_t address = pots_multiplexer_address_;
+  uint8_t physical_address = address;
   int16_t value = adc_.ReadOut();
   
   if (part.system_settings().programmer == PROGRAMMER_NONE) {
@@ -169,6 +174,13 @@ void Ui::ScanPotentiometers() {
   } else if (part.system_settings().programmer == PROGRAMMER_XT) {
     *PortA::Mode::ptr() = 0xfe;
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 31;
+    if (adc_resume_scan_to_ == 0) {
+      adc_resume_scan_to_ = pots_multiplexer_address_ + 1;
+      pots_multiplexer_address_ = adc_hot_address_;
+    } else {
+      pots_multiplexer_address_ = adc_resume_scan_to_ - 1;
+      adc_resume_scan_to_ = 0;
+    }    
     uint8_t byte = (pots_multiplexer_address_ << 1) & 0x0f;
     uint8_t range = pots_multiplexer_address_ >> 3;
     byte |= (~(0x10 << range)) & 0xf0;
@@ -195,6 +207,7 @@ void Ui::ScanPotentiometers() {
       int16_t delta = value - previous_value;
       int16_t threshold = adc_thresholds_[address];
       if (delta > threshold || delta < -threshold) {
+        adc_hot_address_ = physical_address;
         adc_thresholds_[address] = kAdcThresholdUnlocked;
         queue_.AddEvent(CONTROL_POT, address, value >> 3);
         adc_values_[address] = value;
