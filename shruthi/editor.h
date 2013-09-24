@@ -189,10 +189,11 @@ class Editor {
 
   // Displays variants of the current page.
   static void Refresh();
+  static void ScreenSaver();
   
   // Notify the editor that the user has not provided any input for 2s.
   static void Relax();
-
+  
   // Displays two lines of text read from a resource.
   static void DisplaySplashScreen(ResourceId first_line);
 

@@ -42,6 +42,7 @@ int8_t Ui::adc_thresholds_[36];
 uint8_t Ui::adc_warm_up_cycles_;
 uint8_t Ui::adc_hot_address_;
 uint8_t Ui::adc_resume_scan_to_;
+uint32_t Ui::idle_time_;
 Adc Ui::adc_;
 EventQueue<> Ui::queue_;
 SpiMaster<IOEnableLine, MSB_FIRST, 4> Ui::io_;
@@ -430,6 +431,7 @@ void Ui::DoEvents() {
         }
         break;
     }
+    idle_time_ = 0;
     refresh_display = true;
   }
 
@@ -437,7 +439,9 @@ void Ui::DoEvents() {
     LockPotentiometers();
   }
 
-  if (queue_.idle_time_ms() > (part.system_settings().display_delay << 7)) {
+  if (queue_.idle_time_ms() >
+      ((part.system_settings().display_delay & 0xf) << 7)) {
+    idle_time_ += queue_.idle_time_ms();
     queue_.Touch();
     editor.Relax();
     refresh_display = true;
@@ -446,10 +450,17 @@ void Ui::DoEvents() {
   if (queue_.idle_time_ms() > 100 && part.dirty()) {
     queue_.Touch();
     refresh_display = true;
+    idle_time_ = 0;
   }
-
+  
   if (refresh_display) {
-    editor.Refresh();
+    bool show_screen_saver = idle_time_ >= 100000 && \
+        (part.system_settings().display_delay & 0x10);
+    if (show_screen_saver) {
+      editor.ScreenSaver();
+    } else {
+      editor.Refresh();
+    }
   }
 
   RefreshLeds();

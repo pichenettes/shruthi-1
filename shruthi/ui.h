@@ -44,7 +44,7 @@ class Ui {
 
   static void Poll() {
     lcd.Tick();
-
+    
     int8_t increment = encoder_.ReadEncoder();
     if (increment != 0) {        
       if (switch_state_[SWITCH_SHIFT] == 0x00) {
@@ -108,6 +108,8 @@ class Ui {
   static uint8_t adc_warm_up_cycles_;
   static int16_t adc_values_[36];
   static int8_t adc_thresholds_[36];
+
+  static uint32_t idle_time_;
   
   static EventQueue<> queue_;
   static Adc adc_;

@@ -505,6 +505,13 @@ void Editor::Refresh() {
 }
 
 /* static */
+void Editor::ScreenSaver() {
+  memset(line_buffer_, ' ', kLcdWidth);
+  display.Print(0, line_buffer_);
+  display.Print(1, line_buffer_);
+}
+
+/* static */
 void Editor::RestoreEditBuffer() {
   Storage::Restore(part.mutable_patch());
   part.Touch(true);

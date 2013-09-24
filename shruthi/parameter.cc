@@ -149,6 +149,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   0,               // UNIT_ARPEGGIO_PATTERN
   STR_RES_FREE,    // UNIT_LFO_RETRIGGER_MODE
   STR_RES_SPLASH,  // UNIT_START_PAGE
+  0,               // UNIT_PAUSE
   STR_RES__LPF,    // UNIT_FILTER_BOARD
   STR_RES____OFF,  // UNIT_CV_MODE
   STR_RES_LPF,     // UNIT_FILTER_1_MODE
@@ -207,6 +208,12 @@ void Parameter::PrintValue(uint8_t value, char* buffer, uint8_t width) const {
       if (value < 40) {
         value = 0;
         text = STR_RES_EXTERN;
+      }
+      break;
+    case UNIT_PAUSE:
+      if (value >= 16) {
+        value = value - 16;
+        prefix = 's';
       }
       break;
     case UNIT_ARPEGGIO_PATTERN:
@@ -597,8 +604,8 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
 
   // 52
   { PRM_SYS_DISPLAY_DELAY,
-    UNIT_UINT8,
-    0, 16,
+    UNIT_PAUSE,
+    0, 31,
     { 0, 0 },
     STR_RES_PAUSE, STR_RES_PAUSE }, 
 
