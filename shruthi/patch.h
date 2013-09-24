@@ -312,7 +312,6 @@ enum SubOscillatorAlgorithm {
 };
 
 enum LfoWave {
-  // For oscillators.
   LFO_WAVEFORM_TRIANGLE,
   LFO_WAVEFORM_SQUARE,
   LFO_WAVEFORM_S_H,
@@ -338,10 +337,10 @@ enum LfoWave {
 };
 
 enum LfoMode {
-  // For oscillators.
   LFO_MODE_FREE,
   LFO_MODE_SLAVE,
   LFO_MODE_MASTER,
+  LFO_MODE_ONE_SHOT,
   LFO_MODE_LAST
 };
 

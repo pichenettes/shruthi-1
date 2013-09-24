@@ -146,13 +146,13 @@ static const prog_char init_patch[] PROGMEM = {
     // Mixer
     32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
     // Filter
-    96, 0, 32, 0,
+    96, 0, 32, 63,
     // ADSR
     0, 50, 20, 60,
     0, 40, 90, 30,
     // LFO
     LFO_WAVEFORM_TRIANGLE, 80, 0, 0,
-    LFO_WAVEFORM_TRIANGLE, 3, 0, 0,
+    LFO_WAVEFORM_TRIANGLE, 3, 0, LFO_MODE_ONE_SHOT,
     // Routing
     MOD_SRC_LFO_1, MOD_DST_VCO_1, 0,
     MOD_SRC_ENV_1, MOD_DST_VCO_2, 0,

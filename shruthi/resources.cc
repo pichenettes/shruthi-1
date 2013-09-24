@@ -292,6 +292,7 @@ static const prog_char str_res_stp[] PROGMEM = "stp";
 static const prog_char str_res_free[] PROGMEM = "free";
 static const prog_char str_res_slave[] PROGMEM = "slave";
 static const prog_char str_res_master[] PROGMEM = "master";
+static const prog_char str_res_1shot[] PROGMEM = "1shot";
 static const prog_char str_res_1_1[] PROGMEM = "1/1";
 static const prog_char str_res_1_2[] PROGMEM = "1/2";
 static const prog_char str_res_1_3[] PROGMEM = "1/3";
@@ -707,6 +708,7 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_free,
   str_res_slave,
   str_res_master,
+  str_res_1shot,
   str_res_1_1,
   str_res_1_2,
   str_res_1_3,

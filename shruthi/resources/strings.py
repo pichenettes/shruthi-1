@@ -321,6 +321,7 @@ seq
 free
 slave
 master
+1shot
 
 1/1
 1/2

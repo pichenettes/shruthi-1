@@ -54,7 +54,7 @@ class Lfo {
       intensity_ = i;
     }
     
-    triggered_ = phase_ < phase_increment_;
+    cycle_complete_ = phase_ < phase_increment_;
     
     // Compute the LFO value.
     switch (shape_) {
@@ -63,7 +63,7 @@ class Lfo {
         break;
         
       case LFO_WAVEFORM_S_H:
-        if (triggered_) {
+        if (cycle_complete_) {
           value_ = Random::GetByte();
         }
         value = value_;
@@ -102,6 +102,32 @@ class Lfo {
         break;
     }
     phase_ += phase_increment_;
+    if (retrigger_mode_ == LFO_MODE_ONE_SHOT) {
+      // The one-shot mode is implemented as follow: we continue running
+      // the phase accumulator in the background; but the value is sampled
+      // and held at the end of the first cycle.
+      if (running_) {
+        if (phase_ < phase_increment_) {
+          running_ = false;
+          // End of cycle adjustments.
+          if (shape_ == LFO_WAVEFORM_RAMP ||
+              shape_ == LFO_WAVEFORM_TRIANGLE ||
+              shape_ == LFO_WAVEFORM_SQUARE) {
+            value = 255;
+          } else if (shape_ == LFO_WAVEFORM_STEP_SEQUENCER) {
+            value = 0;
+          }
+          one_shot_value_ = value;
+        }
+      } else {
+        value = one_shot_value_;
+      }
+      
+      // Only positive values are generated.
+      value = shape_ == LFO_WAVEFORM_STEP_SEQUENCER
+          ? 128 + (value >> 1)
+          : 255 - (value >> 1);
+    }
 
     // Apply the intensity envelope.
     return S8U8MulShift8(
@@ -140,28 +166,29 @@ class Lfo {
 
   void ResetPhase() {
     phase_ = 0;
-    triggered_ = 1;
+    cycle_complete_ = true;
+    running_ = true;
   }
 
   void Trigger() {
-    if (retrigger_) {
+    if (retrigger_mode_) {
       ResetPhase();
     }
     intensity_ = 0;
   }
 
   void Update(uint8_t shape, uint16_t phase_increment,
-              uint8_t attack, uint8_t retrigger) {
+              uint8_t attack, uint8_t retrigger_mode) {
     shape_ = shape;
     if (phase_increment) {
       phase_increment_ = phase_increment;
     }
     intensity_increment_ = ResourcesManager::Lookup<
         uint16_t, uint8_t>(lut_res_env_portamento_increments, attack) >> 1;
-    retrigger_ = retrigger;
+    retrigger_mode_ = retrigger_mode;
   }
   
-  uint8_t triggered() const { return triggered_; }
+  bool triggered() const { return cycle_complete_; }
 
  private:
   // Phase increment.
@@ -176,11 +203,13 @@ class Lfo {
 
   // Copy of the shape used by this lfo.
   uint8_t shape_;
-  uint8_t retrigger_;
-  uint8_t triggered_;
-
+  uint8_t retrigger_mode_;
+  bool cycle_complete_;
+  bool running_;
+  
   // Current value of S&H.
   uint8_t value_;
+  uint8_t one_shot_value_;
   uint8_t step_;
   
   DISALLOW_COPY_AND_ASSIGN(Lfo);
