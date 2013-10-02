@@ -255,12 +255,15 @@ void Editor::JumpToPageGroup(uint8_t group) {
 }
 
 /* static */
-void Editor::Relax() {
+bool Editor::Relax() {
   // Disable the "get back to overview page" thing in the sequencer pages or
   // Load/save pages - in short, all pages where there's a moving cursor.
   if (display_mode_ == DISPLAY_MODE_EDIT_TEMPORARY &&
       display.cursor_position() == kLcdNoCursor) {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
+    return true;
+  } else {
+    return false;
   }
 }
 

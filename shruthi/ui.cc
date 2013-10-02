@@ -439,12 +439,11 @@ void Ui::DoEvents() {
     LockPotentiometers();
   }
 
-  if (queue_.idle_time_ms() >
-      ((part.system_settings().display_delay & 0xf) << 7)) {
+  uint16_t pause_ms = ((part.system_settings().display_delay & 0xf) << 7) + 20;
+  if (queue_.idle_time_ms() > pause_ms) {
     idle_time_ += queue_.idle_time_ms();
     queue_.Touch();
-    editor.Relax();
-    refresh_display = true;
+    refresh_display |= editor.Relax();
   }
   
   if (queue_.idle_time_ms() > 100 && part.dirty()) {
