@@ -81,6 +81,12 @@ enum MidiOutMode {
   MIDI_OUT_8_7,
 };
 
+enum START_PAGE {
+  START_PAGE_SPLASH,
+  START_PAGE_FILTER,
+  START_PAGE_LAST_PATCH
+};
+
 enum SystemParameter {
   PRM_SYS_OCTAVE = sizeof(Patch) + sizeof(SequencerSettings),
   PRM_SYS_RAGA,

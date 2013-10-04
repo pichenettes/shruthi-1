@@ -237,7 +237,7 @@ class Editor {
   // A bunch of hacks for special values/pages.
   static void SetParameterValue(uint8_t id, uint8_t offset, uint8_t value);
   static void IncrementParameterValue(uint8_t id, int8_t increment);
-  static uint8_t GetParameterValue(uint8_t id);
+  static uint8_t GetParameterValue(uint8_t offset);
 
   // Returns the parameter id of the parameter that should be edited when
   // touching knob #knob_index.

@@ -237,12 +237,13 @@ inline void Voice::LoadSources() {
   dst_[MOD_DST_MIX_SUB_OSC] = part.patch_.mix_sub_osc << 8;
 
   dst_[MOD_DST_ATTACK] = 8192;
-  dst_[MOD_DST_ATTACK_1] = 8192;
-  dst_[MOD_DST_ATTACK_2] = 8192;
-  dst_[MOD_DST_DECAY_1] = 8192;
-  dst_[MOD_DST_DECAY_2] = 8192;
-  dst_[MOD_DST_RELEASE_1] = 8192;
-  dst_[MOD_DST_RELEASE_2] = 8192;
+  int16_t* envelope_parameters = &dst_[MOD_DST_ATTACK_1];
+  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
+    *envelope_parameters++ = U8U8Mul(part.patch_.env[i].attack, 128);
+    *envelope_parameters++ = U8U8Mul(part.patch_.env[i].decay, 128);
+    *envelope_parameters++ = U8U8Mul(part.patch_.env[i].sustain, 128);
+    *envelope_parameters++ = U8U8Mul(part.patch_.env[i].release, 128);
+  }
   dst_[MOD_DST_CV_1] = 0;
   dst_[MOD_DST_CV_2] = 0;
   if (part.system_settings_.expansion_filter_board >= FILTER_BOARD_SSM) {
@@ -390,30 +391,15 @@ inline void Voice::UpdateDestinations() {
   osc_2.set_parameter(U15ShiftRight7(dst_[MOD_DST_PWM_2]));
   osc_2.set_secondary_parameter(part.patch_.osc[1].range + 24);
   
-  int8_t attack_mod = U15ShiftRight7(dst_[MOD_DST_ATTACK]) - 64;
-  attack_mod <<= 1;
+  int8_t attack_mod = (U15ShiftRight7(dst_[MOD_DST_ATTACK]) - 64) << 1;
+  int16_t* envelope_parameters = &dst_[MOD_DST_ATTACK_1];
   for (int i = 0; i < kNumEnvelopes; ++i) {
-    int16_t attack = part.patch_.env[i].attack;
-    attack += U15ShiftRight7(dst_[MOD_DST_ATTACK_1 + i * 3]) - 64;
-    attack -= attack_mod;
-    attack = Clip(attack, 0, 127);
-    
-    int16_t decay = part.patch_env[i].decay;
-    new_attack += U15ShiftRight7(dst_[MOD_DST_ATTACK_1 + i * 3]) - 64;
-    new_attack = Clip(new_attack - attack_mod, 0, 127);
-    
-    voice_.mutable_envelope(i)->Update(
-        patch_.env[i].attack,
-        patch_.env[i].decay,
-        patch_.env[i].sustain,
-        patch_.env[i].release);
-    
-    
-    envelope_[i].UpdateAttack(new_attack);
-    
-    for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    }
-    
+    envelope_[i].Update(
+        Clip(U15ShiftRight7(envelope_parameters[0]) - attack_mod, 0, 127),
+        U15ShiftRight7(envelope_parameters[1]),
+        U15ShiftRight7(envelope_parameters[2]),
+        U15ShiftRight7(envelope_parameters[3]));
+    envelope_parameters += 4;
   }
 }
 
