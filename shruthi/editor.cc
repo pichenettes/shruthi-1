@@ -1050,7 +1050,7 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
 /* static */
 void Editor::OnEditInput(uint8_t knob_index, uint8_t value) {
   uint8_t index;
-  if (knob_index <= 4) {
+  if (knob_index < 4) {
     index = KnobIndexToParameterId(knob_index);
     if (index == 0xff) {
       return;
@@ -1270,7 +1270,7 @@ const prog_uint8_t octave_shift[] PROGMEM = {
 };
 
 const prog_uint8_t pentatonic_shift[] PROGMEM = {
-  -12, -3, -5, -8, -10, 0, 2, 4, 7, 9, 12
+  -12, -10, -8, -5, -3, 0, 2, 4, 7, 9, 12
 };
 
 const prog_uint8_t bhairav_shift[] PROGMEM = {
