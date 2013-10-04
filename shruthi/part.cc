@@ -731,13 +731,6 @@ void Part::UpdateModulationRates() {
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     UpdateLfoRate(i);
   }
-  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    voice_.mutable_envelope(i)->Update(
-        patch_.env[i].attack,
-        patch_.env[i].decay,
-        patch_.env[i].sustain,
-        patch_.env[i].release);
-  }
 }
 
 /* static */

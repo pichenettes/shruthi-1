@@ -157,8 +157,14 @@ cv2
 atk
  lf1
  lf2
-en1
-en2
+tr1
+tr2
+a1
+d1
+r1
+a2
+d2
+r2
 
 in1
 in2
@@ -191,8 +197,14 @@ cv 2
 attack
  lfo 1
  lfo 2
-env 1
-env 2
+trg e1
+trg e2
+atk 1
+dec 1
+rel 1
+atk 2
+dec 2
+rel 2
 
 distrt
 crushr
@@ -346,6 +358,7 @@ monkey
  off
 thru
 seq
+ctrl
 full
 1~|
 2~1
