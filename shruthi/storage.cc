@@ -222,10 +222,10 @@ void Storage::SysExParseCommand() {
       sysex_rx_expected_size_ = sizeof(SequencerSettings);
       break;
       
-    case 0x08:  // Set pattern length
-    case 0x09:  // Set pattern rotation
-      sysex_rx_expected_size_ = 0;
-      break;
+    // case 0x08:  // Set pattern length
+    // case 0x09:  // Set pattern rotation
+    //   sysex_rx_expected_size_ = 0;
+    //   break;
     
     case 0x11:  // Patch request
     case 0x12:  // Sequence request
@@ -233,6 +233,8 @@ void Storage::SysExParseCommand() {
     case 0x15:  // Sequence step request
     case 0x16:  // Patch name request
     case 0x17:  // Full sequencer state request
+    case 0x1a:  // Current patch and sequence numbers request
+    case 0x1b:  // Num banks request
       sysex_rx_expected_size_ = 0;
       break;
       
@@ -322,15 +324,15 @@ void Storage::SysExAcceptBuffer() {
       success = 1;
       break;
       
-    case 0x08:
-      engine.SetPatternLength(sysex_rx_command_[1] & 0x0f);
-      success = 1;
-      break;
-      
-    case 0x09:
-      engine.SetPatternRotation(sysex_rx_command_[1] & 0x0f);
-      success = 1;
-      break;
+    // case 0x08:
+    //   engine.SetPatternLength(sysex_rx_command_[1] & 0x0f);
+    //   success = 1;
+    //   break;
+    //   
+    // case 0x09:
+    //   engine.SetPatternRotation(sysex_rx_command_[1] & 0x0f);
+    //   success = 1;
+    //   break;
     
     case 0x11:
       Storage::SysExDump(engine.mutable_patch());
@@ -386,6 +388,14 @@ void Storage::SysExAcceptBuffer() {
             0,
             sizeof(current_indices));
       }
+      break;
+      
+    case 0x1b:
+      Storage::SysExDumpBuffer(
+          (uint8_t*) NULL,
+          0x0b,
+          num_accessible_banks(),
+          0);
       break;
       
     case 0x21:

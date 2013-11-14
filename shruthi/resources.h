@@ -36,13 +36,13 @@ namespace shruthi {
 
 typedef uint16_t ResourceId;
 
-extern const prog_char* string_table[];
+extern const prog_char* const string_table[];
 
-extern const prog_uint16_t* lookup_table_table[];
+extern const prog_uint16_t* const lookup_table_table[];
 
-extern const prog_uint8_t* waveform_table[];
+extern const prog_uint8_t* const waveform_table[];
 
-extern const prog_uint8_t* character_table[];
+extern const prog_uint8_t* const character_table[];
 
 extern const prog_uint16_t lut_res_lfo_increments[] PROGMEM;
 extern const prog_uint16_t lut_res_env_portamento_increments[] PROGMEM;
@@ -390,7 +390,7 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_COMPARE 271  // compare
 #define STR_RES_ 272  // ----
 #define STR_RES_V 273  // v
-#define STR_RES_MUTABLE____V0_97 274  // mutable    v0.97
+#define STR_RES_MUTABLE____V0_98 274  // mutable    v0.98
 #define STR_RES_INSTRUMENTS_671 275  // instruments -1
 #define STR_RES_EXTERN 276  // extern
 #define STR_RES_X2_EXT 277  // x2 ext

@@ -280,7 +280,7 @@ static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v0_97[] PROGMEM = "mutable    v0.97";
+static const prog_char str_res_mutable____v0_98[] PROGMEM = "mutable    v0.98";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_x2_ext[] PROGMEM = "x2 ext";
@@ -437,7 +437,7 @@ static const prog_char str_res_jogesh[] PROGMEM = "jogesh";
 static const prog_char str_res_rasia[] PROGMEM = "rasia";
 
 
-PROGMEM const prog_char* string_table[] = {
+PROGMEM const prog_char* const string_table[] = {
   str_res_shape,
   str_res_parameter,
   str_res_resonance,
@@ -712,7 +712,7 @@ PROGMEM const prog_char* string_table[] = {
   str_res_compare,
   str_res_,
   str_res_v,
-  str_res_mutable____v0_97,
+  str_res_mutable____v0_98,
   str_res_instruments_671,
   str_res_extern,
   str_res_x2_ext,
@@ -1095,7 +1095,7 @@ const prog_uint16_t lut_res_groove_monkey[] PROGMEM = {
 };
 
 
-PROGMEM const prog_uint16_t* lookup_table_table[] = {
+PROGMEM const prog_uint16_t* const lookup_table_table[] = {
   lut_res_lfo_increments,
   lut_res_env_portamento_increments,
   lut_res_oscillator_increments,
@@ -4052,7 +4052,7 @@ const prog_uint8_t wav_res_wavetables[] PROGMEM = {
 };
 
 
-const prog_uint8_t* waveform_table[] = {
+const prog_uint8_t* const waveform_table[] = {
   wav_res_formant_sine,
   wav_res_formant_square,
   wav_res_sine,
@@ -4100,7 +4100,7 @@ const prog_uint8_t chr_res_special_characters[] PROGMEM = {
 };
 
 
-const prog_uint8_t* character_table[] = {
+const prog_uint8_t* const character_table[] = {
   chr_res_special_characters,
 };
 

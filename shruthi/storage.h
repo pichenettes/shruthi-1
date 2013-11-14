@@ -92,6 +92,10 @@ class Storage {
     return kInternalEepromSize + num_accessible_banks_ * kBankSize;
   }
 
+  static uint8_t num_accessible_banks() {
+    return num_accessible_banks_;
+  }
+
   template<typename T>
   static void SysExDump(T* ptr) {
     ptr->PrepareForWrite();
