@@ -4050,6 +4050,9 @@ const prog_uint8_t wav_res_wavetables[] PROGMEM = {
      126,    126,    126,      3,      0,      0,      0,      0,
        0,      0,      0,      0,
 };
+const prog_uint8_t wav_res_version[] PROGMEM = {
+       0,     98,
+};
 
 
 const prog_uint8_t* const waveform_table[] = {
@@ -4087,6 +4090,7 @@ const prog_uint8_t* const waveform_table[] = {
   wav_res_ssm2164_linearization,
   wav_res_waves,
   wav_res_wavetables,
+  wav_res_version,
 };
 
 const prog_uint8_t chr_res_special_characters[] PROGMEM = {
