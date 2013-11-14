@@ -195,38 +195,33 @@ void Storage::SysExParseCommand() {
     case 0x01:  // Patch transfer
       sysex_rx_expected_size_ = StorageConfiguration<Patch>::size;
       break;
-    
+
     case 0x02:  // Sequence transfer
       sysex_rx_expected_size_ = \
           StorageConfiguration<SequencerSettings>::size;
       break;
-      
+
     case 0x03:  // Wavetable dump
       sysex_rx_destination_ = user_wavetable;
       sysex_rx_expected_size_ = kUserWavetableSize;
       break;
-      
+
     case 0x04:  // System settings transfer
       sysex_rx_expected_size_ = sizeof(SystemSettings);
       break;
-      
+
     case 0x05:  // Step sequencer transfer
       sysex_rx_expected_size_ = 2;
       break;
-      
+
     case 0x06:  // Patch name transfer
       sysex_rx_expected_size_ = kPatchNameSize;
       break;
-      
+
     case 0x07:  // Full sequencer state transfer
       sysex_rx_expected_size_ = sizeof(SequencerSettings);
       break;
-      
-    // case 0x08:  // Set pattern length
-    // case 0x09:  // Set pattern rotation
-    //   sysex_rx_expected_size_ = 0;
-    //   break;
-    
+
     case 0x11:  // Patch request
     case 0x12:  // Sequence request
     case 0x14:  // System settings request
@@ -235,26 +230,27 @@ void Storage::SysExParseCommand() {
     case 0x17:  // Full sequencer state request
     case 0x1a:  // Current patch and sequence numbers request
     case 0x1b:  // Num banks request
+    case 0x1c:  // Version request
       sysex_rx_expected_size_ = 0;
       break;
-      
+
     case 0x21:  // Patch write request
     case 0x22:  // Sequence write request
       sysex_rx_expected_size_ = 2;
       break;
-      
+
     case 0x31:  // Patch randomize
     case 0x32:  // Sequence randomize
       sysex_rx_expected_size_ = 0;
       break;
-      
+
     case 0x40:  // Bulk transfer
     case 0x41:
     case 0x42:
     case 0x43:
       sysex_rx_expected_size_ = kSysExBulkDumpBlockSize;
       break;
-      
+
     case 0x50:  // Bulk transfer requests
       sysex_rx_expected_size_ = 0;
       break;
@@ -268,30 +264,30 @@ void Storage::SysExParseCommand() {
 /* static */
 void Storage::SysExAcceptBuffer() {
   uint8_t success = 0;
-  
+
   // Add a delay for Request commands
-  if ((sysex_rx_command_[0] & 0xf0) == 0x10 || 
+  if ((sysex_rx_command_[0] & 0xf0) == 0x10 ||
       (sysex_rx_command_[0] & 0xf0) == 0x50) {
     Delay(100);
     success = 1;
   }
-  
+
   switch (sysex_rx_command_[0]) {
     case 0x01:  // Patch transfer
       success = AcceptData(engine.mutable_patch(), sysex_rx_buffer_);
       break;
-      
+
     case 0x02:  // Sequence transfer
       success = AcceptData(
           engine.mutable_sequencer_settings(),
           sysex_rx_buffer_);
       engine.TouchSequence();
       break;
-    
+
     case 0x03:
       success = 1;
       break;
-      
+
     case 0x04:
       memcpy(
           (uint8_t*) engine.mutable_system_settings(),
@@ -300,7 +296,7 @@ void Storage::SysExAcceptBuffer() {
       engine.mutable_system_settings()->EepromSave();
       success = 1;
       break;
-      
+
     case 0x05:
       {
         uint8_t step_index = sysex_rx_command_[1] & 0x0f;
@@ -310,11 +306,11 @@ void Storage::SysExAcceptBuffer() {
             sysex_rx_buffer_[1]);
       }
       break;
-      
+
     case 0x06:
       engine.SetName(sysex_rx_buffer_);
       break;
-    
+
     case 0x07:
       memcpy(
           (uint8_t*) engine.mutable_sequencer_settings(),
@@ -323,17 +319,7 @@ void Storage::SysExAcceptBuffer() {
       engine.mutable_sequencer_settings()->Update();
       success = 1;
       break;
-      
-    // case 0x08:
-    //   engine.SetPatternLength(sysex_rx_command_[1] & 0x0f);
-    //   success = 1;
-    //   break;
-    //   
-    // case 0x09:
-    //   engine.SetPatternRotation(sysex_rx_command_[1] & 0x0f);
-    //   success = 1;
-    //   break;
-    
+
     case 0x11:
       Storage::SysExDump(engine.mutable_patch());
       break;
@@ -341,7 +327,7 @@ void Storage::SysExAcceptBuffer() {
     case 0x12:
       Storage::SysExDump(engine.mutable_sequencer_settings());
       break;
-      
+
     case 0x14:
       Storage::SysExDumpBuffer(
           (uint8_t*) engine.mutable_system_settings(),
@@ -349,7 +335,7 @@ void Storage::SysExAcceptBuffer() {
           0,
           sizeof(SystemSettings));
       break;
-      
+
     case 0x15:
       {
         uint8_t step_index = sysex_rx_command_[1] & 0x0f;
@@ -361,7 +347,7 @@ void Storage::SysExAcceptBuffer() {
             2);
       }
       break;
-      
+
     case 0x16:
       Storage::SysExDumpBuffer(
           (uint8_t*) engine.mutable_patch()->name,
@@ -369,7 +355,7 @@ void Storage::SysExAcceptBuffer() {
           0,
           kPatchNameSize);
       break;
-      
+
     case 0x17:
       Storage::SysExDumpBuffer(
           (uint8_t*) engine.mutable_sequencer_settings(),
@@ -377,7 +363,7 @@ void Storage::SysExAcceptBuffer() {
           0,
           sizeof(SequencerSettings));
       break;
-      
+
     case 0x1a:
       {
         uint16_t current_indices[2];
@@ -389,7 +375,7 @@ void Storage::SysExAcceptBuffer() {
             sizeof(current_indices));
       }
       break;
-      
+
     case 0x1b:
       Storage::SysExDumpBuffer(
           (uint8_t*) NULL,
@@ -397,7 +383,20 @@ void Storage::SysExAcceptBuffer() {
           num_accessible_banks(),
           0);
       break;
-      
+
+    case 0x1c:
+      {
+        uint8_t version[2];
+        version[0] = pgm_read_byte(waveform_table[WAV_RES_VERSION]);
+        version[1] = pgm_read_byte(waveform_table[WAV_RES_VERSION]+1);
+        Storage::SysExDumpBuffer(
+            version,
+            0x0c,
+            0,
+            2);
+      }
+      break;
+
     case 0x21:
       WritePatch((sysex_rx_buffer_[0] << 8) | (sysex_rx_buffer_[1]));
       success = 1;
@@ -407,7 +406,7 @@ void Storage::SysExAcceptBuffer() {
       WriteSequence((sysex_rx_buffer_[0] << 8) | (sysex_rx_buffer_[1]));
       success = 1;
       break;
-    
+
     case 0x31:
       editor.RandomizePatch();
       success = 1;
@@ -417,7 +416,7 @@ void Storage::SysExAcceptBuffer() {
       editor.RandomizeSequence();
       success = 1;
       break;
-    
+
     case 0x40:  // Raw data dump
     case 0x41:
     case 0x42:
@@ -447,7 +446,7 @@ void Storage::SysExAcceptBuffer() {
         }
       }
       break;
-      
+
     case 0x50:
       SysExBulkDump();
       break;
