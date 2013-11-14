@@ -3978,7 +3978,7 @@ const prog_uint8_t wav_res_wavetables[] PROGMEM = {
        0,      0,      0,      0,
 };
 const prog_uint8_t wav_res_version[] PROGMEM = {
-       0,     98,
+       1,     0,
 };
 
 
