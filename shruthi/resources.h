@@ -113,6 +113,7 @@ extern const prog_uint8_t wav_res_env_expo[] PROGMEM;
 extern const prog_uint8_t wav_res_ssm2164_linearization[] PROGMEM;
 extern const prog_uint8_t wav_res_waves[] PROGMEM;
 extern const prog_uint8_t wav_res_wavetables[] PROGMEM;
+extern const prog_uint8_t wav_res_version[] PROGMEM;
 extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_SHAPE 0  // shape
 #define STR_RES_PARAMETER 1  // parameter
@@ -686,6 +687,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define WAV_RES_WAVES_SIZE 16383
 #define WAV_RES_WAVETABLES 29
 #define WAV_RES_WAVETABLES_SIZE 324
+#define WAV_RES_VERSION 34
+#define WAV_RES_VERSION_SIZE 2
 #define CHR_RES_SPECIAL_CHARACTERS 0
 #define CHR_RES_SPECIAL_CHARACTERS_SIZE 56
 typedef avrlib::ResourcesManager<

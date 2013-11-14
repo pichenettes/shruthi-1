@@ -255,3 +255,4 @@ waveforms.extend([
     ('waves', map(ord, file('shruthi/data/waves.bin', 'rb').read())),
     ('wavetables', wavetables)])
 
+waveforms.append(('version', [0, 98]))
