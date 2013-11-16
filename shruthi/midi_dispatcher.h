@@ -169,7 +169,7 @@ class MidiDispatcher : public midi::MidiDevice {
         }
       }
     } else if (mode() == MIDI_OUT_SEQUENCER) {
-      if ((hi == 0xf0) && status != 0xf0 && status != 0xf7) {
+      if ((hi == 0xf0 && status != 0xf0 && status != 0xf7)) {
         Send(status, NULL, 0);
       }
     }
@@ -246,7 +246,7 @@ class MidiDispatcher : public midi::MidiDevice {
     if (offset >= PRM_SYS_MASTER_TUNING) {
       return;
     }
-    if (mode() < MIDI_OUT_FULL) {
+    if (mode() < MIDI_OUT_FULL && mode() != MIDI_OUT_CONTROLLER) {
       return;
     }
     

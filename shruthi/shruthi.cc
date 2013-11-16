@@ -74,8 +74,8 @@ ISR(TIMER2_OVF_vect) {
     // routine. The problem is that the code in ui.Poll() thrash almost all
     // registers. gcc would have detected this and would have made sure that
     // (almost) all registers would have been pushed/popped in this ISR
-    // prelude/postlude. As a result, 19 out 20 calls to the ISR, we
-    // push/pop a dozen of register for absolutely no useful purpose. This has
+    // prelude/postlude. As a result, 19 out 20 calls to this ISR, we
+    // push/pop a dozen of registers for absolutely no useful purpose. This has
     // a cost of 40 CPU cycles per sample, and we dont' want to spend that.
     // We want ui.Poll() [and all the necessary push/pop] to run in a different
     // context than this ISR - but still outside of the main loop.

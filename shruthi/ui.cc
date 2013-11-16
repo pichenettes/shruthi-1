@@ -40,6 +40,9 @@ uint8_t Ui::pots_multiplexer_address_;
 int16_t Ui::adc_values_[36];
 int8_t Ui::adc_thresholds_[36];
 uint8_t Ui::adc_warm_up_cycles_;
+uint8_t Ui::adc_hot_address_;
+uint8_t Ui::adc_resume_scan_to_;
+uint32_t Ui::idle_time_;
 Adc Ui::adc_;
 EventQueue<> Ui::queue_;
 SpiMaster<IOEnableLine, MSB_FIRST, 4> Ui::io_;
@@ -79,13 +82,15 @@ void Ui::Init() {
     adc_thresholds_[i] = kAdcThresholdUnlocked;
   }
   adc_warm_up_cycles_ = 8;
+  adc_hot_address_ = 0;
+  adc_resume_scan_to_ = 0;
 }
 
 /* static */
 void Ui::ShowSplash() {
-  if (part.system_settings().start_page == 0) {
+  if (part.system_settings().start_page == START_PAGE_SPLASH) {
     editor.DisplaySplashScreen(STR_RES_V + 1);
-  } else if (part.system_settings().start_page == 2) {
+  } else if (part.system_settings().start_page == START_PAGE_LAST_PATCH) {
     editor.BootOnPatchBrowsePage(part.system_settings().last_patch);
   } else {
     editor.Refresh();
@@ -101,7 +106,7 @@ void Ui::LockPotentiometers() {
   adc_thresholds_[3] = kAdcThresholdLocked;
 }
 
-const prog_uint8_t xp_parameter_mapping[] PROGMEM = {
+const prog_uint8_t xt_parameter_mapping[] PROGMEM = {
   4 + 29,  // PRM_LFO_ATTACK_2
   4 + 30,  // PRM_LFO_RATE_2
   4 + 26,  // PRM_LFO_RATE_1
@@ -143,6 +148,7 @@ const prog_uint8_t xp_parameter_mapping[] PROGMEM = {
 void Ui::ScanPotentiometers() {
   adc_.Wait();
   uint8_t address = pots_multiplexer_address_;
+  uint8_t physical_address = address;
   int16_t value = adc_.ReadOut();
   
   if (part.system_settings().programmer == PROGRAMMER_NONE) {
@@ -169,12 +175,19 @@ void Ui::ScanPotentiometers() {
   } else if (part.system_settings().programmer == PROGRAMMER_XT) {
     *PortA::Mode::ptr() = 0xfe;
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 31;
+    if (adc_resume_scan_to_ == 0) {
+      adc_resume_scan_to_ = pots_multiplexer_address_ + 1;
+      pots_multiplexer_address_ = adc_hot_address_;
+    } else {
+      pots_multiplexer_address_ = adc_resume_scan_to_ - 1;
+      adc_resume_scan_to_ = 0;
+    }    
     uint8_t byte = (pots_multiplexer_address_ << 1) & 0x0f;
     uint8_t range = pots_multiplexer_address_ >> 3;
     byte |= (~(0x10 << range)) & 0xf0;
     *PortA::Output::ptr() = byte;
     adc_.StartConversion(0);
-    address = pgm_read_byte(xp_parameter_mapping + address);
+    address = pgm_read_byte(xt_parameter_mapping + address);
   }
   
   if (address != 0xff) {
@@ -195,6 +208,7 @@ void Ui::ScanPotentiometers() {
       int16_t delta = value - previous_value;
       int16_t threshold = adc_thresholds_[address];
       if (delta > threshold || delta < -threshold) {
+        adc_hot_address_ = physical_address;
         adc_thresholds_[address] = kAdcThresholdUnlocked;
         queue_.AddEvent(CONTROL_POT, address, value >> 3);
         adc_values_[address] = value;
@@ -417,6 +431,7 @@ void Ui::DoEvents() {
         }
         break;
     }
+    idle_time_ = 0;
     refresh_display = true;
   }
 
@@ -424,19 +439,27 @@ void Ui::DoEvents() {
     LockPotentiometers();
   }
 
-  if (queue_.idle_time_ms() > (part.system_settings().display_delay << 7)) {
+  uint16_t pause_ms = ((part.system_settings().display_delay & 0xf) << 7) + 20;
+  if (queue_.idle_time_ms() > pause_ms) {
+    idle_time_ += queue_.idle_time_ms();
     queue_.Touch();
-    editor.Relax();
-    refresh_display = true;
+    refresh_display |= editor.Relax();
   }
   
   if (queue_.idle_time_ms() > 100 && part.dirty()) {
     queue_.Touch();
     refresh_display = true;
+    idle_time_ = 0;
   }
-
+  
   if (refresh_display) {
-    editor.Refresh();
+    bool show_screen_saver = idle_time_ >= 100000 && \
+        (part.system_settings().display_delay & 0x10);
+    if (show_screen_saver) {
+      editor.ScreenSaver();
+    } else {
+      editor.Refresh();
+    }
   }
 
   RefreshLeds();

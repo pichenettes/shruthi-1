@@ -185,6 +185,14 @@ enum ModulationDestination {
   MOD_DST_LFO_2,
   MOD_DST_TRIGGER_ENV_1,
   MOD_DST_TRIGGER_ENV_2,
+  MOD_DST_ATTACK_1,
+  MOD_DST_DECAY_1,
+  MOD_DST_SUSTAIN_1,
+  MOD_DST_RELEASE_1,
+  MOD_DST_ATTACK_2,
+  MOD_DST_DECAY_2,
+  MOD_DST_SUSTAIN_2,
+  MOD_DST_RELEASE_2,
   MOD_DST_LAST
 };
 
@@ -312,7 +320,6 @@ enum SubOscillatorAlgorithm {
 };
 
 enum LfoWave {
-  // For oscillators.
   LFO_WAVEFORM_TRIANGLE,
   LFO_WAVEFORM_SQUARE,
   LFO_WAVEFORM_S_H,
@@ -338,10 +345,10 @@ enum LfoWave {
 };
 
 enum LfoMode {
-  // For oscillators.
   LFO_MODE_FREE,
   LFO_MODE_SLAVE,
   LFO_MODE_MASTER,
+  LFO_MODE_ONE_SHOT,
   LFO_MODE_LAST
 };
 

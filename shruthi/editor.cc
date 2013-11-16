@@ -255,12 +255,15 @@ void Editor::JumpToPageGroup(uint8_t group) {
 }
 
 /* static */
-void Editor::Relax() {
+bool Editor::Relax() {
   // Disable the "get back to overview page" thing in the sequencer pages or
   // Load/save pages - in short, all pages where there's a moving cursor.
   if (display_mode_ == DISPLAY_MODE_EDIT_TEMPORARY &&
       display.cursor_position() == kLcdNoCursor) {
     display_mode_ = DISPLAY_MODE_OVERVIEW;
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -333,10 +336,10 @@ const prog_uint8_t programmer_switch_mapping[] PROGMEM = {
   3 | 0x80,
   8 | 0x80,
   8,
-  4 | 0x80,
-  4,
   0 | 0x80,
   0,
+  4 | 0x80,
+  4,
   
   28 | 0x80,
   28,
@@ -505,6 +508,13 @@ void Editor::Refresh() {
 }
 
 /* static */
+void Editor::ScreenSaver() {
+  memset(line_buffer_, ' ', kLcdWidth);
+  display.Print(0, line_buffer_);
+  display.Print(1, line_buffer_);
+}
+
+/* static */
 void Editor::RestoreEditBuffer() {
   Storage::Restore(part.mutable_patch());
   part.Touch(true);
@@ -615,8 +625,10 @@ void Editor::OnLoadSaveIncrement(int8_t increment) {
       Storage::LoadPatch(n);
       midi_dispatcher.OnProgramChange(n);
       part.Touch(true);
-      part.mutable_system_settings()->last_patch = n;
-      part.system_settings().EepromSave();
+      if (part.system_settings().start_page == START_PAGE_LAST_PATCH) {
+        part.mutable_system_settings()->last_patch = n;
+        part.system_settings().EepromSave();
+      }
       // When we are not playing, load the sequence parameters.
       if (!part.running()) {
         Storage::LoadSequence(edited_item_number());
@@ -1038,7 +1050,7 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
 /* static */
 void Editor::OnEditInput(uint8_t knob_index, uint8_t value) {
   uint8_t index;
-  if (knob_index <= 4) {
+  if (knob_index < 4) {
     index = KnobIndexToParameterId(knob_index);
     if (index == 0xff) {
       return;
@@ -1111,6 +1123,36 @@ void Editor::IncrementParameterValue(uint8_t index, int8_t increment) {
   }
 }
 
+const prog_uint8_t modulation_destination_map[] PROGMEM = {
+  MOD_DST_PWM_1,
+  MOD_DST_PWM_2,
+  MOD_DST_VCO_1,
+  MOD_DST_VCO_2,
+  MOD_DST_VCO_1_2_COARSE,
+  MOD_DST_VCO_1_2_FINE,
+  MOD_DST_MIX_BALANCE,
+  MOD_DST_MIX_NOISE,
+  MOD_DST_MIX_SUB_OSC,
+  MOD_DST_FILTER_CUTOFF,
+  MOD_DST_FILTER_RESONANCE,
+  MOD_DST_VCA,
+  MOD_DST_CV_1,
+  MOD_DST_CV_2,
+  MOD_DST_TRIGGER_ENV_1,
+  MOD_DST_ATTACK_1,
+  MOD_DST_DECAY_1,
+  MOD_DST_SUSTAIN_1,
+  MOD_DST_RELEASE_1,
+  MOD_DST_TRIGGER_ENV_2,
+  MOD_DST_ATTACK_2,
+  MOD_DST_DECAY_2,
+  MOD_DST_SUSTAIN_2,
+  MOD_DST_RELEASE_2,
+  MOD_DST_ATTACK,
+  MOD_DST_LFO_1,
+  MOD_DST_LFO_2,
+};
+
 /* static */
 void Editor::SetParameterValue(uint8_t index, uint8_t offset, uint8_t value) {
   // Dirty hack for the modulation page.
@@ -1120,19 +1162,30 @@ void Editor::SetParameterValue(uint8_t index, uint8_t offset, uint8_t value) {
   } else if (current_page_ == PAGE_MOD_OPERATORS && offset == PRM_OP_ROW ) {
     subpage_ = value;
   } else {
+    if (offset == PRM_MOD_DESTINATION) {
+      value = pgm_read_byte(modulation_destination_map + value);
+    }
     part.SetParameter(index, offset + subpage_ * 3, value, true);
   }
 }
 
 /* static */
-uint8_t Editor::GetParameterValue(uint8_t id) {
+uint8_t Editor::GetParameterValue(uint8_t offset) {
   uint8_t value;
-  if (current_page_ == PAGE_MOD_MATRIX && id == PRM_MOD_ROW) {
+  if (current_page_ == PAGE_MOD_MATRIX && offset == PRM_MOD_ROW) {
     value = subpage_;
-  } else if (current_page_ == PAGE_MOD_OPERATORS && id == PRM_OP_ROW ) {
+  } else if (current_page_ == PAGE_MOD_OPERATORS && offset == PRM_OP_ROW ) {
     value = subpage_;
   } else {
-    value = part.GetParameter(id + subpage_ * 3);
+    value = part.GetParameter(offset + subpage_ * 3);
+    if (offset == PRM_MOD_DESTINATION) {
+      for (uint8_t i = 0; i < MOD_DST_LAST; ++i) {
+        if (pgm_read_byte(modulation_destination_map + i) == value) {
+          value = i;
+          break;
+        }
+      }
+    }
   }
   return value;
 }
@@ -1217,7 +1270,7 @@ const prog_uint8_t octave_shift[] PROGMEM = {
 };
 
 const prog_uint8_t pentatonic_shift[] PROGMEM = {
-  -12, -3, -5, -8, -10, 0, 2, 4, 7, 9, 12
+  -12, -10, -8, -5, -3, 0, 2, 4, 7, 9, 12
 };
 
 const prog_uint8_t bhairav_shift[] PROGMEM = {

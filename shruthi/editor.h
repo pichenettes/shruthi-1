@@ -189,10 +189,11 @@ class Editor {
 
   // Displays variants of the current page.
   static void Refresh();
+  static void ScreenSaver();
   
   // Notify the editor that the user has not provided any input for 2s.
-  static void Relax();
-
+  static bool Relax();
+  
   // Displays two lines of text read from a resource.
   static void DisplaySplashScreen(ResourceId first_line);
 
@@ -236,7 +237,7 @@ class Editor {
   // A bunch of hacks for special values/pages.
   static void SetParameterValue(uint8_t id, uint8_t offset, uint8_t value);
   static void IncrementParameterValue(uint8_t id, int8_t increment);
-  static uint8_t GetParameterValue(uint8_t id);
+  static uint8_t GetParameterValue(uint8_t offset);
 
   // Returns the parameter id of the parameter that should be edited when
   // touching knob #knob_index.

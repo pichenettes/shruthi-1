@@ -69,6 +69,7 @@ enum MidiOutMode {
   MIDI_OUT_OFF,
   MIDI_OUT_SOFT_THRU,
   MIDI_OUT_SEQUENCER,
+  MIDI_OUT_CONTROLLER,
   MIDI_OUT_FULL,
   MIDI_OUT_1_0,
   MIDI_OUT_2_1,
@@ -78,6 +79,12 @@ enum MidiOutMode {
   MIDI_OUT_6_5,
   MIDI_OUT_7_6,
   MIDI_OUT_8_7,
+};
+
+enum START_PAGE {
+  START_PAGE_SPLASH,
+  START_PAGE_FILTER,
+  START_PAGE_LAST_PATCH
 };
 
 enum SystemParameter {

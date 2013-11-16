@@ -137,7 +137,6 @@ void Part::Init() {
 //     '!',
 //     0, 0, 0, 0, 0, 0, 0, 0,
 // };
-// 
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
@@ -146,7 +145,7 @@ static const prog_char init_patch[] PROGMEM = {
     // Mixer
     32, 0, 0, WAVEFORM_SUB_OSC_SQUARE_1,
     // Filter
-    96, 0, 32, 63,
+    96, 0, 32, 0,
     // ADSR
     0, 50, 20, 60,
     0, 40, 90, 30,
@@ -619,13 +618,12 @@ void Part::ClockSequencer() {
   voice_.set_modulation_source(
       MOD_SRC_SEQ,
       sequencer_settings_.steps[n].controller() << 4);
-  n &= 0x7;
   voice_.set_modulation_source(
       MOD_SRC_SEQ_1,
-      sequencer_settings_.steps[n].controller() << 4);
+      sequencer_settings_.steps[n & 0x7].controller() << 4);
   voice_.set_modulation_source(
       MOD_SRC_SEQ_2,
-      sequencer_settings_.steps[n + 8].controller() << 4);
+      sequencer_settings_.steps[(n & 0x7) + 8].controller() << 4);
   
   if (sequencer_settings_.mode() == SEQUENCER_MODE_SEQ) {
     SequenceStep& step = sequencer_settings_.steps[n];
@@ -731,13 +729,6 @@ void Part::UpdateModulationRates() {
   // Update the LFO increments.
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     UpdateLfoRate(i);
-  }
-  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    voice_.mutable_envelope(i)->Update(
-        patch_.env[i].attack,
-        patch_.env[i].decay,
-        patch_.env[i].sustain,
-        patch_.env[i].release);
   }
 }
 
