@@ -101,11 +101,21 @@ class MidiDispatcher : public midi::MidiDevice {
   
   static void ProgramChange(uint8_t channel, uint8_t program) {
     uint16_t n = program + (current_bank_ << 7);
-    if (n < Storage::size<Patch>()) {
-      editor.set_current_patch_number(n);
-      Storage::LoadPatch(n);
-      Storage::LoadSequence(n);
-      part.Touch(false);
+    // bank above 0x40 treat as sequence change
+    if (current_bank_ >= 0x40) {
+      uint16_t n = program + ((current_bank_ - 0x40) << 7);
+      if (n < Storage::size<SequencerSettings>()) {
+        Storage::LoadSequence(n);
+        part.Touch(false);
+      }
+    } else {
+      uint16_t n = program + (current_bank_ << 7);
+      if (n < Storage::size<Patch>()) {
+        editor.set_current_patch_number(n);
+        Storage::LoadPatch(n);
+        Storage::LoadSequence(n);
+        part.Touch(false);
+      }
     }
   }
   

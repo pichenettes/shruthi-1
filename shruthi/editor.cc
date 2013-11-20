@@ -185,7 +185,6 @@ uint8_t Editor::subpage_;
 uint8_t Editor::action_;
 uint8_t Editor::programmer_parameter_;
 uint16_t Editor::current_patch_number_ = 0;
-uint16_t Editor::current_sequence_number_ = 0;
 
 int8_t Editor::jam_note_ = 0;
 int8_t Editor::jam_note_root_ = 60;

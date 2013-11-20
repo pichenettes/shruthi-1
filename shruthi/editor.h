@@ -217,16 +217,8 @@ class Editor {
     return current_patch_number_;
   }
   
-  static inline uint16_t current_sequence_number() {
-    return current_sequence_number_;
-  }
-
   static inline void set_current_patch_number(uint16_t patch_number) {
     current_patch_number_ = patch_number;
-  }
-  
-  static inline void set_current_sequence_number(uint16_t sequence_number) {
-    current_sequence_number_ = sequence_number;
   }
   
  private:
