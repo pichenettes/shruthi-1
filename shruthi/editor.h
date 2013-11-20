@@ -217,16 +217,8 @@ class Editor {
     return current_patch_number_;
   }
   
-  static inline uint16_t current_sequence_number() {
-    return current_sequence_number_;
-  }
-
   static inline void set_current_patch_number(uint16_t patch_number) {
     current_patch_number_ = patch_number;
-  }
-  
-  static inline void set_current_sequence_number(uint16_t sequence_number) {
-    current_sequence_number_ = sequence_number;
   }
   
  private:
@@ -237,7 +229,7 @@ class Editor {
   // A bunch of hacks for special values/pages.
   static void SetParameterValue(uint8_t id, uint8_t offset, uint8_t value);
   static void IncrementParameterValue(uint8_t id, int8_t increment);
-  static uint8_t GetParameterValue(uint8_t id);
+  static uint8_t GetParameterValue(uint8_t offset);
 
   // Returns the parameter id of the parameter that should be edited when
   // touching knob #knob_index.

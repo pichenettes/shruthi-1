@@ -140,8 +140,6 @@ ms
 wobbly
 whacky
 
-cut
-vca
 pw1
 pw2
 \x051
@@ -151,14 +149,24 @@ pw2
 mix
 noi
 sub
+cut
 res
+vca
 cv1
 cv2
+tr1
+a1
+d1
+s1
+r1
+tr2
+a2
+d2
+s2
+r2
 atk
  lf1
  lf2
-en1
-en2
 
 in1
 in2
@@ -174,8 +182,6 @@ min
 qtz
 lag
 
-cutoff
-vca
 pwm1
 pwm2
 osc1
@@ -185,14 +191,24 @@ fine
 mix
 noise
 subosc
+cutoff
 reso
+vca
 cv 1
 cv 2
-attack
+trg e1
+atk. 1
+dec. 1
+sus. 1
+rel. 1
+trg e2
+atk. 2
+dec. 2
+sus. 2
+rel. 2
+atk1+2
  lfo 1
  lfo 2
-env 1
-env 2
 
 distrt
 crushr
@@ -346,6 +362,7 @@ monkey
  off
 thru
 seq
+ctrl
 full
 1~|
 2~1

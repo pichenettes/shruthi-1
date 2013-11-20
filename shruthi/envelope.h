@@ -97,7 +97,7 @@ class Envelope {
       uint8_t step = InterpolateSample(wav_res_env_expo, phase_);
       value_ = U8MixU16(a_, b_, step);
     }
-    return value_ >> 8;
+    return stage_ == SUSTAIN ? stage_target_[DECAY] : value_ >> 8;
   }
 
  private:

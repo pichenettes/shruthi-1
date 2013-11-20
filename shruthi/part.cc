@@ -137,7 +137,6 @@ void Part::Init() {
 //     '!',
 //     0, 0, 0, 0, 0, 0, 0, 0,
 // };
-// 
 
 static const prog_char init_patch[] PROGMEM = {
     // Oscillators
@@ -730,13 +729,6 @@ void Part::UpdateModulationRates() {
   // Update the LFO increments.
   for (uint8_t i = 0; i < kNumLfos; ++i) {
     UpdateLfoRate(i);
-  }
-  for (uint8_t i = 0; i < kNumEnvelopes; ++i) {
-    voice_.mutable_envelope(i)->Update(
-        patch_.env[i].attack,
-        patch_.env[i].decay,
-        patch_.env[i].sustain,
-        patch_.env[i].release);
   }
 }
 

@@ -88,9 +88,9 @@ void Ui::Init() {
 
 /* static */
 void Ui::ShowSplash() {
-  if (part.system_settings().start_page == 0) {
+  if (part.system_settings().start_page == START_PAGE_SPLASH) {
     editor.DisplaySplashScreen(STR_RES_V + 1);
-  } else if (part.system_settings().start_page == 2) {
+  } else if (part.system_settings().start_page == START_PAGE_LAST_PATCH) {
     editor.BootOnPatchBrowsePage(part.system_settings().last_patch);
   } else {
     editor.Refresh();
@@ -106,7 +106,7 @@ void Ui::LockPotentiometers() {
   adc_thresholds_[3] = kAdcThresholdLocked;
 }
 
-const prog_uint8_t xp_parameter_mapping[] PROGMEM = {
+const prog_uint8_t xt_parameter_mapping[] PROGMEM = {
   4 + 29,  // PRM_LFO_ATTACK_2
   4 + 30,  // PRM_LFO_RATE_2
   4 + 26,  // PRM_LFO_RATE_1
@@ -187,7 +187,7 @@ void Ui::ScanPotentiometers() {
     byte |= (~(0x10 << range)) & 0xf0;
     *PortA::Output::ptr() = byte;
     adc_.StartConversion(0);
-    address = pgm_read_byte(xp_parameter_mapping + address);
+    address = pgm_read_byte(xt_parameter_mapping + address);
   }
   
   if (address != 0xff) {

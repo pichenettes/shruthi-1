@@ -138,7 +138,7 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   0,               // UNIT_LFO_RATE
   0,               // UNIT_INDEX
   STR_RES_LFO_1,   // UNIT_MODULATION_SOURCE
-  STR_RES_CUTOFF,  // UNIT_MODULATION_DESTINATION
+  STR_RES_PWM1,  // UNIT_MODULATION_DESTINATION
   STR_RES_3,       // UNIT_ARPEGGIO_DIRECTION
   STR_RES_EQUAL,   // UNIT_RAGA
   0,               // UNIT_TEMPO_WITH_EXTERNAL_CLOCK
@@ -186,7 +186,7 @@ void Parameter::PrintValue(uint8_t value, char* buffer, uint8_t width) const {
       break;
     case UNIT_MODULATION_DESTINATION:
       if (width <= 4) {
-        text = STR_RES_CUT;
+        text = STR_RES_PW1;
       }
       break;
     case UNIT_LFO_RATE:
