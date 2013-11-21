@@ -65,7 +65,7 @@ class MidiDispatcher : public midi::MidiDevice {
       uint8_t channel,
       uint8_t controller,
       uint8_t value) {
-    if (controller == midi::kBankLsb) {
+    if (controller == midi::kBankMsb) {
       current_bank_ = value;
     } else {
       display.set_status('\x05');

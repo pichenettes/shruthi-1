@@ -22,6 +22,7 @@
 
 namespace midi {
 
+const uint8_t kBankMsb = 0x00;
 const uint8_t kBankLsb = 0x20;
 const uint8_t kModulationWheelMsb = 0x01;
 const uint8_t kModulationWheelJoystickMsb = 0x02;
