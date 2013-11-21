@@ -381,12 +381,8 @@ void Storage::SysExAcceptBuffer() {
       {
         uint8_t version[2];
         version[0] = pgm_read_byte(waveform_table[WAV_RES_VERSION]);
-        version[1] = pgm_read_byte(waveform_table[WAV_RES_VERSION]+1);
-        Storage::SysExDumpBuffer(
-            version,
-            0x0c,
-            0,
-            2);
+        version[1] = pgm_read_byte(waveform_table[WAV_RES_VERSION] + 1);
+        Storage::SysExDumpBuffer(version, 0x0c, 0, 2);
       }
       break;
 
