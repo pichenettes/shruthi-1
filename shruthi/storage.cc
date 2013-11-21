@@ -373,7 +373,7 @@ void Storage::SysExAcceptBuffer() {
       {
         uint16_t current_indices[2];
         current_indices[0] = editor.current_patch_number();
-        current_indices[1] = editor.current_sequence_number();
+        current_indices[1] = editor.current_patch_number();
         Storage::SysExDumpBuffer(
             (uint8_t*)&current_indices, 0x0a,
             0,
