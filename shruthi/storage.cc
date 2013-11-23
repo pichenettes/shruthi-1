@@ -25,6 +25,7 @@
 #include "avrlib/serial.h"
 #include "shruthi/display.h"
 #include "shruthi/editor.h"
+#include "shruthi/midi_dispatcher.h"
 #include "shruthi/oscillator.h"
 #include "shruthi/part.h"
 #include "shruthi/ui.h"
@@ -122,6 +123,7 @@ void Storage::SysExDumpBuffer(
     uint8_t argument,
     uint8_t size) {
   Serial<MidiPort, 31250, DISABLED, POLLED> midi_output;
+  midi_dispatcher.Flush();
   // Outputs the SysEx header.
   for (uint8_t i = 0; i < sizeof(sysex_rx_header); ++i) {
     midi_output.Write(pgm_read_byte(sysex_rx_header + i));

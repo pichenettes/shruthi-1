@@ -277,6 +277,10 @@ class MidiDispatcher : public midi::MidiDevice {
     }
   }
   
+  static void Flush() {
+    while (OutputBuffer::readable());
+  }
+  
   static void Send3(uint8_t a, uint8_t b, uint8_t c);
   static uint8_t channel() {
     return part.system_settings().midi_channel == 0

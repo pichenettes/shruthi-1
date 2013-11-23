@@ -34,17 +34,22 @@ void MidiDispatcher::Send(uint8_t status, uint8_t* data, uint8_t size) {
   if ((status & 0xf0) == 0xf0) {
     running_status_ = 0;
   }
-  if (status != running_status_) {
+  if (size == 0) {
     OutputBuffer::Overwrite(status);
-    running_status_ = status;
-  }
-  if (size) {
-    OutputBuffer::Overwrite(*data++);
-    --size;
-  }
-  if (size) {
-    OutputBuffer::Overwrite(*data++);
-    --size;
+    return;
+  } else {
+    if (status != running_status_) {
+      OutputBuffer::Overwrite(status);
+      running_status_ = status;
+    }
+    if (size) {
+      OutputBuffer::Overwrite(*data++);
+      --size;
+    }
+    if (size) {
+      OutputBuffer::Overwrite(*data++);
+      --size;
+    }
   }
 }
 
