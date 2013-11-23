@@ -277,6 +277,10 @@ class MidiDispatcher : public midi::MidiDevice {
   
   static void Send3(uint8_t status, uint8_t a, uint8_t b);
   
+  static void Flush() {
+    while (OutputBuffer::readable());
+  }
+  
  private:
   static void Send(uint8_t status, uint8_t* data, uint8_t size);
   
