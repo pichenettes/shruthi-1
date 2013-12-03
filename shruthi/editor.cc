@@ -916,21 +916,28 @@ void Editor::DisplayEditOverviewPage() {
   if (cursor_ >= 3) {
     cursor_ = 3;
   }
+  uint8_t previous = 0xff;
   for (uint8_t i = 0; i < kNumEditingPots; ++i) {
     uint8_t index = KnobIndexToParameterId(i);
     const Parameter& parameter = parameter_manager.parameter(index);
     uint8_t caption_position = i * kColumnWidth;
     uint8_t text_position = i * kColumnWidth + kLcdWidth + 1;
-    ResourcesManager::LoadStringResource(
-        parameter.short_name,
-        line_buffer_ + caption_position,
-        kColumnWidth - 1);
-    line_buffer_[caption_position + kColumnWidth - 1] = '\0';
-    line_buffer_[text_position + kColumnWidth - 1] = '\0';
-    AlignRight(line_buffer_ + caption_position, kColumnWidth);
-    uint8_t value = GetParameterValue(parameter.offset);
-    parameter.PrintValue(value, line_buffer_ + text_position, kColumnWidth - 1);
-    AlignRight(line_buffer_ + text_position, kColumnWidth);
+    if (parameter.offset == previous) {
+      memset(line_buffer_ + caption_position, ' ', kColumnWidth);
+      memset(line_buffer_ + text_position, ' ', kColumnWidth);
+    } else {
+      ResourcesManager::LoadStringResource(
+          parameter.short_name,
+          line_buffer_ + caption_position,
+          kColumnWidth - 1);
+      line_buffer_[caption_position + kColumnWidth - 1] = '\0';
+      line_buffer_[text_position + kColumnWidth - 1] = '\0';
+      AlignRight(line_buffer_ + caption_position, kColumnWidth);
+      uint8_t value = GetParameterValue(parameter.offset);
+      parameter.PrintValue(value, line_buffer_ + text_position, kColumnWidth - 1);
+      AlignRight(line_buffer_ + text_position, kColumnWidth);
+    }
+    previous = parameter.offset;
   }
 
   // Change the case of the current parameter accessible by the rotary encoder.

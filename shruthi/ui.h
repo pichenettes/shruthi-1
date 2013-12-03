@@ -110,6 +110,7 @@ class Ui {
   static int8_t adc_thresholds_[36];
 
   static uint32_t idle_time_;
+  static bool freeze_display_;
   
   static EventQueue<> queue_;
   static Adc adc_;

@@ -151,7 +151,6 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   STR_RES_SPLASH,  // UNIT_START_PAGE
   0,               // UNIT_PAUSE
   STR_RES__LPF,    // UNIT_FILTER_BOARD
-  STR_RES____OFF,  // UNIT_CV_MODE
   STR_RES_LPF,     // UNIT_FILTER_1_MODE
   STR_RES_SLP,     // UNIT_FILTER_2_MODE
   STR_RES___OFF,   // UNIT_CV_OPERATOR
@@ -596,11 +595,11 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_MIDI_OUT, STR_RES_MIDI_OUT }, 
 
   // 51
-  { PRM_SYS_START_PAGE,
-    UNIT_START_PAGE,
-    0, 2,
+  { PRM_SYS_MIDI_OUT_MODE,
+    UNIT_MIDI_MODE,
+    MIDI_OUT_OFF, MIDI_OUT_8_7,
     { 0, 0 },
-    STR_RES_STARTPAGE, STR_RES_STARTPAGE }, 
+    STR_RES_MIDI_OUT, STR_RES_MIDI_OUT },
 
   // 52
   { PRM_SYS_DISPLAY_DELAY,
@@ -624,11 +623,11 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_FILTER, STR_RES_FILTER }, 
 
   // 55
-  { PRM_SYS_PROGRAMMER,
-    UNIT_CV_MODE,
-    PROGRAMMER_NONE, PROGRAMMER_XT,
+  { PRM_SYS_START_PAGE,
+    UNIT_START_PAGE,
+    0, 2,
     { 0, 0 },
-    STR_RES_PROGRAMMER, STR_RES_PROGRAMMER }, 
+    STR_RES_STARTPAGE, STR_RES_STARTPAGE }, 
 
   // 56
   { PRM_SEQ_PATTERN_ROTATION,

@@ -43,6 +43,7 @@ uint8_t Ui::adc_warm_up_cycles_;
 uint8_t Ui::adc_hot_address_;
 uint8_t Ui::adc_resume_scan_to_;
 uint32_t Ui::idle_time_;
+bool Ui::freeze_display_;
 Adc Ui::adc_;
 EventQueue<> Ui::queue_;
 SpiMaster<IOEnableLine, MSB_FIRST, 4> Ui::io_;
@@ -88,7 +89,17 @@ void Ui::Init() {
 
 /* static */
 void Ui::ShowSplash() {
-  if (part.system_settings().start_page == START_PAGE_SPLASH) {
+  if (!encoder_.immediate_value()) {
+    SystemSettings* settings = part.mutable_system_settings();
+    settings->programmer = settings->programmer + 1;
+    if (settings->programmer > PROGRAMMER_XT) {
+      settings->programmer = 0;
+    }
+    settings->EepromSave();
+    editor.DisplaySplashScreen(
+        STR_RES_SHRUTHI_CLASSIC + (settings->programmer << 1));
+    freeze_display_ = true;
+  } else if (part.system_settings().start_page == START_PAGE_SPLASH) {
     editor.DisplaySplashScreen(STR_RES_V + 1);
   } else if (part.system_settings().start_page == START_PAGE_LAST_PATCH) {
     editor.BootOnPatchBrowsePage(part.system_settings().last_patch);
@@ -450,6 +461,10 @@ void Ui::DoEvents() {
     queue_.Touch();
     refresh_display = true;
     idle_time_ = 0;
+  }
+  
+  if (!encoder_.immediate_value() && freeze_display_) {
+    refresh_display = false;
   }
   
   if (refresh_display) {

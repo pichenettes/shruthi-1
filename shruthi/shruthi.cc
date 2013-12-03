@@ -177,7 +177,7 @@ void FillAudioBuffer() {
     resonance = ~resonance;
     resonance = U8U8MulShift8(resonance, resonance);
     resonance = U8U8MulShift8(~resonance, 160) + 48;
-  } if (filter_board == FILTER_BOARD_4PM) {
+  } else if (filter_board == FILTER_BOARD_4PM) {
     // Mirror unprocessed Cutoff/Resonance values for Shruthi-XP.
     if (part.system_settings().programmer == PROGRAMMER_FCD) {
       cv_1 = resonance;

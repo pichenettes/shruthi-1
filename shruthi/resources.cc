@@ -83,7 +83,6 @@ static const prog_char str_res_midi_out[] PROGMEM = "midi out";
 static const prog_char str_res_pause[] PROGMEM = "pause";
 static const prog_char str_res_startpage[] PROGMEM = "startpage";
 static const prog_char str_res_snap[] PROGMEM = "snap";
-static const prog_char str_res_programmer[] PROGMEM = "programmer";
 static const prog_char str_res_oscillator_1[] PROGMEM = "oscillator 1";
 static const prog_char str_res_oscillator_2[] PROGMEM = "oscillator 2";
 static const prog_char str_res_mixer[] PROGMEM = "mixer";
@@ -294,6 +293,11 @@ static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
 static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
+static const prog_char str_res_shruthi_classic[] PROGMEM = "shruthi classic";
+static const prog_char str_res_4_knobs[] PROGMEM = "(4 knobs)";
+static const prog_char str_res_shruthi_xt[] PROGMEM = "shruthi xt";
+static const prog_char str_res_classic_fcd72[] PROGMEM = "classic (fcd72)";
+static const prog_char str_res_full_control[] PROGMEM = "(full control)";
 static const prog_char str_res_lets_jam_[] PROGMEM = "let's jam!";
 static const prog_char str_res_extern[] PROGMEM = "extern";
 static const prog_char str_res_sum[] PROGMEM = "sum";
@@ -401,8 +405,6 @@ static const prog_char str_res_4pm[] PROGMEM = "4pm";
 static const prog_char str_res_dly[] PROGMEM = "dly";
 static const prog_char str_res_splash[] PROGMEM = "splash";
 static const prog_char str_res_preset[] PROGMEM = "preset";
-static const prog_char str_res_fcd[] PROGMEM = "fcd";
-static const prog_char str_res_xt[] PROGMEM = "xt";
 static const prog_char str_res_equal[] PROGMEM = "equal";
 static const prog_char str_res_just[] PROGMEM = "just";
 static const prog_char str_res_pythag[] PROGMEM = "pythag";
@@ -497,7 +499,6 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_pause,
   str_res_startpage,
   str_res_snap,
-  str_res_programmer,
   str_res_oscillator_1,
   str_res_oscillator_2,
   str_res_mixer,
@@ -722,6 +723,12 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_v,
   str_res_mutable____v1_00,
   str_res_instruments_671,
+  str_res_shruthi_classic,
+  str_res_4_knobs,
+  str_res_shruthi_xt,
+  str_res_classic_fcd72,
+  str_res_shruthi_xt,
+  str_res_full_control,
   str_res_lets_jam_,
   str_res_extern,
   str_res_sum,
@@ -844,9 +851,6 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_splash,
   str_res_filter,
   str_res_preset,
-  str_res___off,
-  str_res_fcd,
-  str_res_xt,
   str_res_equal,
   str_res_just,
   str_res_pythag,
@@ -4015,7 +4019,7 @@ const prog_uint8_t wav_res_wavetables[] PROGMEM = {
        0,      0,      0,      0,
 };
 const prog_uint8_t wav_res_version[] PROGMEM = {
-       1,     0,
+       1,      0,
 };
 
 

@@ -196,6 +196,8 @@ class Editor {
   
   // Displays two lines of text read from a resource.
   static void DisplaySplashScreen(ResourceId first_line);
+  // Displays the programmer initialization screen.
+  static void DisplayProgrammerSetting(uint8_t programmer);
 
   static inline ParameterPage current_page() { return current_page_; }
   static inline uint8_t current_mode() { return editor_mode_; }

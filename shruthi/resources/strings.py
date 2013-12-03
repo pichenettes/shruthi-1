@@ -78,7 +78,6 @@ midi out
 pause
 startpage
 snap
-programmer
 oscillator 1
 oscillator 2
 mixer
@@ -313,6 +312,12 @@ compare
 v
 mutable    v1.00
 instruments \x06\x07-1
+shruthi classic
+(4 knobs)
+shruthi xt
+classic (fcd72)
+shruthi xt
+(full control)
 let's jam!
 extern
 sum
@@ -446,10 +451,6 @@ dly
 splash
 filter
 preset
-
-   off
-fcd
-xt
 
 equal
 """
