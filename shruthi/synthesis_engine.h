@@ -317,7 +317,7 @@ class SynthesisEngine : public midi::MidiDevice {
     if (patch_.filter_2_mode_ < FILTER_MODE_SERIAL_LP) {
       byte |= (1 << 3);  // Do not mix filter 1 to the output.
     }
-    return byte;
+    return MakeBlinkyEyes(byte);
   }
   
  private:
@@ -348,6 +348,7 @@ class SynthesisEngine : public midi::MidiDevice {
   // everytime a parameter is modified by the user).
   static void UpdateModulationRates();
   static void UpdateLfoRate(uint8_t i);
+  static uint8_t MakeBlinkyEyes(uint8_t byte);
 
   DISALLOW_COPY_AND_ASSIGN(SynthesisEngine);
 };

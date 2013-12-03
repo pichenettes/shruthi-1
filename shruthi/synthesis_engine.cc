@@ -585,9 +585,7 @@ const prog_uint8_t filter_modes[15] PROGMEM = {
 };
 
 /* static */
-uint8_t SynthesisEngine::four_pole_routing_byte() {
-  uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
-  byte |= U8ShiftLeft4(patch_.filter_2_mode_);
+uint8_t SynthesisEngine::MakeBlinkyEyes(uint8_t byte) {
   if (controller_.active() &&
       sequencer_settings_.seq_mode >= SEQUENCER_MODE_ARP_LATCH &&
       sequencer_settings_.seq_mode <= SEQUENCER_MODE_RPS_LATCH) {
@@ -604,6 +602,13 @@ uint8_t SynthesisEngine::four_pole_routing_byte() {
     byte |= 0xc0;
   }
   return byte;
+}
+
+/* static */
+uint8_t SynthesisEngine::four_pole_routing_byte() {
+  uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
+  byte |= U8ShiftLeft4(patch_.filter_2_mode_);
+  return MakeBlinkyEyes(byte);
 }
 
 /* static */
