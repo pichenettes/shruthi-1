@@ -144,6 +144,7 @@ class Part {
   }
   
   static uint8_t four_pole_routing_byte();
+  static uint8_t blinky_eyes();
   
   static inline uint8_t svf_routing_byte() {
     uint8_t byte = 0;
@@ -173,7 +174,7 @@ class Part {
     if (patch_.filter_2_mode_ < FILTER_MODE_SERIAL_LP) {
       byte |= (1 << 3);  // Do not mix filter 1 to the output.
     }
-    return byte;
+    return byte | blinky_eyes();
   }
   
   inline bool internal_clock() { return sequencer_settings_.internal_clock(); }

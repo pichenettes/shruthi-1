@@ -763,22 +763,32 @@ const prog_uint8_t filter_modes[15] PROGMEM = {
 };
 
 /* static */
-uint8_t Part::four_pole_routing_byte() {
-  uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
-  byte |= U8ShiftLeft4(patch_.filter_2_mode_);
+uint8_t Part::blinky_eyes() {
+  uint8_t blinky = 0;
   if (running() && sequencer_settings_.mode() != SEQUENCER_MODE_STEP) {
     if (!(arp_seq_step_ & 3)) {
-      byte |= 0xc0;
+      blinky = 0xc0;
     }
   } else if (modulation_source(0, MOD_SRC_WHEEL) > 224) {
     uint8_t i = kModulationMatrixSize - 1;
     uint8_t wheel_mod = patch_.modulation_matrix.modulation[i].source;
     wheel_mod = voice_.modulation_source(wheel_mod);
-    byte |= (wheel_mod > 0xc0 ? 0x80 : 0x00);
-    byte |= (wheel_mod < 0x40 ? 0x40 : 0x00);
+    if (wheel_mod >= 0xc0) {
+      blinky = 0x80;
+    } else if (wheel_mod < 0x40) {
+      blinky = 0x40;
+    }
   } else if (patch_.filter_resonance > 56) {
-    byte |= 0xc0;
+    blinky = 0xc0;
   }
+  return blinky;
+}
+
+/* static */
+uint8_t Part::four_pole_routing_byte() {
+  uint8_t byte = pgm_read_byte(filter_modes + patch_.filter_1_mode_);
+  byte |= U8ShiftLeft4(patch_.filter_2_mode_);
+  byte |= blinky_eyes();
   return byte;
 }
 
