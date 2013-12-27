@@ -53,20 +53,17 @@ class Ui {
       }
       queue_.AddEvent(CONTROL_ENCODER, 0, increment);
     }
-
-    if (sub_clock_) {
+    sub_clock_ = (sub_clock_ + 1) & 7;
+    if (sub_clock_ & 1) {
       TickSystemClock();
-      ScanPotentiometers();
-      sub_clock_ = 0;
     } else {
       WriteShiftRegister();
-      if (sub_clock_2_) {
-        DebounceSwitches();
-        sub_clock_2_ = 0;
-      } else {
-        sub_clock_2_ = 1;
-      }
-      sub_clock_ = 1;
+    }
+    if (sub_clock_ == 1) {
+      ScanPotentiometers();
+    }
+    if (sub_clock_ == 3) {
+      DebounceSwitches();
     }
   }
   
@@ -80,6 +77,7 @@ class Ui {
 
   static void StepProgressBar() {
     progress_bar_ = progress_bar_ == 0xff ? 1 : (progress_bar_ << 1) + 1;
+    RefreshLeds();
   }
   
   static void LockPotentiometers();
