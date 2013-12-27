@@ -87,7 +87,7 @@ static const uint8_t kNumSwitches = 6;
 // (20kHz or 16kHz).
 static const uint16_t kSampleRate = 20000000L / 510;
 
-// One control signal sample is generated for each 40 audio sample (this gives
+// One control signal sample is generated for each 40 audio samples (this gives
 // the same resolution as for the Shruti-1: 31250/32 ~= 39062/40)
 static const uint8_t kControlRate = 40;
 

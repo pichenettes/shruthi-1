@@ -102,7 +102,7 @@ void Part::Init() {
 //     WAVEFORM_SAW, 0, 0, 4,
 //     WAVEFORM_SAW, 0, -12, 12,
 //     // Mixer
-//     32, 8, 8, WAVEFORM_SUB_OSC_BLOW,
+//     32, 8, 8, WAVEFORM_SUB_OSC_SQUARE_1,
 //     // Filter
 //     96, 0, 32, 0,
 //     // ADSR
