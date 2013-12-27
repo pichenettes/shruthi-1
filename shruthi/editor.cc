@@ -1038,7 +1038,7 @@ uint8_t Editor::KnobIndexToParameterId(uint8_t knob_index) {
   if (current_page_ == PAGE_LOAD_SAVE) {
     switch (knob_index) {
       case 0:
-        return 1;
+        return PRM_OSC_PARAMETER_1;
       case 1:
         return PRM_FILTER_CUTOFF;
       case 2:
@@ -1160,7 +1160,10 @@ const prog_uint8_t modulation_destination_map[] PROGMEM = {
 };
 
 /* static */
-void Editor::SetParameterValue(uint8_t index, uint8_t offset, uint8_t value) {
+void Editor::SetParameterValue(
+    uint8_t index,
+    uint8_t offset,
+    uint8_t value) {
   // Dirty hack for the modulation page.
   if (current_page_ == PAGE_MOD_MATRIX && offset == PRM_MOD_ROW) {
     subpage_ = value;
@@ -1171,7 +1174,11 @@ void Editor::SetParameterValue(uint8_t index, uint8_t offset, uint8_t value) {
     if (offset == PRM_MOD_DESTINATION) {
       value = pgm_read_byte(modulation_destination_map + value);
     }
-    part.SetParameter(index, offset + subpage_ * 3, value, true);
+    if ((offset >= PRM_OP_OP1 && offset <= PRM_OP_OPERATOR) ||
+        (offset >= PRM_MOD_SOURCE && offset <= PRM_MOD_AMOUNT)) {
+      offset += subpage_ * 3;
+    }
+    part.SetParameter(index, offset, value, true);
   }
 }
 
@@ -1183,7 +1190,12 @@ uint8_t Editor::GetParameterValue(uint8_t offset) {
   } else if (current_page_ == PAGE_MOD_OPERATORS && offset == PRM_OP_ROW ) {
     value = subpage_;
   } else {
-    value = part.GetParameter(offset + subpage_ * 3);
+    uint8_t actual_offset = offset;
+    if ((actual_offset >= PRM_OP_OP1 && actual_offset <= PRM_OP_OPERATOR) ||
+        (actual_offset >= PRM_MOD_SOURCE && actual_offset <= PRM_MOD_AMOUNT)) {
+      actual_offset += subpage_ * 3;
+    }
+    value = part.GetParameter(actual_offset);
     if (offset == PRM_MOD_DESTINATION) {
       for (uint8_t i = 0; i < MOD_DST_LAST; ++i) {
         if (pgm_read_byte(modulation_destination_map + i) == value) {
