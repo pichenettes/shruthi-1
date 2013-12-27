@@ -355,7 +355,7 @@ void Ui::DebounceSwitches() {
   
   for (uint8_t i = SWITCH_OSC_2_MINUS; i <= last_switch; ++i) {
     if (switch_state_[i] == 0x80) {
-      switch_delay_[i] = milliseconds() + 640;
+      switch_delay_[i] = milliseconds() + 480;
       queue_.AddEvent(CONTROL_SWITCH, i, 0);
     } else if (switch_state_[i] == 0x00) {
       uint32_t now = milliseconds();
