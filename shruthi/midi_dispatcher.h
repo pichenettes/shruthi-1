@@ -270,7 +270,7 @@ class MidiDispatcher : public midi::MidiDevice {
       Send3(0xb0 | channel(), parameter.midi_cc[0], value);
     } else {
       Send3(0xb0 | channel(), midi::kNrpnMsb, 0);
-      Send3(0xb0 | channel(), midi::kNrpnLsb, index);
+      Send3(0xb0 | channel(), midi::kNrpnLsb, offset);
       uint8_t msb = (value & 0x80) ? 1 : 0;
       Send3(0xb0 | channel(), midi::kDataEntryMsb, msb);
       Send3(0xb0 | channel(), midi::kDataEntryLsb, value & 0x7f);

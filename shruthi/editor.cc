@@ -1064,6 +1064,7 @@ void Editor::OnEditInput(uint8_t knob_index, uint8_t value) {
       return;
     }
     programmer_parameter_ = 0xff;
+    cursor_ = knob_index;
   } else {
     index = knob_index - 4;
     programmer_parameter_ = index;
@@ -1082,7 +1083,6 @@ void Editor::OnEditInput(uint8_t knob_index, uint8_t value) {
   }
   display_mode_ = DISPLAY_MODE_EDIT_TEMPORARY;
   SetParameterValue(index, parameter.offset, parameter.Scale(value));
-  cursor_ = knob_index;
 }
 
 /* static */
