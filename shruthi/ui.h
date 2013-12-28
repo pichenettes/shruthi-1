@@ -56,6 +56,7 @@ class Ui {
     sub_clock_ = (sub_clock_ + 1) & 7;
     if (sub_clock_ & 1) {
       TickSystemClock();
+      display.BlinkCursor();
     } else {
       WriteShiftRegister();
     }

@@ -455,6 +455,12 @@ void Ui::DoEvents() {
     idle_time_ += queue_.idle_time_ms();
     queue_.Touch();
     refresh_display |= editor.Relax();
+    bool show_screen_saver = idle_time_ >= 100000 && \
+        (part.system_settings().display_delay & 0x10);
+    if (show_screen_saver) {
+      idle_time_ = 100000;
+      editor.ScreenSaver();
+    }
   }
   
   if (queue_.idle_time_ms() > 100 && part.dirty()) {
@@ -468,13 +474,7 @@ void Ui::DoEvents() {
   }
   
   if (refresh_display) {
-    bool show_screen_saver = idle_time_ >= 100000 && \
-        (part.system_settings().display_delay & 0x10);
-    if (show_screen_saver) {
-      editor.ScreenSaver();
-    } else {
-      editor.Refresh();
-    }
+    editor.Refresh();
   }
 
   RefreshLeds();

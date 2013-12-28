@@ -632,6 +632,8 @@ void Editor::OnLoadSaveIncrement(int8_t increment) {
       if (!part.running()) {
         Storage::LoadSequence(edited_item_number());
       }
+      // Reset the snap position of all pots.
+      memset(snapped_, false, sizeof(snapped_));
     }
   }
 }
