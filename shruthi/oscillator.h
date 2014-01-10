@@ -201,7 +201,7 @@ class Oscillator {
   OscillatorState data_;
 
   // A pointer to the render function.
-  static RenderFn fn_table_[];
+  static const RenderFn fn_table_[];
   
   // A flag set to true when sync is enabled ; and a table to record the
   // position of phrase wraps
