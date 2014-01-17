@@ -81,7 +81,8 @@ def ExtractSyxData(syx_content):
     tail -= 2
     
     # Remove leading manufacturer id
-    assert packet[head:head + 3] == '\x00\x21\x02'
+    assert packet[head:head + 3] == '\x00\x21\x02' or \
+        packet[head:head + 3] == '\x00\x20\x77'
     head += 3
     
     # Remove leading product id (Shruthi-1)
@@ -117,7 +118,7 @@ def Parse(data):
 
 
 def main(options, args):
-  data = file(args[0]).read()
+  data = file(args[0], 'rb').read()
   content = Parse(ExtractSyxData(data))
   output = file(options.output_file, 'wb') if options.output_file else sys.stdout
   for content_type, content in content.items():
