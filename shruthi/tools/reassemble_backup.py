@@ -152,7 +152,7 @@ if __name__ == '__main__':
       dest='syx',
       action="store_false",
       default=False,
-      help='Output to .syx format')
+      help='Output to .bin format')
 
   options, args = parser.parse_args()
   if len(args) != 1:
