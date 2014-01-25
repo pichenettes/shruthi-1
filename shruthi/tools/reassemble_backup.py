@@ -107,7 +107,7 @@ def WriteSyx(f, image):
     # SysEx header
     f.write('\xf0')
     # Mutable Instruments
-    f.write('\x00\x20\x77')
+    f.write('\x00\x21\x02')
     # Shruthi-1
     f.write('\x00\x02')
     f.write(chr(0x40 + (i / 128)))
