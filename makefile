@@ -16,15 +16,16 @@ include shruthi/makefile
 FIRMWARE      = $(BUILD_DIR)shruthi1.hex
 BOOTLOADER    = $(BUILD_ROOT)muboot/muboot.hex
 EEPROM        = shruthi/data/factory_data/internal_eeprom.hex
+EEPROM_XT     = shruthi/data/factory_data/internal_eeprom_xt.hex
 
 upload_all:	$(FIRMWARE) $(BOOTLOADER)
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
 			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i -U eeprom:w:$(EEPROM):i
 
-bake_all:	$(FIRMWARE) $(BOOTLOADER)
+bake_all_xt:	$(FIRMWARE) $(BOOTLOADER)
 		make -f bootloader/makefile fuses
 		$(AVRDUDE) -B 1 $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
-			-U eeprom:w:$(EEPROM):i \
+			-U eeprom:w:$(EEPROM_XT):i \
 			-U flash:w:$(FIRMWARE):i -U flash:w:$(BOOTLOADER):i \
 			-U lock:w:0x2f:m
 

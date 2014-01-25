@@ -159,8 +159,8 @@ static const prog_char init_patch[] PROGMEM = {
     MOD_SRC_LFO_1, MOD_DST_PWM_2, 0,
     MOD_SRC_LFO_2, MOD_DST_MIX_BALANCE, 0,
     MOD_SRC_SEQ, MOD_DST_MIX_BALANCE, 0,
-    MOD_SRC_CV_1, MOD_DST_PWM_1, 0,
-    MOD_SRC_CV_2, MOD_DST_PWM_2, 0,
+    MOD_SRC_VELOCITY, MOD_DST_PWM_1, 0,
+    MOD_SRC_VELOCITY, MOD_DST_PWM_2, 0,
     MOD_SRC_ENV_2, MOD_DST_VCA, 63,
     MOD_SRC_VELOCITY, MOD_DST_VCA, 16,
     MOD_SRC_PITCH_BEND, MOD_DST_VCO_1_2_COARSE, 32,
@@ -211,7 +211,7 @@ static const prog_char init_sequence[] PROGMEM = {
 static const prog_char init_system_settings[] PROGMEM = {
     // System Settings,
     0, 0, 0, 0,
-    0, 1, 1, 5,
+    0, 1, 1, 0,
     8, 0, 0, 0,
     0, 0, 0,
 };
@@ -801,7 +801,7 @@ void Part::ProcessBlock() {
           ResourcesManager::Lookup<int16_t, uint8_t>(
               LUT_RES_GROOVE_SWING + sequencer_settings_.seq_groove_template,
               arp_seq_step_),
-          sequencer_settings_.seq_groove_amount);
+          sequencer_settings_.seq_groove_amount) >> 1;
       Clock(true);
       clock.Update(sequencer_settings_.seq_tempo);
     }
