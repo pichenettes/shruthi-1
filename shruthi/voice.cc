@@ -50,7 +50,6 @@ int16_t Voice::pitch_target_;
 int16_t Voice::pitch_value_;
 int16_t Voice::pitch_bass_note_;
 uint8_t Voice::modulation_sources_[kNumModulationSources];
-uint8_t Voice::unregistered_modulation_sources_[1];
 int8_t Voice::modulation_destinations_[kNumModulationDestinations];
 int16_t Voice::dst_[kNumModulationDestinations];
 uint8_t Voice::buffer_[kAudioBlockSize];
@@ -106,7 +105,6 @@ void Voice::ResetAllControllers() {
   modulation_sources_[MOD_SRC_PITCH_BEND] = 128;
   modulation_sources_[MOD_SRC_WHEEL] = 0;
   modulation_sources_[MOD_SRC_OFFSET] = 255;
-  unregistered_modulation_sources_[0] = 0;
   volume_ = 255;
 }
 
@@ -255,22 +253,26 @@ inline void Voice::LoadSources() {
 
 /* static */
 void Voice::ControlChange(uint8_t controller, uint8_t value) {
-  if (controller >= midi::kAssignableCcA &&
-      controller <= midi::kAssignableCcD) {
-    uint8_t modulation = MOD_SRC_CC_A + controller - midi::kAssignableCcA; 
-    modulation_sources_[modulation] = value << 1;
-  } else {
-    switch (controller) {
-      case midi::kModulationWheelMsb:
-        modulation_sources_[MOD_SRC_WHEEL] = value << 1;
-        break;
-      case midi::kModulationWheelJoystickMsb:
-        unregistered_modulation_sources_[0] = value << 1;
-        break;
-      case midi::kVolume:
-        volume_ = value << 1;
-        break;
-    }
+  value <<= 1;
+  switch (controller) {
+    case midi::kAssignableCcA:
+      modulation_sources_[MOD_SRC_CC_A] = value;
+      break;
+    case midi::kAssignableCcB:
+      modulation_sources_[MOD_SRC_CC_B] = value;
+      break;
+    case midi::kModulationWheelJoystickMsb:
+      modulation_sources_[MOD_SRC_CC_C] = value;
+      break;
+    case midi::kFootPedalMsb:
+      modulation_sources_[MOD_SRC_CC_D] = value;
+      break;
+    case midi::kModulationWheelMsb:
+      modulation_sources_[MOD_SRC_WHEEL] = value;
+      break;
+    case midi::kVolume:
+      volume_ = value;
+      break;
   }
 }
 
@@ -347,7 +349,6 @@ inline void Voice::UpdateDestinations() {
   }
   cutoff = S16ClipU14(cutoff + S8U8Mul(part.patch_.filter_env,
       modulation_sources_[MOD_SRC_ENV_1]));
-  cutoff = S16ClipU14(cutoff + (unregistered_modulation_sources_[0] << 6));
   cutoff = S16ClipU14(cutoff + S8S8Mul(part.patch_.filter_lfo,
       modulation_sources_[MOD_SRC_LFO_2] + 128));
 

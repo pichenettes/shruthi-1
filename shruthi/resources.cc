@@ -239,8 +239,8 @@ static const prog_char str_res_cv3[] PROGMEM = "cv3";
 static const prog_char str_res_cv4[] PROGMEM = "cv4";
 static const prog_char str_res_cca[] PROGMEM = "ccA";
 static const prog_char str_res_ccb[] PROGMEM = "ccB";
-static const prog_char str_res_ccc[] PROGMEM = "ccC";
-static const prog_char str_res_ccd[] PROGMEM = "ccD";
+static const prog_char str_res_bre[] PROGMEM = "bre";
+static const prog_char str_res_ped[] PROGMEM = "ped";
 static const prog_char str_res_en1[] PROGMEM = "en1";
 static const prog_char str_res_en2[] PROGMEM = "en2";
 static const prog_char str_res_vel[] PROGMEM = "vel";
@@ -265,8 +265,8 @@ static const prog_char str_res_cv_3[] PROGMEM = "cv 3";
 static const prog_char str_res_cv_4[] PROGMEM = "cv 4";
 static const prog_char str_res_cc_a[] PROGMEM = "cc A";
 static const prog_char str_res_cc_b[] PROGMEM = "cc B";
-static const prog_char str_res_cc_c[] PROGMEM = "cc C";
-static const prog_char str_res_cc_d[] PROGMEM = "cc D";
+static const prog_char str_res_breath[] PROGMEM = "breath";
+static const prog_char str_res_pedal[] PROGMEM = "pedal";
 static const prog_char str_res_env_1[] PROGMEM = "env 1";
 static const prog_char str_res_env_2[] PROGMEM = "env 2";
 static const prog_char str_res_velo[] PROGMEM = "velo";
@@ -662,8 +662,8 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_cv4,
   str_res_cca,
   str_res_ccb,
-  str_res_ccc,
-  str_res_ccd,
+  str_res_bre,
+  str_res_ped,
   str_res_noi,
   str_res_en1,
   str_res_en2,
@@ -694,8 +694,8 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_cv_4,
   str_res_cc_a,
   str_res_cc_b,
-  str_res_cc_c,
-  str_res_cc_d,
+  str_res_breath,
+  str_res_pedal,
   str_res_noise,
   str_res_env_1,
   str_res_env_2,

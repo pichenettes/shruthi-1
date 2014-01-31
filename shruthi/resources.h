@@ -336,8 +336,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_CV4 218  // cv4
 #define STR_RES_CCA 219  // ccA
 #define STR_RES_CCB 220  // ccB
-#define STR_RES_CCC 221  // ccC
-#define STR_RES_CCD 222  // ccD
+#define STR_RES_BRE 221  // bre
+#define STR_RES_PED 222  // ped
 #define STR_RES__NOI 223  // noi
 #define STR_RES_EN1 224  // en1
 #define STR_RES_EN2 225  // en2
@@ -368,8 +368,8 @@ extern const prog_uint8_t chr_res_special_characters[] PROGMEM;
 #define STR_RES_CV_4 250  // cv 4
 #define STR_RES_CC_A 251  // cc A
 #define STR_RES_CC_B 252  // cc B
-#define STR_RES_CC_C 253  // cc C
-#define STR_RES_CC_D 254  // cc D
+#define STR_RES_BREATH 253  // breath
+#define STR_RES_PEDAL 254  // pedal
 #define STR_RES__NOISE 255  // noise
 #define STR_RES_ENV_1 256  // env 1
 #define STR_RES_ENV_2 257  // env 2
