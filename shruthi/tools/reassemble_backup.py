@@ -107,7 +107,7 @@ def WriteSyx(f, image):
     # SysEx header
     f.write('\xf0')
     # Mutable Instruments
-    f.write('\x00\x20\x77')
+    f.write('\x00\x21\x02')
     # Shruthi-1
     f.write('\x00\x02')
     f.write(chr(0x40 + (i / 128)))
@@ -152,7 +152,7 @@ if __name__ == '__main__':
       dest='syx',
       action="store_false",
       default=False,
-      help='Output to .syx format')
+      help='Output to .bin format')
 
   options, args = parser.parse_args()
   if len(args) != 1:
