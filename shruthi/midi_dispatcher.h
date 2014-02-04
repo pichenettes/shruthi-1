@@ -130,6 +130,11 @@ class MidiDispatcher : public midi::MidiDevice {
       part.Start(false);
     }
   }
+  static void Continue() {
+    if (!part.internal_clock()) {
+      part.Start(false);
+    }
+  }
   static void Stop() {
     if (!part.internal_clock()) {
       part.Stop(false);
