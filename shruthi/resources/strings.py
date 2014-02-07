@@ -133,6 +133,10 @@ h2lp
 h3lp
 n+lp
 p+lp
+lp
+bp
+hp
+ap
 
 liquid
 ms
@@ -447,6 +451,7 @@ dsp
 pvk
 4pm
 dly
+sp
 
 splash
 filter

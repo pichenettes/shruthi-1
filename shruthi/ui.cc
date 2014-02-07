@@ -264,6 +264,10 @@ void Ui::WriteShiftRegister() {
     case FILTER_BOARD_4PM:
       io_.Send(part.four_pole_routing_byte());
       break;
+      
+    case FILTER_BOARD_SP:
+      io_.Send(part.sp_routing_byte());
+      break;
   }
 
   if (part.system_settings().programmer == PROGRAMMER_FCD) {

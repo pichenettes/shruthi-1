@@ -58,6 +58,7 @@ enum Unit {
   UNIT_FILTER_FX_MODE,
   UNIT_FILTER_4P_MODE,
   UNIT_FILTER_4P_FLAVOUR,
+  UNIT_FILTER_SP_MODE,
   UNIT_LAST
 };
 
@@ -81,7 +82,7 @@ struct Parameter {
 };
 
 typedef Parameter PROGMEM prog_Parameter;
-const uint8_t kNumParameters = 86;
+const uint8_t kNumParameters = 90;
 
 class ParameterManager {
  public:
