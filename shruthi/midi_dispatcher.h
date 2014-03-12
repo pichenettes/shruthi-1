@@ -259,7 +259,7 @@ class MidiDispatcher : public midi::MidiDevice {
   static inline void ProgramChange(uint16_t n) {
     uint8_t channel = (engine.system_settings().midi_channel - 1) & 0xf;
     if (mode() == MIDI_OUT_CTRL || mode() == MIDI_OUT_FULL) {
-      Send3(0xb0 | channel, 0x20, n >> 7);
+      Send3(0xb0 | channel, midi::kBankMsb, n >> 7);
       // We send a program change + an active sensing message that does
       // strictly nothing. This way, we can use the already unrolled
       // Send3 function.

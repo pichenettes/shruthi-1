@@ -408,6 +408,9 @@ void SynthesisEngine::AllSoundOff(uint8_t channel) {
 
 /* static */
 void SynthesisEngine::AllNotesOff(uint8_t channel) {
+  if (ignore_note_off_messages_) {
+    return;
+  }
   controller_.AllNotesOff();
 }
 
