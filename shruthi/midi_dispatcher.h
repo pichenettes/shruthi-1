@@ -267,10 +267,17 @@ class MidiDispatcher : public midi::MidiDevice {
     
     const Parameter& parameter = parameter_manager.parameter(index);
     if (parameter.midi_cc[0]) {
+      uint8_t original = value;
       if (parameter.unit != UNIT_RAW_UINT8) {
         value -= parameter.min_value;
         uint8_t range = parameter.max_value - parameter.min_value + 1;
         value = U8U8Mul(value, 128) / range;
+        if (value != 127 && parameter.Scale(value) != original) {
+          ++value;
+        }
+        if (value != 0 && parameter.Scale(value) != original) {
+          --value;
+        }
       }
       Send3(0xb0 | channel(), parameter.midi_cc[0], value);
     } else {
