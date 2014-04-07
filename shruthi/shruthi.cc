@@ -221,6 +221,7 @@ void EncoderTask() {
       editor.HandleClick();
     }
   }
+  display.BlinkCursor();
   encoder.Flush();
   // In case we have moved to a different page, make the pots less sensitive
   // to changes to make sure that a subtle change to a pot won't create a
