@@ -375,6 +375,7 @@ void Part::ControlChange(uint8_t controller, uint8_t value) {
 
 /* static */
 void Part::AllSoundOff() {
+  ignore_note_off_messages_ = false;
   AllNotesOff();
 }
 
@@ -496,6 +497,7 @@ void Part::Start(bool internal) {
 /* static */
 void Part::Stop(bool internal) {
   arp_seq_running_ = false;
+  ignore_note_off_messages_ = false;
   StopSequencerArpeggiatorNotes();
   AllNotesOff();
   if (internal) {
@@ -835,6 +837,11 @@ void Part::ProcessBlock() {
 
 /* static */
 void Part::AllNotesOff() {
+  if (ignore_note_off_messages_) {
+    // This is a fix for the Roland machines that send the all notes off
+    // message every time all keys in a chord are released.
+    return;
+  }
   poly_allocator_.Clear();
   mono_allocator_.Clear();
   pressed_keys_.Clear();

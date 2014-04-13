@@ -143,6 +143,10 @@ class Part {
     return byte;
   }
   
+  static inline uint8_t sp_routing_byte() {
+    return patch_.filter_1_mode_;
+  }
+  
   static uint8_t four_pole_routing_byte();
   static uint8_t blinky_eyes();
   

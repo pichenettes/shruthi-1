@@ -26,6 +26,7 @@ const uint8_t kBankMsb = 0x00;
 const uint8_t kBankLsb = 0x20;
 const uint8_t kModulationWheelMsb = 0x01;
 const uint8_t kModulationWheelJoystickMsb = 0x02;
+const uint8_t kFootPedalMsb = 0x04;
 const uint8_t kDataEntryMsb = 0x06;
 const uint8_t kVolume = 0x07;
 const uint8_t kDataEntryLsb = 0x26;

@@ -157,7 +157,8 @@ static const prog_uint16_t units_definitions[UNIT_LAST]
   STR_RES_DISTRT,  // UNIT_FX_PROGRAM
   STR_RES_LGF,     // UNIT_FILTER_FX_MODE
   STR_RES_LP4,     // UNIT_FILTER_4P_MODE
-  STR_RES_LIQUID,   // UNIT_FILTER_4P_FLAVOUR
+  STR_RES_LIQUID,  // UNIT_FILTER_4P_FLAVOUR
+  STR_RES_LP,      // UNIT_FILTER_SP_MODE
 };  // UNIT_LAST
 
 static const prog_char arp_pattern_prefix[4] PROGMEM = {
@@ -838,6 +839,34 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     0, 15,
     { 95, 0 },
     STR_RES_EQ_, STR_RES_FDBCK_EQ_ },
+    
+  // 86
+  { PRM_FILTER_CUTOFF,
+    UNIT_RAW_UINT8,
+    0, 127,
+    { 14, 0 },
+    STR_RES_CUT, STR_RES_CUTOFF }, 
+
+  // 87
+  { PRM_FILTER_RESONANCE,
+    UNIT_UINT8,
+    0, 63,
+    { 15, 0 },
+    STR_RES_RESONANCE, STR_RES_RESONANCE }, 
+
+  // 88
+  { PRM_SP_MODE,
+    UNIT_FILTER_SP_MODE,
+    0, 3,
+    { 96, 0 },
+    STR_RES_MODE, STR_RES_MODE }, 
+
+  // 89
+  { PRM_SP_FEEDBACK,
+    UNIT_RAW_UINT8,
+    0, 127,
+    { 12, 0 },
+    STR_RES_FDB, STR_RES_FEEDBACK }, 
 };
 
 /* static */

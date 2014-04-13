@@ -133,6 +133,10 @@ h2lp
 h3lp
 n+lp
 p+lp
+lp
+bp
+hp
+ap
 
 liquid
 ms
@@ -248,8 +252,8 @@ cv3
 cv4
 ccA
 ccB
-ccC
-ccD
+bre
+ped
 noi
 en1
 en2
@@ -281,8 +285,8 @@ cv 3
 cv 4
 cc A
 cc B
-cc C
-cc D
+breath
+pedal
 noise
 env 1
 env 2
@@ -447,6 +451,7 @@ dsp
 pvk
 4pm
 dly
+sp
 
 splash
 filter

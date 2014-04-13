@@ -126,7 +126,6 @@ class Voice {
   // The voice-specific modulation sources are from MOD_SRC_ENV_1 to
   // MOD_SRC_GATE.
   static uint8_t modulation_sources_[kNumModulationSources];
-  static uint8_t unregistered_modulation_sources_[1];
 
   // Value of all the stuff controlled by the modulators, scaled to the value
   // they will be used for. MOD_DST_FILTER_RESONANCE is the last entry
