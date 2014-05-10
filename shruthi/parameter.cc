@@ -903,6 +903,10 @@ void ParameterManager::Init() {
     }
   }
   
+  // Hack for NRPN ranges of the filter mode 1 & 2 parameters.
+  offset_to_id_[92] = 84;
+  offset_to_id_[93] = 85;
+  
   // Fill modulation matrix gaps
   for (uint8_t i = 0; i < kModulationMatrixSize; ++i) {
     offset_to_id_[PRM_MOD_SOURCE + i * 3] = 33;
