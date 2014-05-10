@@ -642,7 +642,7 @@ void Editor::OnLoadSaveIncrement(int8_t increment) {
 void Editor::DisplayLoadSavePage() {
   if (display_mode_ == DISPLAY_MODE_EDIT_TEMPORARY
       && action_ != ACTION_SAVE
-      && part.system_settings().display_delay) {
+      && (part.system_settings().display_delay & 0xf)) {
     DisplayEditDetailsPage();
     return;
   }
@@ -963,7 +963,7 @@ void Editor::DisplayEditOverviewPage() {
 
 /* static */
 void Editor::DisplayEditDetailsPage() {
-  if (part.system_settings().display_delay == 0) {
+  if ((part.system_settings().display_delay & 0xf) == 0) {
     DisplayEditOverviewPage();
     return;
   }

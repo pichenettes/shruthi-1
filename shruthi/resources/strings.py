@@ -314,7 +314,7 @@ compare
 ----
 
 v
-mutable    v1.00
+mutable    v1.01
 instruments \x06\x07-1
 shruthi classic
 (4 knobs)

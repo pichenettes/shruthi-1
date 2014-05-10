@@ -295,7 +295,7 @@ static const prog_char str_res_save[] PROGMEM = "save";
 static const prog_char str_res_compare[] PROGMEM = "compare";
 static const prog_char str_res_[] PROGMEM = "----";
 static const prog_char str_res_v[] PROGMEM = "v";
-static const prog_char str_res_mutable____v1_00[] PROGMEM = "mutable    v1.00";
+static const prog_char str_res_mutable____v1_01[] PROGMEM = "mutable    v1.01";
 static const prog_char str_res_instruments_671[] PROGMEM = "instruments -1";
 static const prog_char str_res_shruthi_classic[] PROGMEM = "shruthi classic";
 static const prog_char str_res_4_knobs[] PROGMEM = "(4 knobs)";
@@ -730,7 +730,7 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_compare,
   str_res_,
   str_res_v,
-  str_res_mutable____v1_00,
+  str_res_mutable____v1_01,
   str_res_instruments_671,
   str_res_shruthi_classic,
   str_res_4_knobs,
