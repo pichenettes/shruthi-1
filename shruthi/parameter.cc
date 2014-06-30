@@ -564,7 +564,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
   { PRM_SYS_PORTAMENTO,
     UNIT_UINT8,
     0, 63,
-    { 84, 0 },
+    { 84, 5 },
     STR_RES_PRT, STR_RES_PORTA }, 
 
   // 47
