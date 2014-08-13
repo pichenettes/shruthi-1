@@ -76,10 +76,10 @@ ISR(TIMER2_OVF_vect) {
     // (almost) all registers would have been pushed/popped in this ISR
     // prelude/postlude. As a result, 19 out 20 calls to this ISR, we
     // push/pop a dozen of registers for absolutely no useful purpose. This has
-    // a cost of 40 CPU cycles per sample, and we dont' want to spend that.
+    // a cost of 40 CPU cycles per sample, and we don't want to spend that.
     // We want ui.Poll() [and all the necessary push/pop] to run in a different
     // context than this ISR - but still outside of the main loop.
-    // Ideally, we would have liked to use user interrupts for that, but the AVR
+    // Ideally, we would have loved to use user interrupts for that, but the AVR
     // doesn't have anything like this, so we enable a timer interrupt to jump
     // into its ISR ASAP...
     Timer<1>::Start();
