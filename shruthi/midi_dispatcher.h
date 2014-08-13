@@ -290,6 +290,7 @@ class MidiDispatcher : public midi::MidiDevice {
   }
   
   static void Flush() {
+    running_status_ = 0;
     while (OutputBuffer::readable());
   }
   
