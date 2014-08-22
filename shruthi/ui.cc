@@ -165,6 +165,13 @@ void Ui::ScanPotentiometers() {
   if (part.system_settings().programmer == PROGRAMMER_NONE) {
     *PortA::Mode::ptr() = 0x00;
     pots_multiplexer_address_ = (pots_multiplexer_address_ + 1) & 7;
+    if (adc_resume_scan_to_ == 0) {
+      adc_resume_scan_to_ = pots_multiplexer_address_ + 1;
+      pots_multiplexer_address_ = adc_hot_address_;
+    } else {
+      pots_multiplexer_address_ = adc_resume_scan_to_ - 1;
+      adc_resume_scan_to_ = 0;
+    }    
     adc_.StartConversion(pots_multiplexer_address_);
     if (address >= 4) {
       part.mutable_voice()->set_modulation_source(
