@@ -223,6 +223,8 @@ class Editor {
     current_patch_number_ = patch_number;
   }
   
+  static bool FinishLoadingPatch();
+  
  private:
   // This hides or shows the second filter page, with settings for
   // upcoming multimode filters.
@@ -322,6 +324,8 @@ class Editor {
   static int8_t jam_mode_shifts_[4];
   
   static bool snapped_[36];
+  
+  static uint16_t deferred_load_;
 
   DISALLOW_COPY_AND_ASSIGN(Editor);
 };

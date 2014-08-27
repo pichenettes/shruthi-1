@@ -194,6 +194,7 @@ uint8_t Editor::jam_mode_previous_page_;
 ConfirmPageSettings Editor::confirm_page_settings_;
 bool Editor::snapped_[36];
 bool Editor::empty_patch_;
+uint16_t Editor::deferred_load_;
 /* </static> */
 
 /* static */
@@ -202,6 +203,7 @@ void Editor::Init() {
   
   line_buffer_[kLcdWidth] = '\0';
   ConfigureFilterMenu();
+  deferred_load_ = 0xffff;
 }
 
 void Editor::ConfigureFilterMenu() {
@@ -599,6 +601,29 @@ void Editor::OnLoadSaveClick() {
 }
 
 /* static */
+bool Editor::FinishLoadingPatch() {
+  if (deferred_load_ == 0xffff) {
+    return false;
+  }
+  uint16_t n = deferred_load_;
+  Storage::LoadPatch(n);
+  midi_dispatcher.OnProgramChange(n);
+  part.Touch(true);
+  if (part.system_settings().start_page == START_PAGE_LAST_PATCH) {
+    part.mutable_system_settings()->last_patch = n;
+    part.system_settings().EepromSave();
+  }
+  // When we are not playing, load the sequence parameters.
+  if (!part.running()) {
+    Storage::LoadSequence(edited_item_number());
+  }
+  // Reset the snap position of all pots.
+  memset(snapped_, false, sizeof(snapped_));
+  deferred_load_ = 0xffff;
+  return true;
+}
+
+/* static */
 void Editor::OnLoadSaveIncrement(int8_t increment) {
   if (action_ == ACTION_SAVE) {
     if (display_mode_ == DISPLAY_MODE_OVERVIEW) {
@@ -620,20 +645,7 @@ void Editor::OnLoadSaveIncrement(int8_t increment) {
   } else {
     set_edited_item_number(edited_item_number() + increment);
     if (action_ == ACTION_LOAD) {
-      uint16_t n = edited_item_number();
-      Storage::LoadPatch(n);
-      midi_dispatcher.OnProgramChange(n);
-      part.Touch(true);
-      if (part.system_settings().start_page == START_PAGE_LAST_PATCH) {
-        part.mutable_system_settings()->last_patch = n;
-        part.system_settings().EepromSave();
-      }
-      // When we are not playing, load the sequence parameters.
-      if (!part.running()) {
-        Storage::LoadSequence(edited_item_number());
-      }
-      // Reset the snap position of all pots.
-      memset(snapped_, false, sizeof(snapped_));
+      deferred_load_ = edited_item_number();
     }
   }
 }
