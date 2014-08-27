@@ -472,6 +472,9 @@ void Ui::DoEvents() {
       idle_time_ = 100000;
       editor.ScreenSaver();
     }
+    if (part.dirty()) {
+      refresh_display = true;
+    }
   }
   
   if (queue_.idle_time_ms() > 100 && part.dirty()) {
