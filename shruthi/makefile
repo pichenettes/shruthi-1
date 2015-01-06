@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION        = 1.01
+VERSION        = 1.02
 MCU_NAME       = 644
 TARGET         = shruthi1
 PACKAGES       = avrlib avrlib/i2c avrlib/devices shruthi

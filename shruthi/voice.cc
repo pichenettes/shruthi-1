@@ -340,11 +340,15 @@ inline void Voice::UpdateDestinations() {
   // transistors are thermically coupled. You can disable tracking by applying
   // a negative modulation from NOTE to CUTOFF.
   uint16_t cutoff = dst_[MOD_DST_FILTER_CUTOFF];
+  int16_t keytracking = pitch_value_;
+  if (keytracking == 0) {
+    keytracking = 8192;
+  }
   if (part.patch_.osc[0].option != OP_DUO) {
     if (part.system_settings().expansion_filter_board == FILTER_BOARD_PVK) {
-      cutoff = S16ClipU14(cutoff + pitch_value_ - 8192 + (16 << 7));
+      cutoff = S16ClipU14(cutoff + keytracking - 8192 + (16 << 7));
     } else {
-      cutoff = S16ClipU14(cutoff + pitch_value_ - 8192);
+      cutoff = S16ClipU14(cutoff + keytracking - 8192);
     }
   }
   cutoff = S16ClipU14(cutoff + S8U8Mul(part.patch_.filter_env,
