@@ -314,8 +314,8 @@ compare
 ----
 
 v
-mutable    v1.02
-instruments \x06\x07-1
+\x06\x07-1    SN #4370
+v1.03
 shruthi classic
 (4 knobs)
 shruthi xt

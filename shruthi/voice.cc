@@ -524,7 +524,7 @@ void Voice::ProcessBlock() {
   
   // Skip the oscillator rendering code if the VCA output has converged to
   // a small value.
-  if (vca() < 2) {
+  if (vca() == 0) {
     for (uint8_t i = 0; i < kAudioBlockSize; ++i) {
       audio_out.Overwrite(128);
     }

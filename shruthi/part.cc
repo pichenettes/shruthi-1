@@ -256,6 +256,11 @@ void Part::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     return;
   }
   
+  bool reclock_arpeggiator = sequencer_settings_.mode() == SEQUENCER_MODE_ARP
+      && !sequencer_settings_.internal_clock()
+      && pressed_keys_.size() == 0
+      && running();
+
   if (release_latched_keys_on_next_note_on_) {
     bool still_latched = ignore_note_off_messages_;
     
@@ -277,6 +282,10 @@ void Part::NoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
   
   if (sequencer_settings_.mode() == SEQUENCER_MODE_STEP || !running()) {
     InternalNoteOn(note, velocity);
+  }
+  
+  if (reclock_arpeggiator) {
+    ClockArpeggiator();
   }
 }
 
@@ -428,6 +437,7 @@ void Part::Clock(bool internal) {
       }
     }
     if (!arp_seq_prescaler_) {
+      NextStep();
       ClockArpeggiator();
       ClockSequencer();
     }
@@ -471,14 +481,18 @@ void Part::Start(bool internal) {
   lfo_step_[0] = 0;
   lfo_step_[1] = 0;
   
-  poly_allocator_.Clear();
-  mono_allocator_.Clear();
-  voice_.NoteOff();
+  if (sequencer_settings_.mode() != SEQUENCER_MODE_STEP) {
+    poly_allocator_.Clear();
+    mono_allocator_.Clear();
+    generated_notes_.Clear();
+    voice_.NoteOff();
+  }
+  
   release_latched_keys_on_next_note_on_ = false;
   ignore_note_off_messages_ = false;
   
   arp_seq_prescaler_ = 0;
-  arp_seq_step_ = 0;
+  arp_seq_step_ = 0xff;
   arp_seq_running_ = true;
   arp_previous_note_ = 0;
   seq_transposition_ = 0;
@@ -491,20 +505,34 @@ void Part::Start(bool internal) {
     arp_octave_ = 0;
     arp_direction_ = 1;
   }
-  generated_notes_.Clear();
 }
 
 /* static */
 void Part::Stop(bool internal) {
   arp_seq_running_ = false;
   ignore_note_off_messages_ = false;
-  StopSequencerArpeggiatorNotes();
-  AllNotesOff();
+  if (sequencer_settings_.mode() != SEQUENCER_MODE_STEP) {
+    StopSequencerArpeggiatorNotes();
+    AllSoundOff();
+  }
   if (internal) {
     midi_dispatcher.OnStop();
   }
 }
 
+/* static */
+void Part::NextStep() {
+  ++arp_seq_step_;
+  if (arp_seq_step_ >= sequencer_settings_.pattern_size) {
+    arp_seq_step_ = 0;
+  }
+  if (sequencer_settings_.mode() == SEQUENCER_MODE_SEQ) {
+    uint8_t n = (arp_seq_step_ + sequencer_settings_.pattern_rotation) & 0x0f;
+    if (sequencer_settings_.steps[n].legato()) {
+      arp_seq_gate_length_counter_ += step_duration();
+    }
+  }
+}
 
 /* static */
 void Part::ClockArpeggiator() {
@@ -647,16 +675,6 @@ void Part::ClockSequencer() {
       }
       generated_notes_.NoteOn(note, step.velocity());
       arp_seq_gate_length_counter_ = (step_duration() >> 1) + 1;
-    }
-  }
-  ++arp_seq_step_;
-  if (arp_seq_step_ >= sequencer_settings_.pattern_size) {
-    arp_seq_step_ = 0;
-  }
-  if (sequencer_settings_.mode() == SEQUENCER_MODE_SEQ) {
-    n = (arp_seq_step_ + sequencer_settings_.pattern_rotation) & 0x0f;
-    if (sequencer_settings_.steps[n].legato()) {
-      arp_seq_gate_length_counter_ += step_duration();
     }
   }
 }

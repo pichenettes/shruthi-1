@@ -207,6 +207,7 @@ class Part {
   static void InternalNoteOff(uint8_t note);
   static void ClockArpeggiator();
   static void ClockSequencer();
+  static void NextStep();
   
   static uint16_t Tune(uint8_t note);
   static uint8_t step_duration();
