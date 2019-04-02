@@ -5,7 +5,7 @@ and a focus on easy upgrades/modification of the analog section.
 The ATMega644p allows new features in the firmware -- a larger selection of
 oscillator algorithms, a bigger selection of wavetables, and a tiny sequencer.
 
-Original developer: Olivier Gillet (ol.gillet@gmail.com)
+Original developer: Emilie Gillet (emilie.o.gillet@gmail.com)
 
 The firmware is released under a GPL3.0 license. It includes a
 reimplementation of the formant synthesis algorithm used in Peter Knight's
